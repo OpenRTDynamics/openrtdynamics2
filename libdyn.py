@@ -24,101 +24,99 @@ ORTD_DATATYPE_UINT8 = 11
 
 #BlockDictionary['const'] = { "btype" : 1, "intypes" : [], "insizes" : [], "outtypes" : [ORTD_DATATYPE_FLOAT], "outsizes" : [1]  }
 
-# # TODO REMOVE THIS
-# class Blocktype:
-#     def __init__(self, description):
-#         self.description = description
 
-#         if not len(description['insizes']) == len(description['intypes']):
-#             raise ValueError('missmatch of insizes and intypes', len(description['insizes']), len(description['intypes']) )
+class Blocktype:
+    def __init__(self, description):
+        self.description = description
 
-#         if not len(description['outsizes']) == len(description['outtypes']):
-#             raise ValueError('missmatch of outsizes and outtypes', len(description['outsizes']), len(description['outtypes']))
+        if not len(description['insizes']) == len(description['intypes']):
+            raise ValueError('missmatch of insizes and intypes', len(description['insizes']), len(description['intypes']) )
 
-
-#     def getOperator(self):
-#         return self.description['operator']
-
-#     def getBtype(self):
-#         return self.description['btype']
-
-#     def getInputDataType(self, port):
-#         return DataType(self.description["intypes"][port], self.description["insizes"][port])
-
-#     def getOutputDataType(self, port):
-#         return DataType(self.description["outtypes"][port], self.description["outsizes"][port])
-
-#     def getNOutputs(self):
-#         return len(self.description["outtypes"])
-
-#     def getNInputs(self):
-#         return len(self.description["intypes"])
+        if not len(description['outsizes']) == len(description['outtypes']):
+            raise ValueError('missmatch of outsizes and outtypes', len(description['outsizes']), len(description['outtypes']))
 
 
-#     def encode_irpar(self, par):
-#         # implement a generic irpar encoder
-#         #ipar = [1, 2, 3]
-#         #rpar = [0.1, 0.2, 0.3]
+    def getOperator(self):
+        return self.description['operator']
 
-#         # TODO: here, multiple options (e.g., more modern ones) could be supported..
-#         # par.ipar and par.rpar is only for backwards compatibility
-#         ipar = par['ipar']
-#         rpar = par['rpar']
+    def getBtype(self):
+        return self.description['btype']
 
-#         return ipar, rpar
+    def getInputDataType(self, port):
+        return DataType(self.description["intypes"][port], self.description["insizes"][port])
 
+    def getOutputDataType(self, port):
+        return DataType(self.description["outtypes"][port], self.description["outsizes"][port])
 
-# # TODO REMOVE THIS
-# class BlockDictionary:
-#     def __init__(self):
-#         self.Dict = {}
+    def getNOutputs(self):
+        return len(self.description["outtypes"])
 
-#     def addBlocktype(self, blocktype : Blocktype):
-#         self.Dict[ blocktype.getOperator() ] = blocktype
-
-#     def lookupOperator(self, operator : str):
-#         return self.Dict[operator]
+    def getNInputs(self):
+        return len(self.description["intypes"])
 
 
-# BlockDict = BlockDictionary()
+    def encode_irpar(self, par):
+        # implement a generic irpar encoder
+        #ipar = [1, 2, 3]
+        #rpar = [0.1, 0.2, 0.3]
 
-# BlockDict.addBlocktype(Blocktype(
-#                         { "operator" : "const",
-#                           "btype" : 60001 + 9,
-#                           "intypes" : [],
-#                           "insizes" : [],
-#                           "outtypes" : [ORTD_DATATYPE_FLOAT],
-#                           "outsizes" : [1]  })
-#                        )
+        # TODO: here, multiple options (e.g., more modern ones) could be supported..
+        # par.ipar and par.rpar is only for backwards compatibility
+        ipar = par['ipar']
+        rpar = par['rpar']
 
-# BlockDict.addBlocktype(Blocktype(
-#                         { "operator" : "constInt32",
-#                           "btype" : 1,
-#                           "intypes" : [],
-#                           "insizes" : [],
-#                           "outtypes" : [ORTD_DATATYPE_INT32],
-#                           "outsizes" : [1]  })
-#                        )
+        return ipar, rpar
 
 
-# BlockDict.addBlocktype(Blocktype(
-#                         { "operator" : "sum",
-#                           "btype" : 2,
-#                           "intypes" : [ORTD_DATATYPE_FLOAT,ORTD_DATATYPE_FLOAT],
-#                           "insizes" : [1,1],
-#                           "outtypes" : [ORTD_DATATYPE_FLOAT],
-#                           "outsizes" : [1]  })
-#                        )
+class BlockDictionary:
+    def __init__(self):
+        self.Dict = {}
 
-# BlockDict.addBlocktype(Blocktype(
-#                         { "operator" : "compare",
-#                           "btype" : 3,
-#                           "intypes" : [ORTD_DATATYPE_FLOAT],
-#                           "insizes" : [1],
-#                           "outtypes" : [ORTD_DATATYPE_INT32],
-#                           "outsizes" : [1]  })
-#                        )
+    def addBlocktype(self, blocktype : Blocktype):
+        self.Dict[ blocktype.getOperator() ] = blocktype
 
+    def lookupOperator(self, operator : str):
+        return self.Dict[operator]
+
+
+BlockDict = BlockDictionary()
+
+BlockDict.addBlocktype(Blocktype(
+                        { "operator" : "const",
+                          "btype" : 60001 + 9,
+                          "intypes" : [],
+                          "insizes" : [],
+                          "outtypes" : [ORTD_DATATYPE_FLOAT],
+                          "outsizes" : [1]  })
+                       )
+
+BlockDict.addBlocktype(Blocktype(
+                        { "operator" : "constInt32",
+                          "btype" : 1,
+                          "intypes" : [],
+                          "insizes" : [],
+                          "outtypes" : [ORTD_DATATYPE_INT32],
+                          "outsizes" : [1]  })
+                       )
+
+
+BlockDict.addBlocktype(Blocktype(
+                        { "operator" : "sum",
+                          "btype" : 2,
+                          "intypes" : [ORTD_DATATYPE_FLOAT,ORTD_DATATYPE_FLOAT],
+                          "insizes" : [1,1],
+                          "outtypes" : [ORTD_DATATYPE_FLOAT],
+                          "outsizes" : [1]  })
+                       )
+
+BlockDict.addBlocktype(Blocktype(
+                        { "operator" : "compare",
+                          "btype" : 3,
+                          "intypes" : [ORTD_DATATYPE_FLOAT],
+                          "insizes" : [1],
+                          "outtypes" : [ORTD_DATATYPE_INT32],
+                          "outsizes" : [1]  })
+                       )
 
 
 class DataType:
@@ -139,7 +137,7 @@ class DataType:
 
 
 class Signal:
-    def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+    def __init__(self, sim, datatype, sourceBlock = None, sourcePort = None):
         self.sim = sim
         self.datatype = datatype
         self.sourceBlock = sourceBlock
@@ -171,262 +169,72 @@ class Signal:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############################
-
-    # create new block with the inputs in inlist
-
-    # -- Just store which type of subsimulation block to create:
-    #
-    # if / for / ...
-    #
-    # and then do later during export of the schematic
-    #
-    # In general, think about something to store an abstract representation of each block
-    # and do all the work of parameter creation on export
-    #
-    # Maybe use classes for each block, instead of functions (def:)
-    # class functions could be __init__ (collect parameters), check IO, export()
-    #
-    #
-    # (This way, different backends can be supported)
-    #
-
-
-class InputDefinitions:
-    # This defines a list of datatypes for each input port
-    # if the input type of one port is undecided
-    # the list element is None
-    def __init__( self, ports : List[ DataType ]  ):
-
-        self.ports = ports
-
-    def getNPorts(self):
-        return len( self.ports )
-
-    def getType(self, port : int):
-        return self.ports(port)
-
-
-class OutputDefinitions:
-    # This defines a list of datatypes for each output port
-    # if the output type of one port is undecided
-    # the list element is None
-    def __init__( self, ports : List[ DataType ]  ):
-
-        self.ports = ports
-
-    def getNPorts(self):
-        return len( self.ports )
-
-    def getType(self, port : int):
-        return self.ports(port)
-
-
-
-
-class BlockPrototype:
-    # This is a base class to be deviated from each block type.
-    # It contains logic to handle the input/ output types and
-    # the parameters.
-    # In future, also the implementation might go into it
-
-
-
-    def __init__(self):
-        # collect and store parameters and connections to other blocks
-        pass
-
-    def setPropagatedInputTypes(self, InTypes : InputDefinitions ):
-        # called when the inputs to this blocks already have been decicded on
-        # the Block logic should check wheter these input types can be handles
-        # and if so adapt the parameters / implementation. If no adaptino is
-        # possible, return an error.
-        pass
-
-    def getOutputTypes(self):
-        # shall return OutTypes : OutputDefinitions
-
-        pass
-
-    #def PropagatedOutputTypes(self, OutTypes):
-    # Difficult to implement
-    #    pass
-
-    def exportSetting(self):
-        # maybe in case of a new interpreter
-        pass
-
-    def GetOutputsSingnals(self):
-        pass
-
-    def encode_irpar(self):
-        # in case of traditional ORTD
-
-        ipar = []
-        rpar = []
-
-        return ipar, rpar
-
-
-    def getORTD_btype(self):
-        pass
-
-    def getOperator(self):
-        pass
-    
-
-    def generateCode(self):
-        pass
-
-
-
-
-
-
-
-
-
-
-
-
   
 class Block:
-    # This decribes a block that is part of a Simulation
-    # 
-    # BlockPrototype - describes the block's prototype implementation
-    #                  that defined IO, parameters, ...
 
-    def __init__(self, sim, BlockPrototype : BlockPrototype, Inputs : InputDefinitions, OutputDef : OutputDefinitions):
+    def __init__(self, sim  , Blocktype : Blocktype, inlist : List[Signal], par):
         self.sim = sim
 
         #operator, blocktype
 
-        # The blocks prototype function. e.g. to determine the port sizes and types
-        # and to define the parameters
-        self.BlockPrototype = BlockPrototype
-
-        # The input singals in form of a list
-        self.Inputs = Inputs # array of Signal
-
-        # the definition of the output ports. Note: only the number of ports must be known. The types might be left open
-        self.OutputDef = OutputDef 
-
-        # create a new unique block id 
+        #self.operator =
+        self.Blocktype = Blocktype
         self.id = sim.getNewBlockId()
 
+        self.inlist = inlist # array of Signal
+        self.par = par
 
-        #self.InputDatatypes = []
-        #self.OutputDatatypes = []
+        self.InputDatatypes = []
+        self.OutputDatatypes = []
 
-        # Create a list of output signals. The datatypes and sizes are undtermined untll getOutputTypes() of blocks prototype function is called
-        #  ( : List[ Signal ] )
         self.OutputSignals = []
-        for i in range(0, self.OutputDef.getNPorts() ):
-            self.OutputSignals.append( Signal(sim ) )
-
-        # get new block id
-        self.id = sim.getNewBlockId()
-
-
-    
-    def checkIO(self):
-        #
-        # Check if the conntected inputs match
-        #
-        # TODO rework this to match  Inputs : InputDefinitions
-        #
-
-        pass
-
-
-        # if not len(inlist) == self.Blocktype.getNInputs():
-        #     #print("Number of inputs missmatch")
-        #     raise ValueError('Number of inputs missmatch', len(inlist), self.Blocktype.getNOutputs())
 
 
 
-        # for port in range(0, self.Blocktype.getNInputs() ):
-        #     #print("* Checking input " + str(port) + ". It shall be " )
-        #     #inlist[i].datatype.Show()
-        #     #print("* It is ")
+        # check insizes
+
+        #self.inDatatypes =
+
+        if not len(inlist)  == self.Blocktype.getNInputs():
+            #print("Number of inputs missmatch")
+            raise ValueError('Number of inputs missmatch', len(inlist), self.Blocktype.getNOutputs())
 
 
-        #     BlocksType = self.Blocktype.getInputDataType(port)
-        #     self.InputDatatypes.append( BlocksType )
 
-        #     #BlocksType.Show()
-
-        #     if not (inlist[port].datatype.isEqualTo(BlocksType) ):
-        #         #print("Type missmatch for input #" + str(port) + ".")
-        #         raise ValueError('Type missmatch for input # ', str(port) )
+        for port in range(0, self.Blocktype.getNInputs() ):
+            #print("* Checking input " + str(port) + ". It shall be " )
+            #inlist[i].datatype.Show()
+            #print("* It is ")
 
 
-    def defineOutputSignals(self):
-        
-        #
-        # REMARK: UNDER CONSTRUCTION
-        #
+            BlocksType = self.Blocktype.getInputDataType(port)
+            self.InputDatatypes.append( BlocksType )
 
-        # get the output types for each port that are defined by the blocks prototype function
-        # when the following call is executed
-        self.OutputTypes = self.BlockPrototype.getOutputTypes() # type OutputDefinitions
+            #BlocksType.Show()
 
-        # create the output signals
-        # ... TODO
+            if not (inlist[port].datatype.isEqualTo(BlocksType) ):
+                #print("Type missmatch for input #" + str(port) + ".")
+                raise ValueError('Type missmatch for input # ', str(port) )
 
-        for port in range( self.OutputTypes.getNPorts() ):
-            BlocksOutType = self.OutputTypes.getType(port)
+        for port in range(0, self.Blocktype.getNOutputs() ):
+            BlocksOutType = self.Blocktype.getOutputDataType(port)
+
+            self.OutputDatatypes.append( BlocksOutType )
+
+            # create the output signals
             self.OutputSignals.append( Signal(sim, BlocksOutType, self, port) )  # connect source of signal to port 0 of block blk
 
+        self.id = sim.getNewBlockId()
 
 
-
-        #OutputTypes.getNPorts()
-        #OutputTypes.getType(self, i : int)
-
-        #for i in OutputTypesList:
-        #    pass
-            
-
-        # # Create the output signals
-        # for port in range(0, self.Blocktype.getNOutputs() ):
-        #     BlocksOutType = self.Blocktype.getOutputDataType(port)
-
-        #     self.OutputDatatypes.append( BlocksOutType )
-
-        #     # create the output signals
-        #     self.OutputSignals.append( Signal(sim, BlocksOutType, self, port) )  # connect source of signal to port 0 of block blk
-
-
-
-
-    def getBlockPrototype(self):
-        return self.BlockPrototype
+    def getBlocktype(self):
+        return self.Blocktype
 
     def getBlockId(self):
         return self.id # a unique id within the simulation the block is part of
 
     def getOperator(self):
-        return None
-        #return self.Blocktype.getOperator()
+        return self.Blocktype.getOperator()
 
     def getInSignals(self):
         return self.inlist
@@ -436,38 +244,24 @@ class Block:
         return self.id
 
     def GetOutputSignal(self, port):
-        if port < 0:
-            raise Exception('port < 0')
-
-        if port >= len(self.OutputSignals): 
-            raise Exception('port out of range')
-
         return self.OutputSignals[port]
 
     def encode_irpar(self):
-        ipar, rpar = self.BlockPrototype.encode_irpar()
+        ipar, rpar = self.Blocktype.encode_irpar(self.par)
 
         return ipar, rpar
 
 
+class SubSimBlock(Block):
 
+    def __init__(self, sim ,  Blocktype : Blocktype, inlist : List[Signal], par):
+        Block.__init__(self, sim, Blocktype, inlist, par )
+        self.SubSimArray = []
 
-
-
-# # TODO Derive from BlockPrototype
-# class SubSimBlock(Block):
-
-#     def __init__(self, sim ,  Blocktype : Blocktype, inlist : List[Signal], par):
-#         Block.__init__(self, sim, Blocktype, inlist, par )
-#         self.SubSimArray = []
-
-#     def addSubSimulation(self, sim):
-#         self.SubSimArray.append(sim)
+    def addSubSimulation(self, sim):
+        self.SubSimArray.append(sim)
 
       
-
-
-
 
 class Simulation:
     def __init__(self, UpperLevelSim , name : str ):
@@ -523,8 +317,7 @@ class Simulation:
         if self.SimulationFinished:
             return
             #throw("Cannot finish an already finished simulation/subsystem")
-
-
+        
         # Finisih the simulation
         self.CompileConnections()
 
@@ -557,26 +350,9 @@ class Simulation:
 
 
 
-    def TraverseBlockInExecOrder(self):
-        # TODO:
-        #
-        # Go through all block along their connection lines
-        # 1) start with all source blocks (only outputs)
-        #
-
-
-        pass
-
-
-
     def CompileConnections(self):
 
         print("Compiling connections")
-
-
-        # TODO: Call defineOutputSignals of each block
-        # using TraverseBlockInExecOrder
-
 
 
         # Array to store the connections that remain inside the simulation 
@@ -809,6 +585,396 @@ class Simulation:
         with open(ProgramName + '.rpar', 'w') as f:
             for d in rpar:
                 f.write('%f\n' % d)
+
+
+
+
+
+
+
+
+
+def ld_block(sim, operator : str, inlist, par):
+    # lookup operator...
+    Blocktype = BlockDict.lookupOperator(operator)
+
+    #
+    blk = Block(sim, Blocktype, inlist, par)
+    sim.addBlock(blk)
+
+    #print("ld_block: new block with id " + str( blk.getId() ) )
+
+    # create the output signals
+    y1 = blk.GetOutputSignal(0)
+
+    return y1
+
+
+
+
+
+############################
+
+
+
+# [sim,sum_] = ld_add(sim, events, inp_list, fak_list)
+def ld_add(sim : Simulation, inp_list : List[Signal], fak_list : List[float]):
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 12,
+         "intypes": [ORTD_DATATYPE_FLOAT,ORTD_DATATYPE_FLOAT],
+         "insizes": [1,1],
+         "outtypes": [ORTD_DATATYPE_FLOAT],
+         "outsizes": [1]})
+
+    #
+    if len(inp_list) != 2:
+        throw("inp_list must have exactly 2 elements")
+
+    par = { 'ipar' : [], 'rpar' : fak_list }
+    inlist = inp_list
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+    # create the output signals
+    sum = blk.GetOutputSignal(0)
+
+    return sum
+
+
+# [sim, out] = ld_delay(sim, events, u, N)
+def ld_delay(sim : Simulation, u : Signal, N : int):
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 60001 + 24,
+         "intypes": [ORTD_DATATYPE_FLOAT],
+         "insizes": [1],
+         "outtypes": [ORTD_DATATYPE_FLOAT],
+         "outsizes": [1]})
+
+    #
+    if N <= 0:
+        throw("N <= 0 !")
+
+    par = { 'ipar' : [N], 'rpar' : [] }
+    inlist = [u]
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+
+    # create the output signals
+    y = blk.GetOutputSignal(0)
+
+    return y
+
+
+def ld_const(sim : Simulation, val : float):
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 40,
+         "intypes": [],
+         "insizes": [],
+         "outtypes": [ORTD_DATATYPE_FLOAT],
+         "outsizes": [1]})
+
+    #
+    par = { 'ipar' : [], 'rpar' : [val] }
+    inlist = []
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+    #print("ld_const: new block with id " + str( blk.getId() ) )
+
+    # create the output signals
+    y1 = blk.GetOutputSignal(0)
+
+    return y1
+
+
+
+
+def ld_printf(sim : Simulation, u : Signal, name : str):
+
+    vlen = u.datatype.size
+
+    if u.datatype.type != ORTD_DATATYPE_FLOAT:
+        throw("u.datatype.type != ORTD_DATATYPE_FLOAT !")
+
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 170,
+         "intypes": [ORTD_DATATYPE_FLOAT],
+         "insizes": [vlen],
+         "outtypes": [],
+         "outsizes": []})
+
+    # tostr
+    strAscii = []
+    for code in map(ord, name):
+        #print(code)
+        strAscii += [code]
+
+
+
+    #
+    par = { 'ipar' : [vlen, len(strAscii)] + strAscii, 'rpar' : [] }
+    inlist = [u]
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+    #print("ld_printf: new block with id " + str( blk.getId() ) )
+
+    return
+
+
+
+#[sim,y] = ld_play_simple(sim, events, r)
+def ld_play_simple(sim :Simulation , r : List[float]):
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 100,
+         "intypes": [],
+         "insizes": [],
+         "outtypes": [ORTD_DATATYPE_FLOAT],
+         "outsizes": [1]})
+
+    #
+    if len(r) <= 0:
+        throw("length(r) <= 0 !")
+
+    initial_play = 1
+    hold_last_value = 0
+    mute_afterstop = 0
+
+    par = { 'ipar' : [len(r), initial_play, hold_last_value, mute_afterstop], 'rpar' : r }
+    inlist = []
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+
+    # create the output signals
+    y = blk.GetOutputSignal(0)
+
+    return y
+
+
+
+# [sim] = ld_savefile(sim, events, fname, source, vlen), libdyn_new_blk_filedump
+def ld_savefile(sim : Simulation, fname : str, source : Signal):
+
+    vlen = source.datatype.size
+
+    if source.datatype.type != ORTD_DATATYPE_FLOAT:
+        throw("source.datatype.type != ORTD_DATATYPE_FLOAT !")
+
+    BT = Blocktype(
+        {"operator": "const",
+         "btype": 130,
+         "intypes": [ORTD_DATATYPE_FLOAT],
+         "insizes": [vlen],
+         "outtypes": [],
+         "outsizes": []})
+
+    if vlen <= 0:
+        throw("vlen <= 0 !")
+
+    # tostr
+    strAscii = []
+    for code in map(ord, fname):
+        #print(code)
+        strAscii += [code]
+
+    autostart = 1
+    maxlen = 0
+
+    #
+    par = { 'ipar' : [maxlen, autostart, vlen, len(strAscii)] + strAscii, 'rpar' : [] }
+    inlist = [source]
+
+    #
+    blk = Block(sim, BT, inlist, par)
+    sim.addBlock(blk)
+
+
+    return
+
+
+
+
+
+
+@contextmanager
+def ld_subsim(sim):
+    print("create triggered subsimulation" )
+
+    nestedsim = Simulation(sim, 'IFsub')
+
+    yield nestedsim
+
+    nestedsim.FinishSimulation()
+
+    inlist = nestedsim.GetInputInterface()
+
+    print("--- The following inputs go to the nested simulation ---")
+
+    for i in inlist:
+
+        print(  i  )
+
+    # create new block with the inputs in inlist
+
+    # -- Just store which type of subsimulation block to create:
+    #
+    # if / for / ...
+    #
+    # and then do later during export of the schematic
+    #
+    # In general, think about something to store an abstract representation of each block
+    # and do all the work of parameter creation on export
+    #
+    # Maybe use classes for each block, instead of functions (def:)
+    # class functions could be __init__ (collect parameters), check IO, export()
+    #
+    #
+    # (This way, different backends can be supported)
+    #
+
+
+
+    print("finish triggered subsimulation")
+
+
+
+# @contextmanager
+# def ld_IF(sim, ConditionSignal):
+#     print("create triggered subsimulation" )
+
+#     nestedsim = Simulation(sim, 'IFsub')
+
+#     yield nestedsim
+
+#     print("finish triggered subsimulation")
+
+
+
+# new simulation
+sim = Simulation(None, 'main')
+
+# blocks
+c1 = ld_const(sim, 1.123)
+#c2 = ld_const(sim, 1.23124)
+
+c2 = ld_play_simple(sim, r=[1,2,3,4,5,6,7,8,9])
+
+# a feedback
+feedback = Signal(sim, DataType( ORTD_DATATYPE_FLOAT, 1 ))
+
+ld_printf(sim, feedback, "feedback value is")
+
+#
+sum = ld_add(sim, inp_list=[c1, c2], fak_list=[1,-1])
+
+
+sum_delayed = ld_delay(sim, u=sum, N=10)
+
+feedback.setequal( sum_delayed )
+
+ld_printf(sim, sum, "value is")
+ld_printf(sim, sum_delayed, "delayed value is")
+
+ld_printf(sim, c2, "another print..")
+ld_printf(sim, c2, "and a 3rd one")
+
+ld_savefile(sim, fname="SimulationOutput.dat", source=c2)
+
+
+print(sim)
+
+with ld_subsim(sim) as sim2:
+    ld_printf(sim2, sum, "This is a printf in a sub-simulation")
+
+    ret = ld_delay(sim2, u=sum, N=1)
+
+    sim2.Return( [ret] )
+
+
+
+
+
+print(sim)
+
+# with ld_IF(sim, condition) as sim:
+#     #pass
+#     print("define simulation triggered by if")
+
+
+
+
+
+
+
+# finish
+sim.export_ortdrun('RTMain')
+#sim.ShowBlocks()
+
+
+
+
+
+
+
+
+
+
+if False:
+    sim = Simulation(None, 'main')
+
+    c1 = ld_block(sim, 'const', [], 2)
+    c2 = ld_block(sim, 'const', [], 3)
+
+    i_int32 = ld_block(sim, 'constInt32', [], 30)
+
+    #print("####")
+    #sum2 = ld_block(sim, 'sum', [i_int32, i_int32], [0.3, 2])
+    #print("####")
+
+
+    sum = ld_block(sim, 'sum', [c1, c2], [0.3, 2])
+
+    condition = ld_block(sim, 'compare', [sum], 0)
+
+    # sim.ShowBlocks()
+
+    #blk = Block(sim, 100, [], [])
+    #condition = Signal(sim, DataType(1,1), blk, 1 )
+
+
+    #ipar, rpar = sim.encode_irpar()
+
+    #print(ipar)
+    #print(rpar)
+
+    sim.export_ortdrun('RTMain')
+
+
+
+#    with ld_IF(sim, condition) as sim:
+#        print("define simulation triggered by if")
 
 
 
