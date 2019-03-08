@@ -182,6 +182,7 @@ class Block:
                 self.inputSignals[port].addDestination( self, port )
 
 
+        # TODO: remove this -- the output types shall be stored in the signal connected to the output *only*
         # the definition of the output ports. Note: only the number of ports must be known. The types might be left open
         self.OutputDef = OutputDef 
 
@@ -210,7 +211,18 @@ class Block:
         # get new block id
         self.id = sim.getNewBlockId()
 
+        # 
+        self.graphTraversionMarker = False
 
+
+    def graphTraversionMarkerReset(self):
+        self.graphTraversionMarker = False
+
+    def graphTraversionMarkerMarkVisited(self):
+        self.graphTraversionMarker = True
+    
+    def graphTraversionMarkerMarkIsVisited(self):
+        return self.graphTraversionMarker
     
     def checkIO(self):
         #

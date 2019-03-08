@@ -3,7 +3,7 @@
 from libdyn import *
 from irpar import *
 from BlockPrototypes import *
-
+from TraverseGraph import *
 
 
 
@@ -94,6 +94,15 @@ u = dyn_add(sim, [c1, c2], [1,-1])
 
 # test 
 sim.ShowBlocks()
+
+
+print()
+print("-------- Traverse --------")
+print()
+ # sim.getBlocksArray()
+T = TraverseGraph()
+T.forwardTraverse( c1.getSourceBlock() )
+
 
 print()
 print("-------- Compile connections --------")

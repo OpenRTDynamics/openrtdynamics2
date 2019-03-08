@@ -62,6 +62,9 @@ class Simulation:
             for inSig in blk.getInSignals():
                 inSig.ShowOrigin()
 
+    def getBlocksArray(self):
+        return self.BlocksArray
+
 
     def FinishSimulation(self):
         if self.SimulationFinished:

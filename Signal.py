@@ -26,6 +26,8 @@ class Signal:
         self.destinationBlocks = []
         self.destinationPorts = []
 
+        #self.graphTraverseMarker = False
+
         #if sourceBlock == None:
             # create a signal without any specified origin
 
@@ -34,6 +36,11 @@ class Signal:
         self.destinationBlocks.append( block )
         self.destinationPorts.append( port )
 
+    def getDestinationBlocks(self):
+        return self.destinationBlocks
+
+    def getSourceBlock(self):
+        return self.sourceBlock
 
     def setequal(self, From ):
         #if self.sim != From.sim:
