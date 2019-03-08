@@ -123,7 +123,7 @@ class Simulation:
         #               foreach block B' connected to an output of B:
         #                   run callback for B'
         #                       .. recursion
-        #                     
+        #
 
 
         # find all signals that are defined with fixed datatypes

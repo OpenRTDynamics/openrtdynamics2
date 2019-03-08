@@ -2,25 +2,36 @@ from typing import Dict, List
 
 from Signal import *
 
-############################
 
-    # create new block with the inputs in inlist
 
-    # -- Just store which type of subsimulation block to create:
-    #
-    # if / for / ...
-    #
-    # and then do later during export of the schematic
-    #
-    # In general, think about something to store an abstract representation of each block
-    # and do all the work of parameter creation on export
-    #
-    # Maybe use classes for each block, instead of functions (def:)
-    # class functions could be __init__ (collect parameters), check IO, export()
-    #
-    #
-    # (This way, different backends can be supported)
-    #
+
+
+
+class DataType:
+    def __init__(self, type : int, size : int):
+        self.type = type
+        self.size = size
+
+    def isEqualTo(self, otherType):
+        #print("DataType:isEqualTo " + str(self.size) + "==" + str(otherType.size) + " -- " + str(self.type) + " == " + str(otherType.type) )
+
+        if self.size == otherType.size and self.type == otherType.type:
+            return 1
+        else:
+            return 0
+
+    def isDefined(self):
+        if self.type is None:
+            return False
+
+        if self.size is None:
+            return False
+
+        return True
+
+    def show(self):
+        print("Datatype: type=" + str(self.type) + " size=" + str(self.size) )
+
 
 
 class InputDefinitions:
@@ -51,6 +62,33 @@ class OutputDefinitions:
 
     def getType(self, port : int):
         return self.ports[port]
+
+
+
+
+
+
+############################
+
+    # create new block with the inputs in inlist
+
+    # -- Just store which type of subsimulation block to create:
+    #
+    # if / for / ...
+    #
+    # and then do later during export of the schematic
+    #
+    # In general, think about something to store an abstract representation of each block
+    # and do all the work of parameter creation on export
+    #
+    # Maybe use classes for each block, instead of functions (def:)
+    # class functions could be __init__ (collect parameters), check IO, export()
+    #
+    #
+    # (This way, different backends can be supported)
+    #
+
+
 
 
 
@@ -112,14 +150,6 @@ class BlockPrototype:
 
 
 
-
-
-
-
-
-
-
-
   
 class Block:
     # This decribes a block that is part of a Simulation
@@ -141,10 +171,16 @@ class Block:
         self.BlockPrototype = BlockPrototype
 
         # The input singals in form of a list
-        if inputSignals is None:
-            self.inputSignals = []
-        else:
+        self.inputSignals = []
+
+        if not inputSignals is None:
+            # store the list of input signals
             self.inputSignals = inputSignals # array of Signal
+
+            # update the input signals to also point to this block
+            for port in range(0, len( self.inputSignals ) ):
+                self.inputSignals[port].addDestination( self, port )
+
 
         # the definition of the output ports. Note: only the number of ports must be known. The types might be left open
         self.OutputDef = OutputDef 
@@ -284,5 +320,17 @@ class Block:
         ipar, rpar = self.BlockPrototype.encode_irpar()
 
         return ipar, rpar
+
+
+
+
+
+
+
+
+
+
+
+
 
 
