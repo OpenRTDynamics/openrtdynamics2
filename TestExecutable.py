@@ -4,7 +4,7 @@ from libdyn import *
 from irpar import *
 from BlockPrototypes import *
 from TraverseGraph import *
-
+from Signal import *
 
 
 @contextmanager
@@ -75,6 +75,16 @@ c1.ShowOrigin()
 print()
 
 u = dyn_add(sim, [c1, c2], [1,-1])
+
+# open feedback loop
+u2_feedback = Signal(sim)
+
+u2 = dyn_add(sim, [u, u2_feedback], [1,1])
+
+u2_delayed = dyn_delay(sim, u2 )
+
+u2_feedback.setequal( u2_delayed )
+
 
 
 #dyn_printf(sim, u, "sum value is")

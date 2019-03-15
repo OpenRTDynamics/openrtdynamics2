@@ -39,6 +39,8 @@ class TraverseGraph:
         for block in self.reachableBlocks:
             block.graphTraversionMarkerReset()
 
+        return self.reachableBlocks
+
     # Start forward traversion starting from the given startBlock
     def forwardTraverse__(self, startBlock : Block):
         #

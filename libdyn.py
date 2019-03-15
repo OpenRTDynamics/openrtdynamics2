@@ -6,7 +6,7 @@ from irpar import irparSet, irparElement, irparElement_container
 from Signal import *
 from Block import *
 
-
+from TraverseGraph import *
 
 
 
@@ -132,6 +132,8 @@ class Simulation:
         # find all signals that are defined with fixed datatypes
         for blk in self.BlocksArray:
             #print("operator: " + blk.getOperator() + " Blocktype: " + str( blk.getBlocktype() ) )
+            
+
             print("-- block " , blk.getName(),  " outputs --")
             outputSignals = blk.getOutputSignals()
 
@@ -154,8 +156,21 @@ class Simulation:
 
                 if portDatatype.isDefined():
                     print(outputSignal, '*')
+
+                    # traverse all blocks starting from the one that outputs the aready defined signal datatype
+                    # better for efficiancy: start for all blocks connected to the singal
+                    T = TraverseGraph()
+                    blockList = T.forwardTraverse( outputSignal.getSourceBlock() )
+
+                    # go through all blocks and request them to further define their output types
+                    for b in blockList:
+                        #print("--> asking ", b, "to define its output types")
+
+                        b.configDefineOutputTypes() 
+
                 else:
-                    print(outputSignal, '-- type not determined --')
+                    pass
+                    #print(outputSignal, '-- type not determined --')
 
 
                 #outputSignal.ShowOrigin()
@@ -173,6 +188,8 @@ class Simulation:
         # TODO: Call defineOutputSignals of each block
         # using TraverseBlockInExecOrder
         self.propagateDatatypesForward()
+
+        
 
 
         return

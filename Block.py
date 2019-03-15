@@ -105,12 +105,17 @@ class BlockPrototype:
         # collect and store parameters and connections to other blocks
         pass
 
-    def setPropagatedInputTypes(self, InTypes : InputDefinitions ):
-        # called when the inputs to this blocks already have been decicded on
-        # the Block logic should check wheter these input types can be handles
-        # and if so adapt the parameters / implementation. If no adaptino is
-        # possible, return an error.
+    def defineOutputTypes(self):
         pass
+    
+
+    # # TODO: remove this
+    # def setPropagatedInputTypes(self, InTypes : InputDefinitions ):
+    #     # called when the inputs to this blocks already have been decicded on
+    #     # the Block logic should check wheter these input types can be handles
+    #     # and if so adapt the parameters / implementation. If no adaptino is
+    #     # possible, return an error.
+    #     pass
 
     def getOutputTypes(self):
         # shall return OutTypes : OutputDefinitions
@@ -150,7 +155,9 @@ class BlockPrototype:
 
 
 
-  
+# TODO: 15.3.19 : The block class shoudl not store any informatino about the input/output signal types
+# this info shall just be stored in the signal structures
+
 class Block:
     # This decribes a block that is part of a Simulation
     # 
@@ -224,6 +231,20 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
+    def configDefineOutputTypes(self):
+        # TODO 15.3.19
+
+
+
+        # ask prototype to define output types
+        self.BlockPrototype.configDefineOutputTypes()
+
+        # update all signals accordingly
+        for signal in self.OutputSignals:
+            pass
+
+        return
+
     def checkIO(self):
         #
         # Check if the conntected inputs match
@@ -327,6 +348,16 @@ class Block:
             raise Exception('port out of range')
 
         return self.OutputSignals[port]
+
+    def getInputSignal(self, port):
+        if port < 0:
+            raise Exception('port < 0')
+
+        if port >= len(self.inputSignals): 
+            raise Exception('port out of range')
+
+        return self.inputSignals[port]
+    
 
     def encode_irpar(self):
         ipar, rpar = self.BlockPrototype.encode_irpar()

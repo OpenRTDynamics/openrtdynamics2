@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+#from Block import * 
 
 ORTD_DATATYPE_UNCONFIGURED = 0
 ORTD_DATATYPE_FLOAT = (1 | (8 << 5))
@@ -26,6 +27,9 @@ class Signal:
         self.destinationBlocks = []
         self.destinationPorts = []
 
+        # link to myself by defaul
+        self.linkedSignal = self
+
         #self.graphTraverseMarker = False
 
         #if sourceBlock == None:
@@ -33,37 +37,30 @@ class Signal:
 
     def addDestination(self, block , port : int):
         # add this destination to the list
-        self.destinationBlocks.append( block )
-        self.destinationPorts.append( port )
+        self.linkedSignal.destinationBlocks.append( block )
+        self.linkedSignal.destinationPorts.append( port )
 
     def getDestinationBlocks(self):
-        return self.destinationBlocks
+        return self.linkedSignal.destinationBlocks
 
     def getSourceBlock(self):
-        return self.sourceBlock
+        return self.linkedSignal.sourceBlock
 
-    def setequal(self, From ):
-        #if self.sim != From.sim:
-        #    throw("setequal: From signal must be from the same simulation")
+    def setequal(self, to):
+        # build a link to the already existing signal 'to'
+        self.linkedSignal = to
 
-        # TODO Handle destinations here
-
-        if self.datatype == None:
-            self.datatype = From.datatype
-        elif not self.datatype.isEqualTo( From.datatype ):
-            raise("setqual: datatype missmatch")
-        else:
-            self.datatype = From.datatype
-
-        self.sourceBlock = From.sourceBlock
-        self.sourcePort = From.sourcePort
+        print("== Created a signal link ==")
 
     def getDatatype(self):
-        return self.datatype
+        return self.linkedSignal.datatype
+
+    def setDatatype(self, datatype  ):
+        self.linkedSignal.datatype = datatype
 
     def ShowOrigin(self):
-        if not self.sourcePort is None and not self.sourceBlock is None:
-            print("Signal origin: port " + str(self.sourcePort) + " of block #" + str(self.sourceBlock.getId()) )
+        if not self.linkedSignal.sourcePort is None and not self.linkedSignal.sourceBlock is None:
+            print("Signal origin: port " + str(self.linkedSignal.sourcePort) + " of block #" + str(self.linkedSignal.sourceBlock.getId()) )
 
         else:
             print("Signal origin not defined (so far)")
