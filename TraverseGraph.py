@@ -45,7 +45,7 @@ class TraverseGraph:
     def forwardTraverse__(self, startBlock : Block):
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print("Rached an already visited block")
+            print("**** Rached an already visited block ****")
             return
 
         # store this block as it is reachable
@@ -54,19 +54,19 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print("traverse starting from ", startBlock.getBlockId() )
+        print("traverse starting from ", startBlock.getName(), "(", startBlock.getBlockId(), ")" )
 
         # find out the links to other blocks
         for signal in startBlock.getOutputSignals():
             # for each output signal
 
-            print("connected blocks to this signal:")
+            print("connected blocks to signal ", signal.getName() )
 
             for destinationBlock in signal.getDestinationBlocks():
                 # destinationBlock is a link to a connected block
 
 
-                print( destinationBlock.getBlockId() )
+                print( "-", destinationBlock.getName(), "(", destinationBlock.getBlockId(), ")"  )
 
                 # recursion
                 self.forwardTraverse__( destinationBlock )

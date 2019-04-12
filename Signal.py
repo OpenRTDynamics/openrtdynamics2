@@ -22,6 +22,7 @@ class Signal:
         self.datatype = datatype
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
+        self.name = "--"
 
         # the list of destinations this signals goes to
         self.destinationBlocks = []
@@ -34,6 +35,16 @@ class Signal:
 
         #if sourceBlock == None:
             # create a signal without any specified origin
+
+    # set the name of this signal
+    def setName(self, name):
+        self.name = name
+
+        return self
+
+    def getName(self):
+        return self.name
+        
 
     def addDestination(self, block , port : int):
         # add this destination to the list
@@ -58,10 +69,17 @@ class Signal:
     def setDatatype(self, datatype  ):
         self.linkedSignal.datatype = datatype
 
+    def setNameOfOrigin(self, name):
+        if not self.linkedSignal.sourceBlock is None:
+            self.linkedSignal.sourceBlock.setName(name)
+
+        return self
+
+
     def ShowOrigin(self):
         if not self.linkedSignal.sourcePort is None and not self.linkedSignal.sourceBlock is None:
-            print("Signal origin: port " + str(self.linkedSignal.sourcePort) + " of block #" + str(self.linkedSignal.sourceBlock.getId()) )
+            print("Signal >" + self.name + "< origin: port " + str(self.linkedSignal.sourcePort) + " of block #" + str(self.linkedSignal.sourceBlock.getId()) )
 
         else:
-            print("Signal origin not defined (so far)")
+            print("Signal >" + self.name + "< origin not defined (so far)")
 

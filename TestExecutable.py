@@ -65,25 +65,31 @@ def ld_subsim(sim):
 sim = Simulation(None, 'main')
 
 
-c1 = dyn_const(sim, 1.123)
+c1 = dyn_const(sim, 1.123).setName('c1')
 
-c2 = dyn_const(sim, 10)
+c2 = dyn_const(sim, 10).setName('c2')
 
 print()
 print('origin of c1')
 c1.ShowOrigin()
 print()
 
-u = dyn_add(sim, [c1, c2], [1,-1])
+u = dyn_add(sim, [c1, c2], [1,-1]).setNameOfOrigin('add c1 - c2').setName('u')
+
+
 
 # open feedback loop
 u2_feedback = Signal(sim)
+u2_feedback.setName('u2_feedback')
 
-u2 = dyn_add(sim, [u, u2_feedback], [1,1])
+u2 = dyn_add(sim, [u, u2_feedback], [1,1]).setNameOfOrigin('add u + u2').setName('u2')
 
-u2_delayed = dyn_delay(sim, u2 )
+u2_delayed1 = dyn_delay(sim, u2 ).setNameOfOrigin('delay u2 A').setName('u2_delayed1')
+u2_delayed2 = dyn_delay(sim, u2 ).setNameOfOrigin('delay u2 B').setName('u2_delayed2')
 
-u2_feedback.setequal( u2_delayed )
+
+
+u2_feedback.setequal( u2_delayed1 )
 
 
 

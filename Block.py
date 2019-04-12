@@ -317,6 +317,11 @@ class Block:
     def getName(self):
         return self.blockname
 
+    def setName(self, name):
+        self.blockname = name
+
+        return self
+
     def getBlockPrototype(self):
         return self.BlockPrototype
 
