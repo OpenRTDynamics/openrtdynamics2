@@ -59,9 +59,18 @@ class Signal:
 
     def setequal(self, to):
         # build a link to the already existing signal 'to'
-        self.linkedSignal = to
+        print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
 
-        print("== Created a signal link ==")
+        # merge the list of detination blocks
+        for b in self.destinationBlocks:
+            to.destinationBlocks.append(b)
+
+        # merge self.destinationBlocks into to.destinationBlocks
+        for p in self.destinationPorts:
+            to.destinationPorts.append(p)
+
+        # overwrite self
+        self.linkedSignal = to
 
     def getDatatype(self):
         return self.linkedSignal.datatype

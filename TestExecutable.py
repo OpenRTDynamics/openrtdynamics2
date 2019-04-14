@@ -65,9 +65,9 @@ def ld_subsim(sim):
 sim = Simulation(None, 'main')
 
 
-c1 = dyn_const(sim, 1.123).setName('c1')
+c1 = dyn_const(sim, 1.123).setNameOfOrigin('c1 - const').setName('c1')
 
-c2 = dyn_const(sim, 10).setName('c2')
+c2 = dyn_const(sim, 10).setNameOfOrigin('c1 - const').setName('c2')
 
 print()
 print('origin of c1')
@@ -90,6 +90,10 @@ u2_delayed2 = dyn_delay(sim, u2 ).setNameOfOrigin('delay u2 B').setName('u2_dela
 
 
 u2_feedback.setequal( u2_delayed1 )
+
+
+
+result = dyn_add(sim, [u2_delayed1, u2_delayed2], [1,-1]).setNameOfOrigin('fine').setName('result')
 
 
 
@@ -120,10 +124,12 @@ T = TraverseGraph()
 T.forwardTraverse( c1.getSourceBlock() )
 
 
+
 print()
 print("-------- Compile connections --------")
 print()
 sim.CompileConnections()
+
 
 # finish
 #sim.export_ortdrun('RTMain')
