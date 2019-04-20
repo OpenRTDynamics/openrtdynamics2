@@ -130,6 +130,13 @@ print("-------- Compile connections --------")
 print()
 sim.CompileConnections()
 
+print()
+print("-------- print datatypes --------")
+print()
+
+
+sim.ShowBlocks()
+
 
 # finish
 #sim.export_ortdrun('RTMain')

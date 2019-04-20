@@ -25,6 +25,9 @@ class Padd(BlockPrototype):
         OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
 
         #
+        # TODO: 20. april 2019: Think about removing the types definition here and completely move it to configDefineOutputTypes
+        #
+
         self.blk = Block(sim, self, inputSignals, OutputDef, blockname = 'add')
         sim.addBlock(self.blk)
 
@@ -32,22 +35,17 @@ class Padd(BlockPrototype):
         #BlockPrototype.__init__(self)
 
 
-    def configDefineOutputTypes(self):
-        print("Padd: in callback configDefineOutputTypes")
-
+    def configDefineOutputTypes(self, inputTypes):
+        # print("Padd: in callback configDefineOutputTypes")
 
         # check if inputs are double
         RequestedType = DataType( ORTD_DATATYPE_FLOAT, 1 )
 
-        # if not InTypes.getType(0).isEqualTo( RequestedType ):
-        #     print("wrong datatype in add function at input port 0")
+        if inputTypes[0] is not None:
+            if inputTypes[0].isEqualTo( inputTypes[1] ) == 0:
+                raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + inputTypes[1].toStr() )
 
-        # if not InTypes.getType(1).isEqualTo( RequestedType ):
-        #     print("wrong datatype in add function at input port 1")
-
-        # just copy the input type from inport 0
-        inputType = self.blk.getInputSignal(0).getDatatype()
-        outSignal = self.blk.GetOutputSignal(0).setDatatype(  inputType  )
+        return [ inputTypes[0] ]
 
 
 
@@ -107,12 +105,12 @@ class Pconst(BlockPrototype):
         # call super
         #BlockPrototype.__init__(self)
 
-    def configDefineOutputTypes(self):
+    def configDefineOutputTypes(self, inputTypes):
+        # print("Pconst: in callback configDefineOutputTypes")
 
-        print("Pconst: in callback configDefineOutputTypes")
+        # define the output type 
+        return [ DataType( ORTD_DATATYPE_FLOAT, 1 ) ]
 
-
-        pass
 
     def GetOutputsSingnals(self):
         # return the output signals
@@ -164,32 +162,12 @@ class Pdelay(BlockPrototype):
         sim.addBlock(self.blk)
 
 
-    #def defineOutputTypes(self):
-        # TODO: 15.3.19
-        # Check input signal types and update output signal types accordingly
-
-
-
-
-    def configDefineOutputTypes(self):
-        # TODO: 15.3.19
-        # Check input signal types and update output signal types accordingly
-
-        print("Pdelay: in callback configDefineOutputTypes")
+    def configDefineOutputTypes(self, inputTypes):
+        # print("Pdelay: in callback configDefineOutputTypes")
 
         # just copy the input type 
-        inputType = self.blk.getInputSignal(0).getDatatype()
-        outSignal = self.blk.GetOutputSignal(0).setDatatype(  inputType  )
+        return [ inputTypes[0] ]
 
-
-
-        # check if inputs are double
-        # RequestedType = DataType( ORTD_DATATYPE_FLOAT, 1 )
-
-    #     if not InTypes.getType(0).isEqualTo( RequestedType ):
-    #         print("wrong datatype in add function at input port 0")
-
-    #     # TODO: set the output type!
 
 
     def GetOutputsSingnals(self):

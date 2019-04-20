@@ -13,7 +13,18 @@ class DataType:
         self.size = size
 
     def isEqualTo(self, otherType):
+        # output types
+        # -1 undefined, 1 equal types, 0 type missmatch
+
         #print("DataType:isEqualTo " + str(self.size) + "==" + str(otherType.size) + " -- " + str(self.type) + " == " + str(otherType.type) )
+        if otherType is None:
+            return -1
+
+        if not self.isDefined():
+            return -1
+
+        if not otherType.isDefined():
+            return -1
 
         if self.size == otherType.size and self.type == otherType.type:
             return 1
@@ -31,6 +42,10 @@ class DataType:
 
     def show(self):
         print("Datatype: type=" + str(self.type) + " size=" + str(self.size) )
+
+    def toStr(self):
+        return "type=" + str(self.type) + " size=" + str(self.size)
+
 
 
 
@@ -234,14 +249,20 @@ class Block:
     def configDefineOutputTypes(self):
         # TODO 15.3.19
 
+        # build a list of input signals for this block
+        inputSignalTypes = []
 
+        for i in range(0, len(self.inputSignals)):
+            inputSignalTypes.append( self.inputSignals[i].getDatatype() )
 
         # ask prototype to define output types
-        self.BlockPrototype.configDefineOutputTypes()
+        outputSingalTypes = self.BlockPrototype.configDefineOutputTypes( inputSignalTypes )
 
         # update all signals accordingly
-        for signal in self.OutputSignals:
-            pass
+        for i in range(0, len(self.OutputSignals)):
+
+            signal = self.OutputSignals[i]
+            signal.setDatatype(  outputSingalTypes[i]  )
 
         return
 

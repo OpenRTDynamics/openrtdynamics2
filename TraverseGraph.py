@@ -46,13 +46,13 @@ class TraverseGraph:
         
         tabs = ''
         for i in range(0, depthCounter):
-            tabs += tabs + '  '
+            tabs += '   '
 
-        print(tabs + "....... depth " + str( depthCounter )  )
+        #print(tabs + "....... depth " + str( depthCounter )  )
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "**** Rached an already visited block: "  + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") ****")  ## TODO investigtare: why is this never reached?
+            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") ****")  ## TODO investigtare: why is this never reached?
             return
 
         # store this block as it is reachable
@@ -61,7 +61,7 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print(tabs + "traverse starting from " + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ")" )
+        print(tabs + "-- " + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") --" )
 
 
 
@@ -69,7 +69,7 @@ class TraverseGraph:
         for signal in startBlock.getOutputSignals():
             # for each output signal
 
-            print(tabs + "connected blocks to signal ", signal.getName() )
+            print(tabs + "-> S " + signal.getName() )
 
             if len( signal.getDestinationBlocks() ) == 0:
                 print(tabs + '-- none --')
@@ -77,8 +77,10 @@ class TraverseGraph:
             for destinationBlock in signal.getDestinationBlocks():
                 # destinationBlock is a link to a connected block
 
+                print( tabs + "*", destinationBlock.getName(), "(", destinationBlock.getBlockId(), ")"  )
 
-                print( tabs + "-", destinationBlock.getName(), "(", destinationBlock.getBlockId(), ")"  )
+            #for destinationBlock in signal.getDestinationBlocks():
+                # destinationBlock is a link to a connected block
 
                 # recursion
                 self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )

@@ -44,6 +44,9 @@ class Signal:
 
     def getName(self):
         return self.name
+
+    def toStr(self):
+        return self.name + " " + self.linkedSignal.datatype.toStr()
         
 
     def addDestination(self, block , port : int):

@@ -57,10 +57,20 @@ class Simulation:
         print("-----------------------------")
 
         for blk in self.BlocksArray:
-            print("--- block >>" , blk.getName(), "<<  id = ", blk.getId()  )
-            print("- input signals")
-            for inSig in blk.getInSignals():
-                inSig.ShowOrigin()
+            print("* '" + blk.getName() + "' (" + str(blk.getBlockId()) + ")"  )
+
+            # list input singals
+            if len( blk.getInSignals() ) > 0:
+                print("  input signals")
+                for inSig in blk.getInSignals():
+                    print("    - " + inSig.toStr() )
+
+            # list output singals
+            if len( blk.getOutputSignals() ) > 0:
+                print("  output signals")
+                for inSig in blk.getOutputSignals():
+                    print("    - " + inSig.toStr() )
+
 
     def getBlocksArray(self):
         return self.BlocksArray
@@ -149,9 +159,6 @@ class Simulation:
                     continue
 
                 portDatatype.show()
-
-                    # Note 2.3.19 : stopped here. Also give each block and signal a name stored in a string 
-                    #
 
 
                 if portDatatype.isDefined():
