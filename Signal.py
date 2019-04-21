@@ -31,10 +31,23 @@ class Signal:
         # link to myself by defaul
         self.linkedSignal = self
 
-        #self.graphTraverseMarker = False
-
         #if sourceBlock == None:
             # create a signal without any specified origin
+
+
+        # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
+        self.graphTraversionMarker = False
+
+
+    def graphTraversionMarkerReset(self):
+        self.graphTraversionMarker = False
+
+    def graphTraversionMarkerMarkVisited(self):
+        self.graphTraversionMarker = True
+    
+    def graphTraversionMarkerMarkIsVisited(self):
+        return self.graphTraversionMarker
+
 
     # set the name of this signal
     def setName(self, name):
@@ -94,4 +107,7 @@ class Signal:
 
         else:
             print("Signal >" + self.name + "< origin not defined (so far)")
+
+
+
 

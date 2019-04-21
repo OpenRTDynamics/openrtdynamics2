@@ -60,9 +60,9 @@ class Simulation:
             print("* '" + blk.getName() + "' (" + str(blk.getBlockId()) + ")"  )
 
             # list input singals
-            if len( blk.getInSignals() ) > 0:
+            if len( blk.getInputSignals() ) > 0:
                 print("  input signals")
-                for inSig in blk.getInSignals():
+                for inSig in blk.getInputSignals():
                     print("    - " + inSig.toStr() )
 
             # list output singals
@@ -187,6 +187,31 @@ class Simulation:
 
 
 
+    def buildExecutionlist(self):
+        # TODO:
+        #
+        # Go through all block and their respective output signals and check 
+        # which signal value can be computed first.
+
+
+        # find all signals that are defined with fixed datatypes
+        for blk in self.BlocksArray:
+            #print("operator: " + blk.getOperator() + " Blocktype: " + str( blk.getBlocktype() ) )
+            
+
+            print("-- block " , blk.getName(),  " outputs --")
+            outputSignals = blk.getOutputSignals()
+
+            if outputSignals is None:
+                continue
+
+            # iterate over all output signal and check if their value is computable
+            for outputSignal in outputSignals:
+                
+                
+                pass
+
+
     def CompileConnections(self):
 
         print("Compiling connections")
@@ -221,7 +246,7 @@ class Simulation:
             # collect the connections
 
             #for inSig in blk.getInSignals():
-            blk_inlist = blk.getInSignals()
+            blk_inlist = blk.getInputSignals()
             for i in range(0, len(blk_inlist)):
 
                 inSig = blk_inlist[i]
@@ -372,7 +397,7 @@ class Simulation:
             # collect the connections
 
             #for inSig in blk.getInSignals():
-            blk_inlist = blk.getInSignals()
+            blk_inlist = blk.getInputSignals()
             for i in range(0, len(blk_inlist)):
 
                 inSig = blk_inlist[i]

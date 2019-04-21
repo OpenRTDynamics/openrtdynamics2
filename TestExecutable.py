@@ -93,7 +93,7 @@ u2_feedback.setequal( u2_delayed1 )
 
 
 
-result = dyn_add(sim, [u2_delayed1, u2_delayed2], [1,-1]).setNameOfOrigin('fine').setName('result')
+result = dyn_add(sim, [u2_delayed1, u2_delayed2], [1,-1]).setNameOfOrigin('final sum').setName('result')
 
 
 
@@ -136,6 +136,13 @@ print()
 
 
 sim.ShowBlocks()
+
+print()
+print("-------- Find dependencies for calcularing 'result'  --------")
+print()
+
+#T.backwardTraverseExec( result.getSourceBlock() )
+T.backwardTraverseSignalsExec( result )
 
 
 # finish

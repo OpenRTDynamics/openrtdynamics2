@@ -179,7 +179,7 @@ class Block:
     # BlockPrototype - describes the block's prototype implementation
     #                  that defined IO, parameters, ...
 
-    def __init__(self, sim, BlockPrototype : BlockPrototype, inputSignals : List[Signal], OutputDef : OutputDefinitions, blockname : str):
+    def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], OutputDef : OutputDefinitions, blockname : str):
         self.sim = sim
 
         #operator, blocktype
@@ -190,7 +190,7 @@ class Block:
 
         # The blocks prototype function. e.g. to determine the port sizes and types
         # and to define the parameters
-        self.BlockPrototype = BlockPrototype
+        self.blockPrototype = blockPrototype
 
         # The input singals in form of a list
         self.inputSignals = []
@@ -233,7 +233,7 @@ class Block:
         # get new block id
         self.id = sim.getNewBlockId()
 
-        # 
+        # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
 
 
@@ -246,6 +246,8 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
+
+
     def configDefineOutputTypes(self):
         # TODO 15.3.19
 
@@ -256,7 +258,7 @@ class Block:
             inputSignalTypes.append( self.inputSignals[i].getDatatype() )
 
         # ask prototype to define output types
-        outputSingalTypes = self.BlockPrototype.configDefineOutputTypes( inputSignalTypes )
+        outputSingalTypes = self.blockPrototype.configDefineOutputTypes( inputSignalTypes )
 
         # update all signals accordingly
         for i in range(0, len(self.OutputSignals)):
@@ -306,7 +308,7 @@ class Block:
 
         # get the output types for each port that are defined by the blocks prototype function
         # when the following call is executed
-        self.OutputTypes = self.BlockPrototype.getOutputTypes() # type OutputDefinitions
+        self.OutputTypes = self.blockPrototype.getOutputTypes() # type OutputDefinitions
 
         # create the output signals
         # ... TODO
@@ -344,7 +346,7 @@ class Block:
         return self
 
     def getBlockPrototype(self):
-        return self.BlockPrototype
+        return self.blockPrototype
 
     def getBlockId(self):
         return self.id # a unique id within the simulation the block is part of
@@ -353,7 +355,7 @@ class Block:
         return None
         #return self.Blocktype.getOperator()
 
-    def getInSignals(self):
+    def getInputSignals(self):
         return self.inputSignals
 
     def getOutputSignals(self):
@@ -386,7 +388,7 @@ class Block:
     
 
     def encode_irpar(self):
-        ipar, rpar = self.BlockPrototype.encode_irpar()
+        ipar, rpar = self.blockPrototype.encode_irpar()
 
         return ipar, rpar
 

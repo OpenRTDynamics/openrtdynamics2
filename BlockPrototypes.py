@@ -14,6 +14,9 @@ from irpar import *
 class Padd(BlockPrototype):
     def __init__(self, sim : Simulation, inputSignals : List[Signal], fak_list : List[float] ):
 
+        # 
+        self.inputSignals = inputSignals
+
         #
         if len(inputSignals) != 2:
             raise("inp_list must have exactly 2 elements")
@@ -46,6 +49,12 @@ class Padd(BlockPrototype):
                 raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + inputTypes[1].toStr() )
 
         return [ inputTypes[0] ]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output (there is only one) depends on all inputs
+        return self.inputSignals 
 
 
 
@@ -111,6 +120,12 @@ class Pconst(BlockPrototype):
         # define the output type 
         return [ DataType( ORTD_DATATYPE_FLOAT, 1 ) ]
 
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on nothing
+        return []
+
 
     def GetOutputsSingnals(self):
         # return the output signals
@@ -149,16 +164,16 @@ def dyn_const(sim : Simulation, constant : float ):
 
 
 class Pdelay(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignals : Signal ):
+    def __init__(self, sim : Simulation, inputSignal : Signal ):
 
-        self.inputSignals = inputSignals
+        self.inputSignal = inputSignal
 
         # outputs. This is a definition of the output ports and the data types known so far
         # TODO: remove these and use the output signals
         OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
 
         #
-        self.blk = Block(sim, self, [ inputSignals ], OutputDef, blockname = 'delay')
+        self.blk = Block(sim, self, [ inputSignal ], OutputDef, blockname = 'delay')
         sim.addBlock(self.blk)
 
 
@@ -168,6 +183,11 @@ class Pdelay(BlockPrototype):
         # just copy the input type 
         return [ inputTypes[0] ]
 
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on the only one input signals
+        return [ self.inputSignal ]
 
 
     def GetOutputsSingnals(self):
