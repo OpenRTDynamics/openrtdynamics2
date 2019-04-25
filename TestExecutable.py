@@ -100,9 +100,17 @@ result = dyn_add(sim, [u2_delayed1, udel2_], [1,-1]).setNameOfOrigin('result').s
 
 # Another result signals
 c3 = dyn_const(sim, 1.123).setNameOfOrigin('c3 - const').setName('c3')
+
 udel2__ = dyn_gain(sim, udel2_, 3).setNameOfOrigin('gain').setName('udel2__')
 
 resultSecond = dyn_add(sim, [c3, udel2__], [1,-1]).setNameOfOrigin('resultSecond').setName('resultSecond')
+
+# intentionally build an algebraic loop
+AlgLoop_A = Signal(sim).setName("AlgLoop_A")
+AlgLoop_B = dyn_gain(sim, AlgLoop_A, 3).setNameOfOrigin('gain_AlgLoop_B').setName('AlgLoop_B')
+AlgLoop_C = dyn_add(sim, [AlgLoop_B, AlgLoop_A], [1,-1]).setNameOfOrigin('AlgLoop_C').setName('AlgLoop_C')
+AlgLoop_A.setequal(AlgLoop_C)
+
 
 
 
@@ -146,11 +154,16 @@ print()
 
 sim.ShowBlocks()
 
+#
+# create execution path builder
+#
+E=BuildExecutionPath()
+
+
 print()
 print("-------- Find dependencies for calcularing 'result'  --------")
 print()
 
-E=BuildExecutionPath()
 executionLine1 = E.getExecutionLine( result )
 executionLine1.printExecutionLine()
 
@@ -158,7 +171,6 @@ print()
 print("-------- Find dependencies for calcularing 'resultSecond'  --------")
 print()
 
-E=BuildExecutionPath()
 executionLine2 = E.getExecutionLine( resultSecond )
 executionLine2.printExecutionLine()
 
@@ -173,8 +185,16 @@ executionLine1.printExecutionLine()
 #sim.export_ortdrun('RTMain')
 #sim.ShowBlocks()
 
+print()
+print("-------- Find dependencies for calcularing 'executionLineAlgLoop_C' (an algeraic loop is intentionally present)  --------")
+print()
 
-
+# This must trigger an algebraic loop exception
+try:
+    executionLineAlgLoop_C = E.getExecutionLine( AlgLoop_C )
+    executionLineAlgLoop_C.printExecutionLine()
+except:
+    print("Unittest for check for algeraic loop passed")
 
 
 

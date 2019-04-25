@@ -198,9 +198,10 @@ class ExecutionLine():
         for s in executionLineToAppend.dependencySignals:
             if not s in self.dependencySignals and not s in self.signalOrder:
                 self.dependencySignals.append(s)
-                print("append " + s.toStr() + " to the list of dependencySignals")
+                # print("append " + s.toStr() + " to the list of dependencySignals")
             else:
-                print("did not append " + s.toStr() + " to the list of dependencySignals")
+                # print("did not append " + s.toStr() + " to the list of dependencySignals")
+                pass
 
         for s in executionLineToAppend.signalOrder:
             # TODO: (for optimization purposes) 
@@ -220,7 +221,7 @@ class ExecutionLine():
 class BuildExecutionPath:
     def __init__(self): #blockList : List[ Block ]
 
-
+        # list of signals the computation depends on (the tips of the execution tree)
         self.dependencySignals = []
 
         # the list of reachable signals
@@ -228,6 +229,12 @@ class BuildExecutionPath:
 
         # list of marked signals (important to reset their visited flags) (TODO implement)
         self.markedSignals = []
+
+        # number of calls to getExecutionLine()
+        self.level = 0
+
+    def __del__(self):
+        self.resetMarkers()
 
 
     def getExecutionLine(self, signalToCalculte : Signal):
@@ -242,6 +249,9 @@ class BuildExecutionPath:
         # are not listed again. (until resetMarkers() is called)
         #   
 
+        print("getExecutionLine on level " + str(self.level) )
+
+
         self.reachableSignals = []
         self.dependencySignals = []
 
@@ -250,6 +260,10 @@ class BuildExecutionPath:
 
         # reverse of the list of reacheable signals gives the order of calculating the individual signals
         self.reachableSignals.reverse()
+
+        #
+        self.level = self.level + 1
+
 
         return ExecutionLine( self.reachableSignals, self.dependencySignals )
 
@@ -264,17 +278,9 @@ class BuildExecutionPath:
         for signal in self.markedSignals:
             signal.graphTraversionMarkerReset()
 
-
-    # Start backward traversion starting from the given startBlock
-    def backwardTraverseSignalsExec(self, startSignal : Signal):
-
-
-        # fill in self.reachableBlocks
-        self.backwardTraverseSignalsExec__(startSignal, startSignalPrevious = None, depthCounter = 0)
-
-
-
-        return self.reachableSignals
+        # reset status variables
+        self.markedSignals = []
+        self.level = 0
 
 
     # Start backward traversion starting from the given startSignal
@@ -284,8 +290,19 @@ class BuildExecutionPath:
         for i in range(0, depthCounter):
             tabs += '   '
 
+
+        if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
+            # detected algeraic loop
+            #
+            # TODO: investigate if this is able to find all algebraic loops, i.e. also in case
+            #       of multiple levels
+            #
+            print(tabs + "algebraic loop detected at signal " + startSignal.toStr())
+            raise BaseException("algebraic loop detected at signal " + startSignal.toStr())
+
+
         #
-        if startSignal.graphTraversionMarkerMarkIsVisited():
+        if startSignal.graphTraversionMarkerMarkIsVisited(self.level):
             # this could mean:
             # - an algebraic loop is present
             # - a previously computed signal has been reached
@@ -301,8 +318,9 @@ class BuildExecutionPath:
         print(tabs + "added " + startSignal.toStr())
         self.reachableSignals.append( startSignal )
 
-        # make the node as visited
-        startSignal.graphTraversionMarkerMarkVisited()
+        # mark the node visited
+        startSignal.graphTraversionMarkerMarkVisited(self.level)
+        self.markedSignals.append(startSignal)
 
         print(tabs + "--- " + startSignal.getName() + " (" + ") --" )
 

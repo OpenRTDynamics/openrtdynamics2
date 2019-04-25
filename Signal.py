@@ -36,17 +36,25 @@ class Signal:
 
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
-        self.graphTraversionMarker = False
+        self.graphTraversionMarker = -1
 
 
     def graphTraversionMarkerReset(self):
-        self.graphTraversionMarker = False
+        self.graphTraversionMarker = -1
 
-    def graphTraversionMarkerMarkVisited(self):
-        self.graphTraversionMarker = True
+    def graphTraversionMarkerMarkVisited(self, level):
+        if level < 0:
+            raise BaseException("level cannot be < 0")
+
+        self.graphTraversionMarker = level
     
-    def graphTraversionMarkerMarkIsVisited(self):
-        return self.graphTraversionMarker
+    def graphTraversionMarkerMarkIsVisited(self, level):
+        # check of this node was marked on level or a level below
+        return not self.graphTraversionMarker == -1 and self.graphTraversionMarker <= level
+
+    def graphTraversionMarkerMarkIsVisitedOnLevel(self, onLevel):
+        # check of this node was marked on level or a level below
+        return self.graphTraversionMarker == onLevel
 
 
     # set the name of this signal
