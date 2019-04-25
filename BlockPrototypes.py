@@ -187,8 +187,10 @@ class Pdelay(BlockPrototype):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on the only one input signals
-        return [ self.inputSignal ]
+        # return [ self.inputSignal ]
 
+        # no (direct feedtrough) dependence on any input - only state dependent
+        return [  ]
 
     def GetOutputsSingnals(self):
         # return the output signals
@@ -216,5 +218,58 @@ def dyn_delay(sim : Simulation, inputSignals : Signal ):
     return Pdelay(sim, inputSignals).GetOutputsSingnals()
 
 
+
+
+
+
+
+
+class Pgain(BlockPrototype):
+    def __init__(self, sim : Simulation, inputSignal : Signal, gain : float ):
+
+        self.inputSignal = inputSignal
+
+        # outputs. This is a definition of the output ports and the data types known so far
+        # TODO: remove these and use the output signals
+        OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
+
+        #
+        self.blk = Block(sim, self, [ inputSignal ], OutputDef, blockname = 'gain')
+        sim.addBlock(self.blk)
+
+
+    def configDefineOutputTypes(self, inputTypes):
+        # print("Pdelay: in callback configDefineOutputTypes")
+
+        # just copy the input type 
+        return [ inputTypes[0] ]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on the only one input signals
+        return [ self.inputSignal ]
+
+    def GetOutputsSingnals(self):
+        # return the output signals
+        sum = self.blk.GetOutputSignal(0)
+
+        return sum
+
+    def encode_irpar(self):
+        ipar = []
+        rpar = self.fak_list
+
+        return ipar, rpar
+
+    def getORTD_btype(self):
+        # The ORTD interpreter finds the computational function using this id
+        return -1
+
+
+
+def dyn_gain(sim : Simulation, inputSignal : Signal, gain : float ):
+
+    return Pgain(sim, inputSignal, gain).GetOutputsSingnals()
 
 

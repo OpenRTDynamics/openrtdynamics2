@@ -30,7 +30,7 @@ class TraverseGraph:
         # the list of reachable blocks
         self.reachableBlocks = []
 
-        self.reachableSignals = []
+
 
 
     # Start forward traversion starting from the given startBlock
@@ -163,25 +163,122 @@ class TraverseGraph:
 
 
 
+class ExecutionLine():
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ]):
+        self.signalOrder = signalOrder
+        self.dependencySignals = dependencySignals
 
+    def printExecutionLine(self):
+        print("------ print of execution line -----")
+
+        print("dependent sources:")
+        
+        for s in self.dependencySignals:
+            print("  - " + s.toStr() )
+
+        print("execution order:")
+
+        for s in self.signalOrder:
+            print("  - " + s.toStr() )
+
+    def appendExecutionLine(self, executionLineToAppend):
+
+        # check if executionLineToAppend.dependencySignals are all in either self.signalOrder
+        # or self.dependencySignals
+
+        #for s in executionLineToAppend.dependencySignals:
+        #    if not s in self.dependencySignals or not s in self.dependencySignals:
+        #        raise BaseException("execution line cannot be appeded because the signal " + s.toStr() + " depends on signal not computed by the previous list")
+
+
+
+        # merge dependencySignals: if only add the elements of executionLineToAppend.dependencySignals
+        # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
+
+        for s in executionLineToAppend.dependencySignals:
+            if not s in self.dependencySignals and not s in self.signalOrder:
+                self.dependencySignals.append(s)
+                print("append " + s.toStr() + " to the list of dependencySignals")
+            else:
+                print("did not append " + s.toStr() + " to the list of dependencySignals")
+
+        for s in executionLineToAppend.signalOrder:
+            # TODO: (for optimization purposes) 
+            # check if there comcon blocks in the list. (only in case a block has more than one
+            # output signals and one of these signals is in the list executionLineToAppend.signalOrder
+            # and another one in self.signalOrder  )
+
+            # just append the 
+            self.signalOrder.append( s )
+
+
+
+
+
+
+
+class BuildExecutionPath:
+    def __init__(self): #blockList : List[ Block ]
+
+
+        self.dependencySignals = []
+
+        # the list of reachable signals
+        self.reachableSignals = []
+
+        # list of marked signals (important to reset their visited flags) (TODO implement)
+        self.markedSignals = []
+
+
+    def getExecutionLine(self, signalToCalculte : Signal):
+        # get the order of computation steps and their order that have
+        # to be performed to compute 'signalToCalculte'
+        #
+        # For each call to this function, a list is generated that does not contain
+        # signals that are already part of a previous list (that are already computed)
+        #
+        # This function can be called multiple times and returns only the necessaray 
+        # computations. Computations already planned in previous calls of this function
+        # are not listed again. (until resetMarkers() is called)
+        #   
+
+        self.reachableSignals = []
+        self.dependencySignals = []
+
+        #self.backwardTraverseSignalsExec(signalToCalculte)
+        self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, startSignalPrevious = None, depthCounter = 0)
+
+        # reverse of the list of reacheable signals gives the order of calculating the individual signals
+        self.reachableSignals.reverse()
+
+        return ExecutionLine( self.reachableSignals, self.dependencySignals )
+
+
+    def printExecutionLine(self):
+        pass
+
+
+
+    def resetMarkers(self):
+        # reset graph traversion markers
+        for signal in self.markedSignals:
+            signal.graphTraversionMarkerReset()
 
 
     # Start backward traversion starting from the given startBlock
     def backwardTraverseSignalsExec(self, startSignal : Signal):
-        self.reachableSignals = []
+
 
         # fill in self.reachableBlocks
-        self.backwardTraverseSignalsExec__(startSignal, depthCounter = 0)
+        self.backwardTraverseSignalsExec__(startSignal, startSignalPrevious = None, depthCounter = 0)
 
-        # reset graph traversion markers
-        for signal in self.reachableSignals:
-            signal.graphTraversionMarkerReset()
+
 
         return self.reachableSignals
 
 
     # Start backward traversion starting from the given startSignal
-    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int):
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, startSignalPrevious : Signal, depthCounter : int):
         
         tabs = ''
         for i in range(0, depthCounter):
@@ -189,10 +286,19 @@ class TraverseGraph:
 
         #
         if startSignal.graphTraversionMarkerMarkIsVisited():
+            # this could mean:
+            # - an algebraic loop is present
+            # - a previously computed signal has been reached
+
             print(tabs + "*** visited *** "  + startSignal.getName() + " (" + ") ****") 
+
+            self.dependencySignals.append( startSignal )
+
+
             return
 
         # store this block as it is reachable
+        print(tabs + "added " + startSignal.toStr())
         self.reachableSignals.append( startSignal )
 
         # make the node as visited
@@ -202,16 +308,28 @@ class TraverseGraph:
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
-        for signal in startSignal.getSourceBlock().getBlockPrototype().returnDependingInputs(startSignal):
-            # for each input signal that is needed to compute 'startSignal'
+
+        dependingSignals = startSignal.getSourceBlock().getBlockPrototype().returnDependingInputs(startSignal)
+
+        if len(dependingSignals) == 0:
+            # block startSignal.getSourceBlock() --> startSignal is a starting point
+
+            self.dependencySignals.append( startSignal )
+
+            pass
+        else:
 
 
-            print(tabs + "-> S " + signal.getName() )
+            for signal in dependingSignals:
+                # for each input signal that is needed to compute 'startSignal'
 
-            if signal.getSourceBlock() is None:
-                print(tabs + '-- ERROR: no input signal defined for this signal! --')
-                
-            else:
 
-                self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
+                print(tabs + "-> S " + signal.getName() )
+
+                if signal.getSourceBlock() is None:
+                    print(tabs + '-- ERROR: no input signal defined for this signal! --')
+                    
+                else:
+
+                    self.backwardTraverseSignalsExec__( signal, startSignalPrevious, depthCounter = depthCounter + 1 )
 
