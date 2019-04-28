@@ -18,6 +18,8 @@ class Node:
 
 
 class TraverseGraph:
+    # rename to TraverseBlocks
+
     def __init__(self): #blockList : List[ Block ]
 
         # # build a list of nodes
@@ -163,6 +165,10 @@ class TraverseGraph:
 
 
 
+
+
+
+
 class ExecutionLine():
     def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ]):
         self.signalOrder = signalOrder
@@ -211,6 +217,10 @@ class ExecutionLine():
 
             # just append the 
             self.signalOrder.append( s )
+
+
+
+
 
 
 
@@ -282,6 +292,9 @@ class BuildExecutionPath:
         self.markedSignals = []
         self.level = 0
 
+    def isSignalAlreadyComputable(self, signal : Signal):
+        signal.graphTraversionMarkerMarkIsVisited()
+
 
     # Start backward traversion starting from the given startSignal
     def backwardTraverseSignalsExec__(self, startSignal : Signal, startSignalPrevious : Signal, depthCounter : int):
@@ -302,9 +315,7 @@ class BuildExecutionPath:
 
 
         #
-        if startSignal.graphTraversionMarkerMarkIsVisited(self.level):
-            # this could mean:
-            # - an algebraic loop is present
+        if startSignal.graphTraversionMarkerMarkIsVisited():
             # - a previously computed signal has been reached
 
             print(tabs + "*** visited *** "  + startSignal.getName() + " (" + ") ****") 

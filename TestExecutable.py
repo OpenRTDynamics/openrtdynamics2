@@ -181,24 +181,145 @@ print()
 executionLine1.appendExecutionLine( executionLine2 )
 executionLine1.printExecutionLine()
 
+
+
+print()
+print("-------- Build all execution paths  --------")
+print()
+
+# look into executionLine1.dependencySignals and use E.getExecutionLine( ) for each
+# element. Also collect the newly appearing dependency signals in a list and also 
+# call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
+# finally concatenare the execution lines
+
+# 
+
+# start with following signals to be computed
+#dependencySignals = [ result, resultSecond ]
+dependencySignals = executionLine1.dependencySignals
+
+# counter for the order (i.e. step through all delays present in the system)
+order = 0
+
+# execution line per order
+executionLinePerOrder = []
+
+while True:
+
+    print("--------- Comuting order "+ str(order) + " --------")
+    print("dependent sources:")
+        
+    for s in dependencySignals:
+        print("  - " + s.toStr() )
+
+
+    # do for each dependency Signal in the list
+    nextOrderDependencySingals = []
+
+    # collect all executions lines build in this order
+    executionLinesForCurrentOrder = []
+
+
+
+    # backwards jump over the blocks that compute dependencySignals through their states
+    # result is dependencySignals__ which are the inputs to these blocks
+    print("These sources are translated to (through their blocks via state-update):")
+
+    dependencySignals__ = []
+    for s in dependencySignals:
+
+        # find out which signals are needed to calculate the states needed to calculate dependencySignals
+        # returnInutsToUpdateStates
+
+        for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
+
+            print("  - " + s_.toStr() )
+
+            # only append of this signals is not already computable
+            if E.isSignalAlreadyComputable(s_):
+                dependencySignals__.append(s_)
+
+            else:
+                print("    This signal is already computable (no futher execution line is calculated to this signal)")
+
+
+
+    
+    for s in dependencySignals__:
+
+        # get execution line to calculate s
+        executionLineForS = E.getExecutionLine(s)
+
+        # store this execution line
+        executionLinesForCurrentOrder.append(executionLineForS)
+
+        # collect all newly appearing dependency signals 
+        # found in executionLineForS.dependencySignals
+        nextOrderDependencySingals.extend( executionLineForS.dependencySignals )
+
+
+    # merge all lines into one
+    executionLineForCurrentOrder = ExecutionLine( [], [] )
+    for e in executionLinesForCurrentOrder:
+
+        # append execution line
+        executionLineForCurrentOrder.appendExecutionLine( e )
+
+    # collect executionLineForCurrentOrder
+    executionLinePerOrder.append( executionLineForCurrentOrder )
+
+    # get the dependendy singals of the current order
+    dependencySignals = executionLineForCurrentOrder.dependencySignals
+
+
+
+    # iterate
+    order = order + 1
+    if len(dependencySignals) == 0:
+        break
+
+    if order == 30:
+        break
+
+
+
+#
+# List all execution lists
+#
+
+print()
+print("-------- List all execution paths  --------")
+print()
+
+for el in list(reversed(executionLinePerOrder)):
+
+    el.printExecutionLine()
+
+
+    pass
+
+
+
+
+if False:
+    print()
+    print("-------- Find dependencies for calcularing 'executionLineAlgLoop_C' (an algeraic loop is intentionally present)  --------")
+    print()
+
+    # This must trigger an algebraic loop exception
+    try:
+        executionLineAlgLoop_C = E.getExecutionLine( AlgLoop_C )
+        executionLineAlgLoop_C.printExecutionLine()
+    except:
+        print("Unittest for check for algeraic loop passed")
+
+
+
+
+
 # finish
 #sim.export_ortdrun('RTMain')
 #sim.ShowBlocks()
-
-print()
-print("-------- Find dependencies for calcularing 'executionLineAlgLoop_C' (an algeraic loop is intentionally present)  --------")
-print()
-
-# This must trigger an algebraic loop exception
-try:
-    executionLineAlgLoop_C = E.getExecutionLine( AlgLoop_C )
-    executionLineAlgLoop_C.printExecutionLine()
-except:
-    print("Unittest for check for algeraic loop passed")
-
-
-
-
 
 
 

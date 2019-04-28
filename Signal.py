@@ -36,38 +36,38 @@ class Signal:
 
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
-        self.graphTraversionMarker = -1
+        self.linkedSignal.graphTraversionMarker = -1
 
 
     def graphTraversionMarkerReset(self):
-        self.graphTraversionMarker = -1
+        self.linkedSignal.graphTraversionMarker = -1
 
     def graphTraversionMarkerMarkVisited(self, level):
         if level < 0:
             raise BaseException("level cannot be < 0")
 
-        self.graphTraversionMarker = level
+        self.linkedSignal.graphTraversionMarker = level
     
-    def graphTraversionMarkerMarkIsVisited(self, level):
+    def graphTraversionMarkerMarkIsVisited(self):
         # check of this node was marked on level or a level below
-        return not self.graphTraversionMarker == -1 and self.graphTraversionMarker <= level
+        return not self.linkedSignal.graphTraversionMarker == -1 # and self.linkedSignal.graphTraversionMarker <= level
 
     def graphTraversionMarkerMarkIsVisitedOnLevel(self, onLevel):
         # check of this node was marked on level or a level below
-        return self.graphTraversionMarker == onLevel
+        return self.linkedSignal.graphTraversionMarker == onLevel
 
 
     # set the name of this signal
     def setName(self, name):
-        self.name = name
+        self.linkedSignal.name = name
 
         return self
 
     def getName(self):
-        return self.name
+        return self.linkedSignal.name
 
     def toStr(self):
-        return self.name + " " + self.linkedSignal.datatype.toStr()
+        return self.linkedSignal.name + " " + self.linkedSignal.datatype.toStr()
         
 
     def addDestination(self, block , port : int):

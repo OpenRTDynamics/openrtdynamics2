@@ -168,6 +168,26 @@ class BlockPrototype:
         pass
 
 
+    #
+    # TODO: 28.4.19: use these shortcuts to access the I/O signals
+    #
+
+    # get a signal of a specific output port
+    def output(self, port):
+        return self.block.getOutputSignals()[port]
+
+    # get a signal of a specific input port
+    def input(self, port):
+        return self.block.getInputSignals()[port]
+
+
+
+
+
+
+
+
+
 
 
 # TODO: 15.3.19 : The block class shoudl not store any informatino about the input/output signal types

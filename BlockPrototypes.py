@@ -56,9 +56,9 @@ class Padd(BlockPrototype):
         # the output (there is only one) depends on all inputs
         return self.inputSignals 
 
-
-
-
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []
 
     def GetOutputsSingnals(self):
         # return the output signals
@@ -76,9 +76,37 @@ class Padd(BlockPrototype):
         # The ORTD interpreter finds the computational function using this id
         return 12
 
-    def getOperator(self):
+    #def getOperator(self):
         # don't know if this shall be kept
-        return "add"
+    #    return "add"
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+                lines = 'double ' + self.blk.getOutputSignals()[0].getName() 
+                + ' = ' + self.blk.getInputSignals()[0].getName() + ' + ' 
+                + self.blk.getInputSignals()[1].getName()
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = ''
+
+
 
 
 def dyn_add(sim : Simulation, inputSignals : List[Signal], fak_list : List[float]):
@@ -126,6 +154,9 @@ class Pconst(BlockPrototype):
         # the output depends on nothing
         return []
 
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []
 
     def GetOutputsSingnals(self):
         # return the output signals
@@ -146,6 +177,30 @@ class Pconst(BlockPrototype):
     def getOperator(self):
         # don't know if this shall be kept
         return "const"
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+                lines = ''
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = ''
 
 
 
@@ -192,6 +247,10 @@ class Pdelay(BlockPrototype):
         # no (direct feedtrough) dependence on any input - only state dependent
         return [  ]
 
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return [self.inputSignal]  # all inputs
+
     def GetOutputsSingnals(self):
         # return the output signals
         sum = self.blk.GetOutputSignal(0)
@@ -211,6 +270,30 @@ class Pdelay(BlockPrototype):
     def getOperator(self):
         # don't know if this shall be kept
         return "add"
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+                lines = ''
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = ''
 
 
 def dyn_delay(sim : Simulation, inputSignals : Signal ):
@@ -250,6 +333,10 @@ class Pgain(BlockPrototype):
         # the output depends on the only one input signals
         return [ self.inputSignal ]
 
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []  # no inputs
+
     def GetOutputsSingnals(self):
         # return the output signals
         sum = self.blk.GetOutputSignal(0)
@@ -265,6 +352,30 @@ class Pgain(BlockPrototype):
     def getORTD_btype(self):
         # The ORTD interpreter finds the computational function using this id
         return -1
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+                lines = ''
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = ''
 
 
 
