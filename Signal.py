@@ -1,4 +1,6 @@
 from typing import Dict, List
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
 
 #from Block import * 
 
@@ -37,6 +39,7 @@ class Signal:
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.linkedSignal.graphTraversionMarker = -1
+        # self.graphTraversionMarker = -1
 
 
     def graphTraversionMarkerReset(self):
@@ -46,11 +49,16 @@ class Signal:
         if level < 0:
             raise BaseException("level cannot be < 0")
 
+        #print(Fore.RED + "-setmark- " + self.toStr() )
+
         self.linkedSignal.graphTraversionMarker = level
     
     def graphTraversionMarkerMarkIsVisited(self):
+        #print(Fore.RED + "-checkmark- " + self.toStr() + " " + str(self.linkedSignal.graphTraversionMarker))
+
         # check of this node was marked on level or a level below
-        return not self.linkedSignal.graphTraversionMarker == -1 # and self.linkedSignal.graphTraversionMarker <= level
+        #return not (self.linkedSignal.graphTraversionMarker == -1) # and self.linkedSignal.graphTraversionMarker <= level
+        return self.linkedSignal.graphTraversionMarker >= 0
 
     def graphTraversionMarkerMarkIsVisitedOnLevel(self, onLevel):
         # check of this node was marked on level or a level below

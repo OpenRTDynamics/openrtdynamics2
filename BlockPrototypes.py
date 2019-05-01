@@ -42,13 +42,21 @@ class Padd(BlockPrototype):
         # print("Padd: in callback configDefineOutputTypes")
 
         # check if inputs are double
-        RequestedType = DataType( ORTD_DATATYPE_FLOAT, 1 )
+        requestedType = DataType( ORTD_DATATYPE_FLOAT, 1 )
 
         if inputTypes[0] is not None:
             if inputTypes[0].isEqualTo( inputTypes[1] ) == 0:
                 raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + inputTypes[1].toStr() )
 
-        return [ inputTypes[0] ]
+        if not requestedType.isEqualTo( inputTypes[0] ):
+            raise BaseException("input type not float")
+
+        if not requestedType.isEqualTo( inputTypes[1] ):
+            raise BaseException("input type not float")
+
+
+        # return [ inputTypes[0] ]
+        return [requestedType]
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on

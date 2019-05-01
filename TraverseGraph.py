@@ -3,6 +3,8 @@ from typing import Dict, List
 from Signal import *
 from Block import *
 
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
 
 class Node:
     def __init__(self, block : Block ):
@@ -177,12 +179,12 @@ class ExecutionLine():
     def printExecutionLine(self):
         print("------ print of execution line -----")
 
-        print("dependent sources:")
+        print(Fore.RED + "dependent sources:")
         
         for s in self.dependencySignals:
             print("  - " + s.toStr() )
 
-        print("execution order:")
+        print(Fore.GREEN + "execution order:")
 
         for s in self.signalOrder:
             print("  - " + s.toStr() )
@@ -281,8 +283,6 @@ class BuildExecutionPath:
     def printExecutionLine(self):
         pass
 
-
-
     def resetMarkers(self):
         # reset graph traversion markers
         for signal in self.markedSignals:
@@ -293,8 +293,7 @@ class BuildExecutionPath:
         self.level = 0
 
     def isSignalAlreadyComputable(self, signal : Signal):
-        signal.graphTraversionMarkerMarkIsVisited()
-
+        return signal.graphTraversionMarkerMarkIsVisited()
 
     # Start backward traversion starting from the given startSignal
     def backwardTraverseSignalsExec__(self, startSignal : Signal, startSignalPrevious : Signal, depthCounter : int):
@@ -318,42 +317,49 @@ class BuildExecutionPath:
         if startSignal.graphTraversionMarkerMarkIsVisited():
             # - a previously computed signal has been reached
 
-            print(tabs + "*** visited *** "  + startSignal.getName() + " (" + ") ****") 
+            print(Style.DIM + tabs + "*** visited *** "  + startSignal.getName() + " (" + ") ****") 
 
             self.dependencySignals.append( startSignal )
 
 
             return
 
-        # store this block as it is reachable
-        print(tabs + "added " + startSignal.toStr())
-        self.reachableSignals.append( startSignal )
+
 
         # mark the node visited
         startSignal.graphTraversionMarkerMarkVisited(self.level)
         self.markedSignals.append(startSignal)
 
-        print(tabs + "--- " + startSignal.getName() + " (" + ") --" )
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
+        print(tabs + "--- signals needed for " + startSignal.getName() + " (" + ") --" )
 
         dependingSignals = startSignal.getSourceBlock().getBlockPrototype().returnDependingInputs(startSignal)
 
         if len(dependingSignals) == 0:
+            # no dependencies to calculate startSignal
+
             # block startSignal.getSourceBlock() --> startSignal is a starting point
 
             self.dependencySignals.append( startSignal )
 
-            pass
         else:
+            #
+            # store startSignal as reachable (put it on the exeution list)
+            # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+            #       from this list. However, it is still in the list of dependencySignals.
+            #
 
+            print(Style.DIM + tabs + "added " + startSignal.toStr())
+            self.reachableSignals.append( startSignal )
 
+            # go through all signals needed to calculate startSignal
             for signal in dependingSignals:
                 # for each input signal that is needed to compute 'startSignal'
 
 
-                print(tabs + "-> S " + signal.getName() )
+                print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
                 if signal.getSourceBlock() is None:
                     print(tabs + '-- ERROR: no input signal defined for this signal! --')
