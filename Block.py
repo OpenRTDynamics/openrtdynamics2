@@ -190,7 +190,7 @@ class BlockPrototype:
 
 
 
-# TODO: 15.3.19 : The block class shoudl not store any informatino about the input/output signal types
+# TODO: 15.3.19 : The block class should not store any informatino about the input/output signal types
 # this info shall just be stored in the signal structures
 
 class Block:
@@ -362,8 +362,10 @@ class Block:
 
     def setName(self, name):
         self.blockname = name
-
         return self
+
+    def toStr(self):
+        return self.getName()
 
     def getBlockPrototype(self):
         return self.blockPrototype
@@ -371,9 +373,9 @@ class Block:
     def getBlockId(self):
         return self.id # a unique id within the simulation the block is part of
 
-    def getOperator(self):
-        return None
-        #return self.Blocktype.getOperator()
+    # def getOperator(self):
+    #     return None
+    #     #return self.Blocktype.getOperator()
 
     def getInputSignals(self):
         return self.inputSignals
@@ -385,7 +387,6 @@ class Block:
         return self.OutputDef
 
     def getId(self):
-        #return -1
         return self.id
 
     def GetOutputSignal(self, port):

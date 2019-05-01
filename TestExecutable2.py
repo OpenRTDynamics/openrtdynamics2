@@ -5,6 +5,7 @@ from irpar import *
 from BlockPrototypes import *
 from TraverseGraph import *
 from Signal import *
+from ExecutionCommands import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -87,8 +88,6 @@ print()
 executionLine1 = E.getExecutionLine( y )
 executionLine1.printExecutionLine()
 
-
-
 print()
 print(Style.BRIGHT + "-------- Build all execution paths  --------")
 print()
@@ -101,14 +100,15 @@ print()
 # 
 
 # start with following signals to be computed
-#dependencySignals = [ result, resultSecond ]
 dependencySignals = executionLine1.dependencySignals
 
 # counter for the order (i.e. step through all delays present in the system)
 order = 0
 
 # execution line per order
-executionLinePerOrder = [executionLine1]
+commandsToExecute = [ CommandCalculateOutputs(executionLine1) ]
+
+commandsToExecute.append( CommandPublishResult(y) )
 
 while True:
 
@@ -170,11 +170,19 @@ while True:
         executionLineForCurrentOrder.appendExecutionLine( e )
 
     # collect executionLineForCurrentOrder
-    executionLinePerOrder.append( executionLineForCurrentOrder )
+    commandsToExecute.append( CommandCalculateOutputs(executionLineForCurrentOrder) )
 
     # get the dependendy singals of the current order
     dependencySignals = executionLineForCurrentOrder.dependencySignals
 
+
+    # generate state update commands for the blocks that have dependencySignals as outputs
+    # TODO: This is new and unchecked
+    blocksWhoseStatesToUpdate = []
+    for s in dependencySignals:
+        blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
+
+    commandsToExecute.append( CommandUpdateStates( blocksWhoseStatesToUpdate) )
 
 
     # iterate
@@ -194,12 +202,12 @@ while True:
 #
 
 print()
-print(Style.BRIGHT + "-------- List all execution paths  --------")
+print(Style.BRIGHT + "-------- List all execution commands  --------")
 print()
 
-for el in executionLinePerOrder:
+for command in commandsToExecute:
 
-    el.printExecutionLine()
+    command.printExecution()
 
 
     pass
