@@ -75,7 +75,16 @@ class Signal:
         return self.linkedSignal.name
 
     def toStr(self):
-        return self.linkedSignal.name + " " + self.linkedSignal.datatype.toStr()
+        ret = ''
+        ret += self.linkedSignal.name
+
+        if self.linkedSignal.datatype is not None:
+            ret += " (" + self.linkedSignal.datatype.toStr() + ")"
+
+        else:
+            ret += " (undef datatype)"
+
+        return ret
         
 
     def addDestination(self, block , port : int):

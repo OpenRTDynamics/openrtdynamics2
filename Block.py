@@ -199,7 +199,7 @@ class Block:
     # BlockPrototype - describes the block's prototype implementation
     #                  that defined IO, parameters, ...
 
-    def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], OutputDef : OutputDefinitions, blockname : str):
+    def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], blockname : str):
         self.sim = sim
 
         #operator, blocktype
@@ -226,7 +226,7 @@ class Block:
 
         # TODO: remove this -- the output types shall be stored in the signal connected to the output *only*
         # the definition of the output ports. Note: only the number of ports must be known. The types might be left open
-        self.OutputDef = OutputDef 
+        #self.OutputDef = OutputDef 
 
         # create a new unique block id 
         self.id = sim.getNewBlockId()
@@ -237,24 +237,37 @@ class Block:
 
         # Create a list of output signals. The datatypes and sizes are undtermined untll getOutputTypes() of blocks prototype function is called
         #  ( : List[ Signal ] )
-        outputPortNum = self.OutputDef.getNPorts()
 
-        print("creating signals for ", outputPortNum, " output ports")
+        #outputPortNum = self.OutputDef.getNPorts()
 
+        #print("creating signals for ", outputPortNum, " output ports")
+
+        # initialize the empty list of output signals
         self.OutputSignals = []
-        for i in range(0, outputPortNum ):
-            #print("* new signal")
-            datatype = self.OutputDef.getType(i)
-            if datatype is None:
-                self.OutputSignals.append( Signal(sim, None, self, i ) )
-            else:
-                self.OutputSignals.append( Signal(sim, datatype, self, i ) )
 
-        # get new block id
+        # for i in range(0, outputPortNum ):
+        #     #print("* new signal")
+        #     datatype = self.OutputDef.getType(i)
+        #     if datatype is None:
+        #         self.OutputSignals.append( Signal(sim, None, self, i ) )
+        #     else:
+        #         self.OutputSignals.append( Signal(sim, datatype, self, i ) )
+
+        # get new block id (This is for the old ORTD-Style)
         self.id = sim.getNewBlockId()
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
+
+    def addOutputSignal(self, name):
+        # add an output signals to this block
+        # typically called by the block prototypes
+        
+        portNumber = len(self.OutputSignals)
+        newSignal = Signal(self.sim, None, self, portNumber )
+        newSignal.setName(name)
+
+        self.OutputSignals.append( newSignal )
 
 
     def graphTraversionMarkerReset(self):
@@ -269,7 +282,9 @@ class Block:
 
 
     def configDefineOutputTypes(self):
-        # TODO 15.3.19
+        # ask the block's prototype class instance to define the output types given
+        # the input types (Please note that the input types are define by other blocks
+        # whose outputs are connected to this block.)
 
         # build a list of input signals for this block
         inputSignalTypes = []
@@ -288,6 +303,7 @@ class Block:
 
         return
 
+
     def checkIO(self):
         #
         # Check if the conntected inputs match
@@ -298,63 +314,6 @@ class Block:
         pass
 
 
-        # if not len(inlist) == self.Blocktype.getNInputs():
-        #     #print("Number of inputs missmatch")
-        #     raise ValueError('Number of inputs missmatch', len(inlist), self.Blocktype.getNOutputs())
-
-
-
-        # for port in range(0, self.Blocktype.getNInputs() ):
-        #     #print("* Checking input " + str(port) + ". It shall be " )
-        #     #inlist[i].datatype.Show()
-        #     #print("* It is ")
-
-
-        #     BlocksType = self.Blocktype.getInputDataType(port)
-        #     self.InputDatatypes.append( BlocksType )
-
-        #     #BlocksType.Show()
-
-        #     if not (inlist[port].datatype.isEqualTo(BlocksType) ):
-        #         #print("Type missmatch for input #" + str(port) + ".")
-        #         raise ValueError('Type missmatch for input # ', str(port) )
-
-
-    def defineOutputSignals(self):
-        
-        #
-        # REMARK: UNDER CONSTRUCTION
-        #
-
-        # get the output types for each port that are defined by the blocks prototype function
-        # when the following call is executed
-        self.OutputTypes = self.blockPrototype.getOutputTypes() # type OutputDefinitions
-
-        # create the output signals
-        # ... TODO
-
-        for port in range( self.OutputTypes.getNPorts() ):
-            BlocksOutType = self.OutputTypes.getType(port)
-            self.OutputSignals.append( Signal(sim, BlocksOutType, self, port) )  # connect source of signal to port 0 of block blk
-
-
-
-
-        #OutputTypes.getNPorts()
-        #OutputTypes.getType(self, i : int)
-
-        #for i in OutputTypesList:
-        #    pass
-            
-
-        # # Create the output signals
-        # for port in range(0, self.Blocktype.getNOutputs() ):
-        #     BlocksOutType = self.Blocktype.getOutputDataType(port)
-
-        #     self.OutputDatatypes.append( BlocksOutType )
-
-        #     # create the output signals
-        #     self.OutputSignals.append( Signal(sim, BlocksOutType, self, port) )  # connect source of signal to port 0 of block blk
 
 
     def getName(self):
@@ -383,8 +342,8 @@ class Block:
     def getOutputSignals(self):
         return self.OutputSignals
 
-    def getOutputTypes(self):
-        return self.OutputDef
+    #def getOutputTypes(self):
+    #    return self.OutputDef
 
     def getId(self):
         return self.id

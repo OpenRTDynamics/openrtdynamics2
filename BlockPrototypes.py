@@ -24,14 +24,10 @@ class Padd(BlockPrototype):
 
         self.fak_list = fak_list
 
-        # outputs. This is a definition of the output ports and the data types known so far
-        OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
+        self.blk = Block(sim, self, inputSignals, blockname = 'add')
+        self.blk.addOutputSignal('sum')
 
-        #
-        # TODO: 20. april 2019: Think about removing the types definition here and completely move it to configDefineOutputTypes
-        #
-
-        self.blk = Block(sim, self, inputSignals, OutputDef, blockname = 'add')
+        # TODO: the block class instance should add itsself to the simulation
         sim.addBlock(self.blk)
 
         # call super
@@ -114,6 +110,8 @@ class Padd(BlockPrototype):
             elif flag == 'reset':
                 lines = ''
 
+        return lines
+
 
 
 
@@ -132,20 +130,10 @@ class Pconst(BlockPrototype):
 
         self.constant = constant
 
-        # outputs. This is a definition of the output ports and the data types known so far
-
-
-        # NEXT STEP 22.2.2019: check why these output definition are not considerd
-
-        OutputDef = OutputDefinitions(  [  DataType( ORTD_DATATYPE_FLOAT, 1 ) ]  ) 
-
-
         #
-        self.blk = Block(sim, self, None, OutputDef, blockname = 'const')
+        self.blk = Block(sim, self, None, blockname = 'const')
+        self.blk.addOutputSignal('const')
         sim.addBlock(self.blk)
-
-        self.blk.GetOutputSignal(0).setDatatype(  DataType( ORTD_DATATYPE_FLOAT, 1 )  )
-
 
         # call super
         #BlockPrototype.__init__(self)
@@ -231,12 +219,9 @@ class Pdelay(BlockPrototype):
 
         self.inputSignal = inputSignal
 
-        # outputs. This is a definition of the output ports and the data types known so far
-        # TODO: remove these and use the output signals
-        OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
-
         #
-        self.blk = Block(sim, self, [ inputSignal ], OutputDef, blockname = 'delay')
+        self.blk = Block(sim, self, [ inputSignal ], blockname = 'delay')
+        self.blk.addOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
         sim.addBlock(self.blk)
 
 
@@ -320,12 +305,9 @@ class Pgain(BlockPrototype):
 
         self.inputSignal = inputSignal
 
-        # outputs. This is a definition of the output ports and the data types known so far
-        # TODO: remove these and use the output signals
-        OutputDef = OutputDefinitions(  [  DataType( None, None ) ]  )  # None means type and size are not known so far
-
         #
-        self.blk = Block(sim, self, [ inputSignal ], OutputDef, blockname = 'gain')
+        self.blk = Block(sim, self, [ inputSignal ], blockname = 'gain')
+        self.blk.addOutputSignal('gain')
         sim.addBlock(self.blk)
 
 

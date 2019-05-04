@@ -239,7 +239,7 @@ class BuildExecutionPath:
         # the list of reachable signals
         self.reachableSignals = []
 
-        # list of marked signals (important to reset their visited flags) (TODO implement)
+        # list of marked signals (important to reset their visited flags)
         self.markedSignals = []
 
         # number of calls to getExecutionLine()

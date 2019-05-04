@@ -122,15 +122,25 @@ class Simulation:
 
 
     def propagateDatatypesForward(self):
-        # TODO:
+        #
+        # This algorithm does:
         #
         # Go through all block along their connection lines
-        # 1) start with all source blocks (only outputs)
+        # 1) start all blocks to define their output datatype as far as possible.
+        # 
         #
 
+        # go trough all blocks
+        for blk in self.BlocksArray:
+            #print("--> asking ", b, "to define its output types")
+
+            # just give it a try: ask the block to define its output types
+            # blocks that are source-only blocks should specify their output
+            # types.
+            blk.configDefineOutputTypes()
 
         #
-        # Step 1) find only-source blocks (no inputs) --> set S
+        # Step 1) find all defined output signals --> set S
         # Step 2) foreach block B in S:
         #               run callback for B
         #               foreach block B' connected to an output of B:
@@ -148,14 +158,14 @@ class Simulation:
             outputSignals = blk.getOutputSignals()
 
             if outputSignals is None:
+                print(Style.DIM + "does not have output signals")
                 continue
 
             for outputSignal in outputSignals:
                 portDatatype = outputSignal.getDatatype()
 
-
                 if portDatatype is None:
-                    print("datatype not defined")
+                    print(Style.DIM + "datatype not defined")
                     continue
 
                 portDatatype.show()
@@ -217,8 +227,7 @@ class Simulation:
         print("Compiling connections")
 
 
-        # TODO: Call defineOutputSignals of each block
-        # using TraverseBlockInExecOrder
+        # find out the output datatypes
         self.propagateDatatypesForward()
 
         
