@@ -24,11 +24,10 @@ class Padd(BlockPrototype):
 
         self.fak_list = fak_list
 
-        self.blk = Block(sim, self, inputSignals, blockname = 'add')
-        self.blk.addOutputSignal('sum')
+        blk = Block(sim, self, inputSignals, blockname = 'add').configAddOutputSignal('sum')
 
         # call super
-        #BlockPrototype.__init__(self)
+        BlockPrototype.__init__(self, blk)
 
 
     def configDefineOutputTypes(self, inputTypes):
@@ -47,7 +46,6 @@ class Padd(BlockPrototype):
         if not requestedType.isEqualTo( inputTypes[1] ):
             raise BaseException("input type not float")
 
-
         # return [ inputTypes[0] ]
         return [requestedType]
 
@@ -63,7 +61,9 @@ class Padd(BlockPrototype):
 
     def GetOutputsSingnals(self):
         # return the output signals
-        sum = self.blk.GetOutputSignal(0)
+        #sum = self.blk.GetOutputSignal(0)
+
+        sum = self.outputSignal(0)
 
         return sum
 
@@ -76,10 +76,6 @@ class Padd(BlockPrototype):
     def getORTD_btype(self):
         # The ORTD interpreter finds the computational function using this id
         return 12
-
-    #def getOperator(self):
-        # don't know if this shall be kept
-    #    return "add"
 
     def codeGen(self, language, flag):
 
@@ -97,9 +93,9 @@ class Padd(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.blk.getOutputSignals()[0].getName() 
-                + ' = ' + self.blk.getInputSignals()[0].getName() + ' + ' 
-                + self.blk.getInputSignals()[1].getName()
+                lines = 'double ' + self.outputSignal(0).getName() 
+                + ' = ' + self.inputSignal(0).getName() + ' + ' 
+                + self.inputSignal(1).getName()
 
             elif flag == 'update':
                 lines = ''
@@ -128,11 +124,11 @@ class Pconst(BlockPrototype):
         self.constant = constant
 
         #
-        self.blk = Block(sim, self, None, blockname = 'const')
-        self.blk.addOutputSignal('const')
+        blk = Block(sim, self, None, blockname = 'const').configAddOutputSignal('const')
 
         # call super
-        #BlockPrototype.__init__(self)
+        BlockPrototype.__init__(self, blk)
+
 
     def configDefineOutputTypes(self, inputTypes):
         # print("Pconst: in callback configDefineOutputTypes")
@@ -152,9 +148,9 @@ class Pconst(BlockPrototype):
 
     def GetOutputsSingnals(self):
         # return the output signals
-        sum = self.blk.GetOutputSignal(0)
+        const = self.outputSignal(0)
 
-        return sum
+        return const
 
     def encode_irpar(self):
         ipar = []
@@ -216,8 +212,11 @@ class Pdelay(BlockPrototype):
         self.inputSignal = inputSignal
 
         #
-        self.blk = Block(sim, self, [ inputSignal ], blockname = 'delay')
-        self.blk.addOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
+        blk = Block(sim, self, [ inputSignal ], blockname = 'delay').configAddOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
+
+        # call super
+        BlockPrototype.__init__(self, blk)
+
 
     def configDefineOutputTypes(self, inputTypes):
         # print("Pdelay: in callback configDefineOutputTypes")
@@ -240,9 +239,8 @@ class Pdelay(BlockPrototype):
 
     def GetOutputsSingnals(self):
         # return the output signals
-        sum = self.blk.GetOutputSignal(0)
 
-        return sum
+        return self.outputSignal(0)
 
     def encode_irpar(self):
         ipar = []
@@ -300,9 +298,10 @@ class Pgain(BlockPrototype):
         self.inputSignal = inputSignal
 
         #
-        self.blk = Block(sim, self, [ inputSignal ], blockname = 'gain')
-        self.blk.addOutputSignal('gain')
-        sim.addBlock(self.blk)
+        blk = Block(sim, self, [ inputSignal ], blockname = 'gain').configAddOutputSignal('gain')
+        
+        # call super
+        BlockPrototype.__init__(self, blk)
 
 
     def configDefineOutputTypes(self, inputTypes):
@@ -323,9 +322,9 @@ class Pgain(BlockPrototype):
 
     def GetOutputsSingnals(self):
         # return the output signals
-        sum = self.blk.GetOutputSignal(0)
 
-        return sum
+        return self.outputSignal(0)
+
 
     def encode_irpar(self):
         ipar = []

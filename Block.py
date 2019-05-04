@@ -8,6 +8,15 @@ from Signal import *
 
 
 class DataType:
+    #
+    # TODO: feature: add type of datype: 1) 'C++', 'ORTD (old)', 'ORTD (V2)' + optional 'is reference flag' 
+    #
+    #
+    #
+    #
+
+
+
     def __init__(self, type : int, size : int):
         self.type = type
         self.size = size
@@ -116,30 +125,17 @@ class BlockPrototype:
 
 
 
-    def __init__(self):
-        # collect and store parameters and connections to other blocks
-        pass
+    def __init__(self, block):
+        self.block = block
+
 
     def defineOutputTypes(self):
         pass
     
-
-    # # TODO: remove this
-    # def setPropagatedInputTypes(self, InTypes : InputDefinitions ):
-    #     # called when the inputs to this blocks already have been decicded on
-    #     # the Block logic should check wheter these input types can be handles
-    #     # and if so adapt the parameters / implementation. If no adaptino is
-    #     # possible, return an error.
-    #     pass
-
     def getOutputTypes(self):
         # shall return OutTypes : OutputDefinitions
 
         pass
-
-    #def PropagatedOutputTypes(self, OutTypes):
-    # Difficult to implement
-    #    pass
 
     def exportSetting(self):
         # maybe in case of a new interpreter
@@ -159,26 +155,22 @@ class BlockPrototype:
 
     def getORTD_btype(self):
         pass
-
-    def getOperator(self):
-        pass
     
-
     def generateCode(self):
         pass
-
 
     #
     # TODO: 28.4.19: use these shortcuts to access the I/O signals
     #
 
     # get a signal of a specific output port
-    def output(self, port):
-        return self.block.getOutputSignals()[port]
+    def outputSignal(self, port):
+        #return self.block.getOutputSignals()[port]
+        return self.block.GetOutputSignal(port)
 
     # get a signal of a specific input port
-    def input(self, port):
-        return self.block.getInputSignals()[port]
+    def inputSignal(self, port):
+        return self.block.GetInputSignal(port)
 
 
 
@@ -250,7 +242,7 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
-    def addOutputSignal(self, name):
+    def configAddOutputSignal(self, name):
         # add an output signals to this block typically called by the block prototypes
         # NOTE: This just reservates that there will be an output
         #       the type is undefined at this point
@@ -260,6 +252,8 @@ class Block:
         newSignal.setName(name)
 
         self.OutputSignals.append( newSignal )
+
+        return self
 
 
     def configDefineOutputTypes(self):
