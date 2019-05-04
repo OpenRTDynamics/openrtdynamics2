@@ -27,9 +27,6 @@ class Padd(BlockPrototype):
         self.blk = Block(sim, self, inputSignals, blockname = 'add')
         self.blk.addOutputSignal('sum')
 
-        # TODO: the block class instance should add itsself to the simulation
-        sim.addBlock(self.blk)
-
         # call super
         #BlockPrototype.__init__(self)
 
@@ -133,7 +130,6 @@ class Pconst(BlockPrototype):
         #
         self.blk = Block(sim, self, None, blockname = 'const')
         self.blk.addOutputSignal('const')
-        sim.addBlock(self.blk)
 
         # call super
         #BlockPrototype.__init__(self)
@@ -222,8 +218,6 @@ class Pdelay(BlockPrototype):
         #
         self.blk = Block(sim, self, [ inputSignal ], blockname = 'delay')
         self.blk.addOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
-        sim.addBlock(self.blk)
-
 
     def configDefineOutputTypes(self, inputTypes):
         # print("Pdelay: in callback configDefineOutputTypes")

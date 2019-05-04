@@ -191,7 +191,7 @@ class BlockPrototype:
 
 
 # TODO: 15.3.19 : The block class should not store any informatino about the input/output signal types
-# this info shall just be stored in the signal structures
+# this info shall just be stored in the signal structures (DONE for the output signals)
 
 class Block:
     # This decribes a block that is part of a Simulation
@@ -200,13 +200,17 @@ class Block:
     #                  that defined IO, parameters, ...
 
     def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], blockname : str):
+        print("Creating new block " + blockname)
+
         self.sim = sim
+        self.blockname = blockname
+
+        # add myself to the given simulation
+        self.sim.addBlock(self)
 
         #operator, blocktype
 
-        self.blockname = blockname
 
-        print("Creating new block named ", blockname)
 
         # The blocks prototype function. e.g. to determine the port sizes and types
         # and to define the parameters
@@ -224,50 +228,17 @@ class Block:
                 self.inputSignals[port].addDestination( self, port )
 
 
-        # TODO: remove this -- the output types shall be stored in the signal connected to the output *only*
-        # the definition of the output ports. Note: only the number of ports must be known. The types might be left open
-        #self.OutputDef = OutputDef 
-
         # create a new unique block id 
         self.id = sim.getNewBlockId()
 
-
-        #self.InputDatatypes = []
-        #self.OutputDatatypes = []
-
-        # Create a list of output signals. The datatypes and sizes are undtermined untll getOutputTypes() of blocks prototype function is called
-        #  ( : List[ Signal ] )
-
-        #outputPortNum = self.OutputDef.getNPorts()
-
-        #print("creating signals for ", outputPortNum, " output ports")
-
         # initialize the empty list of output signals
         self.OutputSignals = []
-
-        # for i in range(0, outputPortNum ):
-        #     #print("* new signal")
-        #     datatype = self.OutputDef.getType(i)
-        #     if datatype is None:
-        #         self.OutputSignals.append( Signal(sim, None, self, i ) )
-        #     else:
-        #         self.OutputSignals.append( Signal(sim, datatype, self, i ) )
 
         # get new block id (This is for the old ORTD-Style)
         self.id = sim.getNewBlockId()
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
-
-    def addOutputSignal(self, name):
-        # add an output signals to this block
-        # typically called by the block prototypes
-        
-        portNumber = len(self.OutputSignals)
-        newSignal = Signal(self.sim, None, self, portNumber )
-        newSignal.setName(name)
-
-        self.OutputSignals.append( newSignal )
 
 
     def graphTraversionMarkerReset(self):
@@ -279,6 +250,16 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
+    def addOutputSignal(self, name):
+        # add an output signals to this block typically called by the block prototypes
+        # NOTE: This just reservates that there will be an output
+        #       the type is undefined at this point
+
+        portNumber = len(self.OutputSignals)
+        newSignal = Signal(self.sim, None, self, portNumber )
+        newSignal.setName(name)
+
+        self.OutputSignals.append( newSignal )
 
 
     def configDefineOutputTypes(self):
@@ -304,18 +285,6 @@ class Block:
         return
 
 
-    def checkIO(self):
-        #
-        # Check if the conntected inputs match
-        #
-        # TODO rework this to match  Inputs : InputDefinitions
-        #
-
-        pass
-
-
-
-
     def getName(self):
         return self.blockname
 
@@ -332,21 +301,11 @@ class Block:
     def getBlockId(self):
         return self.id # a unique id within the simulation the block is part of
 
-    # def getOperator(self):
-    #     return None
-    #     #return self.Blocktype.getOperator()
-
     def getInputSignals(self):
         return self.inputSignals
 
     def getOutputSignals(self):
         return self.OutputSignals
-
-    #def getOutputTypes(self):
-    #    return self.OutputDef
-
-    def getId(self):
-        return self.id
 
     def GetOutputSignal(self, port):
         if port < 0:
