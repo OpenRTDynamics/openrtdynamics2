@@ -192,8 +192,8 @@ class ExecutionLine():
     def getSignalsToExecute(self):
         l = []
 
-        l.extend( self.dependencySignals )
-        l.extend( self.dependencySignals )
+        #l.extend( self.dependencySignals )
+        l.extend( self.signalOrder )
 
         return l
 
@@ -208,7 +208,7 @@ class ExecutionLine():
 
 
 
-        # merge dependencySignals: if only add the elements of executionLineToAppend.dependencySignals
+        # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
         # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
 
         for s in executionLineToAppend.dependencySignals:
@@ -268,6 +268,10 @@ class BuildExecutionPath:
         # computations. Computations already planned in previous calls of this function
         # are not listed again. (until resetMarkers() is called)
         #   
+
+        # TODO: dependency signals should stay as theiy are but reachableSignals should not contain signals
+        #       that already have been calculated. Further, reachableSignals shall also contain dependency if theiy 
+        #       were not already calculated
 
         print("getExecutionLine on level " + str(self.level) )
 
@@ -350,7 +354,11 @@ class BuildExecutionPath:
 
             # block startSignal.getSourceBlock() --> startSignal is a starting point
 
+            # startSignal is at the top of the tree, so add it to the dependiencies
             self.dependencySignals.append( startSignal )
+
+            # also add startSignal to the execution list
+            self.reachableSignals.append( startSignal )
 
         else:
             #

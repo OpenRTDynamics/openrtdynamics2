@@ -115,7 +115,7 @@ commandsToExecuteForStateUpdate = []
 
 while True:
 
-    print("--------- Comuting order "+ str(order) + " --------")
+    print("--------- Computing order "+ str(order) + " --------")
     print("dependent sources:")
         
     for s in dependencySignals:
@@ -123,7 +123,7 @@ while True:
 
 
     # do for each dependency Signal in the list
-    nextOrderDependencySingals = []
+    # nextOrderDependencySingals = []
 
     # collect all executions lines build in this order
     executionLinesForCurrentOrder = []
@@ -150,27 +150,43 @@ while True:
                 print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
 
 
+    # create executionline for calculating the dependency singlas and at the end of the overall line
+    #executionLineForS_finalStep = ExecutionLine( dependencySignals__ )
 
     
     for s in dependencySignals__:
 
         # get execution line to calculate s
-        executionLineForS = E.getExecutionLine(s)
+        executionLineForS = E.getExecutionLine(s)  # verified: s is also included in the execution line
+
+        #print('  - - - the line for signal - - - ' + s.toStr() )
+        #executionLineForS.printExecutionLine()    # also here: s is part of the line
 
         # store this execution line
         executionLinesForCurrentOrder.append(executionLineForS)
 
         # collect all newly appearing dependency signals 
         # found in executionLineForS.dependencySignals
-        nextOrderDependencySingals.extend( executionLineForS.dependencySignals )
+        # nextOrderDependencySingals.extend( executionLineForS.dependencySignals )
 
 
     # merge all lines into one
     executionLineForCurrentOrder = ExecutionLine( [], [] )
+
+    #
+
+    #
     for e in executionLinesForCurrentOrder:
 
         # append execution line
         executionLineForCurrentOrder.appendExecutionLine( e )
+
+
+
+    #print('  - - - the line for this order - - - '  )
+    #executionLineForCurrentOrder.printExecutionLine()
+
+
 
     # collect executionLineForCurrentOrder
     commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__) )
@@ -189,6 +205,7 @@ while True:
 
 
     # iterate
+    #dependencySignals = nextOrderDependencySingals  # guess... ????
     order = order + 1
     if len(dependencySignals) == 0:
         print(Fore.GREEN + "All dependencies are resolved")

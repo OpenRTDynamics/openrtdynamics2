@@ -61,7 +61,7 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                 for e in self.executionLine.getSignalsToExecute():
 
-                    # print('output codegen for ' +  e.toStr() )
+                    print('output codegen for ' +  e.toStr() )
                     lines += e.getSourceBlock().getBlockPrototype().codeGen('c++', 'output')
 
 

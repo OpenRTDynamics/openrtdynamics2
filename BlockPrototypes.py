@@ -202,12 +202,12 @@ def dyn_const(sim : Simulation, constant : float ):
 
 
 class Pdelay(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignal : Signal ):
+    def __init__(self, sim : Simulation, u : Signal ):
 
-        self.inputSignal = inputSignal
+        self.u = u
 
         #
-        blk = Block(sim, self, [ inputSignal ], blockname = 'delay').configAddOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
+        blk = Block(sim, self, [ u ], blockname = 'delay').configAddOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
 
         # call super
         BlockPrototype.__init__(self, blk)
@@ -223,14 +223,14 @@ class Pdelay(BlockPrototype):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on the only one input signals
-        # return [ self.inputSignal ]
+        # return [ self.u ]
 
         # no (direct feedtrough) dependence on any input - only state dependent
         return [  ]
 
     def returnInutsToUpdateStates(self, outputSignal):
         # return a list of input signals that are required to update the states
-        return [self.inputSignal]  # all inputs
+        return [self.u]  # all inputs
 
     def getOutputsSingnals(self):
         # return the output signals
@@ -270,7 +270,7 @@ class Pdelay(BlockPrototype):
                 lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
             elif flag == 'update':
-                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
 
             elif flag == 'reset':
                 lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
@@ -293,6 +293,7 @@ class Pgain(BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal, gain : float ):
 
         self.u = u
+        self.gain = gain
 
         #
         blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal('gain')
@@ -349,7 +350,7 @@ class Pgain(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() +  ';\n'
+                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + str(self.gain) + ' * ' + self.inputSignal(0).getName() +  ';\n'
 
             elif flag == 'update':
                 lines = ''
