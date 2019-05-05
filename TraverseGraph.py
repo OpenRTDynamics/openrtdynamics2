@@ -182,12 +182,20 @@ class ExecutionLine():
         print(Fore.RED + "dependent sources:")
         
         for s in self.dependencySignals:
-            print("  - " + s.toStr() )
+            print("  - " + s.getName() )
 
         print(Fore.GREEN + "execution order:")
 
         for s in self.signalOrder:
-            print("  - " + s.toStr() )
+            print("  - " + s.getName() )
+
+    def getSignalsToExecute(self):
+        l = []
+
+        l.extend( self.dependencySignals )
+        l.extend( self.dependencySignals )
+
+        return l
 
     def appendExecutionLine(self, executionLineToAppend):
 

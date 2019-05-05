@@ -57,19 +57,19 @@ class Simulation:
         print("-----------------------------")
 
         for blk in self.BlocksArray:
-            print("* '" + blk.getName() + "' (" + str(blk.getBlockId()) + ")"  )
+            print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.getName() + "' (" + str(blk.getBlockId()) + ")"  )
 
             # list input singals
             if len( blk.getInputSignals() ) > 0:
-                print("  input signals")
+                print(Fore.RED + "  input signals")
                 for inSig in blk.getInputSignals():
-                    print("    - " + inSig.toStr() )
+                    print(Style.DIM + "    - " + inSig.toStr() )
 
             # list output singals
             if len( blk.getOutputSignals() ) > 0:
-                print("  output signals")
+                print(Fore.GREEN + "  output signals")
                 for inSig in blk.getOutputSignals():
-                    print("    - " + inSig.toStr() )
+                    print(Style.DIM + "    - " + inSig.toStr() )
 
 
     def getBlocksArray(self):

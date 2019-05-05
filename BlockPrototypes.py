@@ -1,5 +1,3 @@
-
-
 from libdyn import *
 from Signal import *
 from Block import *
@@ -20,7 +18,6 @@ class Padd(BlockPrototype):
         #
         if len(inputSignals) != 2:
             raise("inp_list must have exactly 2 elements")
-
 
         self.fak_list = fak_list
 
@@ -59,10 +56,8 @@ class Padd(BlockPrototype):
         # return a list of input signals that are required to update the states
         return []
 
-    def GetOutputsSingnals(self):
+    def getOutputsSingnals(self):
         # return the output signals
-        #sum = self.blk.GetOutputSignal(0)
-
         sum = self.outputSignal(0)
 
         return sum
@@ -93,15 +88,13 @@ class Padd(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.outputSignal(0).getName() 
-                + ' = ' + self.inputSignal(0).getName() + ' + ' 
-                + self.inputSignal(1).getName()
+                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() + ' + ' + self.inputSignal(1).getName() + ';\n'
 
             elif flag == 'update':
                 lines = ''
 
             elif flag == 'reset':
-                lines = ''
+                lines = '// nothing to reset for ' + self.block.getName() + '\n'
 
         return lines
 
@@ -110,7 +103,7 @@ class Padd(BlockPrototype):
 
 def dyn_add(sim : Simulation, inputSignals : List[Signal], fak_list : List[float]):
 
-    return Padd(sim, inputSignals, fak_list).GetOutputsSingnals()
+    return Padd(sim, inputSignals, fak_list).getOutputsSingnals()
 
 
 
@@ -146,7 +139,7 @@ class Pconst(BlockPrototype):
         # return a list of input signals that are required to update the states
         return []
 
-    def GetOutputsSingnals(self):
+    def getOutputsSingnals(self):
         # return the output signals
         const = self.outputSignal(0)
 
@@ -182,7 +175,7 @@ class Pconst(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = ''
+                lines = 'double const ' + self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
 
             elif flag == 'update':
                 lines = ''
@@ -190,11 +183,13 @@ class Pconst(BlockPrototype):
             elif flag == 'reset':
                 lines = ''
 
+        return lines
+
 
 
 def dyn_const(sim : Simulation, constant : float ):
 
-    return Pconst(sim, constant).GetOutputsSingnals()
+    return Pconst(sim, constant).getOutputsSingnals()
 
 
 
@@ -237,7 +232,7 @@ class Pdelay(BlockPrototype):
         # return a list of input signals that are required to update the states
         return [self.inputSignal]  # all inputs
 
-    def GetOutputsSingnals(self):
+    def getOutputsSingnals(self):
         # return the output signals
 
         return self.outputSignal(0)
@@ -263,7 +258,7 @@ class Pdelay(BlockPrototype):
         if language == 'c++':
 
             if flag == 'defStates':
-                lines = ''
+                lines = 'double ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -272,18 +267,20 @@ class Pdelay(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = ''
+                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
             elif flag == 'update':
-                lines = ''
+                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'reset':
-                lines = ''
+                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
+
+        return lines
 
 
 def dyn_delay(sim : Simulation, inputSignals : Signal ):
 
-    return Pdelay(sim, inputSignals).GetOutputsSingnals()
+    return Pdelay(sim, inputSignals).getOutputsSingnals()
 
 
 
@@ -293,12 +290,12 @@ def dyn_delay(sim : Simulation, inputSignals : Signal ):
 
 
 class Pgain(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignal : Signal, gain : float ):
+    def __init__(self, sim : Simulation, u : Signal, gain : float ):
 
-        self.inputSignal = inputSignal
+        self.u = u
 
         #
-        blk = Block(sim, self, [ inputSignal ], blockname = 'gain').configAddOutputSignal('gain')
+        blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal('gain')
         
         # call super
         BlockPrototype.__init__(self, blk)
@@ -314,13 +311,13 @@ class Pgain(BlockPrototype):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on the only one input signals
-        return [ self.inputSignal ]
+        return [ self.u ]
 
     def returnInutsToUpdateStates(self, outputSignal):
         # return a list of input signals that are required to update the states
         return []  # no inputs
 
-    def GetOutputsSingnals(self):
+    def getOutputsSingnals(self):
         # return the output signals
 
         return self.outputSignal(0)
@@ -352,7 +349,7 @@ class Pgain(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = ''
+                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() +  ';\n'
 
             elif flag == 'update':
                 lines = ''
@@ -360,10 +357,11 @@ class Pgain(BlockPrototype):
             elif flag == 'reset':
                 lines = ''
 
+        return lines
 
 
-def dyn_gain(sim : Simulation, inputSignal : Signal, gain : float ):
+def dyn_gain(sim : Simulation, u : Signal, gain : float ):
 
-    return Pgain(sim, inputSignal, gain).GetOutputsSingnals()
+    return Pgain(sim, u, gain).getOutputsSingnals()
 
 

@@ -16,7 +16,7 @@
 #     #print("ld_block: new block with id " + str( blk.getId() ) )
 
 #     # create the output signals
-#     y1 = blk.GetOutputSignal(0)
+#     y1 = blk.(0)
 
 #     return y1
 
@@ -46,7 +46,7 @@ def ld_add(sim : Simulation, inp_list : List[Signal], fak_list : List[float]):
     sim.addBlock(blk)
 
     # create the output signals
-    sum = blk.GetOutputSignal(0)
+    sum = blk.(0)
 
     return sum
 
@@ -75,7 +75,7 @@ def ld_delay(sim : Simulation, u : Signal, N : int):
 
 
     # create the output signals
-    y = blk.GetOutputSignal(0)
+    y = blk.(0)
 
     return y
 
@@ -101,7 +101,7 @@ def ld_const(sim : Simulation, val : float):
     #print("ld_const: new block with id " + str( blk.getId() ) )
 
     # create the output signals
-    y1 = blk.GetOutputSignal(0)
+    y1 = blk.(0)
 
     return y1
 
@@ -174,7 +174,7 @@ def ld_play_simple(sim :Simulation , r : List[float]):
 
 
     # create the output signals
-    y = blk.GetOutputSignal(0)
+    y = blk.(0)
 
     return y
 

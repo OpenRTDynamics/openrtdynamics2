@@ -155,6 +155,11 @@ class BlockPrototype:
 
     def getORTD_btype(self):
         pass
+
+    def getUniqueVarnamePrefix(self):
+        # return a variable name prefix unique in the simulation
+        # to be used for code generation 
+        return "states_" + self.block.getName() +  "_" + str(self.block.getBlockId())
     
     def generateCode(self):
         pass
@@ -166,11 +171,15 @@ class BlockPrototype:
     # get a signal of a specific output port
     def outputSignal(self, port):
         #return self.block.getOutputSignals()[port]
-        return self.block.GetOutputSignal(port)
+        return self.block.getOutputSignal(port)
 
     # get a signal of a specific input port
     def inputSignal(self, port):
-        return self.block.GetInputSignal(port)
+        return self.block.getInputSignal(port)
+
+    
+    def codeGen(self, language, flag):
+        raise BaseException("code generation not implemented")
 
 
 
@@ -195,7 +204,7 @@ class Block:
         print("Creating new block " + blockname)
 
         self.sim = sim
-        self.blockname = blockname
+        self.blocknameShort = blockname
 
         # add myself to the given simulation
         self.sim.addBlock(self)
@@ -280,7 +289,7 @@ class Block:
 
 
     def getName(self):
-        return self.blockname
+        return self.blocknameShort
 
     def setName(self, name):
         self.blockname = name
@@ -301,7 +310,7 @@ class Block:
     def getOutputSignals(self):
         return self.OutputSignals
 
-    def GetOutputSignal(self, port):
+    def getOutputSignal(self, port):
         if port < 0:
             raise Exception('port < 0')
 
