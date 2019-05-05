@@ -191,18 +191,24 @@ while True:
     # collect executionLineForCurrentOrder
     commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__) )
 
-    # get the dependendy singals of the current order
-    dependencySignals = executionLineForCurrentOrder.dependencySignals
-
-
     # generate state update commands for the blocks that have dependencySignals as outputs
     # TODO: This is new and unchecked
+    print("state update of blocks connected to:")
+
     blocksWhoseStatesToUpdate = []
     for s in dependencySignals:
+        #print("  - " + s.toStr())
         blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
 
-    commandsToExecuteForStateUpdate.append( CommandUpdateStates( blocksWhoseStatesToUpdate) )
+    sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
 
+    commandsToExecuteForStateUpdate.append( sUpCmd )
+
+    #print("added command(s) to perform state update:")
+    #sUpCmd.printExecution()
+
+    # get the dependendy singals of the current order
+    dependencySignals = executionLineForCurrentOrder.dependencySignals
 
     # iterate
     #dependencySignals = nextOrderDependencySingals  # guess... ????
