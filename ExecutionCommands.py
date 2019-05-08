@@ -56,7 +56,7 @@ class CommandCalculateOutputs(ExecutionCommand):
 
         if language == 'c++':
 
-            if flag == 'begin':
+            if flag == 'code':
                 # lines += '{\n'
 
                 for e in self.executionLine.getSignalsToExecute():
@@ -64,27 +64,25 @@ class CommandCalculateOutputs(ExecutionCommand):
                     print('output codegen for ' +  e.toStr() )
                     lines += e.getSourceBlock().getBlockPrototype().codeGen('c++', 'output')
 
-
-            if flag == 'end':
-                # lines = '}\n'
-                pass
-
         return lines
 
 
 class CommandPublishResult(ExecutionCommand):
 
     # TODO signal should be a list of signals
-    def __init__(self, signal, executionCommand):
+    def __init__(self, signal, executionCommands):
 
         self.signal = signal
-        self.executionCommand = executionCommand
+        self.executionCommands = executionCommands
         
     def printExecution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish result of " + self.signal.toStr() + " that is calculated by")
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish by executing " + self.signal.toStr() + " that is calculated by")
         print(Style.BRIGHT + Fore.YELLOW + "{")
-        self.executionCommand.printExecution()
+        
+        for c in self.executionCommands:
+            c.printExecution()
+
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
 
@@ -94,16 +92,19 @@ class CommandPublishResult(ExecutionCommand):
 
         if language == 'c++':
 
-            if flag == 'begin':
+            if flag == 'variables':
+                for c in self.executionCommands:
+                    lines += c.codeGen(language, 'variables')
+
+            if flag == 'code':
                 lines += '// calculate ' + self.signal.getName() + '\n'
                 lines += 'calcPrimaryResults() {\n'
 
-                lines += self.executionCommand.codeGen(language, 'begin')
+                for c in self.executionCommands:
+                    lines += c.codeGen(language, 'code')
 
                 lines += '}\n\n'
 
-            if flag == 'end':
-                lines = ''
 
         return lines
 
@@ -129,13 +130,10 @@ class CommandUpdateStates(ExecutionCommand):
 
         if language == 'c++':
 
-            if flag == 'begin':
+            if flag == 'code':
                 lines += ''
                 for b in self.blockList:
                     lines += b.getBlockPrototype().codeGen('c++', 'update')
-
-            if flag == 'end':
-                lines = ''
 
         return lines
 
@@ -165,15 +163,55 @@ class CommandCompondUpdateStates(ExecutionCommand):
 
         if language == 'c++':
 
-            if flag == 'begin':
+            if flag == 'code':
                 lines += 'updateStates() {\n'
 
                 for c in self.executionCommands:
-                    lines += c.codeGen(language, 'begin')
+                    lines += c.codeGen(language, 'code')
 
                 lines += '}\n\n'
 
-            if flag == 'end':
-                lines = ''
+        return lines
+
+
+
+
+
+
+class CommandCacheOutputs(ExecutionCommand):
+
+    def __init__(self, signals : List[Signal]):
+
+        self.signals = signals
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
+
+        for s in self.signals:
+            print("  - " + s.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+
+            if flag == 'variables':
+                lines += ''
+                for s in self.signals:
+                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    lines +=  '\n// cache for ' + s.getName() + '\n'
+                    lines += 'double ' + cachevarName + " {NAN};" + '\n' 
+
+            if flag == 'code':
+                lines += ''
+                for s in self.signals:
+                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    lines += cachevarName + ' = ' + s.getName() + '\n'
 
         return lines

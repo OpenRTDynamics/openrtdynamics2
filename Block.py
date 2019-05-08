@@ -159,7 +159,7 @@ class BlockPrototype:
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
         # to be used for code generation 
-        return "states_" + self.block.getName() +  "_" + str(self.block.getBlockId())
+        return "" + self.block.getName() +  "_" + str(self.block.getBlockId())
     
     def generateCode(self):
         pass
