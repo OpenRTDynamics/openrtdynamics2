@@ -1,3 +1,8 @@
+from libdyn import *
+from Signal import *
+from Block import *
+from irpar import *
+
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -77,17 +82,24 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 class CommandPublishResult(ExecutionCommand):
 
-    # TODO signal should be a list of signals
+    #
+    # Creates an API-function to return the calculated values
+    # 
 
-    def __init__(self, signal, executionCommands):
+    def __init__(self, nameAPI : str, signals : List[ Signal ], executionCommands):
 
-        self.signal = signal
+        self.signals = signals
         self.executionCommands = executionCommands
+        self.nameAPI = nameAPI
+
         
     def printExecution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish by executing " + self.signal.toStr() + " that is calculated by")
-        print(Style.BRIGHT + Fore.YELLOW + "{")
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish:")
+        for s in self.signals:
+            print(Style.DIM + '  - ' + s.getName())
+
+        print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
         
         for c in self.executionCommands:
             c.printExecution()
@@ -106,17 +118,30 @@ class CommandPublishResult(ExecutionCommand):
                     lines += c.codeGen(language, 'variables')
 
             if flag == 'code':
-                lines += '// calculate ' + self.signal.getName() + '\n'
-                lines += 'calcPrimaryResults( double & '  + self.signal.getName() + ' ) {\n'
+                # define the API-function (start)
+                lines += '// calculate'
+                for s in self.signals:
+                    lines += ' ' + s.getName()
 
+                lines += '\n'
+
+                lines += self.nameAPI + '('
+                for s in self.signals:
+                    lines +=  ' double & '  + s.getName()
+
+                lines +=  ' ) {\n'
+
+                # put the local variables
                 for c in self.executionCommands:
                     lines += c.codeGen(language, 'localvar')
                 
                 lines += '\n'
 
+                # put the code
                 for c in self.executionCommands:
                     lines += c.codeGen(language, 'code')
 
+                # define the API-function (finish)
                 lines += '}\n\n'
 
 
@@ -155,6 +180,10 @@ class CommandUpdateStates(ExecutionCommand):
 
 
 class CommandCompondUpdateStates(ExecutionCommand):
+
+    #
+    # Creates an API-function to update the states
+    # 
 
     def __init__(self, executionCommands):
 

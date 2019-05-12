@@ -119,7 +119,7 @@ commandToCacheIntermediateResults = CommandCacheOutputs( executionLine1.signalOr
 
 # build the function calcPrimaryResults() that calculates the outputs of the simulation.
 # Further, it stores intermediate results
-commandToPublishTheResults = CommandPublishResult(y, [ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
+commandToPublishTheResults = CommandPublishResult("calcResults_1", [y], [ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
 
 # Initialize the list of commands to execute to update the states
 commandsToExecuteForStateUpdate = []
