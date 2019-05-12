@@ -65,9 +65,9 @@ def ld_subsim(sim):
 sim = Simulation(None, 'main')
 
 
-c1 = dyn_const(sim, 1.123).setNameOfOrigin('c1 - const').setName('c1')
+c1 = dyn_const(sim, 1.123, DataTypeFloat(1) ).setNameOfOrigin('c1 - const').setName('c1')
 
-c2 = dyn_const(sim, 10).setNameOfOrigin('c1 - const').setName('c2')
+c2 = dyn_const(sim, 10, DataTypeFloat(1) ).setNameOfOrigin('c1 - const').setName('c2')
 
 print()
 print('origin of c1')
@@ -99,7 +99,7 @@ result = dyn_add(sim, [u2_delayed1, udel2_], [1,-1]).setNameOfOrigin('result').s
 
 
 # Another result signals
-c3 = dyn_const(sim, 1.123).setNameOfOrigin('c3 - const').setName('c3')
+c3 = dyn_const(sim, 1.123, DataTypeFloat(1) ).setNameOfOrigin('c3 - const').setName('c3')
 
 udel2__ = dyn_gain(sim, udel2_, 3).setNameOfOrigin('gain').setName('udel2__')
 

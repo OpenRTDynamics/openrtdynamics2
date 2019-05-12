@@ -56,6 +56,14 @@ class CommandCalculateOutputs(ExecutionCommand):
 
         if language == 'c++':
 
+            if flag == 'localvar':
+                # TODO: exclude the input singals 
+                for e in self.executionLine.getSignalsToExecute():
+
+                    print('output codegen for ' +  e.toStr() )
+                    lines += e.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar')
+
+
             if flag == 'code':
                 # lines += '{\n'
 
@@ -70,6 +78,7 @@ class CommandCalculateOutputs(ExecutionCommand):
 class CommandPublishResult(ExecutionCommand):
 
     # TODO signal should be a list of signals
+
     def __init__(self, signal, executionCommands):
 
         self.signal = signal
@@ -98,7 +107,12 @@ class CommandPublishResult(ExecutionCommand):
 
             if flag == 'code':
                 lines += '// calculate ' + self.signal.getName() + '\n'
-                lines += 'calcPrimaryResults() {\n'
+                lines += 'calcPrimaryResults( double & '  + self.signal.getName() + ' ) {\n'
+
+                for c in self.executionCommands:
+                    lines += c.codeGen(language, 'localvar')
+                
+                lines += '\n'
 
                 for c in self.executionCommands:
                     lines += c.codeGen(language, 'code')
@@ -165,6 +179,12 @@ class CommandCompondUpdateStates(ExecutionCommand):
 
             if flag == 'code':
                 lines += 'updateStates() {\n'
+
+                # TODO: ensure variables are not defined twice
+                for c in self.executionCommands:
+                    lines += c.codeGen(language, 'localvar')
+                
+                lines += '\n'
 
                 for c in self.executionCommands:
                     lines += c.codeGen(language, 'code')

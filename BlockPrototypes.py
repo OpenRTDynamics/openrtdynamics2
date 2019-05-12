@@ -15,6 +15,9 @@ class Padd(BlockPrototype):
         # 
         self.inputSignals = inputSignals
 
+        # output type undefined
+        self.outputType = None
+
         #
         if len(inputSignals) != 2:
             raise("inp_list must have exactly 2 elements")
@@ -30,21 +33,38 @@ class Padd(BlockPrototype):
     def configDefineOutputTypes(self, inputTypes):
         # print("Padd: in callback configDefineOutputTypes")
 
-        # check if inputs are double
-        requestedType = DataType( ORTD_DATATYPE_FLOAT, 1 )
 
-        if inputTypes[0] is not None:
-            if inputTypes[0].isEqualTo( inputTypes[1] ) == 0:
-                raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + inputTypes[1].toStr() )
 
-        if not requestedType.isEqualTo( inputTypes[0] ):
-            raise BaseException("input type not float")
+        if self.outputType is None:
+            #
+            # no output type defined so far..
+            # look for an already defined input type and inherit.
+            #
 
-        if not requestedType.isEqualTo( inputTypes[1] ):
-            raise BaseException("input type not float")
+            if inputTypes[0] is not None:
+                self.outputType = inputTypes[0]
 
-        # return [ inputTypes[0] ]
-        return [requestedType]
+            else:
+                if inputTypes[1] is not None:
+                    self.outputType = inputTypes[1]
+
+        else:
+            #
+            # an out type was defined
+            # check that the inputs have the same type as the output
+            #
+
+            if inputTypes[0] is not None:
+                if inputTypes[0].isEqualTo( self.outputType ) == 0:
+                    raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + self.outputType.toStr() )
+
+            
+            if inputTypes[1] is not None:
+                if inputTypes[1].isEqualTo( self.outputType ) == 0:
+                    raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[1].toStr() + " != " + self.outputType.toStr() )
+
+        
+        return [self.outputType]
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -81,6 +101,9 @@ class Padd(BlockPrototype):
             if flag == 'defStates':
                 lines = ''
 
+            elif flag == 'localvar':
+                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
+
             elif flag == 'constructor':
                 lines = ''
 
@@ -88,7 +111,7 @@ class Padd(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() + ' + ' + self.inputSignal(1).getName() + ';\n'
+                lines = self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() + ' + ' + self.inputSignal(1).getName() + ';\n'
 
             elif flag == 'update':
                 lines = ''
@@ -112,9 +135,10 @@ def dyn_add(sim : Simulation, inputSignals : List[Signal], fak_list : List[float
 
 
 class Pconst(BlockPrototype):
-    def __init__(self, sim : Simulation, constant : float ):
+    def __init__(self, sim : Simulation, constant, datatype ):
 
         self.constant = constant
+        self.outputType = datatype
 
         #
         blk = Block(sim, self, None, blockname = 'const').configAddOutputSignal('const')
@@ -124,10 +148,9 @@ class Pconst(BlockPrototype):
 
 
     def configDefineOutputTypes(self, inputTypes):
-        # print("Pconst: in callback configDefineOutputTypes")
 
         # define the output type 
-        return [ DataType( ORTD_DATATYPE_FLOAT, 1 ) ]
+        return [ self.outputType ]
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -168,6 +191,9 @@ class Pconst(BlockPrototype):
             if flag == 'defStates':
                 lines = ''
 
+            elif flag == 'localvar':
+                lines = self.outputType.getCppDataType() + ' const ' + self.outputSignal(0).getName() + ';\n'
+
             elif flag == 'constructor':
                 lines = ''
 
@@ -175,7 +201,7 @@ class Pconst(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double const ' + self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
+                lines = self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
 
             elif flag == 'update':
                 lines = ''
@@ -187,9 +213,9 @@ class Pconst(BlockPrototype):
 
 
 
-def dyn_const(sim : Simulation, constant : float ):
+def dyn_const(sim : Simulation, constant, datatype ):
 
-    return Pconst(sim, constant).getOutputsSingnals()
+    return Pconst(sim, constant, datatype).getOutputsSingnals()
 
 
 
@@ -205,6 +231,7 @@ class Pdelay(BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal ):
 
         self.u = u
+        self.outputType = None
 
         #
         blk = Block(sim, self, [ u ], blockname = 'delay').configAddOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
@@ -216,8 +243,10 @@ class Pdelay(BlockPrototype):
     def configDefineOutputTypes(self, inputTypes):
         # print("Pdelay: in callback configDefineOutputTypes")
 
-        # just copy the input type 
-        return [ inputTypes[0] ]
+        # just inherit the input type 
+        self.outputType = inputTypes[0]
+        return [ self.outputType ]
+ 
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -258,7 +287,10 @@ class Pdelay(BlockPrototype):
         if language == 'c++':
 
             if flag == 'defStates':
-                lines = 'double ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+                lines = self.outputType.getCppDataType() + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+
+            elif flag == 'localvar':
+                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -267,7 +299,7 @@ class Pdelay(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+                lines = self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
             elif flag == 'update':
                 lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
@@ -294,6 +326,7 @@ class Pgain(BlockPrototype):
 
         self.u = u
         self.gain = gain
+        self.outputType = None
 
         #
         blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal('gain')
@@ -306,7 +339,10 @@ class Pgain(BlockPrototype):
         # print("Pdelay: in callback configDefineOutputTypes")
 
         # just copy the input type 
-        return [ inputTypes[0] ]
+
+        self.outputType = inputTypes[0]
+
+        return [ self.outputType ]
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -342,6 +378,9 @@ class Pgain(BlockPrototype):
 
             if flag == 'defStates':
                 lines = ''
+                
+            elif flag == 'localvar':
+                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -350,7 +389,7 @@ class Pgain(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = 'double ' + self.outputSignal(0).getName() + ' = ' + str(self.gain) + ' * ' + self.inputSignal(0).getName() +  ';\n'
+                lines = self.outputSignal(0).getName() + ' = ' + str(self.gain) + ' * ' + self.inputSignal(0).getName() +  ';\n'
 
             elif flag == 'update':
                 lines = ''

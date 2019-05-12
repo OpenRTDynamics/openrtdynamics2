@@ -4,19 +4,6 @@ init(autoreset=True)
 
 #from Block import * 
 
-ORTD_DATATYPE_UNCONFIGURED = 0
-ORTD_DATATYPE_FLOAT = (1 | (8 << 5))
-ORTD_DATATYPE_SHORTFLOAT = 4
-ORTD_DATATYPE_INT32 = 2
-ORTD_DATATYPE_BOOLEAN = 3
-ORTD_DATATYPE_EVENT = 5
-ORTD_DATATYPE_BINARY = 6
-ORTD_DATATYPE_UINT32 = 7
-ORTD_DATATYPE_INT16 = 8
-ORTD_DATATYPE_UINT16 = 9
-ORTD_DATATYPE_INT8 = 10
-ORTD_DATATYPE_UINT8 = 11
-
 
 class Signal:
     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):

@@ -1,59 +1,7 @@
 from typing import Dict, List
 
 from Signal import *
-
-
-
-
-
-
-class DataType:
-    #
-    # TODO: feature: add type of datype: 1) 'C++', 'ORTD (old)', 'ORTD (V2)' + optional 'is reference flag' 
-    #
-    #
-    #
-    #
-
-
-
-    def __init__(self, type : int, size : int):
-        self.type = type
-        self.size = size
-
-    def isEqualTo(self, otherType):
-        # output types
-        # -1 undefined, 1 equal types, 0 type missmatch
-
-        #print("DataType:isEqualTo " + str(self.size) + "==" + str(otherType.size) + " -- " + str(self.type) + " == " + str(otherType.type) )
-        if otherType is None:
-            return -1
-
-        if not self.isDefined():
-            return -1
-
-        if not otherType.isDefined():
-            return -1
-
-        if self.size == otherType.size and self.type == otherType.type:
-            return 1
-        else:
-            return 0
-
-    def isDefined(self):
-        if self.type is None:
-            return False
-
-        if self.size is None:
-            return False
-
-        return True
-
-    def show(self):
-        print("Datatype: type=" + str(self.type) + " size=" + str(self.size) )
-
-    def toStr(self):
-        return "type=" + str(self.type) + " size=" + str(self.size)
+from Datatypes import *
 
 
 
