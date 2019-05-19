@@ -90,8 +90,142 @@ class CommandCalculateOutputs(ExecutionCommand):
         return lines
 
 
+class CommandUpdateStates(ExecutionCommand):
+
+    def __init__(self, blockList):
+
+        self.blockList = blockList
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: update states of:")
+
+        for block in self.blockList:
+            print("  - " + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'code':
+                lines += ''
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().codeGen('c++', 'update')
+
+        return lines
+
+
+
+
+
+
+
+
+
+class CommandCacheOutputs(ExecutionCommand):
+
+    def __init__(self, signals : List[Signal]):
+
+        self.signals = signals
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
+
+        for s in self.signals:
+            print("  - " + s.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+
+            if flag == 'variables':
+                lines += ''
+                for s in self.signals:
+
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                        lines +=  '\n// cache for ' + s.getName() + '\n'
+                        lines += 'double ' + cachevarName + " {NAN};" + '\n' 
+
+            if flag == 'code':
+                lines += ''
+                for s in self.signals:
+
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                        lines += cachevarName + ' = ' + s.getName() + '\n'
+
+        return lines
+
+
+
+
+
+# # TODO: merge this with PutAPIFunction
+# class CommandCompondUpdateStates(ExecutionCommand):
+
+#     #
+#     # Creates an API-function to update the states
+#     # 
+
+#     def __init__(self, executionCommands):
+
+#         self.executionCommands = executionCommands
+        
+#     def printExecution(self):
+
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: updating the states as follows")
+#         print(Style.BRIGHT + Fore.YELLOW + "{")
+
+#         for c in self.executionCommands:
+#             c.printExecution()
+
+#         print(Style.BRIGHT + Fore.YELLOW + "}")
+        
+
+#     def codeGen(self, language, flag):
+
+#         lines = ''
+
+#         if language == 'c++':
+
+#             if flag == 'code':
+#                 lines += 'updateStates() {\n'
+
+#                 # TODO: ensure variables are not defined twice
+#                 for c in self.executionCommands:
+#                     lines += c.codeGen(language, 'localvar')
+                
+#                 lines += '\n'
+
+#                 for c in self.executionCommands:
+#                     lines += c.codeGen(language, 'code')
+
+#                 lines += '}\n\n'
+
+#         return lines
+
+
+
 # rename to PutAPIFunction
-class PutOuputFunction(ExecutionCommand):
+class PutAPIFunction(ExecutionCommand):
 
     #
     # Creates an API-function to return the calculated values that might depend on input values
@@ -107,7 +241,7 @@ class PutOuputFunction(ExecutionCommand):
         
     def printExecution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish:")
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: API outputs are:")
         for s in self.outputSignals:
             print(Style.DIM + '  - ' + s.getName())
 
@@ -162,130 +296,3 @@ class PutOuputFunction(ExecutionCommand):
 
         return lines
 
-
-class CommandUpdateStates(ExecutionCommand):
-
-    def __init__(self, blockList):
-
-        self.blockList = blockList
-        
-    def printExecution(self):
-
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: update states of:")
-
-        for block in self.blockList:
-            print("  - " + block.toStr() )
-
-        # self.executionLine.printExecutionLine()
-
-    def codeGen(self, language, flag):
-
-        lines = ''
-
-        if language == 'c++':
-
-            if flag == 'code':
-                lines += ''
-                for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen('c++', 'update')
-
-        return lines
-
-
-
-# TODO: merge this with PutAPIFunction
-class CommandCompondUpdateStates(ExecutionCommand):
-
-    #
-    # Creates an API-function to update the states
-    # 
-
-    def __init__(self, executionCommands):
-
-        self.executionCommands = executionCommands
-        
-    def printExecution(self):
-
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: updating the states as follows")
-        print(Style.BRIGHT + Fore.YELLOW + "{")
-
-        for c in self.executionCommands:
-            c.printExecution()
-
-        print(Style.BRIGHT + Fore.YELLOW + "}")
-        
-
-    def codeGen(self, language, flag):
-
-        lines = ''
-
-        if language == 'c++':
-
-            if flag == 'code':
-                lines += 'updateStates() {\n'
-
-                # TODO: ensure variables are not defined twice
-                for c in self.executionCommands:
-                    lines += c.codeGen(language, 'localvar')
-                
-                lines += '\n'
-
-                for c in self.executionCommands:
-                    lines += c.codeGen(language, 'code')
-
-                lines += '}\n\n'
-
-        return lines
-
-
-
-
-
-
-class CommandCacheOutputs(ExecutionCommand):
-
-    def __init__(self, signals : List[Signal]):
-
-        self.signals = signals
-        
-    def printExecution(self):
-
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
-
-        for s in self.signals:
-            print("  - " + s.toStr() )
-
-        # self.executionLine.printExecutionLine()
-
-    def codeGen(self, language, flag):
-
-        lines = ''
-
-        if language == 'c++':
-
-
-            if flag == 'variables':
-                lines += ''
-                for s in self.signals:
-
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-
-                        lines +=  '\n// cache for ' + s.getName() + '\n'
-                        lines += 'double ' + cachevarName + " {NAN};" + '\n' 
-
-            if flag == 'code':
-                lines += ''
-                for s in self.signals:
-
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                        lines += cachevarName + ' = ' + s.getName() + '\n'
-
-        return lines

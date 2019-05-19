@@ -112,10 +112,10 @@ dependencySignals = executionLine1.dependencySignals
 
 # get the simulation-input signals in dependencySignals
 # NOTE: these are only the simulation inputs that are needed to calculate the output y
-simulationInputSignals = []
+simulationInputSignalsForCalcOutputs = []
 for s in dependencySignals:
     if isinstance(s, SimulationInputSignal):
-        simulationInputSignals.append(s)
+        simulationInputSignalsForCalcOutputs.append(s)
 
 # counter for the order (i.e. step through all delays present in the system)
 order = 0
@@ -130,10 +130,10 @@ commandToCacheIntermediateResults = CommandCacheOutputs( executionLine1.signalOr
 
 # build the function calcPrimaryResults() that calculates the outputs of the simulation.
 # Further, it stores intermediate results
-commandToPublishTheResults = PutOuputFunction("calcResults_1", 
-                            inputSignals=simulationInputSignals,   # TODO: only add the elements that are inputs
-                            outputSignals=[y], 
-                            executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
+commandToPublishTheResults = PutAPIFunction("calcResults_1", 
+                                            inputSignals=simulationInputSignalsForCalcOutputs,   # TODO: only add the elements that are inputs
+                                            outputSignals=[y], 
+                                            executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
 
 # Initialize the list of commands to execute to update the states
 commandsToExecuteForStateUpdate = []
@@ -237,6 +237,13 @@ while True:
             # s is a signal that comes from a block
             blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
 
+        if isinstance(s, SimulationInputSignal):
+            # append this signals s to the list of needed simulation inputs
+            # TODO: investigate if this is really needed and does not produce double appends to the list
+            # simulationInputSignalsForCalcOutputs.append(s)
+
+            pass
+
     sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
 
     commandsToExecuteForStateUpdate.append( sUpCmd )
@@ -260,7 +267,12 @@ while True:
 
 
 #
-commandToUpdateStates = CommandCompondUpdateStates( commandsToExecuteForStateUpdate )
+commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
+                                        inputSignals=simulationInputSignalsForCalcOutputs, 
+                                        outputSignals=[], 
+                                        executionCommands=commandsToExecuteForStateUpdate )
+
+# commandToUpdateStates = CommandCompondUpdateStates( commandsToExecuteForStateUpdate )
 
 # build the program
 commandsToExecute = [ commandToPublishTheResults, 
