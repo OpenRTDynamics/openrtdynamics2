@@ -378,7 +378,19 @@ class BuildExecutionPath:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
                 if signal.getSourceBlock() is None:
-                    print(tabs + '-- ERROR: no input signal defined for this signal! --')
+                    if isinstance(signal, SimulationInputSignal):
+                        # signal is an input to the simulation
+                        # add to the list of dependent inputs
+
+                        # startSignal is at the top of the tree, so add it to the dependiencies
+                        self.dependencySignals.append( signal )
+
+                        # also add startSignal to the execution list
+                        self.reachableSignals.append( signal ) 
+
+                    else:
+                        # this case must be an error..                  
+                        print(tabs + '-- ERROR: no input signal defined for signal ' + signal.getName() + ' ! --')
                     
                 else:
 

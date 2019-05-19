@@ -63,32 +63,44 @@ class CommandCalculateOutputs(ExecutionCommand):
 
             if flag == 'localvar':
                 # TODO: exclude the input singals 
-                for e in self.executionLine.getSignalsToExecute():
+                for s in self.executionLine.getSignalsToExecute():
 
-                    print('output codegen for ' +  e.toStr() )
-                    lines += e.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar')
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+
+                        print('output codegen to store the result ' +  s.toStr() )
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar')
 
 
             if flag == 'code':
                 # lines += '{\n'
 
-                for e in self.executionLine.getSignalsToExecute():
+                for s in self.executionLine.getSignalsToExecute():
 
-                    print('output codegen for ' +  e.toStr() )
-                    lines += e.getSourceBlock().getBlockPrototype().codeGen('c++', 'output')
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+
+                        print('output codegen to calculate ' +  s.toStr() )
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output')
 
         return lines
 
 
-class CommandPublishResult(ExecutionCommand):
+# rename to PutAPIFunction
+class PutOuputFunction(ExecutionCommand):
 
     #
-    # Creates an API-function to return the calculated values
+    # Creates an API-function to return the calculated values that might depend on input values
     # 
 
-    def __init__(self, nameAPI : str, signals : List[ Signal ], executionCommands):
+    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands):
 
-        self.signals = signals
+        self.outputSignals = outputSignals
+        self.inputSignals = inputSignals
         self.executionCommands = executionCommands
         self.nameAPI = nameAPI
 
@@ -96,7 +108,7 @@ class CommandPublishResult(ExecutionCommand):
     def printExecution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: publish:")
-        for s in self.signals:
+        for s in self.outputSignals:
             print(Style.DIM + '  - ' + s.getName())
 
         print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
@@ -120,14 +132,17 @@ class CommandPublishResult(ExecutionCommand):
             if flag == 'code':
                 # define the API-function (start)
                 lines += '// calculate'
-                for s in self.signals:
+                for s in self.outputSignals:
                     lines += ' ' + s.getName()
 
                 lines += '\n'
 
                 lines += self.nameAPI + '('
-                for s in self.signals:
-                    lines +=  ' double & '  + s.getName()
+                for s in self.outputSignals:
+                    lines +=  ' double & '  + s.getName() + ', '  # TODO: use datatype provided by type
+
+                for s in self.inputSignals:
+                    lines +=  ' double  '  + s.getName()
 
                 lines +=  ' ) {\n'
 
@@ -178,7 +193,7 @@ class CommandUpdateStates(ExecutionCommand):
 
 
 
-
+# TODO: merge this with PutAPIFunction
 class CommandCompondUpdateStates(ExecutionCommand):
 
     #
@@ -252,15 +267,25 @@ class CommandCacheOutputs(ExecutionCommand):
             if flag == 'variables':
                 lines += ''
                 for s in self.signals:
-                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
-                    lines +=  '\n// cache for ' + s.getName() + '\n'
-                    lines += 'double ' + cachevarName + " {NAN};" + '\n' 
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                        lines +=  '\n// cache for ' + s.getName() + '\n'
+                        lines += 'double ' + cachevarName + " {NAN};" + '\n' 
 
             if flag == 'code':
                 lines += ''
                 for s in self.signals:
-                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines += cachevarName + ' = ' + s.getName() + '\n'
+
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                        lines += cachevarName + ' = ' + s.getName() + '\n'
 
         return lines

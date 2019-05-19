@@ -123,3 +123,27 @@ class Signal:
 
 
 
+
+class BlockOutputSignal(Signal):
+    """
+        A signal that is the output of a block (normal case)
+
+        TODO: implement and remove code from 'Signal' above
+    """
+
+    def __init__(self, sim, port : int, datatype = None):
+        pass
+
+
+
+class SimulationInputSignal(Signal):
+    """
+        A special signal that markes an input to a simulation.
+    """
+
+    def __init__(self, sim, port : int, datatype = None):
+        
+        self.port = port
+
+        Signal.__init__(self, sim, datatype=datatype)
+

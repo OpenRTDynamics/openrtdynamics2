@@ -198,6 +198,9 @@ class Simulation:
 
 
     def buildExecutionlist(self):
+        # TODO: remove if uneeded
+
+
         # TODO:
         #
         # Go through all block and their respective output signals and check 
@@ -237,8 +240,7 @@ class Simulation:
         
 
 
-
-
+        # TODO: remove if uneeded
 
 
         # Array to store the connections that remain inside the simulation 

@@ -48,7 +48,8 @@ datatype = DataTypeFloat(1)
 #datatype = DataTypeInt32(1) 
 
 
-U = dyn_const(sim, 1.123, datatype ).setNameOfOrigin('U (const)').setName('U')
+#U = dyn_const(sim, 1.123, datatype ).setNameOfOrigin('U (const)').setName('U')
+U = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extU')
 
 
 
@@ -58,9 +59,12 @@ U = dyn_const(sim, 1.123, datatype ).setNameOfOrigin('U (const)').setName('U')
 
 y = firstOrderAndGain(sim, U, 0.2, gain=0.8, name="1")
 y = firstOrderAndGain(sim, y, 0.2, gain=0.8, name="2")
-y = firstOrderAndGain(sim, y, 0.2, gain=0.8, name="3")
+y_ = firstOrderAndGain(sim, y, 0.2, gain=0.8, name="3")
 
 
+E = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extE')
+
+y = dyn_add(sim, [ y_, E ], [ 1, 1 ] ).setNameOfOrigin('y (add)').setName('y')
 
 
 # test 
@@ -106,6 +110,13 @@ print()
 # start with following signals to be computed
 dependencySignals = executionLine1.dependencySignals
 
+# get the simulation-input signals in dependencySignals
+# NOTE: these are only the simulation inputs that are needed to calculate the output y
+simulationInputSignals = []
+for s in dependencySignals:
+    if isinstance(s, SimulationInputSignal):
+        simulationInputSignals.append(s)
+
 # counter for the order (i.e. step through all delays present in the system)
 order = 0
 
@@ -119,10 +130,16 @@ commandToCacheIntermediateResults = CommandCacheOutputs( executionLine1.signalOr
 
 # build the function calcPrimaryResults() that calculates the outputs of the simulation.
 # Further, it stores intermediate results
-commandToPublishTheResults = CommandPublishResult("calcResults_1", [y], [ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
+commandToPublishTheResults = PutOuputFunction("calcResults_1", 
+                            inputSignals=simulationInputSignals,   # TODO: only add the elements that are inputs
+                            outputSignals=[y], 
+                            executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
 
 # Initialize the list of commands to execute to update the states
 commandsToExecuteForStateUpdate = []
+
+# the simulation intputs needed to perform the state update
+simulationInputSignalsForStateUpdate = []
 
 while True:
 
@@ -149,16 +166,20 @@ while True:
         # find out which signals are needed to calculate the states needed to calculate dependencySignals
         # returnInutsToUpdateStates
 
-        for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
+        if isinstance(s, SimulationInputSignal):
+            simulationInputSignalsForStateUpdate.append(s)
 
-            print(Fore.YELLOW + Style.BRIGHT + "  - " + s_.toStr() )
+        else:  # TODO: if isinstance(s, BlockOutputSignal):
+            for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
 
-            # only append of this signals is not already computable
-            if not E.isSignalAlreadyComputable(s_):
-                dependencySignals__.append(s_)
+                print(Fore.YELLOW + Style.BRIGHT + "  - " + s_.toStr() )
 
-            else:
-                print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
+                # only append of this signals is not already computable
+                if not E.isSignalAlreadyComputable(s_):
+                    dependencySignals__.append(s_)
+
+                else:
+                    print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
 
 
     # create executionline for calculating the dependency singlas and at the end of the overall line
@@ -209,7 +230,12 @@ while True:
     blocksWhoseStatesToUpdate = []
     for s in dependencySignals:
         #print("  - " + s.toStr())
-        blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
+        
+        
+        #  TODO: use: if isinstance(s, BlockOutputSignal):
+        if not isinstance(s, SimulationInputSignal):
+            # s is a signal that comes from a block
+            blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
 
     sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
 
