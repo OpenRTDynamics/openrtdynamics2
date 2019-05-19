@@ -57,15 +57,17 @@ U = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extU
 # y = firstOrder(sim, y, 0.2, name="2")
 # y = firstOrder(sim, y, 0.2, name="3")
 
-y = firstOrderAndGain(sim, U, 0.2, gain=0.8, name="1")
-y = firstOrderAndGain(sim, y, 0.2, gain=0.8, name="2")
-y_ = firstOrderAndGain(sim, y, 0.2, gain=0.8, name="3")
+y1 = firstOrderAndGain(sim, U, 0.2, gain=0.8, name="1")
+y2 = firstOrderAndGain(sim, y1, 0.2, gain=0.8, name="2")
+y3 = firstOrderAndGain(sim, y2, 0.2, gain=0.8, name="3")
 
 
 E = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extE')
 
-y = dyn_add(sim, [ y_, E ], [ 1, 1 ] ).setNameOfOrigin('y (add)').setName('y')
+y = dyn_add(sim, [ y3, E ], [ 1, 1 ] ).setNameOfOrigin('y (add)').setName('y')
 
+# define the outputs of the simulation
+outputSignals = [ y, y2 ]
 
 # test 
 sim.ShowBlocks()
@@ -90,17 +92,31 @@ E=BuildExecutionPath()
 
 
 print()
-print(Style.BRIGHT + "-------- Find dependencies for calcularing 'y'  --------")
+print(Style.BRIGHT + "-------- Find dependencies for calcularing the outputs  --------")
 print()
 
-executionLine1 = E.getExecutionLine( y )
-executionLine1.printExecutionLine()
+
+
+
+# collect all execution lines with:
+executionLineToCalculateOutputs = ExecutionLine( [], [] )
+
+# for all requested output singals
+for s in outputSignals:
+    elForOutputS = E.getExecutionLine( s )
+    elForOutputS.printExecutionLine()
+
+    # merge all lines into one
+    executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+
+
+
 
 print()
 print(Style.BRIGHT + "-------- Build all execution paths  --------")
 print()
 
-# look into executionLine1.dependencySignals and use E.getExecutionLine( ) for each
+# look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
 # element. Also collect the newly appearing dependency signals in a list and also 
 # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
 # finally concatenare the execution lines
@@ -108,7 +124,7 @@ print()
 # 
 
 # start with following signals to be computed
-dependencySignals = executionLine1.dependencySignals
+dependencySignals = executionLineToCalculateOutputs.dependencySignals
 
 # get the simulation-input signals in dependencySignals
 # NOTE: these are only the simulation inputs that are needed to calculate the output y
@@ -123,16 +139,16 @@ order = 0
 
 
 # execution line per order
-commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLine1, [ y ])
+commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals)
 
 # cache all signals that are calculated so far
-commandToCacheIntermediateResults = CommandCacheOutputs( executionLine1.signalOrder )
+commandToCacheIntermediateResults = CommandCacheOutputs( executionLineToCalculateOutputs.signalOrder )
 
 # build the function calcPrimaryResults() that calculates the outputs of the simulation.
 # Further, it stores intermediate results
 commandToPublishTheResults = PutAPIFunction("calcResults_1", 
                                             inputSignals=simulationInputSignalsForCalcOutputs,   # TODO: only add the elements that are inputs
-                                            outputSignals=[y], 
+                                            outputSignals=outputSignals, 
                                             executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
 
 # Initialize the list of commands to execute to update the states
@@ -302,7 +318,12 @@ print()
 sourcecode = ''
 sourcecode += "class compiledSimulation {\n\n"
 
+#
 # define member variables
+#
+
+# TODO: use an API function and a execution command to set the initial values
+
 sourcecode += "// state variables\n"
 
 for block in sim.getBlocksArray():
@@ -324,7 +345,12 @@ sourcecode += commandToUpdateStates.codeGen('c++', 'variables')
 # for command in commandsToExecute:
 #     sourcecode += command.codeGen('c++', 'variables')
 
+#
 # generate reset()
+#
+
+# TODO: use an API function and a execution command to set the initial values
+
 sourcecode += "\n// reset the states of the stimulation\n"
 sourcecode += "void reset() {\n"
 
