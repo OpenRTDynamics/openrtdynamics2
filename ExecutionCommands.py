@@ -90,6 +90,50 @@ class CommandCalculateOutputs(ExecutionCommand):
         return lines
 
 
+
+
+# TODO: introduce a command to reset the states
+#
+# like this one, but this one is not tested:
+
+class CommandResetStates(ExecutionCommand):
+
+    def __init__(self, blockList):
+
+        self.blockList = blockList
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: reset states of:")
+
+        for block in self.blockList:
+            print("  - " + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+
+            if flag == 'code':
+                lines += ''
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().codeGen('c++', 'reset')
+
+
+
+        return lines
+
+
+
+
+
+
+
+
 class CommandUpdateStates(ExecutionCommand):
 
     def __init__(self, blockList):
@@ -111,10 +155,28 @@ class CommandUpdateStates(ExecutionCommand):
 
         if language == 'c++':
 
+            if flag == 'variables':
+                # define all state variables
+
+                lines += ''
+                lines += "\n\n// state update\n"
+                for b in self.blockList:
+                    
+                    #
+                    # TODO: rename 'defStates' to 'variables'
+                    #
+                    
+                    lines += b.getBlockPrototype().codeGen('c++', 'defStates')
+
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
                     lines += b.getBlockPrototype().codeGen('c++', 'update')
+
+            # if flag == 'codereset':
+            #     lines += ''
+            #     for b in self.blockList:
+            #         lines += b.getBlockPrototype().codeGen('c++', 'reset')
 
         return lines
 
@@ -150,6 +212,7 @@ class CommandCacheOutputs(ExecutionCommand):
 
             if flag == 'variables':
                 lines += ''
+                lines += "\n\n// cached output values\n"
                 for s in self.signals:
 
                     # TODO: if isinstance(s, BlockOutputSignal):
@@ -178,7 +241,6 @@ class CommandCacheOutputs(ExecutionCommand):
 
 
 
-# rename to PutAPIFunction
 class PutAPIFunction(ExecutionCommand):
 
     #
