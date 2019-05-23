@@ -12,6 +12,7 @@ from TraverseGraph import *
 
 
 class ExecutionCommand:
+    # TODO: add context (link to an upper level ExecutionCommand)
     def __init__(self):
 
         pass
@@ -25,6 +26,11 @@ class ExecutionCommand:
 
 
 class CommandCalculateOutputs(ExecutionCommand):
+    """
+        execute an executionLine i.e. call the output-flags of all blocks given in executionLine
+        in the correct order. This calculates the blocks outputs indicated by the signals given
+        in executionLine.getSignalsToExecute()
+    """
 
     def __init__(self, executionLine, targetSignals):
         # targetSignals is optional
@@ -92,11 +98,10 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 
 
-# TODO: introduce a command to reset the states
-#
-# like this one, but this one is not tested:
-
 class CommandResetStates(ExecutionCommand):
+    """
+        call reset flag of all blocks given to this command
+    """
 
     def __init__(self, blockList):
 
@@ -135,6 +140,9 @@ class CommandResetStates(ExecutionCommand):
 
 
 class CommandUpdateStates(ExecutionCommand):
+    """
+        call update states of all blocks given to this command
+    """
 
     def __init__(self, blockList):
 
@@ -189,6 +197,11 @@ class CommandUpdateStates(ExecutionCommand):
 
 
 class CommandCacheOutputs(ExecutionCommand):
+    """
+        copy the value of each given signal to the space of global variables
+        (only signals that are the output of a block are considered, i.e. no 
+        simulation inputs)
+    """
 
     def __init__(self, signals : List[Signal]):
 
@@ -242,6 +255,11 @@ class CommandCacheOutputs(ExecutionCommand):
 
 
 class PutAPIFunction(ExecutionCommand):
+    """
+        Represents an API-function (e.g. member function of a c++ class) which executes
+        once triggered the specified commands. A list of in-/output signals to this function
+        is given by inputSignals and outputSignals.
+    """
 
     #
     # Creates an API-function to return the calculated values that might depend on input values
