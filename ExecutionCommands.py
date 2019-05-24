@@ -7,15 +7,30 @@ from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
+from textwrap import *
+
 from TraverseGraph import *
 
 
 
 class ExecutionCommand:
-    # TODO: add context (link to an upper level ExecutionCommand)
     def __init__(self):
 
-        pass
+        # the nesting level (by default 0)
+        self.treeLevel_ = 0
+
+        # the upper level execution command within the execution tree
+        # None by default
+        self.contextCommand = None
+
+    @property
+    def treeLevel(self):
+        return self.treeLevel_
+
+    # set the parent execution command
+    def setContext(self, context ):
+        self.contextCommand = context
+        self.treeLevel_ = context.treeLevel + 1
 
 
     def codeGen(self, language, flag):
@@ -33,6 +48,8 @@ class CommandCalculateOutputs(ExecutionCommand):
     """
 
     def __init__(self, executionLine, targetSignals):
+        ExecutionCommand.__init__(self)
+
         # targetSignals is optional
 
         self.executionLine = executionLine
@@ -104,6 +121,7 @@ class CommandResetStates(ExecutionCommand):
     """
 
     def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
 
         self.blockList = blockList
         
@@ -145,6 +163,7 @@ class CommandUpdateStates(ExecutionCommand):
     """
 
     def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
 
         self.blockList = blockList
         
@@ -204,6 +223,7 @@ class CommandCacheOutputs(ExecutionCommand):
     """
 
     def __init__(self, signals : List[Signal]):
+        ExecutionCommand.__init__(self)
 
         self.signals = signals
         
@@ -266,11 +286,15 @@ class PutAPIFunction(ExecutionCommand):
     # 
 
     def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands):
+        ExecutionCommand.__init__(self)
 
         self.outputSignals = outputSignals
         self.inputSignals = inputSignals
         self.executionCommands = executionCommands
         self.nameAPI = nameAPI
+
+        for e in executionCommands:
+            e.setContext(self)
 
         
     def printExecution(self):
@@ -314,15 +338,20 @@ class PutAPIFunction(ExecutionCommand):
 
                 lines +=  ' ) {\n'
 
+
+                
+                innerLines = ''
                 # put the local variables
                 for c in self.executionCommands:
-                    lines += c.codeGen(language, 'localvar')
+                    innerLines += c.codeGen(language, 'localvar')
                 
-                lines += '\n'
+                innerLines += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    lines += c.codeGen(language, 'code')
+                    innerLines += c.codeGen(language, 'code')
+
+                lines += indent(innerLines, '  ')
 
                 # define the API-function (finish)
                 lines += '}\n\n'
@@ -330,3 +359,69 @@ class PutAPIFunction(ExecutionCommand):
 
         return lines
 
+
+
+
+
+
+
+
+
+class PutSimulation(ExecutionCommand):
+    """
+        Represents a simulation that is represented by a class in c++
+    """
+
+    def __init__(self, nameAPI: str, executionCommands : ExecutionCommand ):
+        ExecutionCommand.__init__(self)
+
+        self.executionCommands = executionCommands
+        self.nameAPI = nameAPI
+
+        for e in executionCommands:
+            e.setContext(self)
+
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API:")
+        
+        for c in self.executionCommands:
+            c.printExecution()
+
+        print(Style.BRIGHT + Fore.YELLOW + "}")
+        
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'variables':
+                pass
+
+            if flag == 'code':
+                # define the API-function (start)
+                lines += 'class ' + self.nameAPI + ' {'
+                lines += '\n'
+
+
+                # put the local variables
+                innerLines = '// variables\n'
+                for c in self.executionCommands:
+                    innerLines += c.codeGen(language, 'variables')
+                
+                innerLines += '\n'
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.codeGen(language, 'code')
+
+                lines += indent(innerLines, '  ')
+
+                # define the API-function (finish)
+                lines += '}\n\n'
+
+
+        return lines
