@@ -18,7 +18,7 @@ class Padd(BlockPrototype):
         # output type undefined
         self.outputType = None
 
-        #
+        # TODO: allow a list of inputs
         if len(inputSignals) != 2:
             raise("inp_list must have exactly 2 elements")
 
@@ -53,6 +53,8 @@ class Padd(BlockPrototype):
             # an out type was defined
             # check that the inputs have the same type as the output
             #
+
+            # TODO: allow int32 and double to be summed up. return the higher precission type
 
             if inputTypes[0] is not None:
                 if inputTypes[0].isEqualTo( self.outputType ) == 0:
@@ -102,7 +104,7 @@ class Padd(BlockPrototype):
                 lines = ''
 
             elif flag == 'localvar':
-                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -192,7 +194,7 @@ class Pconst(BlockPrototype):
                 lines = ''
 
             elif flag == 'localvar':
-                lines = self.outputType.getCppDataType() + ' const ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.outputType.cppDataType + ' const ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -287,10 +289,10 @@ class Pdelay(BlockPrototype):
         if language == 'c++':
 
             if flag == 'defStates':
-                lines = self.outputType.getCppDataType() + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+                lines = self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
             elif flag == 'localvar':
-                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
@@ -380,7 +382,7 @@ class Pgain(BlockPrototype):
                 lines = ''
                 
             elif flag == 'localvar':
-                lines = self.outputType.getCppDataType() + ' ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''

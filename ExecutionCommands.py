@@ -255,7 +255,7 @@ class CommandCacheOutputs(ExecutionCommand):
                         cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
                         lines +=  '\n// cache for ' + s.getName() + '\n'
-                        lines += 'double ' + cachevarName + " {NAN};" + '\n' 
+                        lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + " {NAN};" + '\n' 
 
             if flag == 'code':
                 lines += ''
@@ -330,13 +330,19 @@ class PutAPIFunction(ExecutionCommand):
                 lines += '\n'
 
                 lines += self.nameAPI + '('
+
+                elements = []
                 for s in self.outputSignals:
-                    lines +=  ' double & '  + s.getName() + ', '  # TODO: use datatype provided by type
+                    
+                    elements.append( s.getDatatype().cppDataType + ' & '  + s.getName() )
+                    
 
                 for s in self.inputSignals:
-                    lines +=  ' double  '  + s.getName()
+                    elements.append(  s.getDatatype().cppDataType + ' '  + s.getName() )
 
-                lines +=  ' ) {\n'
+                lines += ', '.join(elements)
+
+                lines +=  ') {\n'
 
 
                 

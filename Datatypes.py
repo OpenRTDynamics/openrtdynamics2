@@ -60,12 +60,13 @@ class DataType:
         return True
 
     def show(self):
-        print("Datatype: type=" + str(self.type) + " size=" + str(self.size) )
+        print("Datatype: type=" + self.toStr())
 
     def toStr(self):
-        return "type=" + str(self.type) + " size=" + str(self.size)
+        return "type=" + str(self.type) + " size=" + str(self.size) + ' (' + self.cppDataType + ')'
 
-    def getCppDataType(self):
+    @property
+    def cppDataType(self):
         return 'UNDEF (prototype)'
 
 
@@ -76,8 +77,10 @@ class DataTypeFloat(DataType):
 
         DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
 
-    def getCppDataType(self):
+    @property
+    def cppDataType(self):
         return 'double'
+
 
 
 class DataTypeInt32(DataType):
@@ -86,7 +89,10 @@ class DataTypeInt32(DataType):
 
         DataType.__init__(self, type=ORTD_DATATYPE_INT32, size=size)
 
-    def getCppDataType(self):
+    @property
+    def cppDataType(self):
         return 'int32_t'
+
+
 
 

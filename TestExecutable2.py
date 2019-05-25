@@ -44,12 +44,12 @@ def firstOrderAndGain(sim, u, z_inf, gain, name):
 
 
 
-datatype = DataTypeFloat(1) 
-#datatype = DataTypeInt32(1) 
+#baseDatatype = DataTypeFloat(1) 
+baseDatatype = DataTypeInt32(1) 
 
 
 #U = dyn_const(sim, 1.123, datatype ).setNameOfOrigin('U (const)').setName('U')
-U = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extU')
+U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
 
 
 
@@ -62,7 +62,7 @@ y2 = firstOrderAndGain(sim, y1, 0.2, gain=0.8, name="2")
 y3 = firstOrderAndGain(sim, y2, 0.2, gain=0.8, name="3")
 
 
-E = SimulationInputSignal(sim, port=0, datatype=DataTypeFloat(1) ).setName('extE')
+E = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extE')
 
 y = dyn_add(sim, [ y3, E ], [ 1, 1 ] ).setNameOfOrigin('y (add)').setName('y')
 

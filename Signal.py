@@ -100,6 +100,11 @@ class Signal:
         # overwrite self
         self.linkedSignal = to
 
+    # @property
+    # def datatype(self):
+    #     return self.linkedSignal.datatype
+
+    # TODO remove this
     def getDatatype(self):
         return self.linkedSignal.datatype
 
