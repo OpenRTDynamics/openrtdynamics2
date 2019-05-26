@@ -218,18 +218,10 @@ class Block:
         # the input types (Please note that the input types are define by other blocks
         # whose outputs are connected to this block.)
 
-        # build a list of input signals for this block
+        # build a list of input signals types for this block
         inputSignalTypes = []
 
-        #for i in range(0, len(self.inputSignals)):
-
-        #    inputSignalTypes.append( self.inputSignals[i].getDatatype() )
-
-
         for s in self.inputSignals:
-
-            # if s.isPoposedDatatypeUpdated():
-            #     pass
 
             if s.getDatatype() is not None:
                 inputSignalTypes.append(s.getDatatype() )
@@ -240,7 +232,7 @@ class Block:
                     inputSignalTypes.append(None)
 
 
-        # ask prototype to define output types
+        # ask prototype to define output types (this might just be a proposal for datatypes; they are fixed later)
         proposedOutputSingalTypes = self.blockPrototype.configDefineOutputTypes( inputSignalTypes )
 
         # update all signals accordingly

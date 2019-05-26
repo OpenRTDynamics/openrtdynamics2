@@ -6,10 +6,7 @@ from irpar import irparSet, irparElement, irparElement_container
 from Signal import *
 from Block import *
 
-from TraverseGraph import *
-
-
-
+from DatatypePropagation import *
 
 
 
@@ -122,91 +119,9 @@ class Simulation:
         pass
 
 
-
-
     def propagateDatatypesForward(self):
 
         self.datatypePropagation.fixateTypes()
-
-
-        return
-
-        # skip --> new implementation in TraverseGraph
-
-
-        #
-        # This algorithm does:
-        #
-        # Go through all block along their connection lines
-        # 1) start all blocks to define their output datatype as far as possible.
-        # 
-        #
-
-        # go trough all blocks
-        for blk in self.BlocksArray:
-            #print("--> asking ", b, "to define its output types")
-
-            # just give it a try: ask the block to define its output types
-            # blocks that are source-only blocks should specify their output
-            # types.
-            blk.configDefineOutputTypes()
-
-        #
-        # Step 1) find all defined output signals --> set S
-        # Step 2) foreach block B in S:
-        #               run callback for B
-        #               foreach block B' connected to an output of B:
-        #                   run callback for B'
-        #                       .. recursion
-        #
-
-
-        # find all signals that are defined with fixed datatypes
-        for blk in self.BlocksArray:
-            #print("operator: " + blk.getOperator() + " Blocktype: " + str( blk.getBlocktype() ) )
-            
-
-            print("-- block " , blk.getName(),  " outputs --")
-            outputSignals = blk.getOutputSignals()
-
-            if outputSignals is None:
-                print(Style.DIM + "does not have output signals")
-                continue
-
-            for outputSignal in outputSignals:
-                portDatatype = outputSignal.getDatatype()
-
-                if portDatatype is None:
-                    print(Style.DIM + "datatype not defined")
-                    continue
-
-                portDatatype.show()
-
-
-                if portDatatype.isDefined():
-                    print(outputSignal, '*')
-
-                    # traverse all blocks starting from the one that outputs the aready defined signal datatype
-                    # better for efficiancy: start for all blocks connected to the singal
-                    T = TraverseGraph()
-                    blockList = T.forwardTraverse( outputSignal.getSourceBlock() )
-
-                    # go through all blocks and request them to further define their output types
-                    for b in blockList:
-                        #print("--> asking ", b, "to define its output types")
-
-                        b.configDefineOutputTypes() 
-
-                else:
-                    pass
-                    #print(outputSignal, '-- type not determined --')
-
-
-                #outputSignal.ShowOrigin()
-
-
-        pass
-
 
 
     def buildExecutionlist(self):
