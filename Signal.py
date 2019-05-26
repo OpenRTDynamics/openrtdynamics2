@@ -132,6 +132,10 @@ class Signal:
         # notify the change of the datatype
         self.sim.datatypePropagation.notifySignal(self)
 
+    def fixDatatype(self):
+        # this shall explicitely not trigger a notification!
+        self.linkedSignal.datatype = self.linkedSignal.proposedDatatype
+
 
     def getProposedDatatype(self):
         return self.linkedSignal.proposedDatatype

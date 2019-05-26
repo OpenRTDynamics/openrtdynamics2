@@ -34,6 +34,9 @@ class DatatypePropagation:
 
         self.signalsWithUnderminedTypes = []
 
+
+        self.updateCounter = 0
+
     def notifyBlock(self, block : Block):
         # a new singals has been created
         # once a new block is added or one of the input signals change
@@ -57,6 +60,9 @@ class DatatypePropagation:
         else:
             self.signalsWithUpdatedDeterminedTypes.append( signal )
 
+        self.updateCounter += 1
+
+
 
     def notify_updateOfProposedDatatype(self, signal : Signal):
         # a proposal for a datatype has been updated
@@ -66,6 +72,8 @@ class DatatypePropagation:
 
         # add to ..
         self.signalsWithUpdatedProposedTypes.append( signal )
+
+        self.updateCounter += 1
 
         # remove from other lists..
 
@@ -79,7 +87,7 @@ class DatatypePropagation:
         # signalsWithProposedTypes and signalsWithUpdatedProposedTypes are empty
         # or nothing chanegs any more (no notifications arrive within a loop-cycle)
 
-        for i in range(0,3):
+        for i in range(0,10):
 
 
             # during the call of .configDefineOutputTypes() the lists might be updated
@@ -99,7 +107,11 @@ class DatatypePropagation:
             self.signalsWithDeterminedTypes.extend( signalsWithUpdatedDeterminedTypes )
             self.signalsWithProposedTypes.extend( signalsWithUpdatedProposedTypes )
 
+            # print("update counter is before " + str(self.updateCounter))
 
+            updateCounterBefore = self.updateCounter
+
+            # at fitst ask all blocks who have a signal with an already fixed datatype connected to their inputs 
             for s in signalsWithUpdatedDeterminedTypes:
                 # ask all blocks connected to s to update their output type proposal or fix their type
 
@@ -111,7 +123,7 @@ class DatatypePropagation:
                     destBlock.configDefineOutputTypes()
 
 
-            
+            # forward the datatype proposals to the connected blocks
             for s in self.signalsWithUpdatedProposedTypes:
                 # ask all blocks connected to s to update their output type proposal or fix their type
                 
@@ -121,17 +133,56 @@ class DatatypePropagation:
                     print("  asking block " + destBlock.toStr())
                     destBlock.configDefineOutputTypes()
 
+            # print("update counter is after " + str(self.updateCounter))
+
+
+            if updateCounterBefore == self.updateCounter:
+
+                print("nothing changed -- abort")
+
+                print("signals with fixed types:")
+                for s in self.signalsWithDeterminedTypes:
+                    print('  - ' + s.toStr())
+
+                print("signals with proposed types:")
+                for s in self.signalsWithProposedTypes:
+                    print('  - ' + s.toStr())
+
+                print("signals with undetermined types:")
+                for s in self.signalsWithProposedTypes:
+                    print('  - ' + s.toStr())
+
+                break
+
             
 
 
     def fixateTypes(self):
 
+        # discover datatype
         self.updateTypes()
 
-        # check if all types are defined
-        # if 
+        # check if something is missing.. TODO
 
-        pass
+        for s in self.signalsWithDeterminedTypes:
+            # remove from
+            if s in self.signalsWithUnderminedTypes:
+                self.signalsWithUnderminedTypes.remove( s )
+
+        # turn the proposal datatypes into fixed types
+        for s in self.signalsWithProposedTypes:
+
+            print('  - fix - ' + s.toStr())
+
+            # fixate datatype of s
+            s.fixDatatype()
+
+            # remove from
+            self.signalsWithUnderminedTypes.remove( s )
+
+        print("signals with undetermined types:")  # TODO: investigate why this list contains some leftovers...
+        for s in self.signalsWithUnderminedTypes:
+            print('  - ' + s.toStr())
 
 
             

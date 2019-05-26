@@ -94,7 +94,7 @@ print()
 sim.ShowBlocks()
 
 
-exit()
+# exit()
 
 
 
