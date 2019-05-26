@@ -28,6 +28,9 @@ class Simulation:
 
         self.ReturnList = []
 
+        # manager to determine datatypes as new blocks are added
+        self.datatypePropagation = DatatypePropagation(self)
+
     def getName(self):
         return self.name
 
@@ -122,6 +125,15 @@ class Simulation:
 
 
     def propagateDatatypesForward(self):
+
+        self.datatypePropagation.fixateTypes()
+
+
+        return
+
+        # skip --> new implementation in TraverseGraph
+
+
         #
         # This algorithm does:
         #

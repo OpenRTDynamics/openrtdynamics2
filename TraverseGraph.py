@@ -7,7 +7,7 @@ from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
 class Node:
-    def __init__(self, block : Block ):
+    def __init__(self, block : Block):
         self.block = block
 
     # return a list of linked nodes
@@ -18,9 +18,129 @@ class Node:
 
 
 
+class DatatypePropagation:
+
+    # TODO: implement this -- stopped here (XXX)
+
+    def __init__(self, sim ):
+
+        self.signalsWithDeterminedTypes = []
+
+        self.signalsWithUpdatedDeterminedTypes = []
+
+        self.signalsWithProposedTypes = []
+
+        self.signalsWithUpdatedProposedTypes = []
+
+        self.signalsWithUnderminedTypes = []
+
+    def notifyBlock(self, block : Block):
+        # a new singals has been created
+        # once a new block is added or one of the input signals change
+
+        # trigger the block to define its output signals or give a proposal
+        block.configDefineOutputTypes()
+
+        pass
+
+
+    def notifySignal(self, signal : Signal):
+        # a new singals has been created
+
+        print("DatatypePropagation: new signal " + signal.toStr( ))
+
+        # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUpdatedProposedTypes
+
+        if signal.getDatatype() is None:
+            
+            self.signalsWithUnderminedTypes.append( signal )
+        else:
+            self.signalsWithUpdatedDeterminedTypes.append( signal )
+
+
+    def notify_updateOfProposedDatatype(self, signal : Signal):
+        # a proposal for a datatype has been updated
+
+        print("DatatypePropagation: datatype proposol for signal updated " + signal.toStr( ))
+
+
+        # add to ..
+        self.signalsWithUpdatedProposedTypes.append( signal )
+
+        # remove from other lists..
+
+
+
+    def updateTypes(self):
+
+        print("DatatypePropagation: update types " )
+
+        # while-loop around the following (think about when it is finished.. e.g. )
+        # signalsWithProposedTypes and signalsWithUpdatedProposedTypes are empty
+        # or nothing chanegs any more (no notifications arrive within a loop-cycle)
+
+        for i in range(0,3):
+
+
+            # during the call of .configDefineOutputTypes() the lists might be updated
+            # by hereby triggered calls to the notify_* funcrions of this class
+            # Hence, make copies of these lists before
+
+
+
+            signalsWithUpdatedDeterminedTypes = self.signalsWithUpdatedDeterminedTypes
+            signalsWithUpdatedProposedTypes = self.signalsWithUpdatedProposedTypes
+
+            # clear that list as it is about to be processed now
+            self.signalsWithUpdatedDeterminedTypes = [] 
+            self.signalsWithUpdatedProposedTypes = [] 
+
+            # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
+            self.signalsWithDeterminedTypes.extend( signalsWithUpdatedDeterminedTypes )
+            self.signalsWithProposedTypes.extend( signalsWithUpdatedProposedTypes )
+
+
+            for s in signalsWithUpdatedDeterminedTypes:
+                # ask all blocks connected to s to update their output type proposal or fix their type
+
+                # ask each block connected to the signal s to update its output type (proposals)
+                for destBlock in s.getDestinationBlocks():
+
+                    print("  asking block " + destBlock.toStr())
+
+                    destBlock.configDefineOutputTypes()
+
+
+            
+            for s in self.signalsWithUpdatedProposedTypes:
+                # ask all blocks connected to s to update their output type proposal or fix their type
+                
+                # ask each block connected to the signal s to update its output type (proposals)
+                for destBlock in s.getDestinationBlocks():
+
+                    print("  asking block " + destBlock.toStr())
+                    destBlock.configDefineOutputTypes()
+
+            
+
+
+    def fixateTypes(self):
+
+        self.updateTypes()
+
+        # check if all types are defined
+        # if 
+
+        pass
+
+
+            
+
+
+
 
 class TraverseGraph:
-    # rename to TraverseBlocks
+    # TODO: rename to TraverseBlocks
 
     def __init__(self): #blockList : List[ Block ]
 
@@ -57,7 +177,7 @@ class TraverseGraph:
         for i in range(0, depthCounter):
             tabs += '   '
 
-        #print(tabs + "....... depth " + str( depthCounter )  )
+        # print(tabs + "....... depth " + str( depthCounter )  )
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
@@ -93,6 +213,12 @@ class TraverseGraph:
 
                 # recursion
                 self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
+
+
+
+
+
+
 
 
 
@@ -172,6 +298,12 @@ class TraverseGraph:
 
 
 class ExecutionLine():
+    """
+        contains a list 'signalOrder' of signals to be computed in the given order.
+        The computation of these signals depends on a list of signals given by
+        'dependencySignals'.
+    """
+
     def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ]):
         self.signalOrder = signalOrder
         self.dependencySignals = dependencySignals
@@ -239,6 +371,13 @@ class ExecutionLine():
 
 
 class BuildExecutionPath:
+    """
+        Find out the order in which signals have to be computed such that a given signal
+        'signalToCalculte'can be calculated. This means finding out all dependencies of
+        'signalToCalculte'. For each callc to 'getExecutionLine' only the signals that
+        were not already marked as a dependeny in previous calls are returned.
+        Each call to 'getExecutionLine' gives an instance 'ExecutionLine'
+    """
     def __init__(self): #blockList : List[ Block ]
 
         # list of signals the computation depends on (the tips of the execution tree)

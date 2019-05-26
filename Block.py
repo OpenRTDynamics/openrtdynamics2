@@ -221,17 +221,33 @@ class Block:
         # build a list of input signals for this block
         inputSignalTypes = []
 
-        for i in range(0, len(self.inputSignals)):
-            inputSignalTypes.append( self.inputSignals[i].getDatatype() )
+        #for i in range(0, len(self.inputSignals)):
+
+        #    inputSignalTypes.append( self.inputSignals[i].getDatatype() )
+
+
+        for s in self.inputSignals:
+
+            # if s.isPoposedDatatypeUpdated():
+            #     pass
+
+            if s.getDatatype() is not None:
+                inputSignalTypes.append(s.getDatatype() )
+            else:
+                if s.getProposedDatatype() is not None:
+                    inputSignalTypes.append(s.getProposedDatatype() )
+                else:
+                    inputSignalTypes.append(None)
+
 
         # ask prototype to define output types
-        outputSingalTypes = self.blockPrototype.configDefineOutputTypes( inputSignalTypes )
+        proposedOutputSingalTypes = self.blockPrototype.configDefineOutputTypes( inputSignalTypes )
 
         # update all signals accordingly
         for i in range(0, len(self.OutputSignals)):
 
             signal = self.OutputSignals[i]
-            signal.setDatatype(  outputSingalTypes[i]  )
+            signal.setProposedDatatype(  proposedOutputSingalTypes[i]  )
 
         return
 
@@ -244,7 +260,7 @@ class Block:
         return self
 
     def toStr(self):
-        return self.getName()
+        return self.blockname + ' (' + self.blocknameShort + ')'
 
     def getBlockPrototype(self):
         return self.blockPrototype

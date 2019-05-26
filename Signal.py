@@ -8,7 +8,16 @@ init(autoreset=True)
 class Signal:
     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
         self.sim = sim
+        
+        # the fixed and final datatype of this signals either as a result of the datatype determination phase
+        # or manually fixed.
         self.datatype = datatype
+
+        # datatype proposal that may be filled out during the datatype determination phase
+        self.proposedDatatype = None
+        # self.proposedDatatypeUpdated = False
+
+
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
         self.name = "--"
@@ -27,6 +36,10 @@ class Signal:
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.linkedSignal.graphTraversionMarker = -1
         # self.graphTraversionMarker = -1
+
+
+        # notify the creation of this signal
+        self.sim.datatypePropagation.notifySignal(self)
 
 
     def graphTraversionMarkerReset(self):
@@ -67,9 +80,14 @@ class Signal:
 
         if self.linkedSignal.datatype is not None:
             ret += " (" + self.linkedSignal.datatype.toStr() + ")"
-
         else:
             ret += " (undef datatype)"
+
+
+        if self.linkedSignal.proposedDatatype is not None:
+            ret += " proposal: (" + self.linkedSignal.proposedDatatype.toStr() + ")"
+        else:
+            ret += "proposal: (undef datatype)"
 
         return ret
         
@@ -108,8 +126,43 @@ class Signal:
     def getDatatype(self):
         return self.linkedSignal.datatype
 
-    def setDatatype(self, datatype  ):
+    def setDatatype(self, datatype):
         self.linkedSignal.datatype = datatype
+
+        # notify the change of the datatype
+        self.sim.datatypePropagation.notifySignal(self)
+
+
+    def getProposedDatatype(self):
+        return self.linkedSignal.proposedDatatype
+
+    def setProposedDatatype(self, proposedDatatype):
+        # only proceed if the datatype of this signals is not already fixed
+        if self.linkedSignal.datatype is None:
+
+            # only proceed of the prosed datatype is diffent to the stored one
+            # or the stored type is None (not set before)
+            if not proposedDatatype.isEqualTo( self.linkedSignal.proposedDatatype ) or self.linkedSignal.proposedDatatype is None:
+
+                self.linkedSignal.proposedDatatype = proposedDatatype
+                # self.linkedSignal.proposedDatatypeUpdated = True
+
+                # notify the change of the datatype
+                self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
+
+        else:
+            raise BaseException("setProposedDatatype: only possible for signals which datatype are not already fixed!")
+
+    # def isPoposedDatatypeUpdated(self):
+    #     return self.linkedSignal.proposedDatatypeUpdated
+
+    # def resetProposedDatatypeUpdated(self):
+    #     self.linkedSignal.proposedDatatypeUpdated = False
+
+
+
+    # def deriveDatatypeFrom(self, signal):
+    #     pass
 
     def setNameOfOrigin(self, name):
         if not self.linkedSignal.sourceBlock is None:

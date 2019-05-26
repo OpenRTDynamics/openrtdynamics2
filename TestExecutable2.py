@@ -18,7 +18,7 @@ sim = Simulation(None, 'main')
 
 #
 
-def firstOrder(sim, u, z_inf, name):
+def firstOrder(sim, u : Signal, z_inf, name : str):
 
     yFb = Signal(sim)
 
@@ -27,16 +27,24 @@ def firstOrder(sim, u, z_inf, name):
 
     yFb.setequal( y )
 
+    # inherit datatype
+    #i.setDatatype( u.getDatatype() )
+    #s.deriveDatatypeFrom(u)
+
     return y
 
 
-def firstOrderAndGain(sim, u, z_inf, gain, name):
+def firstOrderAndGain(sim, u : Signal, z_inf, gain, name : str):
 
     yFb = Signal(sim)
 
     s = dyn_add(sim, [ yFb, u ], [ -z_inf, 1 ] ).setNameOfOrigin(name + '_s (add)').setName('s'+name+'')
     d = dyn_delay(sim, s).setNameOfOrigin(name + '_d (delay)').setName('d'+name+'')
     y = dyn_gain(sim, d, gain).setNameOfOrigin(name + '_y (gain)').setName('y'+name+'')
+
+    # inherit datatype
+    #s.setDatatype( u.getDatatype() )
+    #s.deriveDatatypeFrom(u)
 
     yFb.setequal( y )
 
@@ -48,7 +56,7 @@ def firstOrderAndGain(sim, u, z_inf, gain, name):
 baseDatatype = DataTypeInt32(1) 
 
 
-#U = dyn_const(sim, 1.123, datatype ).setNameOfOrigin('U (const)').setName('U')
+#U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
 U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
 
 
@@ -84,6 +92,12 @@ print(Style.BRIGHT + "-------- print datatypes --------")
 print()
 
 sim.ShowBlocks()
+
+
+exit()
+
+
+
 
 #
 # create execution path builder

@@ -1,5 +1,4 @@
-
-
+from typing import Dict, List
 
 ORTD_DATATYPE_UNCONFIGURED = 0
 ORTD_DATATYPE_FLOAT = (1 | (8 << 5))
@@ -71,7 +70,17 @@ class DataType:
 
 
 
-class DataTypeFloat(DataType):
+
+#
+# numeric types
+#
+
+class DataTypeNumeric(DataType):
+    def __init__(self, size : int):
+        DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
+
+
+class DataTypeFloat(DataTypeNumeric):
 
     def __init__(self, size : int):
 
@@ -83,7 +92,7 @@ class DataTypeFloat(DataType):
 
 
 
-class DataTypeInt32(DataType):
+class DataTypeInt32(DataTypeNumeric):
 
     def __init__(self, size : int):
 
@@ -94,5 +103,28 @@ class DataTypeInt32(DataType):
         return 'int32_t'
 
 
+def areAllTypesDefined( datatypes : List[ DataType ] ):
+    """
+        check of all given types are defined i.e. none of them is None
+    """
+    for t in datatypes:
+        if t is None:
+            return False
+
+    return True
 
 
+def computeResultingNumericType( datatypes : List[ DataTypeNumeric ] ):
+    """
+        return the type with the highest numerical precission
+    """
+    returnType = DataTypeInt32(1)
+
+    for t in datatypes:
+        # ignore undefined types
+        if t is not None:
+            if isinstance(t, DataTypeFloat):
+                returnType = DataTypeFloat(1)
+
+    return returnType
+        
