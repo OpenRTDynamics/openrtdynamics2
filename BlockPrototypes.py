@@ -15,11 +15,7 @@ class Padd(BlockPrototype):
         # 
         self.inputSignals = inputSignals
 
-        # output type undefined
-        #self.outputType = None
-        #self.outputType = DataTypeFloat(1)
-
-        # TODO: allow a list of inputs
+        # TODO: allow a list of inputs  TODO: Do this next!
         if len(inputSignals) != 2:
             raise("inp_list must have exactly 2 elements")
 
@@ -37,7 +33,6 @@ class Padd(BlockPrototype):
 
     def configDefineOutputTypes(self, inputTypes):
         # print("Padd: in callback configDefineOutputTypes")
-
 
 
         if self.outputSignal(0).getDatatype() is None:
@@ -59,16 +54,8 @@ class Padd(BlockPrototype):
             # for the output according to the already defined input types.
             # 
             self.outputType = computeResultingNumericType(inputTypes)
-            #self.outputSignal(0).setProposedDatatype( self.outputType )
 
             print('Padd (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
-
-
-            #if areAllTypesDefined(inputTypes):
-
-            #    self.outputSignal(0).setDatatype( outputType )
-
-            #else:
 
         else:
 
@@ -77,34 +64,6 @@ class Padd(BlockPrototype):
                 raise BaseException("Padd: only DataTypeNumeric can be the result/output of an addition")
 
             # check if inputs are valid
-
-            pass
-
-
-
-            # if inputTypes[0] is not None:
-            #     self.outputType = inputTypes[0]
-
-            # else:
-            #     if inputTypes[1] is not None:
-            #         self.outputType = inputTypes[1]
-
-        # else:
-        #     #
-        #     # an out type was defined
-        #     # check that the inputs have the same type as the output
-        #     #
-
-        #     # TODO: allow int32 and double to be summed up. return the higher precission type
-
-        #     if inputTypes[0] is not None:
-        #         if inputTypes[0].isEqualTo( self.outputType ) == 0:
-        #             raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[0].toStr() + " != " + self.outputType.toStr() )
-
-            
-        #     if inputTypes[1] is not None:
-        #         if inputTypes[1].isEqualTo( self.outputType ) == 0:
-        #             raise BaseException("input types do not match (must be equal to perform addition): " + inputTypes[1].toStr() + " != " + self.outputType.toStr() )
 
         
         return [self.outputType]

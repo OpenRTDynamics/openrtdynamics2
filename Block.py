@@ -6,114 +6,26 @@ from Datatypes import *
 
 
 
-class InputDefinitions:
-    # This defines a list of datatypes for each input port
-    # if the input type of one port is undecided
-    # the list element is None
-    def __init__( self, ports : List[ DataType ]  ):
-
-        self.ports = ports
-
-    def getNPorts(self):
-        return len( self.ports )
-
-    def getType(self, port : int):
-        return self.ports[port]
-
-
-class OutputDefinitions:
-    # This defines a list of datatypes for each output port
-    # if the output type of one port is undecided
-    # the list element is None
-    def __init__( self, ports : List[ DataType ]  ):
-
-        self.ports = ports
-
-    def getNPorts(self):
-        return len( self.ports )
-
-    def getType(self, port : int):
-        return self.ports[port]
-
-
-
-
-
-
-############################
-
-    # create new block with the inputs in inlist
-
-    # -- Just store which type of subsimulation block to create:
-    #
-    # if / for / ...
-    #
-    # and then do later during export of the schematic
-    #
-    # In general, think about something to store an abstract representation of each block
-    # and do all the work of parameter creation on export
-    #
-    # Maybe use classes for each block, instead of functions (def:)
-    # class functions could be __init__ (collect parameters), check IO, export()
-    #
-    #
-    # (This way, different backends can be supported)
-    #
-
-
-
-
 
 
 class BlockPrototype:
-    # This is a base class to be deviated from each block type.
-    # It contains logic to handle the input/ output types and
-    # the parameters.
-    # In future, also the implementation might go into it
-
-
+    """
+        This is a base class to be deviated from each block type.
+        It contains logic to handle the input/ output types and
+        the parameters.
+    """
 
     def __init__(self, block):
         self.block = block
-
-
-    def defineOutputTypes(self):
-        pass
-    
-    def getOutputTypes(self):
-        # shall return OutTypes : OutputDefinitions
-
-        pass
-
-    def exportSetting(self):
-        # maybe in case of a new interpreter
-        pass
-
-    def GetOutputsSingnals(self):
-        pass
-
-    def encode_irpar(self):
-        # in case of traditional ORTD
-
-        ipar = []
-        rpar = []
-
-        return ipar, rpar
-
-
-    def getORTD_btype(self):
-        pass
 
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
         # to be used for code generation 
         return "" + self.block.getName() +  "_" + str(self.block.getBlockId())
-    
-    def generateCode(self):
-        pass
+
 
     #
-    # TODO: 28.4.19: use these shortcuts to access the I/O signals
+    # The derived classes shall use these shortcuts to access the I/O signals
     #
 
     # get a signal of a specific output port
@@ -125,7 +37,15 @@ class BlockPrototype:
     def inputSignal(self, port):
         return self.block.getInputSignal(port)
 
-    
+
+    #
+    # Standard functions that should be re-implemented
+    #
+
+    def configDefineOutputTypes(self, inputTypes):
+        raise BaseException("configDefineOutputTypes not implemented")
+
+    # function to generate code
     def codeGen(self, language, flag):
         raise BaseException("code generation not implemented")
 
@@ -135,18 +55,13 @@ class BlockPrototype:
 
 
 
-
-
-
-
-# TODO: 15.3.19 : The block class should not store any informatino about the input/output signal types
-# this info shall just be stored in the signal structures (DONE for the output signals)
-
 class Block:
-    # This decribes a block that is part of a Simulation
-    # 
-    # BlockPrototype - describes the block's prototype implementation
-    #                  that defined IO, parameters, ...
+    """
+        This decribes a block that is part of a Simulation
+     
+        BlockPrototype - describes the block's prototype implementation
+                         that defined IO, parameters, ...
+    """
 
     def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], blockname : str):
         print("Creating new block " + blockname)
@@ -156,10 +71,6 @@ class Block:
 
         # add myself to the given simulation
         self.sim.addBlock(self)
-
-        #operator, blocktype
-
-
 
         # The blocks prototype function. e.g. to determine the port sizes and types
         # and to define the parameters
@@ -215,8 +126,16 @@ class Block:
 
     def configDefineOutputTypes(self):
         # ask the block's prototype class instance to define the output types given
-        # the input types (Please note that the input types are define by other blocks
-        # whose outputs are connected to this block.)
+        # the input types by calling the prototype's function 'configDefineOutputTypes' 
+        # 
+        # Please note that the input types are define by other blocks
+        # whose outputs are connected to this block.
+        #
+        # It might happen that the datatypes of these signals are not already determined.
+        # Eventually a proposal for a datatype is available. In any case, based on the available
+        # information, the prototype is asked to provide information on the types of the outputs.
+        #
+
 
         # build a list of input signals types for this block
         inputSignalTypes = []
@@ -224,11 +143,15 @@ class Block:
         for s in self.inputSignals:
 
             if s.getDatatype() is not None:
+                # this input's datatype is already fixed 
                 inputSignalTypes.append(s.getDatatype() )
             else:
+                # check for the proposed datatype
                 if s.getProposedDatatype() is not None:
                     inputSignalTypes.append(s.getProposedDatatype() )
                 else:
+                    # no info on this input signal is available -- just put None and let the blocks propotype
+                    # 'configDefineOutputTypes' function deceide what to do.
                     inputSignalTypes.append(None)
 
 

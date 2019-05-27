@@ -9,7 +9,6 @@ init(autoreset=True)
 
 class DatatypePropagation:
 
-    # TODO: implement this -- stopped here (XXX)
 
     def __init__(self, sim ):
 
@@ -158,7 +157,7 @@ class DatatypePropagation:
         # turn the proposal datatypes into fixed types
         for s in self.signalsWithProposedTypes:
 
-            print('  - fix - ' + s.toStr())
+            print('  - fixing - ' + s.toStr())
 
             # fixate datatype of s
             s.fixDatatype()

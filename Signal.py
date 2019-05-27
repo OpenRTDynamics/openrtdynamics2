@@ -2,7 +2,7 @@ from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
-#from Block import * 
+
 
 
 class Signal:
@@ -17,7 +17,6 @@ class Signal:
         self.proposedDatatype = None
         # self.proposedDatatypeUpdated = False
 
-
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
         self.name = "--"
@@ -29,14 +28,8 @@ class Signal:
         # link to myself by defaul
         self.linkedSignal = self
 
-        #if sourceBlock == None:
-            # create a signal without any specified origin
-
-
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.linkedSignal.graphTraversionMarker = -1
-        # self.graphTraversionMarker = -1
-
 
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
@@ -49,21 +42,15 @@ class Signal:
         if level < 0:
             raise BaseException("level cannot be < 0")
 
-        #print(Fore.RED + "-setmark- " + self.toStr() )
-
         self.linkedSignal.graphTraversionMarker = level
     
     def graphTraversionMarkerMarkIsVisited(self):
-        #print(Fore.RED + "-checkmark- " + self.toStr() + " " + str(self.linkedSignal.graphTraversionMarker))
-
         # check of this node was marked on level or a level below
-        #return not (self.linkedSignal.graphTraversionMarker == -1) # and self.linkedSignal.graphTraversionMarker <= level
         return self.linkedSignal.graphTraversionMarker >= 0
 
     def graphTraversionMarkerMarkIsVisitedOnLevel(self, onLevel):
         # check of this node was marked on level or a level below
         return self.linkedSignal.graphTraversionMarker == onLevel
-
 
     # set the name of this signal
     def setName(self, name):
@@ -118,11 +105,6 @@ class Signal:
         # overwrite self
         self.linkedSignal = to
 
-    # @property
-    # def datatype(self):
-    #     return self.linkedSignal.datatype
-
-    # TODO remove this
     def getDatatype(self):
         return self.linkedSignal.datatype
 
@@ -135,7 +117,6 @@ class Signal:
     def fixDatatype(self):
         # this shall explicitely not trigger a notification!
         self.linkedSignal.datatype = self.linkedSignal.proposedDatatype
-
 
     def getProposedDatatype(self):
         return self.linkedSignal.proposedDatatype
@@ -157,16 +138,6 @@ class Signal:
         else:
             raise BaseException("setProposedDatatype: only possible for signals which datatype are not already fixed!")
 
-    # def isPoposedDatatypeUpdated(self):
-    #     return self.linkedSignal.proposedDatatypeUpdated
-
-    # def resetProposedDatatypeUpdated(self):
-    #     self.linkedSignal.proposedDatatypeUpdated = False
-
-
-
-    # def deriveDatatypeFrom(self, signal):
-    #     pass
 
     def setNameOfOrigin(self, name):
         if not self.linkedSignal.sourceBlock is None:
