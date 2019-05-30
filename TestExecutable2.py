@@ -42,18 +42,14 @@ def firstOrderAndGain(sim, u : Signal, z_inf, gain, name : str):
     d = dyn_delay(sim, s).setNameOfOrigin(name + '_d (delay)').setName('d'+name+'')
     y = dyn_gain(sim, d, gain).setNameOfOrigin(name + '_y (gain)').setName('y'+name+'')
 
-    # inherit datatype
-    #s.setDatatype( u.getDatatype() )
-    #s.deriveDatatypeFrom(u)
-
     yFb.setequal( y )
 
     return y
 
 
 
-#baseDatatype = DataTypeFloat(1) 
-baseDatatype = DataTypeInt32(1) 
+baseDatatype = DataTypeFloat(1) 
+# baseDatatype = DataTypeInt32(1) 
 
 
 #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
@@ -70,9 +66,10 @@ y2 = firstOrderAndGain(sim, y1, 0.2, gain=0.8, name="2")
 y3 = firstOrderAndGain(sim, y2, 0.2, gain=0.8, name="3")
 
 
-E = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extE')
+E1 = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extE1')
+E2 = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extE2')
 
-y = dyn_add(sim, [ y3, E ], [ 1, 1 ] ).setNameOfOrigin('y (add)').setName('y')
+y = dyn_add(sim, [ y3, E1, E2 ], [ 0.1, 0.2, 0.3] ).setNameOfOrigin('y (add)').setName('y')
 
 # define the outputs of the simulation
 outputSignals = [ y, y2 ]

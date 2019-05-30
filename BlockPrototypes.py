@@ -10,16 +10,16 @@ from irpar import *
 
 
 class Padd(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal], fak_list : List[float] ):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
 
         # 
         self.inputSignals = inputSignals
 
         # TODO: allow a list of inputs  TODO: Do this next!
-        if len(inputSignals) != 2:
-            raise("inp_list must have exactly 2 elements")
+        if len(inputSignals) != len(factors):
+            raise("len(inp_list) must be equal to len(factors)")
 
-        self.fak_list = fak_list
+        self.factors = factors
 
         blk = Block(sim, self, inputSignals, blockname = 'add').configAddOutputSignal('sum')
 
@@ -62,9 +62,6 @@ class Padd(BlockPrototype):
             # check of the given output type is a numeric datatype
             if not isinstance( self.outputSignal(0).getDatatype(), DataTypeNumeric ):
                 raise BaseException("Padd: only DataTypeNumeric can be the result/output of an addition")
-
-            # check if inputs are valid
-
         
         return [self.outputType]
 
@@ -86,7 +83,7 @@ class Padd(BlockPrototype):
 
     def encode_irpar(self):
         ipar = []
-        rpar = self.fak_list
+        rpar = self.factors
 
         return ipar, rpar
 
@@ -113,7 +110,16 @@ class Padd(BlockPrototype):
                 lines = ''
 
             elif flag == 'output':
-                lines = self.outputSignal(0).getName() + ' = ' + self.inputSignal(0).getName() + ' + ' + self.inputSignal(1).getName() + ';\n'
+
+                strs = []
+                i = 0
+                for s in self.inputSignals:
+                    strs.append(  str(self.factors[i]) + ' * ' + s.getName() )
+                    i = i + 1
+
+                sumline = ' + '.join( strs )
+
+                lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
 
             elif flag == 'update':
                 lines = ''
@@ -126,9 +132,9 @@ class Padd(BlockPrototype):
 
 
 
-def dyn_add(sim : Simulation, inputSignals : List[Signal], fak_list : List[float]):
+def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]):
 
-    return Padd(sim, inputSignals, fak_list).getOutputsSingnals()
+    return Padd(sim, inputSignals, factors).getOutputsSingnals()
 
 
 
@@ -279,7 +285,7 @@ class Pdelay(BlockPrototype):
 
     def encode_irpar(self):
         ipar = []
-        rpar = self.fak_list
+        rpar = self.factors
 
         return ipar, rpar
 
@@ -377,7 +383,7 @@ class Pgain(BlockPrototype):
 
     def encode_irpar(self):
         ipar = []
-        rpar = self.fak_list
+        rpar = self.factors
 
         return ipar, rpar
 
