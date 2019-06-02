@@ -189,10 +189,6 @@ class Pconst(BlockPrototype):
         # The ORTD interpreter finds the computational function using this id
         return 40
 
-    def getOperator(self):
-        # don't know if this shall be kept
-        return "const"
-
     def codeGen(self, language, flag):
 
         lines = ''
@@ -268,9 +264,6 @@ class Pdelay(BlockPrototype):
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
 
-        # the output depends on the only one input signals
-        # return [ self.u ]
-
         # no (direct feedtrough) dependence on any input - only state dependent
         return [  ]
 
@@ -292,10 +285,6 @@ class Pdelay(BlockPrototype):
     def getORTD_btype(self):
         # The ORTD interpreter finds the computational function using this id
         return 12
-
-    def getOperator(self):
-        # don't know if this shall be kept
-        return "add"
 
     def codeGen(self, language, flag):
 
@@ -379,7 +368,6 @@ class Pgain(BlockPrototype):
         # return the output signals
 
         return self.outputSignal(0)
-
 
     def encode_irpar(self):
         ipar = []

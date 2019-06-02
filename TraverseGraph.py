@@ -204,6 +204,7 @@ class ExecutionLine():
         for s in self.signalOrder:
             print("  - " + s.getName() )
 
+
     def getSignalsToExecute(self):
         l = []
 
@@ -211,6 +212,7 @@ class ExecutionLine():
         l.extend( self.signalOrder )
 
         return l
+
 
     def appendExecutionLine(self, executionLineToAppend):
 

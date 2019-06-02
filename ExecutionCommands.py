@@ -47,10 +47,11 @@ class CommandCalculateOutputs(ExecutionCommand):
         in executionLine.getSignalsToExecute()
     """
 
-    def __init__(self, executionLine, targetSignals):
+    def __init__(self, executionLine, targetSignals, defineVarsForOutputs : bool):
         ExecutionCommand.__init__(self)
 
         # targetSignals is optional
+        self.defineVarsForOutputs = defineVarsForOutputs
 
         self.executionLine = executionLine
         self.targetSignals = targetSignals
@@ -85,8 +86,23 @@ class CommandCalculateOutputs(ExecutionCommand):
         if language == 'c++':
 
             if flag == 'localvar':
-                # TODO: exclude the input singals 
-                for s in self.executionLine.getSignalsToExecute():
+                
+                
+                
+                #
+                # TODO(DONE): exclude the input singals (DONE)
+                #       also exclude the output signals (if needed) (DONE)
+                #
+
+                SignalsWithoutOutputs = self.executionLine.getSignalsToExecute()
+
+                # remove the output signals if requested
+                if self.defineVarsForOutputs:
+                    for s in self.targetSignals:
+                        SignalsWithoutOutputs.remove( s )
+
+                # remove the input signals in this loop
+                for s in SignalsWithoutOutputs:
 
                     # TODO: if isinstance(s, BlockOutputSignal):
                     if not isinstance(s, SimulationInputSignal):
@@ -140,13 +156,10 @@ class CommandResetStates(ExecutionCommand):
 
         if language == 'c++':
 
-
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
                     lines += b.getBlockPrototype().codeGen('c++', 'reset')
-
-
 
         return lines
 
@@ -255,7 +268,7 @@ class CommandCacheOutputs(ExecutionCommand):
                         cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
                         lines +=  '\n// cache for ' + s.getName() + '\n'
-                        lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + " {NAN};" + '\n' 
+                        lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
 
             if flag == 'code':
                 lines += ''
@@ -266,7 +279,7 @@ class CommandCacheOutputs(ExecutionCommand):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
                         cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                        lines += cachevarName + ' = ' + s.getName() + '\n'
+                        lines += cachevarName + ' = ' + s.getName() + ';\n'
 
         return lines
 
@@ -276,8 +289,8 @@ class CommandCacheOutputs(ExecutionCommand):
 
 class PutAPIFunction(ExecutionCommand):
     """
-        Represents an API-function (e.g. member function of a c++ class) which executes
-        once triggered the specified commands. A list of in-/output signals to this function
+        Represents an API-function (e.g. member function of a c++ class) which executes --
+        once triggered -- the specified commands. A list of in-/output signals to this function
         is given by inputSignals and outputSignals.
     """
 
@@ -329,7 +342,7 @@ class PutAPIFunction(ExecutionCommand):
 
                 lines += '\n'
 
-                lines += self.nameAPI + '('
+                lines += 'void ' + self.nameAPI + '('
 
                 elements = []
                 for s in self.outputSignals:
@@ -369,6 +382,8 @@ class PutAPIFunction(ExecutionCommand):
 
 
 
+# class SimulationAPIDefinition():
+#     def __init__(self):
 
 
 
@@ -386,6 +401,12 @@ class PutSimulation(ExecutionCommand):
 
         for e in executionCommands:
             e.setContext(self)
+
+
+
+    def getAPI_name(self):
+        return self.nameAPI
+
 
         
     def printExecution(self):
@@ -412,9 +433,9 @@ class PutSimulation(ExecutionCommand):
                 lines += 'class ' + self.nameAPI + ' {'
                 lines += '\n'
 
-
                 # put the local variables
                 innerLines = '// variables\n'
+                innerLines = 'public:\n'
                 for c in self.executionCommands:
                     innerLines += c.codeGen(language, 'variables')
                 
@@ -428,6 +449,98 @@ class PutSimulation(ExecutionCommand):
 
                 # define the API-function (finish)
                 lines += '}\n\n'
+
+
+        return lines
+
+
+
+
+
+
+
+
+
+class PutRuntimeCpp(ExecutionCommand):
+    """
+        generates code for the runtime evironment
+    """
+
+    def __init__(self, mainSimulation : ExecutionCommand ):
+        ExecutionCommand.__init__(self)
+
+        self.mainSimulation = mainSimulation
+
+        mainSimulation.setContext(self)
+
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "mainSimulation: Simulation of:")
+        
+        self.mainSimulation.printExecution()
+
+        print(Style.BRIGHT + Fore.YELLOW + "}")
+        
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'variables':
+                pass
+
+            if flag == 'code':
+                # define the API-function (start)
+                lines += '// main file to run ' + self.mainSimulation.getAPI_name() + '\n'
+
+                lines += """
+                    #include <math.h>
+
+                """
+
+
+                # put the code of the implementation
+                lines += self.mainSimulation.codeGen(language, 'code')
+
+                lines += """
+                   main () {
+
+                       // create an instance of the simulation
+                       testSimulation simulation;
+
+                       // input signals
+                       double extE1 = 1.0; 
+                       double extE2 = 2.0;
+                       double extU = 1.0;
+
+                       // output signals
+                       double y;
+                       double y2;
+
+                       // reset the simulation
+                       simulation.resetStates();
+
+                        // simulate
+                       int i;
+
+                       for (i=0; i<100; ++i) {
+                           simulation.calcResults_1( extE1, extE2, extU )
+                           simulation.updateStates( y, y2, extE1, extE2 )
+                       }
+
+                    }
+                    
+                    
+                """
+
+                # put the main() function
+                # lines += indent(innerLines, '  ')
+
+                # define the API-function (finish)
+                lines += '\n\n'
 
 
         return lines

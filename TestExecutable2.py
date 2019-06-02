@@ -150,7 +150,7 @@ order = 0
 
 
 # execution line per order
-commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals)
+commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals, defineVarsForOutputs = True)
 
 # cache all signals that are calculated so far
 commandToCacheIntermediateResults = CommandCacheOutputs( executionLineToCalculateOutputs.signalOrder )
@@ -248,7 +248,13 @@ while True:
 
 
     # collect executionLineForCurrentOrder
-    commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__) )
+    
+    #
+    # TODO: ensure somehow that variables are reserved for the inputs to the blocks
+    #       whose states are updated
+    #
+
+    commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__, defineVarsForOutputs = False) )
 
     # generate state update commands for the blocks that have dependencySignals as outputs
     # TODO: This is new and unchecked
@@ -271,7 +277,11 @@ while True:
 
             pass
 
+
+
+
     sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
+#    sUpCmd = CommandCalculateOutputs( blocksWhoseStatesToUpdate)
 
     commandsToExecuteForStateUpdate.append( sUpCmd )
 
@@ -312,12 +322,13 @@ commandToResetStates = PutAPIFunction( nameAPI = 'resetStates',
 
 
 # define the interfacing class
-commandToExecute = PutSimulation(  nameAPI = 'testSimulation',
-                                    executionCommands =
-                                    [ commandToPublishTheResults, 
-                                    commandToResetStates,
-                                    commandToUpdateStates  ])
+commandToExecute_simulation = PutSimulation(  nameAPI = 'testSimulation',
+                                                executionCommands =
+                                              [ commandToPublishTheResults, 
+                                                  commandToResetStates,
+                                                commandToUpdateStates  ])
 
+commandToExecute = PutRuntimeCpp(commandToExecute_simulation)
 
 #
 # list all execution lists
@@ -347,6 +358,11 @@ print()
 #sim.export_ortdrun('RTMain')
 #sim.ShowBlocks()
 
+
+
+f = open("generated/simulation.cpp", "w")
+f.write( sourcecode )
+f.close()
 
 
 
