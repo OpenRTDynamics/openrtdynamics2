@@ -226,13 +226,16 @@ class CommandUpdateStates(ExecutionCommand):
 
 
 
-
+#
+#        TODO (2.6.19): Do the removal input signals outisde of this 
+#
 
 class CommandCacheOutputs(ExecutionCommand):
     """
         copy the value of each given signal to the space of global variables
         (only signals that are the output of a block are considered, i.e. no 
         simulation inputs)
+
     """
 
     def __init__(self, signals : List[Signal]):
@@ -240,6 +243,9 @@ class CommandCacheOutputs(ExecutionCommand):
 
         self.signals = signals
         
+    def get_cachedSignals(self):
+        return self.signals
+
     def printExecution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
@@ -282,6 +288,59 @@ class CommandCacheOutputs(ExecutionCommand):
                         lines += cachevarName + ' = ' + s.getName() + ';\n'
 
         return lines
+
+
+
+
+
+#
+#        TODO (2.6.19): Do not perform the removal input signals (see above) 
+#
+
+class CommandRestoreCache(ExecutionCommand):
+    """
+        restore the cached signals that were previously stored by the command 
+        cacheCommand : CommandCacheOutputs
+    """
+
+    def __init__(self,  cacheCommand : CommandCacheOutputs ):
+        ExecutionCommand.__init__(self)
+
+        self.signals = cacheCommand.get_cachedSignals()
+        
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):")
+
+        for s in self.signals:
+            print("  - " + s.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'code':
+                lines += '\n'
+                lines = '// restore cached signals\n'
+
+                for s in self.signals:
+
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(s, SimulationInputSignal):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+
+                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                        lines +=  s.getDatatype().cppDataType + ' ' + s.getName() + ' = ' + cachevarName + ";" + '\n' 
+
+                lines += '\n'
+
+        return lines
+
 
 
 
@@ -448,7 +507,7 @@ class PutSimulation(ExecutionCommand):
                 lines += indent(innerLines, '  ')
 
                 # define the API-function (finish)
-                lines += '}\n\n'
+                lines += '};\n\n'
 
 
         return lines
@@ -506,7 +565,7 @@ class PutRuntimeCpp(ExecutionCommand):
                 lines += self.mainSimulation.codeGen(language, 'code')
 
                 lines += """
-                   main () {
+                   int main () {
 
                        // create an instance of the simulation
                        testSimulation simulation;
@@ -527,8 +586,8 @@ class PutRuntimeCpp(ExecutionCommand):
                        int i;
 
                        for (i=0; i<100; ++i) {
-                           simulation.calcResults_1( extE1, extE2, extU )
-                           simulation.updateStates( y, y2, extE1, extE2 )
+                           simulation.calcResults_1( y, y2, extE1, extE2 );
+                           simulation.updateStates(  extE1, extE2, extU );
                        }
 
                     }

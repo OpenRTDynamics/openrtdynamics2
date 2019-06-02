@@ -165,6 +165,9 @@ commandToPublishTheResults = PutAPIFunction("calcResults_1",
 # Initialize the list of commands to execute to update the states
 commandsToExecuteForStateUpdate = []
 
+# restore the cache of output signals to update the states
+commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
+
 # the simulation intputs needed to perform the state update
 simulationInputSignalsForStateUpdate = []
 
