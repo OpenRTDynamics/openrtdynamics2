@@ -148,12 +148,25 @@ for s in dependencySignals:
 order = 0
 
 
-
 # execution line per order
 commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals, defineVarsForOutputs = True)
 
+#
 # cache all signals that are calculated so far
-commandToCacheIntermediateResults = CommandCacheOutputs( executionLineToCalculateOutputs.signalOrder )
+# TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
+#
+
+signalsToCache = []
+for s in executionLineToCalculateOutputs.signalOrder:
+
+    # TODO: if isinstance(s, BlockOutputSignal):
+    if not isinstance(s, SimulationInputSignal):
+        # only implement caching for intermediate computaion results.
+        # I.e. exclude the simulation input signals
+
+        signalsToCache.append( s )
+
+commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
 
 # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
 # Further, it stores intermediate results

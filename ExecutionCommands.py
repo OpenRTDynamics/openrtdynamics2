@@ -226,10 +226,6 @@ class CommandUpdateStates(ExecutionCommand):
 
 
 
-#
-#        TODO (2.6.19): Do the removal input signals outisde of this 
-#
-
 class CommandCacheOutputs(ExecutionCommand):
     """
         copy the value of each given signal to the space of global variables
@@ -253,8 +249,6 @@ class CommandCacheOutputs(ExecutionCommand):
         for s in self.signals:
             print("  - " + s.toStr() )
 
-        # self.executionLine.printExecutionLine()
-
     def codeGen(self, language, flag):
 
         lines = ''
@@ -267,25 +261,17 @@ class CommandCacheOutputs(ExecutionCommand):
                 lines += "\n\n// cached output values\n"
                 for s in self.signals:
 
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
-                        lines +=  '\n// cache for ' + s.getName() + '\n'
-                        lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
+                    lines +=  '\n// cache for ' + s.getName() + '\n'
+                    lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
 
             if flag == 'code':
                 lines += ''
                 for s in self.signals:
 
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                        lines += cachevarName + ' = ' + s.getName() + ';\n'
+                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    lines += cachevarName + ' = ' + s.getName() + ';\n'
 
         return lines
 
@@ -293,9 +279,6 @@ class CommandCacheOutputs(ExecutionCommand):
 
 
 
-#
-#        TODO (2.6.19): Do not perform the removal input signals (see above) 
-#
 
 class CommandRestoreCache(ExecutionCommand):
     """
@@ -315,7 +298,6 @@ class CommandRestoreCache(ExecutionCommand):
         for s in self.signals:
             print("  - " + s.toStr() )
 
-        # self.executionLine.printExecutionLine()
 
     def codeGen(self, language, flag):
 
@@ -329,13 +311,8 @@ class CommandRestoreCache(ExecutionCommand):
 
                 for s in self.signals:
 
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-
-                        cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                        lines +=  s.getDatatype().cppDataType + ' ' + s.getName() + ' = ' + cachevarName + ";" + '\n' 
+                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    lines +=  s.getDatatype().cppDataType + ' ' + s.getName() + ' = ' + cachevarName + ";" + '\n' 
 
                 lines += '\n'
 
