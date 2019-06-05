@@ -68,7 +68,9 @@ class DataType:
     def cppDataType(self):
         return 'UNDEF (prototype)'
 
-
+    @property
+    def cppPrintfPattern(self):
+        return None
 
 
 #
@@ -90,6 +92,9 @@ class DataTypeFloat(DataTypeNumeric):
     def cppDataType(self):
         return 'double'
 
+    @property
+    def cppPrintfPattern(self):
+        return '%f'
 
 
 class DataTypeInt32(DataTypeNumeric):
@@ -101,6 +106,10 @@ class DataTypeInt32(DataTypeNumeric):
     @property
     def cppDataType(self):
         return 'int32_t'
+
+    @property
+    def cppPrintfPattern(self):
+        return '%d'
 
 
 def areAllTypesDefined( datatypes : List[ DataType ] ):

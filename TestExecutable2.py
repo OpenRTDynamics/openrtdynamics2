@@ -338,13 +338,20 @@ commandToResetStates = PutAPIFunction( nameAPI = 'resetStates',
 
 
 # define the interfacing class
-commandToExecute_simulation = PutSimulation(  nameAPI = 'testSimulation',
-                                                executionCommands =
-                                              [ commandToPublishTheResults, 
-                                                  commandToResetStates,
-                                                commandToUpdateStates  ])
+commandToExecute_simulation = PutSimulation(    nameAPI = 'testSimulation',
+                                                resetCommand = commandToResetStates, 
+                                                updateCommand = commandToUpdateStates,
+                                                outputCommand = commandToPublishTheResults
+                                            )
 
-commandToExecute = PutRuntimeCpp(commandToExecute_simulation)
+
+# specify what the input signals shall be in the runtime
+inputSignalsMapping = {}
+inputSignalsMapping[ U ] = 1.0
+inputSignalsMapping[ E1 ] = 2.0
+inputSignalsMapping[ E2 ] = 3.0
+
+commandToExecute = PutRuntimeCpp(commandToExecute_simulation, inputSignalsMapping=inputSignalsMapping)
 
 #
 # list all execution lists

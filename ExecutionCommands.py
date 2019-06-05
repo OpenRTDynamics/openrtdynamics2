@@ -2,14 +2,16 @@ from libdyn import *
 from Signal import *
 from Block import *
 from irpar import *
+from TraverseGraph import *
+from CodeGenHelper import *
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
 from textwrap import *
+from string import Template
 
-from TraverseGraph import *
 
 
 
@@ -418,10 +420,6 @@ class PutAPIFunction(ExecutionCommand):
 
 
 
-# class SimulationAPIDefinition():
-#     def __init__(self):
-
-
 
 
 class PutSimulation(ExecutionCommand):
@@ -429,13 +427,17 @@ class PutSimulation(ExecutionCommand):
         Represents a simulation that is represented by a class in c++
     """
 
-    def __init__(self, nameAPI: str, executionCommands : ExecutionCommand ):
+    def __init__(self, nameAPI: str, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
         ExecutionCommand.__init__(self)
 
-        self.executionCommands = executionCommands
+        self.resetCommand = resetCommand
+        self.updateCommand = updateCommand
+        self.outputCommand = outputCommand
+
+        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
         self.nameAPI = nameAPI
 
-        for e in executionCommands:
+        for e in self.executionCommands:
             e.setContext(self)
 
 
@@ -502,10 +504,11 @@ class PutRuntimeCpp(ExecutionCommand):
         generates code for the runtime evironment
     """
 
-    def __init__(self, mainSimulation : ExecutionCommand ):
+    def __init__(self, mainSimulation : ExecutionCommand, inputSignalsMapping ):
         ExecutionCommand.__init__(self)
 
         self.mainSimulation = mainSimulation
+        self.inputSignalsMapping = inputSignalsMapping
 
         mainSimulation.setContext(self)
 
@@ -517,7 +520,10 @@ class PutRuntimeCpp(ExecutionCommand):
         self.mainSimulation.printExecution()
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
-        
+
+
+
+
 
     def codeGen(self, language, flag):
 
@@ -534,6 +540,7 @@ class PutRuntimeCpp(ExecutionCommand):
 
                 lines += """
                     #include <math.h>
+                    #include <stdio.h>
 
                 """
 
@@ -541,20 +548,25 @@ class PutRuntimeCpp(ExecutionCommand):
                 # put the code of the implementation
                 lines += self.mainSimulation.codeGen(language, 'code')
 
-                lines += """
+
+                #
+                # template for main function in c++
+                #
+
+                mainTemplate = """
                    int main () {
 
                        // create an instance of the simulation
                        testSimulation simulation;
 
                        // input signals
-                       double extE1 = 1.0; 
-                       double extE2 = 2.0;
-                       double extU = 1.0;
+                       $inputAll_NamesVarDef
 
                        // output signals
-                       double y;
-                       double y2;
+                       $outputNamesVarDef
+
+                       // const assignments of the input signals
+                       $inputConstAssignment
 
                        // reset the simulation
                        simulation.resetStates();
@@ -562,15 +574,91 @@ class PutRuntimeCpp(ExecutionCommand):
                         // simulate
                        int i;
 
-                       for (i=0; i<100; ++i) {
-                           simulation.calcResults_1( y, y2, extE1, extE2 );
-                           simulation.updateStates(  extE1, extE2, extU );
+                       for (i=0; i< $iMax; ++i) {
+                           simulation.calcResults_1( $outputNamesCSVList, $input1_NamesCSVList );
+                           simulation.updateStates(  $input2_NamesCSVList );
+
+                           printf("$outputPrinfPattern\\n", $outputNamesCSVList);
                        }
 
                     }
                     
                     
                 """
+
+
+
+                # number of iterations
+                iMax = 15
+
+                #
+                # make strings 
+                # 
+
+                # for the output signals
+                for signals in [ self.mainSimulation.outputCommand.outputSignals ]:
+
+                    # str list of output signals. e.g. 'y1, y2, y3' 
+                    outputNamesCSVList = ', '.join( signalListHelper_names(signals)  )
+                    outputNamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+                    outputPrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+
+                # the inputs to the output command
+                for signals in [ self.mainSimulation.outputCommand.inputSignals ]:
+
+                    # str list of output signals. e.g. 'y1, y2, y3' 
+                    input1NamesCSVList = ', '.join( signalListHelper_names(signals)  )
+                    input1NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+                    input1PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+
+                # the inputs to the update command
+                for signals in [ self.mainSimulation.updateCommand.inputSignals ]:
+
+                    # str list of output signals. e.g. 'y1, y2, y3' 
+                    input2_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
+                    input2_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+                    input2_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+
+
+                # all inputs
+
+                # merge the list of inputs for the calcoutput and stateupdate function
+                allInputs = list(set(self.mainSimulation.outputCommand.inputSignals + self.mainSimulation.updateCommand.inputSignals))
+
+                for signals in [ allInputs ]:
+
+                    # str list of output signals. e.g. 'y1, y2, y3' 
+                    inputAll_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
+                    inputAll_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+                    inputAll_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+                
+
+
+                # constant inputs
+                inputConstAssignments = []
+                for signal, value in self.inputSignalsMapping.items():
+                    inputConstAssignments.append( signal.getName() + ' = ' + str(value) )
+
+                inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
+
+
+                # fill in template
+                lines += Template(mainTemplate).substitute( iMax=iMax, 
+
+                                                            input1_NamesVarDef=input1NamesVarDef,
+                                                            input1_NamesCSVList=input1NamesCSVList,
+
+                                                            input2_NamesVarDef=input2_NamesVarDef,
+                                                            input2_NamesCSVList=input2_NamesCSVList,
+
+                                                            inputAll_NamesVarDef=inputAll_NamesVarDef,
+                                                            inputAll_NamesCSVList=inputAll_NamesCSVList,
+
+                                                            outputNamesCSVList=outputNamesCSVList, 
+                                                            outputNamesVarDef=outputNamesVarDef,
+                                                            outputPrinfPattern=outputPrinfPattern,
+                                                            
+                                                            inputConstAssignment=inputConstAssignment )
 
                 # put the main() function
                 # lines += indent(innerLines, '  ')
