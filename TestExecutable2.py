@@ -4,6 +4,7 @@ from BlockPrototypes import *
 from TraverseGraph import *
 from Signal import *
 from ExecutionCommands import *
+from CodeGenTemplates import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -351,7 +352,8 @@ inputSignalsMapping[ U ] = 1.0
 inputSignalsMapping[ E1 ] = 2.0
 inputSignalsMapping[ E2 ] = 3.0
 
-commandToExecute = PutBasicRuntimeCpp(commandToExecute_simulation, inputSignalsMapping=inputSignalsMapping)
+commandToExecute = commandToExecute_simulation
+runtimeCodeTemplate = PutBasicRuntimeCpp(commandToExecute_simulation, inputSignalsMapping=inputSignalsMapping)
 
 #
 # list all execution lists
@@ -371,7 +373,7 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode = commandToExecute.codeGen('c++', 'code')
+sourcecode = runtimeCodeTemplate.codeGen(iMax = 20)
 
 
 print(Style.DIM + sourcecode)
