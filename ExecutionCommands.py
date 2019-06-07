@@ -499,7 +499,7 @@ class PutSimulation(ExecutionCommand):
 
 
 
-class PutRuntimeCpp(ExecutionCommand):
+class PutBasicRuntimeCpp(ExecutionCommand):
     """
         generates code for the runtime evironment
     """
@@ -535,57 +535,60 @@ class PutRuntimeCpp(ExecutionCommand):
                 pass
 
             if flag == 'code':
-                # define the API-function (start)
-                lines += '// main file to run ' + self.mainSimulation.getAPI_name() + '\n'
-
-                lines += """
-                    #include <math.h>
-                    #include <stdio.h>
-
-                """
-
-
-                # put the code of the implementation
-                lines += self.mainSimulation.codeGen(language, 'code')
-
 
                 #
                 # template for main function in c++
                 #
 
                 mainTemplate = """
-                   int main () {
-
-                       // create an instance of the simulation
-                       testSimulation simulation;
-
-                       // input signals
-                       $inputAll_NamesVarDef
-
-                       // output signals
-                       $outputNamesVarDef
-
-                       // const assignments of the input signals
-                       $inputConstAssignment
-
-                       // reset the simulation
-                       simulation.resetStates();
-
-                        // simulate
-                       int i;
-
-                       for (i=0; i< $iMax; ++i) {
-                           simulation.calcResults_1( $outputNamesCSVList, $input1_NamesCSVList );
-                           simulation.updateStates(  $input2_NamesCSVList );
-
-                           printf("$outputPrinfPattern\\n", $outputNamesCSVList);
-                       }
-
-                    }
                     
+#include <math.h>
+#include <stdio.h>
+
+//
+// implementation of $mainSimulationName
+//
+
+$simulationCode
+
+//
+// main
+//
+
+int main () {
+
+    // create an instance of the simulation
+    testSimulation simulation;
+
+    // input signals
+    $inputAll_NamesVarDef
+
+    // output signals
+    $outputNamesVarDef
+
+    // const assignments of the input signals
+    $inputConstAssignment
+
+    // reset the simulation
+    simulation.resetStates();
+
+    // simulate
+    int i;
+
+    for (i=0; i< $iMax; ++i) {
+        simulation.calcResults_1( $outputNamesCSVList, $input1_NamesCSVList );
+        simulation.updateStates(  $input2_NamesCSVList );
+
+        printf("$outputPrinfPattern\\n", $outputNamesCSVList);
+    }
+
+}
+
                     
                 """
 
+                # build the code for the implementation
+                simulationCode = self.mainSimulation.codeGen(language, 'code')
 
 
                 # number of iterations
@@ -633,7 +636,6 @@ class PutRuntimeCpp(ExecutionCommand):
                     inputAll_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
                 
 
-
                 # constant inputs
                 inputConstAssignments = []
                 for signal, value in self.inputSignalsMapping.items():
@@ -643,7 +645,9 @@ class PutRuntimeCpp(ExecutionCommand):
 
 
                 # fill in template
-                lines += Template(mainTemplate).substitute( iMax=iMax, 
+                lines += Template(mainTemplate).safe_substitute( iMax=iMax, 
+                                                            mainSimulationName = self.mainSimulation.getAPI_name(),
+                                                            simulationCode=simulationCode,
 
                                                             input1_NamesVarDef=input1NamesVarDef,
                                                             input1_NamesCSVList=input1NamesCSVList,
@@ -660,11 +664,6 @@ class PutRuntimeCpp(ExecutionCommand):
                                                             
                                                             inputConstAssignment=inputConstAssignment )
 
-                # put the main() function
-                # lines += indent(innerLines, '  ')
-
-                # define the API-function (finish)
-                lines += '\n\n'
 
 
         return lines

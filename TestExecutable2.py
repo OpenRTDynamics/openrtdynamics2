@@ -351,7 +351,7 @@ inputSignalsMapping[ U ] = 1.0
 inputSignalsMapping[ E1 ] = 2.0
 inputSignalsMapping[ E2 ] = 3.0
 
-commandToExecute = PutRuntimeCpp(commandToExecute_simulation, inputSignalsMapping=inputSignalsMapping)
+commandToExecute = PutBasicRuntimeCpp(commandToExecute_simulation, inputSignalsMapping=inputSignalsMapping)
 
 #
 # list all execution lists
