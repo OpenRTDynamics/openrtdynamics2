@@ -113,6 +113,10 @@ class CompileDiagram:
         # the simulation intputs needed to perform the state update
         simulationInputSignalsForStateUpdate = []
 
+        # the list of blocks that are updated. Note: So far this list is only used to prevent
+        # double uodates.
+        blocksWhoseStatesToUpdate_All = []
+
         while True:
 
             print("--------- Computing order "+ str(order) + " --------")
@@ -195,13 +199,25 @@ class CompileDiagram:
 
             blocksWhoseStatesToUpdate = []
             for s in dependencySignals:
-                #print("  - " + s.toStr())
+                print("  - " + s.getName())
                 
                 
                 #  TODO: use: if isinstance(s, BlockOutputSignal):
                 if not isinstance(s, SimulationInputSignal):
-                    # s is a signal that comes from a block
-                    blocksWhoseStatesToUpdate.append( s.getSourceBlock() )
+                    # s is a signal that comes from the block 'blk':
+                    blk = s.getSourceBlock()
+
+                    # NOTE: instead of checking if 'blk' is already in the list of blocks to update, the block could also be
+                    # marked by a flag, which might be faster to execute.
+                    if not blk in blocksWhoseStatesToUpdate_All:
+                        # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
+                        # dependencySignals are outputs of the same block)
+                        blocksWhoseStatesToUpdate.append( blk )
+                        blocksWhoseStatesToUpdate_All.append( blk )
+
+                        print("    (added) " + blk.toStr())
+                    else:
+                        print("    (already added) " + blk.toStr())
 
                 if isinstance(s, SimulationInputSignal):
                     # append this signals s to the list of needed simulation inputs
@@ -213,14 +229,17 @@ class CompileDiagram:
 
 
             # create state update command and append to the list of commnds to execute for state-update
-            sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
+            sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
             commandsToExecuteForStateUpdate.append( sUpCmd )
 
             #print("added command(s) to perform state update:")
             #sUpCmd.printExecution()
 
             # get the dependendy singals of the current order
+            # TODO important: remove the signals that are already computable from this list
             dependencySignals = executionLineForCurrentOrder.dependencySignals
+
+            # dependencySignals = executionLineForCurrentOrder.undeterminedDependencySignals
 
             # iterate
             order = order + 1
