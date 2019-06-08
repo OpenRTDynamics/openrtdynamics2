@@ -80,8 +80,10 @@ sim.ShowBlocks()
 
 
 
+
+
 print()
-print(Style.BRIGHT + "-------- Compile connections --------")
+print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
 print()
 sim.CompileConnections()
 
@@ -92,22 +94,24 @@ print()
 sim.ShowBlocks()
 
 
-# exit()
-
-
-
 
 #
-# create execution path builder
+# compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+# at runtime.
 #
+
+# input: outputSignals
+
+#
+# create execution path builder that manages the graph of the diagram and markings of the graph nodes.
+#
+
 E=BuildExecutionPath()
 
 
 print()
 print(Style.BRIGHT + "-------- Find dependencies for calcularing the outputs  --------")
 print()
-
-
 
 
 # collect all execution lines with:
@@ -194,14 +198,11 @@ while True:
         print(Fore.YELLOW + "  - " + s.toStr() )
 
 
-    # do for each dependency Signal in the list
-    # nextOrderDependencySingals = []
-
-    # collect all executions lines build in this order
+    # collect all executions lines build in this order in:
     executionLinesForCurrentOrder = []
 
-    # backwards jump over the blocks that compute dependencySignals through their states
-    # result is dependencySignals__ which are the inputs to these blocks
+    # backwards jump over the blocks that compute dependencySignals through their states.
+    # The result is dependencySignals__ which are the inputs to these blocks
     print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
 
     dependencySignals__ = []
@@ -226,45 +227,32 @@ while True:
                     print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
 
 
-    # create executionline for calculating the dependency singlas and at the end of the overall line
-    #executionLineForS_finalStep = ExecutionLine( dependencySignals__ )
-
-    
+    # iterate over all needed input signals and find out how to compute each signal
     for s in dependencySignals__:
 
         # get execution line to calculate s
-        executionLineForS = E.getExecutionLine(s)  # verified: s is also included in the execution line
+        executionLineForS = E.getExecutionLine(s)
 
         #print('  - - - the line for signal - - - ' + s.toStr() )
-        #executionLineForS.printExecutionLine()    # also here: s is part of the line
+        #executionLineForS.printExecutionLine()
 
         # store this execution line
         executionLinesForCurrentOrder.append(executionLineForS)
 
-        # collect all newly appearing dependency signals 
-        # found in executionLineForS.dependencySignals
-        # nextOrderDependencySingals.extend( executionLineForS.dependencySignals )
 
-
-    # merge all lines into one
+    # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
     executionLineForCurrentOrder = ExecutionLine( [], [] )
-
-    #
-
-    #
     for e in executionLinesForCurrentOrder:
 
         # append execution line
         executionLineForCurrentOrder.appendExecutionLine( e )
 
-
-
     #print('  - - - the line for this order - - - '  )
     #executionLineForCurrentOrder.printExecutionLine()
 
 
-
-    # collect executionLineForCurrentOrder
+    # create a command to calcurate executionLineForCurrentOrder and append to the
+    # list of commands for state update: 'commandsToExecuteForStateUpdate'
     
     #
     # TODO: ensure somehow that variables are reserved for the inputs to the blocks
@@ -273,7 +261,11 @@ while True:
 
     commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__, defineVarsForOutputs = False) )
 
-    # generate state update commands for the blocks that have dependencySignals as outputs
+    #
+    # find out which blocks need a call to update their states:
+    # create commands for the blocks that have dependencySignals as outputs
+    #
+
     # TODO: This is new and unchecked
     print("state update of blocks connected to:")
 
@@ -296,10 +288,8 @@ while True:
 
 
 
-
+    # create state update command and append to the list of commnds to execute for state-update
     sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate)
-#    sUpCmd = CommandCalculateOutputs( blocksWhoseStatesToUpdate)
-
     commandsToExecuteForStateUpdate.append( sUpCmd )
 
     #print("added command(s) to perform state update:")
@@ -309,14 +299,14 @@ while True:
     dependencySignals = executionLineForCurrentOrder.dependencySignals
 
     # iterate
-    #dependencySignals = nextOrderDependencySingals  # guess... ????
     order = order + 1
     if len(dependencySignals) == 0:
         print(Fore.GREEN + "All dependencies are resolved")
 
         break
 
-    if order == 30:
+    if order == 1000:
+        print(Fore.GREEN + "Maxmimum iteration limit reached -- this is likely a bug or your simulation is very complex")
         break
 
 
@@ -344,6 +334,13 @@ commandToExecute_simulation = PutSimulation(    nameAPI = 'testSimulation',
                                                 updateCommand = commandToUpdateStates,
                                                 outputCommand = commandToPublishTheResults
                                             )
+
+# return commandToExecute_simulation
+
+#
+# Build an executable base on a template
+#
+
 
 
 # specify what the input signals shall be in the runtime
