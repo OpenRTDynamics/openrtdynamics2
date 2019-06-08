@@ -38,8 +38,8 @@ class PutRuntimeCppHelper:
         for signals in [ self.mainSimulation.outputCommand.inputSignals ]:
 
             # str list of output signals. e.g. 'y1, y2, y3' 
-            input1NamesCSVList = ', '.join( signalListHelper_names(signals)  )
-            input1NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+            input1_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
+            input1_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             input1PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
 
         # the inputs to the update command
@@ -64,13 +64,18 @@ class PutRuntimeCppHelper:
             inputAll_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
         
 
+        calcOutputsArgsList = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals )
+        calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
+
+        calcOutputsArgs = ', '.join( calcOutputsArgsList )
+
         # fill in template
         self.template = Template(self.template).safe_substitute(  
                                                     mainSimulationName = self.mainSimulation.getAPI_name(),
                                                     simulationCode=simulationCode,
 
-                                                    input1_NamesVarDef=input1NamesVarDef,
-                                                    input1_NamesCSVList=input1NamesCSVList,
+                                                    input1_NamesVarDef=input1_NamesVarDef,
+                                                    input1_NamesCSVList=input1_NamesCSVList,
 
                                                     input2_NamesVarDef=input2_NamesVarDef,
                                                     input2_NamesCSVList=input2_NamesCSVList,
@@ -80,9 +85,12 @@ class PutRuntimeCppHelper:
 
                                                     outputNamesCSVList=outputNamesCSVList, 
                                                     outputNamesVarDef=outputNamesVarDef,
-                                                    outputPrinfPattern=outputPrinfPattern )
+                                                    outputPrinfPattern=outputPrinfPattern,
+                                                    
+                                                    calcOutputsArgs=calcOutputsArgs )
                                                     
         return self.template
+
 
 
 
@@ -90,6 +98,105 @@ class PutRuntimeCppHelper:
 class PutBasicRuntimeCpp(PutRuntimeCppHelper):
     """
         generates code for the runtime evironment
+    """
+
+    def __init__(self, mainSimulation : ExecutionCommand, inputSignalsMapping ):
+
+        PutRuntimeCppHelper.__init__(self, mainSimulation)
+
+        self.inputSignalsMapping = inputSignalsMapping
+
+        self.initCodeTemplate()
+
+        
+    def codeGen(self, iMax : int):
+
+        # call helper to fill in some generic elements into the template
+        PutRuntimeCppHelper.codeGen(self)
+
+        #
+        # make strings 
+        # 
+
+        # constant inputs
+        inputConstAssignments = []
+        for signal, value in self.inputSignalsMapping.items():
+            inputConstAssignments.append( signal.getName() + ' = ' + str(value) )
+
+        inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
+
+        self.template = Template(self.template).safe_substitute( iMax=iMax,
+                                                                 inputConstAssignment=inputConstAssignment    ) 
+
+        return self.template
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = """
+            
+#include <math.h>
+#include <stdio.h>
+
+//
+// implementation of $mainSimulationName
+//
+
+$simulationCode
+
+//
+// main
+//
+
+int main () {
+
+    // create an instance of the simulation
+    $mainSimulationName simulation;
+
+    // input signals
+    $inputAll_NamesVarDef
+
+    // output signals
+    $outputNamesVarDef
+
+    // const assignments of the input signals
+    $inputConstAssignment
+
+    // reset the simulation
+    simulation.resetStates();
+
+    // simulate
+    int i;
+
+    for (i=0; i< $iMax; ++i) {
+        simulation.calcResults_1( $calcOutputsArgs );
+        simulation.updateStates(  $input2_NamesCSVList );
+
+        printf("$outputPrinfPattern\\n", $outputNamesCSVList);
+    }
+
+}
+
+            
+        """        
+
+
+
+
+
+
+
+
+class WasmRuntimeCpp(PutRuntimeCppHelper):
+    """
+        generates code for the runtime evironment
+
+        https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+
     """
 
     def __init__(self, mainSimulation : ExecutionCommand, inputSignalsMapping ):
