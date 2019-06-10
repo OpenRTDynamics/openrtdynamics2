@@ -1,5 +1,8 @@
 from ExecutionCommands import *
 
+import subprocess
+import os
+
 
 
 
@@ -91,6 +94,14 @@ class PutRuntimeCppHelper:
                                                     
         return self.template
 
+    def writeCode(self, folder):
+        pass
+
+    def build(self):
+        pass
+
+    def run(self):
+        pass
 
 
 
@@ -125,10 +136,53 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 
-        self.template = Template(self.template).safe_substitute( iMax=iMax,
+        self.sourceCode = Template(self.template).safe_substitute( iMax=iMax,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-        return self.template
+        return self.sourceCode
+
+    def writeCode(self, folder):
+
+        self.codeFolder = folder
+
+        f = open(folder + "main.cpp", "w")
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+        os.system("c++ " + self.codeFolder + "main.cpp -o " + self.codeFolder + "main")
+
+
+    def run(self):
+        # run the generated executable
+        p = subprocess.Popen(self.codeFolder + 'main', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = p.wait()
+
+        # parse csv data
+        data = [ ]
+        outputs = range(0, len(self.mainSimulation.outputCommand.outputSignals) )
+
+        for o in outputs:
+            data.append( [] )
+
+        for line in p.stdout.readlines():
+            # print(line.decode("utf-8") )
+
+            sample = line.decode("utf-8").split(' ')
+
+            for o in outputs:
+                data[ o ].append( float( sample[o] ) )
+
+        # put data into a key-array
+        dataStruct = { }
+        o = 0
+        for s in self.mainSimulation.outputCommand.outputSignals:
+            dataStruct[ s.getName() ] = data[o]
+
+            o = o + 1
+
+        return dataStruct
 
 
     def initCodeTemplate(self):

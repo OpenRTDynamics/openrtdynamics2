@@ -42,7 +42,7 @@ def firstOrderAndGain(sim, u : Signal, z_inf, gain, name : str):
     return y
 
 
-def integrator(sim, u : Signal, name : str):
+def dInt(sim, u : Signal, name : str):
 
     yFb = Signal(sim)
 
@@ -53,8 +53,21 @@ def integrator(sim, u : Signal, name : str):
 
     return y
 
+def eInt(sim, u : Signal, Ts : float, name : str):
 
-testname = 'test_integrator' # 'test1', 'test_integrator', 
+    yFb = Signal(sim)
+
+    i = dyn_add(sim, [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
+    y = dyn_delay(sim, i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+
+    yFb.setequal( y )
+
+    return y
+
+
+
+
+testname = 'test_oscillator' # 'test1', 'test_integrator', 
 
 if testname == 'test1':
 
@@ -103,12 +116,12 @@ if testname == 'test_integrator':
     U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
 
 
-    y1 = integrator(sim, U, name="int1")
-    y2 = integrator(sim, y1, name="int2")
-    y3 = integrator(sim, y2, name="int3")
-    y4 = integrator(sim, y3, name="int4")
-    y5 = integrator(sim, y4, name="int5")
-    y6 = integrator(sim, y5, name="int6")
+    y1 = dInt(sim, U, name="int1")
+    y2 = dInt(sim, y1, name="int2")
+    y3 = dInt(sim, y2, name="int3")
+    y4 = dInt(sim, y3, name="int4")
+    y5 = dInt(sim, y4, name="int5")
+    y6 = dInt(sim, y5, name="int6")
 
 
     # define the outputs of the simulation
@@ -121,6 +134,38 @@ if testname == 'test_integrator':
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
     
+
+
+if testname == 'test_oscillator':
+
+    baseDatatype = DataTypeFloat(1) 
+    # baseDatatype = DataTypeInt32(1) 
+
+
+    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
+    U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+
+    xFb = Signal(sim)
+    vFb = Signal(sim)
+
+    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+    v = eInt(sim, acc, Ts=0.1, name="intV")
+    x = eInt(sim, v, Ts=0.1, name="intX")
+
+    xFb.setequal(x)
+    vFb.setequal(v)
+    
+
+    # define the outputs of the simulation
+    outputSignals = [  x,v ]
+
+    # test 
+    sim.ShowBlocks()
+
+    # specify what the input signals shall be in the runtime
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
 
 
 print()
@@ -169,20 +214,49 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode = runtimeCodeTemplate.codeGen(iMax = 20)
+sourcecode = runtimeCodeTemplate.codeGen(iMax = 500)
 
+f = open("generated/simulation.cpp", "w")
+f.write( sourcecode )
+f.close()
 
 print(Style.DIM + sourcecode)
 print()
 
 
 
-f = open("generated/simulation.cpp", "w")
-f.write( sourcecode )
-f.close()
+#
+runtimeCodeTemplate.writeCode("generated/")
+runtimeCodeTemplate.build()
+
+results = runtimeCodeTemplate.run()
+
+#
+# Plot
+#
 
 
+import numpy as np
+import matplotlib.pyplot as plt
 
+fig1 = plt.figure('results')
+
+plt.clf()
+
+k = range(0, len( results['intV_y']  ))
+
+v = np.array( results['intV_y'] )
+x = np.array( results['intX_y'] )
+
+
+plt.plot( k, v, 'r' )
+plt.plot( k, x, 'k' )
+
+plt.xlabel('k')
+plt.ylabel('x, v')
+plt.title('simulation results')
+
+plt.show()
 
 
 
