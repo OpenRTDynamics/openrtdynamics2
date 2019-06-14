@@ -194,7 +194,10 @@ commandToExecute = compiler.compile( sim, outputSignals )
 
 
 
-runtimeCodeTemplate = PutBasicRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
+# runtimeCodeTemplate = PutBasicRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
+
+runtimeCodeTemplate = WasmRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
+
 
 #
 # list all execution lists
@@ -216,6 +219,7 @@ print()
 
 sourcecode = runtimeCodeTemplate.codeGen(iMax = 500)
 
+
 f = open("generated/simulation.cpp", "w")
 f.write( sourcecode )
 f.close()
@@ -235,28 +239,29 @@ results = runtimeCodeTemplate.run()
 # Plot
 #
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-fig1 = plt.figure('results')
-
-plt.clf()
-
-k = range(0, len( results['intV_y']  ))
-
-v = np.array( results['intV_y'] )
-x = np.array( results['intX_y'] )
-
-
-plt.plot( k, v, 'r' )
-plt.plot( k, x, 'k' )
-
-plt.xlabel('k')
-plt.ylabel('x, v')
-plt.title('simulation results')
-
-plt.show()
+if False:
+    
+    import numpy as np
+    import matplotlib.pyplot as plt
+    
+    fig1 = plt.figure('results')
+    
+    plt.clf()
+    
+    k = range(0, len( results['intV_y']  ))
+    
+    v = np.array( results['intV_y'] )
+    x = np.array( results['intX_y'] )
+    
+    
+    plt.plot( k, v, 'r' )
+    plt.plot( k, x, 'k' )
+    
+    plt.xlabel('k')
+    plt.ylabel('x, v')
+    plt.title('simulation results')
+    
+    plt.show()
 
 
 

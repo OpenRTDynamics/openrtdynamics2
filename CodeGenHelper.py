@@ -68,6 +68,11 @@ def signalListHelper_CppVarDefStr(signals):
 
     return vardefStr
 
+def defineVariables( signals ):
+    elements = signalListHelper_CppVarDefStr(signals)
+
+    return ';\n'.join( elements ) + ';\n'
+
 
 
 def signalListHelper_printfPattern(signals):
@@ -80,3 +85,31 @@ def signalListHelper_printfPattern(signals):
     
     return printfPatterns
 
+
+def defineStructVar( structName, structVarname ):
+    return structName + ' ' + structVarname + ';\n'
+
+def fillStruct( structName, structVarname, signals ):
+
+    lines = ''
+
+    lines += defineStructVar( structName, structVarname )
+
+
+    for s in signals:
+        lines += structVarname + '.' + s.getName() + ' = ' + s.getName() + ';\n'
+
+    return lines
+
+
+def getStructElements( structVarname, signals ):
+    # get list of e.g. 'outputs.y1', 'outputs.y2'
+
+    structElements = []
+
+    for s in signals:
+        structElements.append( structVarname + '.' + s.getName()  )
+
+    return structElements
+
+# def build

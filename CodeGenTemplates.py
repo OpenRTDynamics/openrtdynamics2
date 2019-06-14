@@ -278,11 +278,24 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 
-        self.template = Template(self.template).safe_substitute( iMax=iMax,
+        self.sourceCode = Template(self.template).safe_substitute( iMax=iMax,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-        return self.template
+        return self.sourceCode
 
+
+    def writeCode(self, folder):
+
+        self.codeFolder = folder
+
+        f = open(folder + "main.cpp", "w")
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+        os.system("emcc --bind " + self.codeFolder + "main.cpp -s -o " + self.codeFolder + "main.js")
+        pass
 
     def initCodeTemplate(self):
 
@@ -294,6 +307,9 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
             
 #include <math.h>
 #include <stdio.h>
+#include <emscripten/bind.h>
+
+using namespace emscripten;
 
 //
 // implementation of $mainSimulationName
@@ -304,6 +320,9 @@ $simulationCode
 //
 // main
 //
+
+
+
 
 int main () {
 
@@ -326,7 +345,7 @@ int main () {
     int i;
 
     for (i=0; i< $iMax; ++i) {
-        simulation.calcResults_1( $outputNamesCSVList, $input1_NamesCSVList );
+        simulation.calcResults_1( $calcOutputsArgs );
         simulation.updateStates(  $input2_NamesCSVList );
 
         printf("$outputPrinfPattern\\n", $outputNamesCSVList);
@@ -334,5 +353,16 @@ int main () {
 
 }
 
+
+
+// Binding code
+EMSCRIPTEN_BINDINGS(my_class_example) {
+  class_<$mainSimulationName>("$mainSimulationName")
+    .constructor<>()
+    .function("resetStates", &$mainSimulationName::resetStates__)
+    .function("calcResults_1", &$mainSimulationName::calcResults_1__)
+    .function("updateStates", &$mainSimulationName::updateStates__)
+    ;
+}
             
         """        

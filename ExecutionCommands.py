@@ -372,32 +372,27 @@ class PutAPIFunction(ExecutionCommand):
                 for c in self.executionCommands:
                     lines += c.codeGen(language, 'variables')
 
+
             if flag == 'code':
                 # define the API-function (start)
-                lines += '// calculate'
-                for s in self.outputSignals:
-                    lines += ' ' + s.getName()
-
+                lines += '// calculate ' + ' '.join( signalListHelper_names( self.outputSignals ) )
+                
                 lines += '\n'
-
                 lines += 'void ' + self.nameAPI + '('
 
+                # put the parameter list e.g. double & y1, double & y2, u1, u2
                 elements = []
                 for s in self.outputSignals:
-                    
                     elements.append( s.getDatatype().cppDataType + ' & '  + s.getName() )
                     
-
-                for s in self.inputSignals:
-                    elements.append(  s.getDatatype().cppDataType + ' '  + s.getName() )
+                elements.extend( signalListHelper_CppVarDefStr( self.inputSignals ) )
 
                 lines += ', '.join(elements)
-
                 lines +=  ') {\n'
 
-
-                
+                # innerLines will be indented
                 innerLines = ''
+                
                 # put the local variables
                 for c in self.executionCommands:
                     innerLines += c.codeGen(language, 'localvar')
@@ -411,6 +406,63 @@ class PutAPIFunction(ExecutionCommand):
                 lines += indent(innerLines, '  ')
 
                 # define the API-function (finish)
+                lines += '}\n\n'
+
+                # put structs to hold I/O signals
+                lines += '// output data structure for ' + self.nameAPI + '\n'
+                tmp = defineVariables( self.outputSignals )
+                tmp = indent(tmp, '  ')
+                lines += f'struct Outputs_{ self.nameAPI }  {{\n{ tmp }}};\n\n'
+
+                lines += '// input data structure for ' + self.nameAPI + '\n'
+                tmp = defineVariables( self.inputSignals )
+                tmp = indent(tmp, '  ')
+                lines += f'struct Inputs_{ self.nameAPI }  {{\n{ tmp }}};\n\n'
+
+
+                #
+                # put a wrapper function that offers an API using structs for in- and output signals
+                #
+
+                # put function header
+                lines += '// wrapper function for ' + self.nameAPI + '\n'
+                lines += 'Outputs_' + self.nameAPI + ' ' + self.nameAPI + '__ (Inputs_' + self.nameAPI + ' inputs)\n'
+
+                if len(self.outputSignals) > 0 or len(self.inputSignals):
+
+                    outputArguments = getStructElements( 'outputs' , self.outputSignals )
+                    inputArguments = getStructElements( 'inputs' , self.inputSignals )
+
+                    argumentsString = ''
+                    if len(outputArguments) > 0:
+                        argumentsString += ', '.join( outputArguments )
+
+                    if len(outputArguments) > 0 and len(inputArguments) > 0:
+                        argumentsString += '   ,   '                    
+
+                    if len(inputArguments) > 0:
+                        argumentsString += ', '.join( inputArguments )
+
+                    print( 'args are: ' + argumentsString )
+
+                else:
+                    argumentsString = ''
+
+                lines += '{\n'
+
+                innerLines = ''
+                innerLines += defineStructVar( 'Outputs_' + self.nameAPI, 'outputs'  ) + '\n'
+
+                innerLines += '// call to wrapped function\n'
+                innerLines += self.nameAPI + '(' + argumentsString + ');\n'
+
+
+                innerLines += '\n'
+                innerLines += '// return the signals in a struct\n'
+                innerLines += 'return outputs;\n'
+
+                lines += indent(innerLines, '  ')
+                
                 lines += '}\n\n'
 
 
