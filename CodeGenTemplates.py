@@ -264,8 +264,6 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
         
     def codeGen(self, iMax : int):
 
-        # call helper to fill in some generic elements into the template
-        PutRuntimeCppHelper.codeGen(self)
 
         #
         # make strings 
@@ -278,10 +276,65 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 
-        self.sourceCode = Template(self.template).safe_substitute( iMax=iMax,
+
+        # build I/O structs
+        ioExport = self.codeGen_writeIO(self.mainSimulation.outputCommand)
+        ioExport += self.codeGen_writeIO(self.mainSimulation.updateCommand)
+
+        ioExport += self.codeGen_writeIO(self.mainSimulation.resetCommand)
+
+        self.template = Template(self.template).safe_substitute( iMax=iMax,
+                                                                    ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-        return self.sourceCode
+
+        #
+#                for signals in [ self.mainSimulation.outputCommand.outputSignals ]:
+
+
+       # print(codeOutput)
+
+        # call helper to fill in some generic elements into the template
+        PutRuntimeCppHelper.codeGen(self)
+
+        self.sourceCode = self.template
+        return self.template
+
+
+
+    def codeGen_writeIO__(self, command_API, inputOutput : int):
+
+        # self.mainSimulation.getAPI_name()  is $mainSimulationName
+
+        if inputOutput == 1:
+            structPrefix = 'Inputs_'
+            signals = command_API.inputSignals
+
+        elif inputOutput == 2:
+            structPrefix = 'Outputs_'
+            signals = command_API.outputSignals
+
+        mainSimulationName = self.mainSimulation.getAPI_name()
+
+        lines = ''
+
+        # Inputs
+        structname = structPrefix + command_API.nameAPI 
+
+        lines += 'value_object<' + mainSimulationName + '::' + structname + '>("' + mainSimulationName + '__' + structname + '")\n'
+
+        for s in signals:
+            fieldName = s.getName()
+
+            lines += '.field("' + fieldName + '", &' + mainSimulationName + '::' + structname + '::' + fieldName + ')\n'
+
+        lines += ';\n\n'
+
+
+        return lines
+
+    def codeGen_writeIO(self, command_API):
+        return self.codeGen_writeIO__(command_API, 1) + self.codeGen_writeIO__(command_API, 2)
 
 
     def writeCode(self, folder):
@@ -294,8 +347,14 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
 
     def build(self):
-        os.system("emcc --bind " + self.codeFolder + "main.cpp -s -o " + self.codeFolder + "main.js")
-        pass
+
+        buildCommand = "emcc --bind " + self.codeFolder + "main.cpp -s -o " + self.codeFolder + "main.js"
+        print("Running compiler: " + buildCommand)
+
+        returnCode = os.system(buildCommand)
+
+        print( "Compilation result: ", returnCode )
+
 
     def initCodeTemplate(self):
 
@@ -317,44 +376,6 @@ using namespace emscripten;
 
 $simulationCode
 
-//
-// main
-//
-
-
-
-
-int main () {
-
-    // create an instance of the simulation
-    $mainSimulationName simulation;
-
-    // input signals
-    $inputAll_NamesVarDef
-
-    // output signals
-    $outputNamesVarDef
-
-    // const assignments of the input signals
-    $inputConstAssignment
-
-    // reset the simulation
-    simulation.resetStates();
-
-    // simulate
-    int i;
-
-    for (i=0; i< $iMax; ++i) {
-        simulation.calcResults_1( $calcOutputsArgs );
-        simulation.updateStates(  $input2_NamesCSVList );
-
-        printf("$outputPrinfPattern\\n", $outputNamesCSVList);
-    }
-
-}
-
-
-
 // Binding code
 EMSCRIPTEN_BINDINGS(my_class_example) {
   class_<$mainSimulationName>("$mainSimulationName")
@@ -363,6 +384,15 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
     .function("calcResults_1", &$mainSimulationName::calcResults_1__)
     .function("updateStates", &$mainSimulationName::updateStates__)
     ;
+
+
+// --------------------------------
+
+$ioExport
+
+
 }
             
         """        
+
+
