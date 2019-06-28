@@ -140,6 +140,132 @@ def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]
 
 
 
+class Poperator1(BlockPrototype):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal], operator ):
+
+        # 
+        self.inputSignals = inputSignals
+
+        self.operator = operator
+
+        blk = Block(sim, self, inputSignals, blockname = 'operator1').configAddOutputSignal('output')
+
+
+        # call super
+        BlockPrototype.__init__(self, blk)
+
+        # optional to initially fix the output types:
+        # self.outputSignal(0).setDatatype(  ...  )
+
+
+    def configDefineOutputTypes(self, inputTypes):
+        # print("Padd: in callback configDefineOutputTypes")
+
+
+        if self.outputSignal(0).getDatatype() is None:
+            #
+            # no output type defined so far..
+            # look for an already defined input type and inherit.
+            #
+
+            print(self.block.toStr() )
+
+            for t in inputTypes:
+                if t is not None:
+                    print(" - (intype) " + t.toStr() ) 
+                else:
+                    print(" - (NONE)") 
+
+
+            # set a proposal for an output type. Choose the best numeric precission
+            # for the output according to the already defined input types.
+            # 
+            self.outputType = computeResultingNumericType(inputTypes)
+
+            print('Padd (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
+
+        else:
+
+            # check of the given output type is a numeric datatype
+            if not isinstance( self.outputSignal(0).getDatatype(), DataTypeNumeric ):
+                raise BaseException("Poperator1: only DataTypeNumeric can be the result/output of an addition")
+        
+        return [self.outputType]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output (there is only one) depends on all inputs
+        return self.inputSignals 
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []
+
+    def getOutputsSingnals(self):
+        # return the output signals
+        sum = self.outputSignal(0)
+
+        return sum
+
+    def encode_irpar(self):
+        ipar = []
+        rpar = self.factors
+
+        return ipar, rpar
+
+    def getORTD_btype(self):
+        # The ORTD interpreter finds the computational function using this id
+        return 12
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'localvar':
+                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+
+                strs = []
+                i = 0
+                for s in self.inputSignals:
+                    strs.append(  str(  s.getName() ) )
+                    i = i + 1
+
+                sumline = (' ' + self.operator + ' ').join( strs )
+
+                lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = '// nothing to reset for ' + self.block.getName() + '\n'
+
+        return lines
+
+
+
+
+def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator ):
+
+    return Poperator1(sim, inputSignals, operator).getOutputsSingnals()
+
+
+
+
 
 
 class Pconst(BlockPrototype):
@@ -199,7 +325,7 @@ class Pconst(BlockPrototype):
                 lines = ''
 
             elif flag == 'localvar':
-                lines = self.outputType.cppDataType + ' const ' + self.outputSignal(0).getName() + ';\n'
+                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
             elif flag == 'constructor':
                 lines = ''
