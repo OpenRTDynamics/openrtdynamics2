@@ -67,7 +67,7 @@ def eInt(sim, u : Signal, Ts : float, name : str):
 
 
 
-testname = 'test_oscillator' # 'test1', 'test_integrator', 
+testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled'
 
 if testname == 'test1':
 
@@ -166,6 +166,54 @@ if testname == 'test_oscillator':
     # specify what the input signals shall be in the runtime
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
+
+
+if testname == 'test_oscillator_controlled':
+
+    baseDatatype = DataTypeFloat(1) 
+
+    #
+    reference = dyn_const(sim, 2.5, baseDatatype ).setNameOfOrigin('reference (const)').setName('reference')
+
+    # 
+    controlledVariableFb = Signal(sim)
+
+    # control error
+    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] ).setNameOfOrigin('controlError').setName('controlError')
+
+    #
+    Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' ).setNameOfOrigin('controlVar (*)').setName('controlVar')
+
+
+    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
+    #U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+    U = controlVar
+
+    xFb = Signal(sim)
+    vFb = Signal(sim)
+
+    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+    v = eInt(sim, acc, Ts=0.1, name="intV")
+    x = eInt(sim, v, Ts=0.1, name="intX")
+
+    xFb.setequal(x)
+    vFb.setequal(v)
+    
+    #
+    controlledVariableFb.setequal(x)
+
+    # define the outputs of the simulation
+    outputSignals = [  x,v ]
+
+    # test 
+    sim.ShowBlocks()
+
+    # specify what the input signals shall be in the runtime
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
 
 
 print()
