@@ -4,7 +4,7 @@
 
 <html>
 
-constant input value: <input type="number" name="val_1" id="val_1" min="1" max="5">
+constant input value: <input style="width:100px" type="number" name="val_1" id="val_1" min="1" max="5">
 
 <canvas id="plot" width="400" height="200"></canvas>
 
@@ -15,55 +15,48 @@ constant input value: <input type="number" name="val_1" id="val_1" min="1" max="
 <script>
 
 
+  function simulate(instance, dataset_plot, Nsamples, inputs_updateStates) {
+
+    var inputs_resetStates = {};
+    var inputs_calcOutputs = {};
+    // var inputs_updateStates = { extU: 1.0 };
+
+    instance.resetStates(inputs_resetStates);
+
+    // resultText = '';
+
+    for (i = 0; i < Nsamples; ++i) {
+      outputs = instance.calcResults_1(inputs_calcOutputs);
+      instance.updateStates(inputs_updateStates);
+
+      // console.log(outputs);
+
+      // resultText += 'intX_y = ' + outputs.intX_y + ' intV_y = ' + outputs.intV_y + '<br>';
+
+      t = i * 0.01;
+
+      dataset_plot[i].x = t;
+      dataset_plot[i].y = outputs.intX_y;
+
+      //        dataset_plot.push({ x: t, y: outputs.intX_y });
+    }
+
+  }
+
   var tmp;
 
   var Module = {
     onRuntimeInitialized: function () {
 
-      outputView = document.getElementById('results');
-      inputSelector = document.getElementById('val_1');
-      inputSelector.onchange = function (event) {
-        console.log('val', event.target.value);
-
-
-      };
-
-      console.log('runtime ready');
-
-      var dataset_plot = [];
-
-
+      // init simulator
       var instance = new Module.testSimulation();
+      var Nsamples = 400;
 
-      console.log('create simularion');
-
-      var inputs_resetStates = {};
-      var inputs_calcOutputs = {};
-      var inputs_updateStates = { extU: 1.0 };
-
-      instance.resetStates(inputs_resetStates);
-
-      resultText = '';
-
-      for (i = 0; i < 100; ++i) {
-        outputs = instance.calcResults_1(inputs_calcOutputs);
-        instance.updateStates(inputs_updateStates);
-
-        console.log(outputs);
-
-        resultText += 'intX_y = ' + outputs.intX_y + ' intV_y = ' + outputs.intV_y + '<br>';
-
-        t = i * 0.01;
-        dataset_plot.push({ x: t, y: outputs.intX_y });
+      // pre alloc memory
+      var dataset_plot = [];
+      for (i = 0; i < Nsamples; ++i) {
+        dataset_plot.push({ x: 0.0, y: 0.0 });
       }
-
-      outputView.innerHTML = 'Result <br>' + resultText
-
-
-
-      instance.delete();
-      tmp = inputs_resetStates
-
 
       // plot
       var ctx = document.getElementById('plot');
@@ -92,6 +85,39 @@ constant input value: <input type="number" name="val_1" id="val_1" min="1" max="
         }
       });
 
+
+
+
+      outputView = document.getElementById('results');
+      inputSelector = document.getElementById('val_1');
+      inputSelector.onchange = function (event) {
+        console.log('val', parseFloat(event.target.value));
+
+        simulate(instance, dataset_plot, Nsamples, { extU: parseFloat(event.target.value) });
+        myLineChart.update();
+
+
+      };
+
+
+
+
+
+
+      console.log('create simularion');
+
+      simulate(instance, dataset_plot, Nsamples, { extU: 2.0 });
+      myLineChart.update();
+
+
+      // outputView.innerHTML = 'Result <br>' + resultText;
+
+
+
+      //instance.delete();
+
+
+      // plot
 
     }
   };
