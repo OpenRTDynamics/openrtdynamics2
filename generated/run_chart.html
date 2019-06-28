@@ -1,0 +1,104 @@
+<!doctype html>
+
+
+
+<html>
+
+constant input value: <input type="number" name="val_1" id="val_1" min="1" max="5">
+
+<canvas id="plot" width="400" height="200"></canvas>
+
+<div id='results'>
+  --
+</div>
+
+<script>
+
+
+  var tmp;
+
+  var Module = {
+    onRuntimeInitialized: function () {
+
+      outputView = document.getElementById('results');
+      inputSelector = document.getElementById('val_1');
+      inputSelector.onchange = function (event) {
+        console.log('val', event.target.value);
+
+
+      };
+
+      console.log('runtime ready');
+
+      var dataset_plot = [];
+
+
+      var instance = new Module.testSimulation();
+
+      console.log('create simularion');
+
+      var inputs_resetStates = {};
+      var inputs_calcOutputs = {};
+      var inputs_updateStates = { extU: 1.0 };
+
+      instance.resetStates(inputs_resetStates);
+
+      resultText = '';
+
+      for (i = 0; i < 100; ++i) {
+        outputs = instance.calcResults_1(inputs_calcOutputs);
+        instance.updateStates(inputs_updateStates);
+
+        console.log(outputs);
+
+        resultText += 'intX_y = ' + outputs.intX_y + ' intV_y = ' + outputs.intV_y + '<br>';
+
+        t = i * 0.01;
+        dataset_plot.push({ x: t, y: outputs.intX_y });
+      }
+
+      outputView.innerHTML = 'Result <br>' + resultText
+
+
+
+      instance.delete();
+      tmp = inputs_resetStates
+
+
+      // plot
+      var ctx = document.getElementById('plot');
+
+      var s1 = {
+        label: 'intX_y',
+        borderColor: 'red',
+        data: dataset_plot
+      };
+
+      var myLineChart = new Chart(ctx, {
+        // type: 'line',
+        type: "scatter",
+
+        data: { datasets: [s1] },
+
+        options: {
+
+          animation: {
+            duration: 0 // general animation time
+          },
+          hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+          },
+          responsiveAnimationDuration: 0 // animation duration after a resize
+        }
+      });
+
+
+    }
+  };
+
+</script>
+<script src="main.js"></script>
+<script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
+
+
+</html>

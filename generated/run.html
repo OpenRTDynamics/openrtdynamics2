@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<div id='results'>
+  --
+</div>
+
+<script>
+
+
+  var tmp;
+
+  var Module = {
+    onRuntimeInitialized: function () {
+
+      outputView = document.getElementById('results');
+
+      console.log('runtime ready');
+
+
+      var instance = new Module.testSimulation();
+
+      console.log('create simularion');
+
+      var inputs_resetStates = {};
+      var inputs_calcOutputs = {};
+      var inputs_updateStates = { extU: 1.0 };
+
+      instance.resetStates(inputs_resetStates);
+
+      resultText = ''
+
+      for (i = 0; i < 100; ++i) {
+        outputs = instance.calcResults_1(inputs_calcOutputs);
+        instance.updateStates(inputs_updateStates);
+
+        console.log(outputs);
+
+        resultText += 'intX_y = ' + outputs.intX_y + ' intV_y = ' + outputs.intV_y + '<br>'
+      }
+
+      outputView.innerHTML = 'Result <br>' + resultText
+
+
+
+      instance.delete();
+      tmp = inputs_resetStates
+
+
+        //     on("resetStates", &testSimulation::resetStates__)
+        // .function("calcResults_1", &testSimulation::calcResults_1__)
+        // .function("updateStates", &testSimulation::updateStates__)
+        ;
+
+    }
+  };
+
+</script>
+<script src="main.js"></script>
+
+</html>
