@@ -19,7 +19,7 @@ constant input value: <input style="width:100px" type="number" name="val_1" id="
 
     var inputs_resetStates = {};
     var inputs_calcOutputs = {};
-    // var inputs_updateStates = { extU: 1.0 };
+    // var inputs_updateStates = { Kp: 1.0 };
 
     instance.resetStates(inputs_resetStates);
 
@@ -93,7 +93,7 @@ constant input value: <input style="width:100px" type="number" name="val_1" id="
       inputSelector.onchange = function (event) {
         console.log('val', parseFloat(event.target.value));
 
-        simulate(instance, dataset_plot, Nsamples, { extU: parseFloat(event.target.value) });
+        simulate(instance, dataset_plot, Nsamples, { Kp: parseFloat(event.target.value) });
         myLineChart.update();
 
 
@@ -106,7 +106,7 @@ constant input value: <input style="width:100px" type="number" name="val_1" id="
 
       console.log('create simularion');
 
-      simulate(instance, dataset_plot, Nsamples, { extU: 2.0 });
+      simulate(instance, dataset_plot, Nsamples, { Kp: 2.0 });
       myLineChart.update();
 
 

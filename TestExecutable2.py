@@ -173,7 +173,9 @@ if testname == 'test_oscillator_controlled':
     baseDatatype = DataTypeFloat(1) 
 
     # input to simulations
-    Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+    # Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+
+    Kp = sim.newInput( baseDatatype ).setName('Kp')
 
     #
     reference = dyn_const(sim, 2.5, baseDatatype )

@@ -26,6 +26,10 @@ class Simulation:
 
         self.ReturnList = []
 
+        # counter for simulation input signals
+        # This determines the order of teh arguments of the generated c++ functions
+        self.simulationInputSignalCounter = 0
+
         # manager to determine datatypes as new blocks are added
         self.datatypePropagation = DatatypePropagation(self)
 
@@ -49,7 +53,12 @@ class Simulation:
         self.BlocksArray.append(blk)
         print("added block ", blk.getName() )
 
+    # create and return a new simulation input signal
+    def newInput(self, datatype):
+        s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
+        self.simulationInputSignalCounter += 1
 
+        return s
 
 
     def Return(self, sigList : List[Signal]):
