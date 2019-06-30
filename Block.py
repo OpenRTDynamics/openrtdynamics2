@@ -67,7 +67,16 @@ class Block:
         print("Creating new block " + blockname)
 
         self.sim = sim
-        self.blocknameShort = blockname
+
+        # create a new unique block id 
+        self.id = sim.getNewBlockId()
+
+        # default names
+        if blockname is None:
+            blockname = 'block'
+
+        self.blocknameShort =  blockname + '_bid' + str( self.id )   # variable name
+        self.blockname = blockname + '_bid' + str( self.id )  # description
 
         # add myself to the given simulation
         self.sim.addBlock(self)
@@ -88,14 +97,8 @@ class Block:
                 self.inputSignals[port].addDestination( self, port )
 
 
-        # create a new unique block id 
-        self.id = sim.getNewBlockId()
-
         # initialize the empty list of output signals
         self.OutputSignals = []
-
-        # get new block id (This is for the old ORTD-Style)
-        self.id = sim.getNewBlockId()
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False

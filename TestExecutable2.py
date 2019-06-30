@@ -172,28 +172,28 @@ if testname == 'test_oscillator_controlled':
 
     baseDatatype = DataTypeFloat(1) 
 
+    # input to simulations
+    Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+
     #
-    reference = dyn_const(sim, 2.5, baseDatatype ).setNameOfOrigin('reference (const)')
+    reference = dyn_const(sim, 2.5, baseDatatype )
 
     # 
     controlledVariableFb = Signal(sim)
 
     # control error
-    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] ).setNameOfOrigin('controlError')
+    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] )
 
     #
-    Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
-    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' ).setNameOfOrigin('controlVar (*)')
+    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' )
 
-
-    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
-    #U = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
+    # plant starts here
     U = controlVar
 
     xFb = Signal(sim)
     vFb = Signal(sim)
 
-    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc')
+    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acceleration model')
 
     v = eInt(sim, acc, Ts=0.1, name="intV")
     x = eInt(sim, v, Ts=0.1, name="intX")

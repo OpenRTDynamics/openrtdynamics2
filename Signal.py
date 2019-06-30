@@ -178,6 +178,8 @@ class SimulationInputSignal(Signal):
         A special signal that markes an input to a simulation.
     """
 
+    # TODO: 30.6.19 remvoe this port number parameter
+
     def __init__(self, sim, port : int, datatype = None):
         
         self.port = port
