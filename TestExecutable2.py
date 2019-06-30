@@ -173,17 +173,17 @@ if testname == 'test_oscillator_controlled':
     baseDatatype = DataTypeFloat(1) 
 
     #
-    reference = dyn_const(sim, 2.5, baseDatatype ).setNameOfOrigin('reference (const)').setName('reference')
+    reference = dyn_const(sim, 2.5, baseDatatype ).setNameOfOrigin('reference (const)')
 
     # 
     controlledVariableFb = Signal(sim)
 
     # control error
-    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] ).setNameOfOrigin('controlError').setName('controlError')
+    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] ).setNameOfOrigin('controlError')
 
     #
     Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
-    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' ).setNameOfOrigin('controlVar (*)').setName('controlVar')
+    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' ).setNameOfOrigin('controlVar (*)')
 
 
     #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
@@ -193,7 +193,7 @@ if testname == 'test_oscillator_controlled':
     xFb = Signal(sim)
     vFb = Signal(sim)
 
-    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+    acc = dyn_add(sim, [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc')
 
     v = eInt(sim, acc, Ts=0.1, name="intV")
     x = eInt(sim, v, Ts=0.1, name="intX")
@@ -205,6 +205,8 @@ if testname == 'test_oscillator_controlled':
     controlledVariableFb.setequal(x)
 
     # define the outputs of the simulation
+    x.setName('x')
+    v.setName('v')
     outputSignals = [  x,v ]
 
     # test 

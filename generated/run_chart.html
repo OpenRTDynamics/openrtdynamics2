@@ -36,7 +36,7 @@ constant input value: <input style="width:100px" type="number" name="val_1" id="
       t = i * 0.01;
 
       dataset_plot[i].x = t;
-      dataset_plot[i].y = outputs.intX_y;
+      dataset_plot[i].y = outputs.x;
 
       //        dataset_plot.push({ x: t, y: outputs.intX_y });
     }
@@ -75,13 +75,13 @@ constant input value: <input style="width:100px" type="number" name="val_1" id="
 
         options: {
 
-          animation: {
-            duration: 0 // general animation time
-          },
-          hover: {
-            animationDuration: 0 // duration of animations when hovering an item
-          },
-          responsiveAnimationDuration: 0 // animation duration after a resize
+          // animation: {
+          //   duration: 1 // general animation time
+          // },
+          // hover: {
+          //   animationDuration: 0 // duration of animations when hovering an item
+          // },
+          // responsiveAnimationDuration: 0 // animation duration after a resize
         }
       });
 

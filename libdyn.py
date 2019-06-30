@@ -21,6 +21,7 @@ class Simulation:
         self.name = name
         self.BlocksArray = []
         self.BlockIdCounter = 200 # start at 200 to reserve some space below
+        self.signalIdCounter = 1000
         self.SimulationFinished = False
 
         self.ReturnList = []
@@ -34,6 +35,12 @@ class Simulation:
     def getNewBlockId(self):
         self.BlockIdCounter += 1
         return self.BlockIdCounter
+
+    # get a new unique id for creating a signal
+    def getNewSignalId(self):
+        self.signalIdCounter += 1
+        return self.signalIdCounter
+
 
     def addBlock(self, blk : Block):
         if self.SimulationFinished:

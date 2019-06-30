@@ -110,14 +110,13 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
-    def configAddOutputSignal(self, name):
+    def configAddOutputSignal(self):
         # add an output signals to this block typically called by the block prototypes
         # NOTE: This just reservates that there will be an output
         #       the type is undefined at this point
 
         portNumber = len(self.OutputSignals)
         newSignal = Signal(self.sim, None, self, portNumber )
-        newSignal.setName(name)
 
         self.OutputSignals.append( newSignal )
 

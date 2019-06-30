@@ -19,7 +19,9 @@ class Signal:
 
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
-        self.name = "--"
+
+        # give this signal a unique default name
+        self.name = 'signal_' + str(sim.getNewSignalId())
 
         # the list of destinations this signals goes to
         self.destinationBlocks = []
@@ -55,6 +57,8 @@ class Signal:
     # set the name of this signal
     def setName(self, name):
         self.linkedSignal.name = name
+
+        print("-- set name of signql to " + name)
 
         return self
 

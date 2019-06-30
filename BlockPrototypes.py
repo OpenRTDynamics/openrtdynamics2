@@ -21,7 +21,7 @@ class Padd(BlockPrototype):
 
         self.factors = factors
 
-        blk = Block(sim, self, inputSignals, blockname = 'add').configAddOutputSignal('sum')
+        blk = Block(sim, self, inputSignals, blockname = 'add').configAddOutputSignal()
 
 
         # call super
@@ -148,7 +148,7 @@ class Poperator1(BlockPrototype):
 
         self.operator = operator
 
-        blk = Block(sim, self, inputSignals, blockname = 'operator1').configAddOutputSignal('output')
+        blk = Block(sim, self, inputSignals, blockname = 'operator1').configAddOutputSignal()
 
 
         # call super
@@ -275,7 +275,7 @@ class Pconst(BlockPrototype):
         self.outputType = datatype
 
         #
-        blk = Block(sim, self, None, blockname = 'const').configAddOutputSignal('const')
+        blk = Block(sim, self, None, blockname = 'const').configAddOutputSignal()
 
         # call super
         BlockPrototype.__init__(self, blk)
@@ -367,7 +367,7 @@ class Pdelay(BlockPrototype):
         self.outputType = None
 
         #
-        blk = Block(sim, self, [ u ], blockname = 'delay').configAddOutputSignal('z^-1 input') # TODO: inherit the name of the input (nice to have)
+        blk = Block(sim, self, [ u ], blockname = 'delay').configAddOutputSignal()
 
         # call super
         BlockPrototype.__init__(self, blk)
@@ -461,7 +461,7 @@ class Pgain(BlockPrototype):
         self.outputType = None
 
         #
-        blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal('gain')
+        blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal()
         
         # call super
         BlockPrototype.__init__(self, blk)
