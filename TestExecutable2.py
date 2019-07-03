@@ -175,9 +175,10 @@ if testname == 'test_oscillator_controlled':
     # Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
 
     Kp = sim.newInput( baseDatatype ).setName('Kp')
+    reference = sim.newInput( baseDatatype ).setName('ref')
 
     #
-    reference = dyn_const(sim, 2.5, baseDatatype )
+    # reference = dyn_const(sim, 2.5, baseDatatype )
 
     # 
     controlledVariableFb = Signal(sim)
