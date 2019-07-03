@@ -8,7 +8,6 @@ from CompileDiagram import *
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
-
 # new simulation
 sim = Simulation(None, 'main')
 
@@ -269,16 +268,14 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode = runtimeCodeTemplate.codeGen(iMax = 500)
-
-
-f = open("generated/simulation.cpp", "w")
-f.write( sourcecode )
-f.close()
+sourcecode, manifest = runtimeCodeTemplate.codeGen(iMax = 500)
 
 print(Style.DIM + sourcecode)
-print()
 
+print()
+print(Style.BRIGHT + "-------- Manifest  --------")
+print()
+print(json.dumps(manifest, indent=4, sort_keys=True))
 
 
 #

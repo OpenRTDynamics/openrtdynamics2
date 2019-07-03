@@ -2,6 +2,7 @@ from ExecutionCommands import *
 
 import subprocess
 import os
+import json
 
 
 
@@ -24,6 +25,18 @@ class PutRuntimeCppHelper:
         # build the code for the implementation
         simulationCode = self.mainSimulation.codeGen('c++', 'code')
 
+        # the manifest containts meta-information about the simulation and its interface
+        # i.e. input and output signals names and datatypes
+        manifest = {}
+        manifest['io'] = {}
+        
+        manifest['io']['outputs'] = {}
+        manifest['io']['inputs'] = {}
+
+        manifest['io']['outputs']['calculate_output'] = {}
+        manifest['io']['inputs']['calculate_output'] = {}
+        manifest['io']['inputs']['state_update'] = {}
+
 
         #
         # make strings 
@@ -32,18 +45,35 @@ class PutRuntimeCppHelper:
         # for the output signals
         for signals in [ self.mainSimulation.outputCommand.outputSignals ]:
 
+            # code
             # str list of output signals. e.g. 'y1, y2, y3' 
             outputNamesCSVList = ', '.join( signalListHelper_names(signals)  )
             outputNamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             outputPrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
 
+            # manifest
+            signalDescription = {}
+            signalDescription['names'] = signalListHelper_names(signals)
+            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
+
+            manifest['io']['outputs']['calculate_output'] = signalDescription
+
+
         # the inputs to the output command
         for signals in [ self.mainSimulation.outputCommand.inputSignals ]:
 
+            # code
             # str list of output signals. e.g. 'y1, y2, y3' 
             input1_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
             input1_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             input1PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+
+            # manifest
+            signalDescription = {}
+            signalDescription['names'] = signalListHelper_names(signals)
+            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
+
+            manifest['io']['inputs']['calculate_output'] = signalDescription
 
         # the inputs to the update command
         for signals in [ self.mainSimulation.updateCommand.inputSignals ]:
@@ -53,9 +83,14 @@ class PutRuntimeCppHelper:
             input2_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             input2_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
 
+            # manifest
+            signalDescription = {}
+            signalDescription['names'] = signalListHelper_names(signals)
+            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
+
+            manifest['io']['inputs']['state_update'] = signalDescription
 
         # all inputs
-
         # merge the list of inputs for the calcoutput and stateupdate function
         allInputs = list(set(self.mainSimulation.outputCommand.inputSignals + self.mainSimulation.updateCommand.inputSignals))
 
@@ -91,11 +126,20 @@ class PutRuntimeCppHelper:
                                                     outputPrinfPattern=outputPrinfPattern,
                                                     
                                                     calcOutputsArgs=calcOutputsArgs )
-                                                    
-        return self.template
 
-    def writeCode(self, folder):
-        pass
+        self.manifest = manifest
+
+        return self.template, self.manifest
+
+    def writeFiles(self, folder):
+
+        print(folder)
+
+        with open( os.path.join( folder + '//simulation_manifest.json' ), 'w') as outfile:  
+            json.dump(self.manifest, outfile)
+
+          
+        
 
     def build(self):
         pass
@@ -139,13 +183,14 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         self.sourceCode = Template(self.template).safe_substitute( iMax=iMax,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-        return self.sourceCode
+        return self.sourceCode, self.manifest
 
     def writeCode(self, folder):
+        PutRuntimeCppHelper.writeFiles(self, folder)
 
         self.codeFolder = folder
 
-        f = open(folder + "main.cpp", "w")
+        f = open(os.path.join( folder + "main.cpp"), "w")
         f.write( self.sourceCode )
         f.close()
 
@@ -287,24 +332,15 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
                                                                     ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-
-        #
-#                for signals in [ self.mainSimulation.outputCommand.outputSignals ]:
-
-
-       # print(codeOutput)
-
         # call helper to fill in some generic elements into the template
         PutRuntimeCppHelper.codeGen(self)
 
         self.sourceCode = self.template
-        return self.template
+        return self.template, self.manifest
 
 
 
     def codeGen_writeIO__(self, command_API, inputOutput : int):
-
-        # self.mainSimulation.getAPI_name()  is $mainSimulationName
 
         if inputOutput == 1:
             structPrefix = 'Inputs_'
@@ -338,17 +374,18 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
 
     def writeCode(self, folder):
+        PutRuntimeCppHelper.writeFiles(self, folder)
 
         self.codeFolder = folder
 
-        f = open(folder + "main.cpp", "w")
+        f = open(os.path.join( folder + "main.cpp"), "w")
         f.write( self.sourceCode )
         f.close()
 
 
     def build(self):
 
-        buildCommand = "emcc --bind " + self.codeFolder + "main.cpp -s -o " + self.codeFolder + "main.js"
+        buildCommand = "emcc --bind " + os.path.join(self.codeFolder + "main.cpp") + " -s -o " + os.path.join( self.codeFolder + "main.js" )
         print("Running compiler: " + buildCommand)
 
         returnCode = os.system(buildCommand)
