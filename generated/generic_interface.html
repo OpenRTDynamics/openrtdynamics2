@@ -50,6 +50,17 @@
 
     }
 
+
+    function allocateOutputMemory(Nsamples) {
+        var dataset_plot = [];
+        for (i = 0; i < Nsamples; ++i) {
+            dataset_plot.push({ x: 0.0, y: 0.0 });
+        }
+
+        return dataset_plot;
+    }
+
+
     function genrateParameterInitValues(manifest) {
         // generate list of properties
         i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
@@ -122,10 +133,7 @@
                     var Nsamples = 400;
 
                     // pre alloc memory
-                    var dataset_plot = [];
-                    for (i = 0; i < Nsamples; ++i) {
-                        dataset_plot.push({ x: 0.0, y: 0.0 });
-                    }
+                    var dataset_plot = allocateOutputMemory(Nsamples);
 
                     // plot
                     var ctx = document.getElementById('plot');
@@ -141,10 +149,10 @@
                         data: { datasets: [s1] },
                         options: {
                             animation: {
-                              duration:  01 // general animation time
+                                duration: 01 // general animation time
                             },
                             hover: {
-                              animationDuration: 0 // duration of animations when hovering an item
+                                animationDuration: 0 // duration of animations when hovering an item
                             },
                             responsiveAnimationDuration: 0 // animation duration after a resize
                         }
