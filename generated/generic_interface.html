@@ -18,7 +18,7 @@
 <script>
 
 
-    function simulate(instance, manifest, dataset_plot, Nsamples, inputValues) {
+    function simulate(instance, manifest, dataList, Nsamples, inputValues) {
 
         // sort inputValues into the inupts for state update and output calculation
         var inputs_updateStates = {}
@@ -44,8 +44,11 @@
 
             t = i * 0.01;
 
-            dataset_plot[i].x = t;
-            dataset_plot[i].y = outputs.x;
+            manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+                dataList[outputName][i].x = t;
+                dataList[outputName][i].y = outputs[outputName];
+            });
+
         }
 
     }
@@ -67,7 +70,7 @@
 
         var initvals = {}
         for (i = 0; i < i1.length; ++i) {
-            initvals[i1[i]] = 0.0
+            initvals[i1[i]] = 0.1
         }
 
         return initvals;
@@ -132,21 +135,40 @@
                     var instance = new Module.testSimulation();
                     var Nsamples = 400;
 
-                    // pre alloc memory
-                    var dataset_plot = allocateOutputMemory(Nsamples);
+                    // default colors
+                    var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
+
+                    // prepare datasets and pre alloc memory for each to fill in data
+                    var datasets = []
+                    var dataList = {}
+                    var i = 0
+                    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+                        var data = allocateOutputMemory(Nsamples);
+
+                        var color;
+                        if (i < colorList.length) {
+                            color = colorList[i];
+                        } else {
+                            color = 'black'
+                        }
+
+                        var dataset = {
+                            label: outputName,
+                            borderColor: color,
+                            data: data
+                        };
+
+                        datasets.push(dataset);
+                        dataList[outputName] = data;
+                        i = i + 1;
+                    });
 
                     // plot
                     var ctx = document.getElementById('plot');
 
-                    var s1 = {
-                        label: 'intX_y',
-                        borderColor: 'red',
-                        data: dataset_plot
-                    };
-
                     var myLineChart = new Chart(ctx, {
                         type: "scatter",
-                        data: { datasets: [s1] },
+                        data: { datasets },
                         options: {
                             animation: {
                                 duration: 01 // general animation time
@@ -158,15 +180,11 @@
                         }
                     });
 
-
                     // parameter
                     var initvals = genrateParameterInitValues(manifest);
 
                     initParameterEditor(manifest, initvals, function (inputValues) {
-                        console.log(inputValues);
-
-                        simulate(instance, manifest, dataset_plot, Nsamples, inputValues);
-
+                        simulate(instance, manifest, dataList, Nsamples, inputValues);
                         myLineChart.update();
                     });
 
@@ -175,12 +193,11 @@
 
                     console.log('create simularion');
 
-                    simulate(instance, manifest, dataset_plot, Nsamples, initvals);
+                    simulate(instance, manifest, dataList, Nsamples, initvals);
                     myLineChart.update();
                 });
 
             //instance.delete();
-
         }
     };
 
