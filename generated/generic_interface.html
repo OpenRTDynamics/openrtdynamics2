@@ -3,13 +3,7 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
 
-</html>
-
-
 <html>
-
-
-
 
 <div id='editor_holder'>
     -parameters-
@@ -24,22 +18,23 @@
 <script>
 
 
-    function simulate(instance, dataset_plot, Nsamples, values) {
+    function simulate(instance, manifest, dataset_plot, Nsamples, inputValues) {
 
+        // sort inputValues into the inupts for state update and output calculation
         var inputs_updateStates = {}
-
-        for (var key in values) {
-            console.log(values[key]);
-
-            inputs_updateStates[key] = values[key]
-        }
-
-        console.log('simulation inputs')
-        console.log(inputs_updateStates)
-
-
-        var inputs_resetStates = {};
         var inputs_calcOutputs = {};
+        var inputs_resetStates = {};  // normally empty
+
+        for (var key in inputValues) {
+            console.log(inputValues[key]);
+
+            if (manifest.io.inputs.state_update.names.includes(key)) {
+                inputs_updateStates[key] = inputValues[key]
+            } else if (manifest.io.inputs.calculate_output.names.includes(key)) {
+                inputs_calcOutputs[key] = inputValues[key]
+            }
+
+        }
 
         instance.resetStates(inputs_resetStates);
 
@@ -57,7 +52,7 @@
 
     function genrateParameterInitValues(manifest) {
         // generate list of properties
-        i1 = manifest.io.inputs.state_update.names;
+        i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
 
         var initvals = {}
         for (i = 0; i < i1.length; ++i) {
@@ -74,17 +69,13 @@
         JSONEditor.defaults.options.theme = 'bootstrap2';
 
         // generate list of properties
-        i1 = manifest.io.inputs.state_update.names;
-        t1 = manifest.io.inputs.state_update.types;
-        console.log(i1)
+        i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
+        t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
 
         var properties = {}
         for (i = 0; i < i1.length; ++i) {
             properties[i1[i]] = { "type": "number" }
         }
-
-        console.log(properties);
-
 
         // Initialize the editor
         var editor = new JSONEditor(document.getElementById("editor_holder"), {
@@ -94,28 +85,8 @@
             }
         });
 
-        // // Initialize the editor
-        // var editor = new JSONEditor(document.getElementById("editor_holder"), {
-        //     schema: {
-        //         type: "object",
-        //         properties: {
-        //             "Kp": { "type": "number" },
-        //             "Ki": { "type": "number" },
-        //         }
-        //     }
-        // });
-
-        // Set the value
-
-
+        // Set the initial inputValues
         editor.setValue(initvals);
-
-
-        // editor.setValue({
-        //     "Kp": 0.123 ,
-        //     "ref" : 4
-        //     //"Ki": 0
-        // });
 
         // Listen for changes
         editor.on("change", function () {
@@ -127,8 +98,6 @@
         return editor;
     }
 
-    var tmp;
-
     // load manifest from json file
     var p_manifest = new Promise(
         function (resolve, reject) {
@@ -137,7 +106,6 @@
                 console.log(json);
                 resolve(json)
             });
-
         });
 
 
@@ -169,20 +137,16 @@
                     };
 
                     var myLineChart = new Chart(ctx, {
-                        // type: 'line',
                         type: "scatter",
-
                         data: { datasets: [s1] },
-
                         options: {
-
-                            // animation: {
-                            //   duration: 1 // general animation time
-                            // },
-                            // hover: {
-                            //   animationDuration: 0 // duration of animations when hovering an item
-                            // },
-                            // responsiveAnimationDuration: 0 // animation duration after a resize
+                            animation: {
+                              duration:  01 // general animation time
+                            },
+                            hover: {
+                              animationDuration: 0 // duration of animations when hovering an item
+                            },
+                            responsiveAnimationDuration: 0 // animation duration after a resize
                         }
                     });
 
@@ -190,17 +154,10 @@
                     // parameter
                     var initvals = genrateParameterInitValues(manifest);
 
-                    initParameterEditor(manifest, initvals, function (values) {
-                        console.log(values);
+                    initParameterEditor(manifest, initvals, function (inputValues) {
+                        console.log(inputValues);
 
-                        // simulate(instance, dataset_plot, Nsamples,
-                        //     {
-                        //         Kp: parseFloat(values.Kp),
-                        //         ref: parseFloat(values.ref)
-                        //     });
-
-                        simulate(instance, dataset_plot, Nsamples, values);
-
+                        simulate(instance, manifest, dataset_plot, Nsamples, inputValues);
 
                         myLineChart.update();
                     });
@@ -208,10 +165,9 @@
 
                     outputView = document.getElementById('results');
 
-
                     console.log('create simularion');
 
-                    simulate(instance, dataset_plot, Nsamples, initvals );
+                    simulate(instance, manifest, dataset_plot, Nsamples, initvals);
                     myLineChart.update();
                 });
 
