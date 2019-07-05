@@ -26,14 +26,11 @@
         var inputs_resetStates = {};  // normally empty
 
         for (var key in inputValues) {
-            console.log(inputValues[key]);
-
             if (manifest.io.inputs.state_update.names.includes(key)) {
                 inputs_updateStates[key] = inputValues[key]
             } else if (manifest.io.inputs.calculate_output.names.includes(key)) {
                 inputs_calcOutputs[key] = inputValues[key]
             }
-
         }
 
         instance.resetStates(inputs_resetStates);
@@ -48,11 +45,8 @@
                 dataList[outputName][i].x = t;
                 dataList[outputName][i].y = outputs[outputName];
             });
-
         }
-
     }
-
 
     function allocateOutputMemory(Nsamples) {
         var dataset_plot = [];
@@ -62,7 +56,6 @@
 
         return dataset_plot;
     }
-
 
     function genrateParameterInitValues(manifest) {
         // generate list of properties
@@ -75,7 +68,6 @@
 
         return initvals;
     }
-
 
     function initParameterEditor(manifest, initvals, fn) {
 
@@ -104,20 +96,68 @@
 
         // Listen for changes
         editor.on("change", function () {
-            // Do something...
-
             fn(editor.getValue());
         });
 
         return editor;
     }
 
+    function preparePlots(manifest, Nsamples) {
+
+        // default colors
+        var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
+
+        // prepare datasets and pre alloc memory for each to fill in data
+        var datasets = []
+        var dataList = {}
+        var i = 0
+        manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+            var data = allocateOutputMemory(Nsamples);
+
+            var color;
+            if (i < colorList.length) {
+                color = colorList[i];
+            } else {
+                color = 'black'
+            }
+
+            var dataset = {
+                label: outputName,
+                borderColor: color,
+                data: data
+            };
+
+            datasets.push(dataset);
+            dataList[outputName] = data;
+            i = i + 1;
+        });
+
+        // plot
+        var ctx = document.getElementById('plot');
+
+        var myLineChart = new Chart(ctx, {
+            type: "scatter",
+            data: { datasets },
+            options: {
+                animation: {
+                    duration: 01 // general animation time
+                },
+                hover: {
+                    animationDuration: 0 // duration of animations when hovering an item
+                },
+                responsiveAnimationDuration: 0 // animation duration after a resize
+            }
+        });
+
+        return [myLineChart, dataList];
+    }
+
+
+
     // load manifest from json file
     var p_manifest = new Promise(
         function (resolve, reject) {
-
             $.getJSON("simulation_manifest.json", function (json) {
-                console.log(json);
                 resolve(json)
             });
         });
@@ -128,70 +168,26 @@
 
             p_manifest.then(
                 function (manifest) {
-                    console.log('manifest loaded:')
+                    console.log('loaded the following manifest')
                     console.log(manifest)
 
                     // init simulator
                     var instance = new Module.testSimulation();
                     var Nsamples = 400;
 
-                    // default colors
-                    var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
-
-                    // prepare datasets and pre alloc memory for each to fill in data
-                    var datasets = []
-                    var dataList = {}
-                    var i = 0
-                    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-                        var data = allocateOutputMemory(Nsamples);
-
-                        var color;
-                        if (i < colorList.length) {
-                            color = colorList[i];
-                        } else {
-                            color = 'black'
-                        }
-
-                        var dataset = {
-                            label: outputName,
-                            borderColor: color,
-                            data: data
-                        };
-
-                        datasets.push(dataset);
-                        dataList[outputName] = data;
-                        i = i + 1;
-                    });
-
-                    // plot
-                    var ctx = document.getElementById('plot');
-
-                    var myLineChart = new Chart(ctx, {
-                        type: "scatter",
-                        data: { datasets },
-                        options: {
-                            animation: {
-                                duration: 01 // general animation time
-                            },
-                            hover: {
-                                animationDuration: 0 // duration of animations when hovering an item
-                            },
-                            responsiveAnimationDuration: 0 // animation duration after a resize
-                        }
-                    });
+                    // init the plots
+                    var [myLineChart, dataList] = preparePlots(manifest, Nsamples);
 
                     // parameter
                     var initvals = genrateParameterInitValues(manifest);
 
                     initParameterEditor(manifest, initvals, function (inputValues) {
+                        // on parameter change simulate and plot
                         simulate(instance, manifest, dataList, Nsamples, inputValues);
                         myLineChart.update();
                     });
 
-
                     outputView = document.getElementById('results');
-
-                    console.log('create simularion');
 
                     simulate(instance, manifest, dataList, Nsamples, initvals);
                     myLineChart.update();
