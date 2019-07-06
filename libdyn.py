@@ -27,8 +27,8 @@ class Simulation:
         self.UpperLevelSim = UpperLevelSim
         self.name = name
         self.BlocksArray = []
-        self.BlockIdCounter = 200 # start at 200 to reserve some space below
-        self.signalIdCounter = 1000
+        self.BlockIdCounter = 0
+        self.signalIdCounter = 0
 
         # counter for simulation input signals
         # This determines the order of teh arguments of the generated c++ functions
@@ -81,6 +81,87 @@ class Simulation:
                 print(Fore.GREEN + "  output signals")
                 for inSig in blk.getOutputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
+
+    def exportGraph(self):
+
+# {
+#     "nodes":[
+#           {"name":"node1","group":1},
+#           {"name":"node2","group":1},
+#           {"name":"node3","group":1},
+#           {"name":"node4","group":1}
+#       ],
+#       "links":[
+#           {"source":1,"target":0,"weight":10}
+#       ]
+#   }
+
+
+
+        # build list of all nodes/blocks
+        nodes = []
+        links = []
+
+        for block in self.BlocksArray:
+
+            node = {}
+            node['name'] = block.getName()
+            node['tostr'] = block.toStr()
+
+            nodes.append( node )
+
+        
+
+
+        # build links
+
+
+        for blk in self.BlocksArray:
+
+            # list input singals
+            if len( blk.getInputSignals() ) > 0:
+                print(Fore.RED + "  input signals")
+                for inSig in blk.getInputSignals():
+                    print(Style.DIM + "    - " + inSig.toStr() )
+
+
+                    sourceBlock = inSig.getSourceBlock()
+                    if sourceBlock is not None:
+
+                        link = {}
+                        link['tostr'] = inSig.toStr()
+                        link['name'] = inSig.getName()
+                        link['source'] = sourceBlock.getBlockId() - 1
+                        link['target'] = blk.getBlockId() - 1
+                        links.append( link )
+
+                    else:
+                        # this is typically an input to the simulation
+
+                        pass
+
+
+
+
+            # # list output singals
+            # if len( blk.getOutputSignals() ) > 0:
+            #     print(Fore.GREEN + "  output signals")
+            #     for inSig in blk.getOutputSignals():
+            #         print(Style.DIM + "    - " + inSig.toStr() )
+        graph = {}
+
+        graph['nodes'] = nodes
+        graph['links'] = links
+
+        # print(graph)
+        import json
+        print(json.dumps(graph, indent=4, sort_keys=True))
+
+        #
+        return graph
+
+
+
 
 
     def getBlocksArray(self):

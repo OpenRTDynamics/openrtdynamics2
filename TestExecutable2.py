@@ -63,7 +63,12 @@ def eInt(sim, u : Signal, Ts : float, name : str):
 
     return y
 
+def diff(sim, u : Signal, name : str):
 
+    i = dyn_delay(sim, u).setNameOfOrigin(name + '_i (delay)').setName(name + '_i')
+    y = dyn_add(sim, [ i, u ], [ -1, 1 ] ).setNameOfOrigin(name + '_y (add)').setName(name + '_y')
+
+    return y
 
 
 testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled'
@@ -175,6 +180,7 @@ if testname == 'test_oscillator_controlled':
     # Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
 
     Kp = sim.newInput( baseDatatype ).setName('Kp')
+    Kd = sim.newInput( baseDatatype ).setName('Kd')
     reference = sim.newInput( baseDatatype ).setName('ref')
 
     #
@@ -186,8 +192,16 @@ if testname == 'test_oscillator_controlled':
     # control error
     controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] )
 
-    #
-    controlVar = dyn_operator1(sim, [ Kp, controlError ], '*' )
+    # P
+    u_p = dyn_operator1(sim, [ Kp, controlError ], '*' )
+
+    # D
+    d = diff(sim, controlError, 'PID_D')
+    u_d = dyn_operator1(sim, [ Kd, d ], '*' )
+
+    # sum up
+    controlVar = dyn_add(sim, [ u_p, u_d ], [ 1, 1 ] )
+    
 
     # plant starts here
     U = controlVar
@@ -230,6 +244,15 @@ print(Style.BRIGHT + "-------- print datatypes --------")
 print()
 
 sim.ShowBlocks()
+
+print()
+print(Style.BRIGHT + "-------- export graph --------")
+print()
+
+graph = sim.exportGraph()
+
+with open( os.path.join(  'generated/graph.json' ), 'w') as outfile:  
+    json.dump(graph, outfile)
 
 #
 # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
