@@ -101,17 +101,27 @@ class Simulation:
 
 
         # build list of all nodes/blocks
-        nodes = []
+        nodes_array = []
+        nodes_hash = {}
         links = []
 
+        i = 0
         for block in self.BlocksArray:
+
+            idstr = 'bid_' + str( block.getBlockId() )
 
             node = {}
             node['name'] = block.getName()
-            node['tostr'] = block.toStr()
-            node['id'] = 'bid_' + str( block.getBlockId() )
+            node['type'] = 'block'
 
-            nodes.append( node )
+            node['tostr'] = block.toStr()
+            node['id'] = idstr
+            node['nodes_array_index'] = i
+
+            nodes_array.append( node )
+            nodes_hash[idstr] = node
+
+            i += 1
 
         
 
@@ -135,14 +145,14 @@ class Simulation:
                         link['tostr'] = inSig.toStr()
                         link['name'] = inSig.getName()
 
-                        link['sourceId'] = 'bid_' + str( sourceBlock.getBlockId() )
-                        link['targetId'] = 'bid_' + str( blk.getBlockId() )
+                        link['source'] = ''
+                        link['target'] = ''
 
-                        link['source'] = sourceBlock.getBlockId() - 1
-                        link['target'] = blk.getBlockId() - 1
+                        link['source_bid'] = sourceBlock.getBlockId()
+                        link['target_big'] = blk.getBlockId()
 
-                        link['source'] = 'bid_' + str( sourceBlock.getBlockId() )
-                        link['target'] = 'bid_' + str( blk.getBlockId() )
+                        link['source_key'] = 'bid_' + str( sourceBlock.getBlockId() )
+                        link['target_key'] = 'bid_' + str( blk.getBlockId() )
 
                         links.append( link )
 
@@ -161,7 +171,8 @@ class Simulation:
             #         print(Style.DIM + "    - " + inSig.toStr() )
         graph = {}
 
-        graph['nodes'] = nodes
+        graph['nodes_hash'] = nodes_hash
+        graph['nodes'] = nodes_array # d3 requires an array
         graph['links'] = links
 
         # print(graph)

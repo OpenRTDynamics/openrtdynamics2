@@ -54,37 +54,30 @@
         d3.json("graph.json", function (error, graph) {
             if (error) throw error;
 
+            // for each link build references to the nodes
+            graph.links.forEach(function (link) {
 
-            // ### resolve node IDs(not optimized at all!) ###
-        //     for l in graph.links
-        // for n in graph.nodes
-        //     if l.source is n.id
-        //     l.source = n
-        //     continue
+                console.log('consider link : ' + link.name);
+                console.log(link);
 
-        //     if l.target is n.id
-        //     l.target = n
-        //     continue
+                link.target = graph.nodes[graph.nodes_hash[link.target_key].nodes_array_index]
+                link.source = graph.nodes[graph.nodes_hash[link.source_key].nodes_array_index]
 
-            graph.links.forEach(function(link) {
+                // // optimize this lookup
+                // graph.nodes.forEach ( function(eachNode) {
+                //     if ( link.target_key == eachNode.id ) {
+                //         link.target = eachNode;
+                //     }
+                //     if ( link.source_key == eachNode.id ) {
+                //         link.source = eachNode;
+                //     }
+                // });
 
-                console.log('consider link : ' +  link.name )
+                console.log(link);
 
-                // optimize this lookup
-                graph.nodes.forEach ( function(eachNode) {
-
-                    if ( link.target == eachNode.id ) {
-                        link.target = eachNode;
-                    }
-
-                    if ( link.source == eachNode.id ) {
-                        link.source = eachNode;
-                    }
-                    
-                });
             });
 
-            console.log( graph )
+            console.log(graph)
 
             force
                 .nodes(graph.nodes)
