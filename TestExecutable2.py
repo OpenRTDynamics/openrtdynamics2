@@ -190,17 +190,17 @@ if testname == 'test_oscillator_controlled':
     controlledVariableFb = Signal(sim)
 
     # control error
-    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] )
+    controlError = dyn_add(sim, [ reference, controlledVariableFb ], [ 1, -1 ] ).setName('err')
 
     # P
-    u_p = dyn_operator1(sim, [ Kp, controlError ], '*' )
+    u_p = dyn_operator1(sim, [ Kp, controlError ], '*' ).setName('u_p')
 
     # D
     d = diff(sim, controlError, 'PID_D')
-    u_d = dyn_operator1(sim, [ Kd, d ], '*' )
+    u_d = dyn_operator1(sim, [ Kd, d ], '*' ).setName('u_d')
 
     # sum up
-    controlVar = dyn_add(sim, [ u_p, u_d ], [ 1, 1 ] )
+    controlVar = dyn_add(sim, [ u_p, u_d ], [ 1, 1 ] ).setName('u')
     
 
     # plant starts here

@@ -21,7 +21,7 @@ class Signal:
         self.sourcePort = sourcePort  # counting starts at zero
 
         # give this signal a unique default name
-        self.name = 'signal_' + str(sim.getNewSignalId())
+        self.name = 's' + str(sim.getNewSignalId())
 
         # the list of destinations this signals goes to
         self.destinationBlocks = []
