@@ -84,6 +84,8 @@ class Simulation:
 
     def exportGraph(self):
 
+        # remove from this class and move to aonther class 'visualization' or 'editor'
+
 # {
 #     "nodes":[
 #           {"name":"node1","group":1},
@@ -107,6 +109,7 @@ class Simulation:
             node = {}
             node['name'] = block.getName()
             node['tostr'] = block.toStr()
+            node['id'] = 'bid_' + str( block.getBlockId() )
 
             nodes.append( node )
 
@@ -131,8 +134,16 @@ class Simulation:
                         link = {}
                         link['tostr'] = inSig.toStr()
                         link['name'] = inSig.getName()
+
+                        link['sourceId'] = 'bid_' + str( sourceBlock.getBlockId() )
+                        link['targetId'] = 'bid_' + str( blk.getBlockId() )
+
                         link['source'] = sourceBlock.getBlockId() - 1
                         link['target'] = blk.getBlockId() - 1
+
+                        link['source'] = 'bid_' + str( sourceBlock.getBlockId() )
+                        link['target'] = 'bid_' + str( blk.getBlockId() )
+
                         links.append( link )
 
                     else:

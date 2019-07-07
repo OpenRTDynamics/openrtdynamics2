@@ -8,7 +8,6 @@
 
     .linklabelholder {
         stroke: #007700;
-        cursor: pointer;
     }
 
     .node {
@@ -55,9 +54,42 @@
         d3.json("graph.json", function (error, graph) {
             if (error) throw error;
 
+
+            // ### resolve node IDs(not optimized at all!) ###
+        //     for l in graph.links
+        // for n in graph.nodes
+        //     if l.source is n.id
+        //     l.source = n
+        //     continue
+
+        //     if l.target is n.id
+        //     l.target = n
+        //     continue
+
+            graph.links.forEach(function(link) {
+
+                console.log('consider link : ' +  link.name )
+
+                // optimize this lookup
+                graph.nodes.forEach ( function(eachNode) {
+
+                    if ( link.target == eachNode.id ) {
+                        link.target = eachNode;
+                    }
+
+                    if ( link.source == eachNode.id ) {
+                        link.source = eachNode;
+                    }
+                    
+                });
+            });
+
+            console.log( graph )
+
             force
                 .nodes(graph.nodes)
                 .links(graph.links)
+                // .force("link", d3.forceLink().id(function(d) { return d.id; }))
                 .start();
 
             link = link.data(graph.links)
@@ -73,7 +105,7 @@
 
             node.append("circle")
 
-//                .attr("class", "node")
+                //                .attr("class", "node")
                 .attr("r", 12)
                 .on("dblclick", dblclick)
 
@@ -85,7 +117,7 @@
 
 
                 ;
-                
+
 
 
 
