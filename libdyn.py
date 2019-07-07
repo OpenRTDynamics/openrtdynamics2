@@ -83,31 +83,9 @@ class Simulation:
                     print(Style.DIM + "    - " + inSig.toStr() )
 
     def exportGraph(self):
-
         # remove from this class and move to aonther class 'visualization' or 'editor'
 
-# {
-#     "nodes":[
-#           {"name":"node1","group":1},
-#           {"name":"node2","group":1},
-#           {"name":"node3","group":1},
-#           {"name":"node4","group":1}
-#       ],
-#       "links":[
-#           {"source":1,"target":0,"weight":10}
-#       ]
-#   }
-
-
-
-        # build list of all nodes/blocks
-        nodes_array = []
-        nodes_hash = {}
-        links = []
-
-        i = 0
-        for block in self.BlocksArray:
-
+        def createBlockNode(nodes_array_index, block):
             idstr = 'bid_' + str( block.getBlockId() )
 
             node = {}
@@ -116,19 +94,81 @@ class Simulation:
 
             node['tostr'] = block.toStr()
             node['id'] = idstr
-            node['nodes_array_index'] = i
+            node['nodes_array_index'] = nodes_array_index
+
+            return node, idstr
+
+
+        def createSimulationInputNode(nodes_array_index, inSig):
+            # append a node that stands for a simulation input
+            idstr = 'insig_' + inSig.getName()
+
+            node = {}
+            node['name'] = 'in_' + inSig.getName()
+            node['type'] = 'simulation_input'
+
+            # node['tostr'] = block.toStr()
+            node['id'] = idstr
+            node['nodes_array_index'] = nodes_array_index
+
+            return node, idstr
+
+        def createLink(signal, sourceBlock, destBlock):
+            # create a link in-between blocks
+
+            link = {}
+            link['tostr'] = signal.toStr()
+            link['name'] = signal.getName()
+
+            link['source'] = ''
+            link['target'] = ''
+
+            link['source_bid'] = sourceBlock.getBlockId()
+            link['target_bid'] = destBlock.getBlockId()
+
+            link['source_key'] = 'bid_' + str( sourceBlock.getBlockId() )
+            link['target_key'] = 'bid_' + str( destBlock.getBlockId() )
+
+            return link
+
+        def createLinkFromSimulationInput(signal, destBlock):
+            # create a link between a maker-node for the simulation input signal
+            # anf the destination block 
+
+            link = {}
+            link['tostr'] = signal.toStr()
+            link['name'] = signal.getName()
+
+            link['source'] = ''
+            link['target'] = ''
+
+            link['target_bid'] = destBlock.getBlockId()
+
+            link['source_key'] = idstr
+            link['target_key'] = 'bid_' + str( destBlock.getBlockId() )
+
+            return link
+
+
+
+        # init/reset the list of all nodes and links
+        nodes_array = []
+        nodes_hash = {}
+        links = []
+
+        # create a node for each block in the simulation
+        nodes_array_index = 0
+        for block in self.BlocksArray:
+
+            node, idstr = createBlockNode(nodes_array_index, block)
 
             nodes_array.append( node )
             nodes_hash[idstr] = node
 
-            i += 1
+            nodes_array_index += 1
 
         
-
-
         # build links
-
-
         for blk in self.BlocksArray:
 
             # list input singals
@@ -137,45 +177,44 @@ class Simulation:
                 for inSig in blk.getInputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
 
-
                     sourceBlock = inSig.getSourceBlock()
-                    if sourceBlock is not None:
 
-                        link = {}
-                        link['tostr'] = inSig.toStr()
-                        link['name'] = inSig.getName()
+                    # TODO: if isinstance(s, BlockOutputSignal):
+                    if not isinstance(inSig, SimulationInputSignal):
+                        # this is a block to block connection. Create a normal link in-between 
 
-                        link['source'] = ''
-                        link['target'] = ''
+                        link = createLink(signal=inSig, sourceBlock=sourceBlock, destBlock=blk)
+                        links.append( link )
 
-                        link['source_bid'] = sourceBlock.getBlockId()
-                        link['target_big'] = blk.getBlockId()
+                    if isinstance(inSig, SimulationInputSignal):
+                        # this is an input to the simulation: add a special marker node
+                        # and add a link from this newly created node to the block
 
-                        link['source_key'] = 'bid_' + str( sourceBlock.getBlockId() )
-                        link['target_key'] = 'bid_' + str( blk.getBlockId() )
+                        # TODO: only create this node, of it does not already exist
+                        node, idstr = createSimulationInputNode(nodes_array_index, inSig)
+
+                        nodes_array.append( node )
+                        nodes_hash[idstr] = node
+                        nodes_array_index += 1
+
+                        link = createLinkFromSimulationInput(inSig, blk)
 
                         links.append( link )
 
-                    else:
-                        # this is typically an input to the simulation
-
-                        pass
 
 
+        # create nodes/links for the simulation outputs
+        # (TODO)
 
 
-            # # list output singals
-            # if len( blk.getOutputSignals() ) > 0:
-            #     print(Fore.GREEN + "  output signals")
-            #     for inSig in blk.getOutputSignals():
-            #         print(Style.DIM + "    - " + inSig.toStr() )
+        # finish the graph structure
         graph = {}
 
         graph['nodes_hash'] = nodes_hash
         graph['nodes'] = nodes_array # d3 requires an array
         graph['links'] = links
 
-        # print(graph)
+        # print graph
         import json
         print(json.dumps(graph, indent=4, sort_keys=True))
 
