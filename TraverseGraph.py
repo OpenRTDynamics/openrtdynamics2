@@ -340,13 +340,18 @@ class BuildExecutionPath:
 
 
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
-            # detected algeraic loop
+            # startSignal was already computed at this level
+
+
+            # it might be an algeraic loop, but does not have to be
             #
             # TODO: investigate if this is able to find all algebraic loops, i.e. also in case
             #       of multiple levels
             #
-            print(tabs + "algebraic loop detected at signal " + startSignal.toStr())
-            raise BaseException("algebraic loop detected at signal " + startSignal.toStr())
+            #print(tabs + "algebraic loop detected at signal " + startSignal.toStr())
+            #raise BaseException("algebraic loop detected at signal " + startSignal.toStr())
+
+            return
 
 
         #
