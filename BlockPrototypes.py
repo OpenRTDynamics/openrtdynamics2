@@ -9,6 +9,101 @@ from irpar import *
 
 
 
+
+
+
+class StaticFn_1To1(BlockPrototype):
+    def __init__(self, sim : Simulation, u : Signal ):
+
+        self.u = u
+        self.outputType = None
+
+        # create a new block
+        blk = Block(sim, self, [ u ], blockname = '').configAddOutputSignal()
+        
+        # call super-class constructor
+        BlockPrototype.__init__(self, blk)
+
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # just inherit the input type 
+        if inputTypes[0] is not None:
+            self.outputType = inputTypes[0]
+        else:
+            self.outputType = None
+
+        return [ self.outputType ]        
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on the only one input signals
+        return [ self.u ]
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []  # no inputs
+
+    @property
+    def outputSignals(self):
+        # return the output signals
+
+        return self.outputSignal(0)
+
+    def codeGen_localvar(self, language):
+        if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+
+
+
+
+class Gain(StaticFn_1To1):
+    def __init__(self, sim : Simulation, u : Signal, factor : float ):
+
+        self._factor = factor
+
+        StaticFn_1To1.__init__(self, sim, u)
+
+    def codeGen_output(self, language):
+        if language == 'c++':
+            return self.outputSignal(0).getName() + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).getName() +  ';\n'
+
+def dyn_gain(sim : Simulation, u : Signal, gain : float ):
+
+    return Gain(sim, u, gain).outputSignals
+
+
+
+
+
+class StaticFnByName_1To1(StaticFn_1To1):
+    def __init__(self, sim : Simulation, u : Signal, functionName : str ):
+
+        self._functionName = functionName
+
+        StaticFn_1To1.__init__(self, sim, u)
+
+    def codeGen_output(self, language):
+        if language == 'c++':
+            return self.outputSignal(0).getName() + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
+
+
+def dyn_sin(sim : Simulation, u : Signal ):
+    return StaticFnByName_1To1(sim, u, 'sin').outputSignals
+
+def dyn_cos(sim : Simulation, u : Signal ):
+    return StaticFnByName_1To1(sim, u, 'cos').outputSignals
+
+
+
+
+
+
+
+
+
+
 class Padd(BlockPrototype):
     def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
 
@@ -333,64 +428,64 @@ def dyn_delay(sim : Simulation, inputSignals : Signal ):
 
 
 
+# # becomes obsolete
+# class Pgain(BlockPrototype):
+#     def __init__(self, sim : Simulation, u : Signal, gain : float ):
 
-class Pgain(BlockPrototype):
-    def __init__(self, sim : Simulation, u : Signal, gain : float ):
+#         self.u = u
+#         self.gain = gain
+#         self.outputType = None
 
-        self.u = u
-        self.gain = gain
-        self.outputType = None
-
-        # create a new block
-        blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal()
+#         # create a new block
+#         blk = Block(sim, self, [ u ], blockname = 'gain').configAddOutputSignal()
         
-        # call super-class constructor
-        BlockPrototype.__init__(self, blk)
+#         # call super-class constructor
+#         BlockPrototype.__init__(self, blk)
 
 
-    def configDefineOutputTypes(self, inputTypes):
+#     def configDefineOutputTypes(self, inputTypes):
 
-        # just inherit the input type 
-        if inputTypes[0] is not None:
-            self.outputType = inputTypes[0]
-        else:
-            self.outputType = None
+#         # just inherit the input type 
+#         if inputTypes[0] is not None:
+#             self.outputType = inputTypes[0]
+#         else:
+#             self.outputType = None
 
-        return [ self.outputType ]        
+#         return [ self.outputType ]        
 
-    def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
+#     def returnDependingInputs(self, outputSignal):
+#         # return a list of input signals on which the given output signal depends on
 
-        # the output depends on the only one input signals
-        return [ self.u ]
+#         # the output depends on the only one input signals
+#         return [ self.u ]
 
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return []  # no inputs
+#     def returnInutsToUpdateStates(self, outputSignal):
+#         # return a list of input signals that are required to update the states
+#         return []  # no inputs
 
-    @property
-    def outputSignals(self):
-        # return the output signals
+#     @property
+#     def outputSignals(self):
+#         # return the output signals
 
-        return self.outputSignal(0)
+#         return self.outputSignal(0)
 
-    def codeGen(self, language, flag):
+#     def codeGen(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
                 
-            if flag == 'localvar':
-                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+#             if flag == 'localvar':
+#                 lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
-            elif flag == 'output':
-                lines = self.outputSignal(0).getName() + ' = ' + str(self.gain) + ' * ' + self.inputSignal(0).getName() +  ';\n'
+#             elif flag == 'output':
+#                 lines = self.outputSignal(0).getName() + ' = ' + str(self.gain) + ' * ' + self.inputSignal(0).getName() +  ';\n'
 
-        return lines
+#         return lines
 
 
-def dyn_gain(sim : Simulation, u : Signal, gain : float ):
+# def dyn_gain(sim : Simulation, u : Signal, gain : float ):
 
-    return Pgain(sim, u, gain).outputSignals
+#     return Pgain(sim, u, gain).outputSignals
 
 

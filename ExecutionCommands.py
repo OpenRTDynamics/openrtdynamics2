@@ -112,7 +112,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # I.e. exclude the simulation input signals
 
                         print('output codegen to store the result ' +  s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar')
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar') # TODO: remove
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++')
 
 
             if flag == 'code':
@@ -126,7 +127,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # I.e. exclude the simulation input signals
 
                         print('output codegen to calculate ' +  s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output')
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output') # TODO: remove
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++')
 
         return lines
 
@@ -161,7 +163,8 @@ class CommandResetStates(ExecutionCommand):
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen('c++', 'reset')
+                    lines += b.getBlockPrototype().codeGen('c++', 'reset') # TODO: remove
+                    lines += b.getBlockPrototype().codeGen_reset('c++')
 
         return lines
 
@@ -208,12 +211,14 @@ class CommandUpdateStates(ExecutionCommand):
                     # TODO: rename 'defStates' to 'variables'
                     #
                     
-                    lines += b.getBlockPrototype().codeGen('c++', 'defStates')
+                    lines += b.getBlockPrototype().codeGen('c++', 'defStates') # TODO: remove
+                    lines += b.getBlockPrototype().codeGen_defStates('c++')
 
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen('c++', 'update')
+                    lines += b.getBlockPrototype().codeGen('c++', 'update') # TODO: remove
+                    lines += b.getBlockPrototype().codeGen_update('c++')
 
             # if flag == 'codereset':
             #     lines += ''

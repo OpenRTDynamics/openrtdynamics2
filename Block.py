@@ -47,7 +47,7 @@ class BlockPrototype:
 
     # function to generate code
     def codeGen(self, language, flag):
-        raise BaseException("code generation not implemented")
+        # raise BaseException("code generation not implemented")
 
         # This is to show what could be implemented
         lines = ''
@@ -77,7 +77,28 @@ class BlockPrototype:
 
         return lines
 
+    def codeGen_defStates(self, language):
+        return ''
 
+    def codeGen_localvar(self, language):
+        return ''
+        
+    def codeGen_constructor(self, language):
+        return ''
+        
+    def codeGen_destructor(self, language):
+        return ''
+        
+    def codeGen_output(self, language):
+        return ''
+        
+    def codeGen_update(self, language):
+        return ''
+        
+    def codeGen_reset(self, language):
+        return ''
+        
+        
 
 
 
