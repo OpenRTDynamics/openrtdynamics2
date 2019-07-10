@@ -49,7 +49,33 @@ class BlockPrototype:
     def codeGen(self, language, flag):
         raise BaseException("code generation not implemented")
 
+        # This is to show what could be implemented
+        lines = ''
 
+        if language == 'c++':
+
+            if flag == 'defStates':
+                lines = ''
+
+            elif flag == 'localvar':
+                lines = ''
+
+            elif flag == 'constructor':
+                lines = ''
+
+            elif flag == 'destructor':
+                lines = ''
+
+            elif flag == 'output':
+                lines = ''
+
+            elif flag == 'update':
+                lines = ''
+
+            elif flag == 'reset':
+                lines = ''
+
+        return lines
 
 
 
@@ -209,12 +235,6 @@ class Block:
 
         return self.inputSignals[port]
     
-
-    def encode_irpar(self):
-        ipar, rpar = self.blockPrototype.encode_irpar()
-
-        return ipar, rpar
-
 
 
 
