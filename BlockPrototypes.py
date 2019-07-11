@@ -142,7 +142,7 @@ class StaticFn_NTo1(BlockPrototype):
         return []
 
     @property
-    def outputSingnals(self):
+    def outputSignals(self):
         # return the output signals
         output = self.outputSignal(0)
 
@@ -183,7 +183,7 @@ class Add(StaticFn_NTo1):
 
 def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]):
 
-    return Add(sim, inputSignals, factors).outputSingnals
+    return Add(sim, inputSignals, factors).outputSignals
 
 
 
@@ -273,12 +273,37 @@ class Poperator1(BlockPrototype):
 
         return lines
 
+# def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator ):
+#     return Poperator1(sim, inputSignals, operator).outputSignals
 
 
 
-def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator ):
 
-    return Poperator1(sim, inputSignals, operator).outputSignals
+
+
+class Operator1(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal], operator : str ):
+
+        self.operator = operator
+        StaticFn_NTo1.__init__(self, sim, inputSignals)
+
+    def codeGen_output(self, language):
+
+        if language == 'c++':
+            strs = []
+            i = 0
+            for s in self.inputSignals:
+                strs.append(  str(  s.getName() ) )
+                i = i + 1
+
+            sumline = (' ' + self.operator + ' ').join( strs )
+            lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
+
+            return lines
+
+
+def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator : str ):
+    return Operator1(sim, inputSignals, operator).outputSignals
 
 
 
