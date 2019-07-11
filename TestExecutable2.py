@@ -203,8 +203,11 @@ if testname == 'test_oscillator_controlled':
     controlVar = dyn_add(sim, [ u_p, u_d ], [ 1, 1 ] ).setName('u')
     
 
+
     # plant starts here
-    U = controlVar
+    U = dyn_gain(sim, controlVar, 1.0)
+    U = dyn_sin(sim, U)
+    # U = controlVar
 
     xFb = Signal(sim)
     vFb = Signal(sim)

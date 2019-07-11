@@ -101,24 +101,11 @@ def dyn_cos(sim : Simulation, u : Signal ):
 
 
 
+class StaticFn_NTo1(BlockPrototype):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
 
-
-
-class Padd(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
-
-        # 
         self.inputSignals = inputSignals
-
-        # feasibility checks
-        if len(inputSignals) != len(factors):
-            raise("len(inp_list) must be equal to len(factors)")
-
-        self.factors = factors
-
-        blk = Block(sim, self, inputSignals, blockname = 'add').configAddOutputSignal()
-
-        # call super
+        blk = Block(sim, self, inputSignals, blockname = '').configAddOutputSignal()
         BlockPrototype.__init__(self, blk)
 
 
@@ -133,7 +120,7 @@ class Padd(BlockPrototype):
 
             self.outputType = computeResultingNumericType(inputTypes)
 
-            print('Padd (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
+            print('StaticFn_NTo1 (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
 
         else:
 
@@ -161,36 +148,46 @@ class Padd(BlockPrototype):
 
         return output
 
-    def codeGen(self, language, flag):
+    def codeGen_localvar(self, language):
+        if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
-        lines = ''
+
+
+
+
+class Add(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
+
+        # feasibility checks
+        if len(inputSignals) != len(factors):
+            raise("len(inp_list) must be equal to len(factors)")
+
+        self.factors = factors
+        StaticFn_NTo1.__init__(self, sim, inputSignals)
+
+    def codeGen_output(self, language):
 
         if language == 'c++':
+            strs = []
+            i = 0
+            for s in self.inputSignals:
+                strs.append(  str(self.factors[i]) + ' * ' + s.getName() )
+                i = i + 1
 
-            if flag == 'localvar':
-                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            sumline = ' + '.join( strs )
+            lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
 
-            elif flag == 'output':
-
-                strs = []
-                i = 0
-                for s in self.inputSignals:
-                    strs.append(  str(self.factors[i]) + ' * ' + s.getName() )
-                    i = i + 1
-
-                sumline = ' + '.join( strs )
-
-                lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
-
-
-        return lines
-
-
+            return lines
 
 
 def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]):
 
-    return Padd(sim, inputSignals, factors).outputSingnals
+    return Add(sim, inputSignals, factors).outputSingnals
+
+
+
+
 
 
 
