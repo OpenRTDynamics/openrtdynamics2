@@ -277,10 +277,12 @@ class Const(Source_To1):
         Source_To1.__init__(self, sim, datatype)
 
     def codeGen_localvar(self, language):
-        return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+        if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
     def codeGen_output(self, language):
-        return self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
+        if language == 'c++':
+            return self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
 
 
 
@@ -299,18 +301,18 @@ def dyn_const(sim : Simulation, constant, datatype ):
 
 
 
-
-class Pdelay(BlockPrototype):
+class Dynamic_1To1(BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal ):
 
         self.u = u
         self.outputType = None
 
-        #
-        blk = Block(sim, self, [ u ], blockname = 'delay').configAddOutputSignal()
-
-        # call super
+        # create a new block
+        blk = Block(sim, self, [ u ], blockname = '').configAddOutputSignal()
+        
+        # call super-class constructor
         BlockPrototype.__init__(self, blk)
+
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -320,7 +322,7 @@ class Pdelay(BlockPrototype):
         else:
             self.outputType = None
 
-        return [ self.outputType ]
+        return [ self.outputType ]        
 
     def returnDependingInputs(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -334,39 +336,39 @@ class Pdelay(BlockPrototype):
 
     @property
     def outputSignals(self):
-
         # return the output signals
+
         return self.outputSignal(0)
 
-    def codeGen(self, language, flag):
-
-        lines = ''
-
+    def codeGen_localvar(self, language):
         if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
 
-            if flag == 'defStates':
-                lines = self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
-            elif flag == 'localvar':
-                lines = self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+class Delay(Dynamic_1To1):
+    def __init__(self, sim : Simulation, u : Signal ):
 
-            elif flag == 'output':
-                lines = self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+        StaticFn_1To1.__init__(self, sim, u)
 
-            elif flag == 'update':
-                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
+    def codeGen_defStates(self, language):
+        if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
-            elif flag == 'reset':
-                lines = self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
+    def codeGen_output(self, language):
+        if language == 'c++':
+            return self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
-        return lines
+    def codeGen_update(self, language):
+        if language == 'c++':
+            return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
+
+    def codeGen_reset(self, language):
+        if language == 'c++':
+            return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
 
 
 def dyn_delay(sim : Simulation, inputSignals : Signal ):
-
-    return Pdelay(sim, inputSignals).outputSignals
-
-
+    return Delay(sim, inputSignals).outputSignals
 
 
 
