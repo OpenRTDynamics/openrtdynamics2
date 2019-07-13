@@ -7,11 +7,12 @@ from CodeGenTemplates import *
 from CompileDiagram import *
 from SimulationContext import *
 from CompileDiagram import *
+from SignalInterface import *
 
 print("-- RTDynamics II loaded --")
 
 def signal():
-    return Signal(get_simulation_context())
+    return SignalUser(get_simulation_context())
 
 def system_input(datatype):
     return SimulationInputSignal(get_simulation_context(), datatype)

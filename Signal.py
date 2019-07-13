@@ -1,4 +1,5 @@
 # from SimulationContext import *
+# from BlockPrototypes import *
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
@@ -161,6 +162,17 @@ class Signal:
 
 
 
+# class SignalUser(Signal):
+#     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+
+#         Signal.__init__(self, sim, datatype=datatype, sourceBlock=sourceBlock, sourcePort=sourcePort )
+    
+
+#     #
+#     # operator overloads
+#     #
+#     def __add__(self, other): 
+#         Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
 
 
 class BlockOutputSignal(Signal):
