@@ -1,10 +1,15 @@
 import dynamics as dy
 
-# dy.set_simulation_context('sfsf')
+import os
+import json
 
-# print(dy.get_simulation_context())
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
 
 
+#
+# Enter a new system (simulation)
+#
 sim = dy.enter_system('main')
 
 # example
@@ -15,7 +20,7 @@ sim = dy.enter_system('main')
 
 def firstOrder( u : dy.Signal, z_inf, name : str):
 
-    yFb = dy.signal(sim)
+    yFb = dy.signal()
 
     i = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
     y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
@@ -231,4 +236,78 @@ if testname == 'test_oscillator_controlled':
 
 dy.get_simulation_context().ShowBlocks()
 
+
+print()
+print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
+print()
+dy.get_simulation_context().CompileConnections()
+
+print()
+print(Style.BRIGHT + "-------- print datatypes --------")
+print()
+
+dy.get_simulation_context().ShowBlocks()
+
+print()
+print(Style.BRIGHT + "-------- export graph --------")
+print()
+
+graph = dy.get_simulation_context().exportGraph()
+
+with open( os.path.join(  'generated/graph.json' ), 'w') as outfile:  
+    json.dump(graph, outfile)
+
+#
+# compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+# at runtime.
+#
+
+compiler = dy.CompileDiagram()
+commandToExecute = compiler.compile( dy.get_simulation_context(), outputSignals )
+
+
+#
+# Build an executable based on a template
+#
+
+
+
+# runtimeCodeTemplate = PutBasicRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
+
+runtimeCodeTemplate = dy.WasmRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
+
+
+#
+# list all execution lists
+#
+
+print()
+print(Style.BRIGHT + "-------- List all execution commands  --------")
+print()
+
+commandToExecute.printExecution()
+
+#
+# generate c++ cpde
+#
+
+print()
+print(Style.BRIGHT + "-------- Code generation  --------")
+print()
+
+sourcecode, manifest = runtimeCodeTemplate.codeGen(iMax = 500)
+
+print(Style.DIM + sourcecode)
+
+print()
+print(Style.BRIGHT + "-------- Manifest  --------")
+print()
+print(json.dumps(manifest, indent=4, sort_keys=True))
+
+
+#
+runtimeCodeTemplate.writeCode("generated/")
+runtimeCodeTemplate.build()
+
+results = runtimeCodeTemplate.run()
 
