@@ -1,8 +1,7 @@
-
-from typing import Dict, List
 from Signal import *
 from Block import *
 
+from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 

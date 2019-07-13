@@ -1,7 +1,7 @@
 from libdyn import *
 from Signal import *
 from Block import *
-from irpar import *
+from SimulationContext import *
 
 #
 # block templates for common use-cases
@@ -192,10 +192,6 @@ class Dynamic_1To1(BlockPrototype):
 
 
 
-
-
-
-
 #
 # Sources
 #
@@ -219,6 +215,8 @@ class Const(Source_To1):
 def dyn_const(sim : Simulation, constant, datatype ):
     return Const(sim, constant, datatype).outputSignals
 
+def const(constant, datatype ):
+    return Const(get_simulation_context(), constant, datatype).outputSignals
 
 
 
@@ -241,6 +239,8 @@ class Gain(StaticFn_1To1):
 def dyn_gain(sim : Simulation, u : Signal, gain : float ):
     return Gain(sim, u, gain).outputSignals
 
+def gain(u : Signal, gain : float ):
+    return Gain(get_simulation_context(), u, gain).outputSignals
 
 
 
@@ -275,6 +275,8 @@ class Add(StaticFn_NTo1):
 def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]):
     return Add(sim, inputSignals, factors).outputSignals
 
+def add(inputSignals : List[Signal], factors : List[float]):
+    return Add(get_simulation_context(), inputSignals, factors).outputSignals
 
 
 class Operator1(StaticFn_NTo1):
@@ -301,6 +303,8 @@ class Operator1(StaticFn_NTo1):
 def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator : str ):
     return Operator1(sim, inputSignals, operator).outputSignals
 
+def operator1(inputSignals : List[Signal], operator : str ):
+    return Operator1(get_simulation_context(), inputSignals, operator).outputSignals
 
 
 
@@ -326,12 +330,17 @@ def dyn_sin(sim : Simulation, u : Signal ):
 def dyn_cos(sim : Simulation, u : Signal ):
     return StaticFnByName_1To1(sim, u, 'cos').outputSignals
 
+def sin(u : Signal ):
+    return StaticFnByName_1To1(get_simulation_context(), u, 'sin').outputSignals
+
+def cos(u : Signal ):
+    return StaticFnByName_1To1(get_simulation_context(), u, 'cos').outputSignals
+
 
 
 #
-# Block that have an internal memory
+# Blocks that have an internal memory
 #
-
 
 class Delay(Dynamic_1To1):
     def __init__(self, sim : Simulation, u : Signal ):
@@ -357,6 +366,9 @@ class Delay(Dynamic_1To1):
 
 def dyn_delay(sim : Simulation, inputSignals : Signal ):
     return Delay(sim, inputSignals).outputSignals
+
+def delay(inputSignals : Signal):
+    return Delay(get_simulation_context(), inputSignals).outputSignals
 
 
 

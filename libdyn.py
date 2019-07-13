@@ -9,22 +9,22 @@ from Block import *
 from DatatypePropagation import *
 
 
-currentSimulation = 'none'
+# currentSimulation = 'none'
 
-def detSimulationContext(sim):
-    currentSimulation = sim
+# def detSimulationContext(sim):
+#     currentSimulation = sim
 
-def showSimulationContext():
-    print 
+# def showSimulationContext():
+#     print 
 
 class Simulation:
-    def __init__(self, UpperLevelSim , name : str ):
-        if UpperLevelSim is None:
+    def __init__(self, upperLevelSim , name : str ):
+        if upperLevelSim is None:
             print("New simulation")
         else:
-            print("New simulation as a child of " + UpperLevelSim.getName())
+            print("New simulation as a child of " + upperLevelSim.getName())
 
-        self.UpperLevelSim = UpperLevelSim
+        self.UpperLevelSim = upperLevelSim
         self.name = name
         self.BlocksArray = []
         self.BlockIdCounter = 0
@@ -55,11 +55,11 @@ class Simulation:
         print("added block ", blk.getName() )
 
     # create and return a new simulation input signal
-    def newInput(self, datatype):
-        s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
-        self.simulationInputSignalCounter += 1
+    # def newInput(self, datatype):
+    #     s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
+    #     self.simulationInputSignalCounter += 1
 
-        return s
+    #     return s
 
 
     def ShowBlocks(self):

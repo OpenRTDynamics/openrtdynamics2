@@ -1,3 +1,5 @@
+# from SimulationContext import *
+
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -178,11 +180,17 @@ class SimulationInputSignal(Signal):
         A special signal that markes an input to a simulation.
     """
 
-    # TODO: 30.6.19 remvoe this port number parameter
-
-    def __init__(self, sim, port : int, datatype = None):
+    def __init__(self, sim, datatype = None):
         
-        self.port = port
+        self.port = sim.simulationInputSignalCounter
+        sim.simulationInputSignalCounter += 1
+
+
+    # def newInput(self, datatype):
+    #     s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
+    #     self.simulationInputSignalCounter += 1
+
+    #     return s
 
         Signal.__init__(self, sim, datatype=datatype)
 
