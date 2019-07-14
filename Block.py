@@ -7,108 +7,6 @@ from Datatypes import *
 
 
 
-# move to BlockInterface.py
-class BlockPrototype:
-    """
-        This is a base class to be deviated from each block type.
-        It contains logic to handle the input/ output types and
-        the parameters.
-    """
-
-    def __init__(self, block):
-        self.block = block
-
-    # def __init__(self):
-
-    #     block = Block(sim, self, None, blockname = '')
-    #     block.configOutputSignals([ Signal(sim) ])
-
-    #     self.block = block
-
-    def getUniqueVarnamePrefix(self):
-        # return a variable name prefix unique in the simulation
-        # to be used for code generation 
-        return "" + self.block.getName() +  "_" + str(self.block.getBlockId())
-
-
-    #
-    # The derived classes shall use these shortcuts to access the I/O signals
-    #
-
-    # get a signal of a specific output port
-    def outputSignal(self, port):
-        #return self.block.getOutputSignals()[port]
-        return self.block.getOutputSignal(port)
-
-    # get a signal of a specific input port
-    def inputSignal(self, port):
-        return self.block.getInputSignal(port)
-
-
-    #
-    # Standard functions that should be re-implemented
-    #
-
-    def configDefineOutputTypes(self, inputTypes):
-        raise BaseException("configDefineOutputTypes not implemented")
-
-    # function to generate code
-    def codeGen(self, language, flag):
-        # raise BaseException("code generation not implemented")
-
-        # This is to show what could be implemented
-        lines = ''
-
-        if language == 'c++':
-
-            if flag == 'defStates':
-                lines = ''
-
-            elif flag == 'localvar':
-                lines = ''
-
-            elif flag == 'constructor':
-                lines = ''
-
-            elif flag == 'destructor':
-                lines = ''
-
-            elif flag == 'output':
-                lines = ''
-
-            elif flag == 'update':
-                lines = ''
-
-            elif flag == 'reset':
-                lines = ''
-
-        return lines
-
-    def codeGen_defStates(self, language):
-        return ''
-
-    def codeGen_localvar(self, language):
-        return ''
-        
-    def codeGen_constructor(self, language):
-        return ''
-        
-    def codeGen_destructor(self, language):
-        return ''
-        
-    def codeGen_output(self, language):
-        return ''
-        
-    def codeGen_update(self, language):
-        return ''
-        
-    def codeGen_reset(self, language):
-        return ''
-        
-        
-
-
-
 class Block:
     """
         This decribes a block that is part of a Simulation
@@ -117,7 +15,7 @@ class Block:
                          that defined IO, parameters, ...
     """
 
-    def __init__(self, sim, blockPrototype : BlockPrototype, inputSignals : List[Signal], blockname : str):
+    def __init__(self, sim, blockPrototype, inputSignals : List[Signal], blockname : str):
         print("Creating new block " + blockname)
 
         self.sim = sim
@@ -167,20 +65,20 @@ class Block:
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
     
-    # TODO remove soon 13.7.19
-    def configAddOutputSignal(self):
-        # add an output signals to this block typically called by the block prototypes
-        # NOTE: This just reservates that there will be an output
-        #       the type is undefined at this point
+    # # TODO remove soon 13.7.19
+    # def configAddOutputSignal(self):
+    #     # add an output signals to this block typically called by the block prototypes
+    #     # NOTE: This just reservates that there will be an output
+    #     #       the type is undefined at this point
 
-        print("---------------------------- obsolet function configAddOutputSignal ------------------------")
+    #     print("---------------------------- obsolet function configAddOutputSignal ------------------------")
 
-        portNumber = len(self.OutputSignals)
-        newSignal = Signal(self.sim, None, self, portNumber )
+    #     portNumber = len(self.OutputSignals)
+    #     newSignal = Signal(self.sim, None, self, portNumber )
 
-        self.OutputSignals.append( newSignal )
+    #     self.OutputSignals.append( newSignal )
 
-        return self
+    #     return self
 
     def configOutputSignals(self, signals):
         self.OutputSignals = signals

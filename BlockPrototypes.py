@@ -2,6 +2,7 @@ from libdyn import *
 from Signal import *
 from Block import *
 from SimulationContext import *
+from BlockInterface import *
 
 #
 # block templates for common use-cases
@@ -12,11 +13,7 @@ class Source_To1(BlockPrototype):
 
         self.outputType = datatype
 
-        #
-        blk = Block(sim, self, None, blockname = '').configAddOutputSignal()
-
-        # call super
-        BlockPrototype.__init__(self, blk)
+        BlockPrototype.__init__(self, sim, None, 1)
 
         # output datatype is fixed
         self.outputSignal(0).setDatatype(datatype)
@@ -52,12 +49,7 @@ class StaticFn_1To1(BlockPrototype):
         self.u = u
         self.outputType = None
 
-        # create a new block
-        blk = Block(sim, self, [ u ], blockname = '').configAddOutputSignal()
-        
-        # call super-class constructor
-        BlockPrototype.__init__(self, blk)
-
+        BlockPrototype.__init__(self, sim, [ u ], 1)
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -96,9 +88,8 @@ class StaticFn_NTo1(BlockPrototype):
     def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
 
         self.inputSignals = inputSignals
-        blk = Block(sim, self, inputSignals, blockname = '').configAddOutputSignal()
-        BlockPrototype.__init__(self, blk)
 
+        BlockPrototype.__init__(self, sim, inputSignals, 1)
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -111,7 +102,7 @@ class StaticFn_NTo1(BlockPrototype):
 
             self.outputType = computeResultingNumericType(inputTypes)
 
-            print('StaticFn_NTo1 (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
+            # print('StaticFn_NTo1 (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
 
         else:
 
@@ -151,12 +142,7 @@ class Dynamic_1To1(BlockPrototype):
         self.u = u
         self.outputType = None
 
-        # create a new block
-        blk = Block(sim, self, [ u ], blockname = '').configAddOutputSignal()
-        
-        # call super-class constructor
-        BlockPrototype.__init__(self, blk)
-
+        BlockPrototype.__init__(self, sim, [ u ], 1)
 
     def configDefineOutputTypes(self, inputTypes):
 
