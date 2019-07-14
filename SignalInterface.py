@@ -35,12 +35,12 @@ class SignalUser(Signal):
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
-
-
-    def __rshift__(self, other): 
-        # TODO: close feedback loop
-        pass
-        # return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
+    def __lshift__(self, other): 
+        # close a feedback loop by connecting the signals self and other        
+        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+        self.setequal(other)
+        
+        return self
 
 
 class BlockOutputSignalUser(BlockOutputSignal):
@@ -66,6 +66,13 @@ class BlockOutputSignalUser(BlockOutputSignal):
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
+    def __lshift__(self, other): 
+        # close a feedback loop by connecting the signals self and other        
+        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+        self.setequal(other)
+        
+        return self
+
 
 class SimulationInputSignalUser(SimulationInputSignal):
     """
@@ -89,3 +96,10 @@ class SimulationInputSignalUser(SimulationInputSignal):
 
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
+
+    def __lshift__(self, other): 
+        # close a feedback loop by connecting the signals self and other        
+        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+        self.setequal(other)
+        
+        return self

@@ -181,10 +181,10 @@ if testname == 'test_oscillator_controlled':
     reference = dy.system_input( baseDatatype ).setName('ref')
 
     #
-    # reference = dyn_const(sim, 2.5, baseDatatype )
+    # reference = dy.const( 2.5, baseDatatype )
 
     # 
-    controlledVariableFb = dy.Signal(sim)
+    controlledVariableFb = dy.signal()
 
     # control error
     controlError = dy.add( [ reference, controlledVariableFb ], [ 1, -1 ] ).setName('err')
@@ -197,8 +197,15 @@ if testname == 'test_oscillator_controlled':
     u_d = dy.operator1( [ Kd, d ], '*' ).setName('u_d')
 
     # sum up
-    controlVar = dy.add( [ u_p, u_d ], [ 1, 1 ] ).setName('u')
-    
+    #controlVar = dy.add( [ u_p, u_d ], [ 1, 1 ] ).setName('u')
+
+    controlVar = u_p + u_d
+    controlVar.setName('u')
+
+
+    # stupid test
+    fancyVariable = controlVar - dy.const( 2.5, baseDatatype ) / dy.const( 1.5, baseDatatype )
+
 
 
     # plant starts here
@@ -214,11 +221,12 @@ if testname == 'test_oscillator_controlled':
     v = eInt( acc, Ts=0.1, name="intV")
     x = eInt( v, Ts=0.1, name="intX")
 
-    xFb.setequal(x)
-    vFb.setequal(v)
-    
+    # close feedback loops
+    xFb << x
+    vFb << v
+
     #
-    controlledVariableFb.setequal(x)
+    controlledVariableFb << x
 
     # define the outputs of the simulation
     x.setName('x')
