@@ -9,6 +9,9 @@ init(autoreset=True)
 
 
 class Signal:
+    
+    # TODO: remove  sourceBlock = None, sourcePort = None as they are not special to this base class
+
     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
         self.sim = sim
         
@@ -23,8 +26,8 @@ class Signal:
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
 
-        # give this signal a unique default name
-        self.name = 's' + str(sim.getNewSignalId())
+        # # give this signal a unique default name
+        # self.name = 's' + str(sim.getNewSignalId())
 
         # the list of destinations this signals goes to
         self.destinationBlocks = []
@@ -39,6 +42,8 @@ class Signal:
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
 
+    def lookupSource(self):
+        return self
 
     def graphTraversionMarkerReset(self):
         self.linkedSignal.graphTraversionMarker = -1
@@ -97,20 +102,26 @@ class Signal:
     def getSourceBlock(self):
         return self.linkedSignal.sourceBlock
 
-    def setequal(self, to):
-        # build a link to the already existing signal 'to'
-        print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
 
-        # merge the list of detination blocks
-        for b in self.destinationBlocks:
-            to.destinationBlocks.append(b)
 
-        # merge self.destinationBlocks into to.destinationBlocks
-        for p in self.destinationPorts:
-            to.destinationPorts.append(p)
+    # # TODO: becomes obsolete --> move to class UndeterminedSignal
+    # # connect to source
+    # def setequal(self, to):
+    #     # build a link to the already existing signal 'to'
+    #     print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
 
-        # overwrite self
-        self.linkedSignal = to
+    #     # merge the list of detination blocks
+    #     for b in self.destinationBlocks:
+    #         to.destinationBlocks.append(b)
+
+    #     # merge self.destinationBlocks into to.destinationBlocks
+    #     for p in self.destinationPorts:
+    #         to.destinationPorts.append(p)
+
+    #     # overwrite self
+    #     self.linkedSignal = to
+
+
 
     def getDatatype(self):
         return self.linkedSignal.datatype
@@ -162,17 +173,57 @@ class Signal:
 
 
 
-# class SignalUser(Signal):
-#     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
 
-#         Signal.__init__(self, sim, datatype=datatype, sourceBlock=sourceBlock, sourcePort=sourcePort )
-    
 
-#     #
-#     # operator overloads
-#     #
-#     def __add__(self, other): 
-#         Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
+# TODO: this must be nameless!
+
+class UndeterminedSignal(Signal):
+    """
+        A signal that serves as a placeholder and will be connected later on by
+        calling connect()
+
+        NOTE: undetermined singlas must be connected to a blcok's output i.e. they
+        cannot be simulation inputs
+
+    """
+
+    def __init__(self, sim):
+        
+        # link to myself by default to be able to colltect the blocks that are connected to
+        # this fake-signal
+        self.linkedSignal = self
+
+        # name undefined. Once connected to a block output the name is defined
+        self.name = 'anonymous'
+
+        Signal.__init__(self, sim)
+
+
+    # connect to source
+    def setequal(self, to):
+        # check if to is a BlockOutputSignal
+        if not isinstance(to, BlockOutputSignal):
+            raise BaseException("An anonymous signal can only be connected to a block output.")
+
+        # build a link to the already existing signal 'to'
+        print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
+
+        # merge the list of detination blocks
+        for b in self.destinationBlocks:
+            to.destinationBlocks.append(b)
+
+        # merge self.destinationBlocks into to.destinationBlocks
+        for p in self.destinationPorts:
+            to.destinationPorts.append(p)
+
+        # overwrite self
+        self.linkedSignal = to
+
+
+    def lookupSource(self):
+        return self.linkedSignal
+
+
 
 
 class BlockOutputSignal(Signal):
@@ -182,8 +233,15 @@ class BlockOutputSignal(Signal):
         TODO: implement and remove code from 'Signal' above
     """
 
-    def __init__(self, sim, port : int, datatype = None):
-        pass
+    def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
+
+        # give this signal a unique default name
+        self.name = 's' + str(sim.getNewSignalId())
+
+        Signal.__init__(self, sim, datatype, sourceBlock, sourcePort)
+
+    def lookupSource(self):
+        return self
 
 
 
@@ -203,6 +261,10 @@ class SimulationInputSignal(Signal):
     #     self.simulationInputSignalCounter += 1
 
     #     return s
+
+        # give this signal a unique default name
+        # TODO: This shall be overwritten anyways, so maybe this can be removed 
+        self.name = 's' + str(sim.getNewSignalId())
 
         Signal.__init__(self, sim, datatype=datatype)
 

@@ -3,7 +3,7 @@
 
 import BlockPrototypes as block_prototypes
 
-from Signal import Signal, BlockOutputSignal, SimulationInputSignal
+from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 """
@@ -13,11 +13,11 @@ from Signal import Signal, BlockOutputSignal, SimulationInputSignal
     signal variables among each other.
 """
 
-
-class SignalUser(Signal):
+# TODO: This shall be the undetermined signal
+class SignalUser(UndeterminedSignal):
     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
 
-        Signal.__init__(self, sim, datatype=datatype, sourceBlock=sourceBlock, sourcePort=sourcePort )
+        UndeterminedSignal.__init__(self, sim)
     
 
     #
@@ -48,8 +48,8 @@ class BlockOutputSignalUser(BlockOutputSignal):
         A signal that is the output of a block (normal case)
     """
 
-    def __init__(self, sim, port : int, datatype = None):
-        BlockOutputSignal.__init__(self, sim, port=port, datatype=datatype)
+    def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
+        BlockOutputSignal.__init__(self, sim, datatype, sourceBlock, sourcePort)
 
     #
     # operator overloads
@@ -66,10 +66,10 @@ class BlockOutputSignalUser(BlockOutputSignal):
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
-    def __lshift__(self, other): 
-        # close a feedback loop by connecting the signals self and other        
-        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
-        self.setequal(other)
+    # def __lshift__(self, other): 
+    #     # close a feedback loop by connecting the signals self and other        
+    #     print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+    #     other.setequal(self)
         
         return self
 
@@ -97,9 +97,9 @@ class SimulationInputSignalUser(SimulationInputSignal):
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
-    def __lshift__(self, other): 
-        # close a feedback loop by connecting the signals self and other        
-        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
-        self.setequal(other)
+    # def __lshift__(self, other): 
+    #     # close a feedback loop by connecting the signals self and other        
+    #     print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+    #     other.setequal(self)
         
         return self

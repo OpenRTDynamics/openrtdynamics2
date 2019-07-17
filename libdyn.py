@@ -177,11 +177,12 @@ class Simulation:
                 for inSig in blk.getInputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
 
-                    sourceBlock = inSig.getSourceBlock()
 
                     # TODO: if isinstance(s, BlockOutputSignal):
                     if not isinstance(inSig, SimulationInputSignal):
                         # this is a block to block connection. Create a normal link in-between 
+
+                        sourceBlock = inSig.getSourceBlock()
 
                         link = createLink(signal=inSig, sourceBlock=sourceBlock, destBlock=blk)
                         links.append( link )

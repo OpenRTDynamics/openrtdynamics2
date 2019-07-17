@@ -21,7 +21,7 @@ class BlockPrototype:
 
         outputSignals = []
         for i in range(0,nOutputs):
-            outputSignals.append( SignalUser(sim, None, block, sourcePort=i  ) )
+            outputSignals.append( BlockOutputSignalUser(sim, None, block, sourcePort=i  ) )
 
         block.configOutputSignals( outputSignals )
 

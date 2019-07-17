@@ -157,8 +157,13 @@ if testname == 'test_oscillator':
     v = eInt( acc, Ts=0.1, name="intV")
     x = eInt( v, Ts=0.1, name="intX")
 
-    xFb.setequal(x)
-    vFb.setequal(v)
+    # xFb.setequal(x)
+    
+    xFb << x
+
+    # vFb.setequal(v)
+
+    vFb << v
     
 
     # define the outputs of the simulation
@@ -178,6 +183,7 @@ if testname == 'test_oscillator_controlled':
 
     Kp = dy.system_input( baseDatatype ).setName('Kp')
     Kd = dy.system_input( baseDatatype ).setName('Kd')
+    Ki = dy.system_input( baseDatatype ).setName('Ki')
     reference = dy.system_input( baseDatatype ).setName('ref')
 
     #
@@ -196,10 +202,18 @@ if testname == 'test_oscillator_controlled':
     d = diff( controlError, 'PID_D')
     u_d = dy.operator1( [ Kd, d ], '*' ).setName('u_d')
 
+    # I
+    u_i = dy.signal()
+    u_i_tmp = dy.delay(controlError + u_i) * Ki
+
+    u_i_tmp.setName('u_i')
+
+    u_i << u_i_tmp
+
     # sum up
     #controlVar = dy.add( [ u_p, u_d ], [ 1, 1 ] ).setName('u')
 
-    controlVar = u_p + u_d
+    controlVar = u_p + u_d + u_i
     controlVar.setName('u')
 
 
@@ -213,20 +227,20 @@ if testname == 'test_oscillator_controlled':
     U = dy.sin( U)
     # U = controlVar
 
-    xFb = dy.signal()
-    vFb = dy.signal()
+    x = dy.signal()
+    v = dy.signal()
 
-    acc = dy.add( [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acceleration model')
+    acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acceleration model')
 
-    v = eInt( acc, Ts=0.1, name="intV")
-    x = eInt( v, Ts=0.1, name="intX")
+    v_tmp = eInt( acc, Ts=0.1, name="intV").setName('x')
+    x_tmp = eInt( v, Ts=0.1, name="intX").setName('v')
 
     # close feedback loops
-    xFb << x
-    vFb << v
+    x << x_tmp
+    v << v_tmp
 
     #
-    controlledVariableFb << x
+    controlledVariableFb << x_tmp
 
     # define the outputs of the simulation
     x.setName('x')
