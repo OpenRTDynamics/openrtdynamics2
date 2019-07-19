@@ -34,10 +34,10 @@ class Signal:
         self.destinationPorts = []
 
         # link to myself by defaul
-        self.linkedSignal = self
+        # self.linkedSignal = self
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
-        self.linkedSignal.graphTraversionMarker = -1
+        self.graphTraversionMarker = -1
 
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
@@ -46,45 +46,43 @@ class Signal:
         return self
 
     def graphTraversionMarkerReset(self):
-        self.linkedSignal.graphTraversionMarker = -1
+        self.lookupSource().graphTraversionMarker = -1
 
     def graphTraversionMarkerMarkVisited(self, level):
         if level < 0:
             raise BaseException("level cannot be < 0")
 
-        self.linkedSignal.graphTraversionMarker = level
+        self.lookupSource().graphTraversionMarker = level
     
     def graphTraversionMarkerMarkIsVisited(self):
         # check of this node was marked on level or a level below
-        return self.linkedSignal.graphTraversionMarker >= 0
+        return self.lookupSource().graphTraversionMarker >= 0
 
     def graphTraversionMarkerMarkIsVisitedOnLevel(self, onLevel):
         # check of this node was marked on level or a level below
-        return self.linkedSignal.graphTraversionMarker == onLevel
+        return self.lookupSource().graphTraversionMarker == onLevel
 
     # set the name of this signal
     def setName(self, name):
-        self.linkedSignal.name = name
-
-        print("-- set name of signql to " + name)
+        self.lookupSource().name = name
 
         return self
 
     def getName(self):
-        return self.linkedSignal.name
+        return self.lookupSource().name
 
     def toStr(self):
         ret = ''
-        ret += self.linkedSignal.name
+        ret += self.lookupSource().name
 
-        if self.linkedSignal.datatype is not None:
-            ret += " (" + self.linkedSignal.datatype.toStr() + ")"
+        if self.lookupSource().datatype is not None:
+            ret += " (" + self.lookupSource().datatype.toStr() + ")"
         else:
             ret += " (undef datatype)"
 
 
-        if self.linkedSignal.proposedDatatype is not None:
-            ret += " proposal: (" + self.linkedSignal.proposedDatatype.toStr() + ")"
+        if self.lookupSource().proposedDatatype is not None:
+            ret += " proposal: (" + self.lookupSource().proposedDatatype.toStr() + ")"
         else:
             ret += "proposal: (undef datatype)"
 
@@ -93,62 +91,42 @@ class Signal:
 
     def addDestination(self, block , port : int):
         # add this destination to the list
-        self.linkedSignal.destinationBlocks.append( block )
-        self.linkedSignal.destinationPorts.append( port )
+        self.lookupSource().destinationBlocks.append( block )
+        self.lookupSource().destinationPorts.append( port )
 
     def getDestinationBlocks(self):
-        return self.linkedSignal.destinationBlocks
+        return self.lookupSource().destinationBlocks
 
     def getSourceBlock(self):
-        return self.linkedSignal.sourceBlock
-
-
-
-    # # TODO: becomes obsolete --> move to class UndeterminedSignal
-    # # connect to source
-    # def setequal(self, to):
-    #     # build a link to the already existing signal 'to'
-    #     print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
-
-    #     # merge the list of detination blocks
-    #     for b in self.destinationBlocks:
-    #         to.destinationBlocks.append(b)
-
-    #     # merge self.destinationBlocks into to.destinationBlocks
-    #     for p in self.destinationPorts:
-    #         to.destinationPorts.append(p)
-
-    #     # overwrite self
-    #     self.linkedSignal = to
-
-
+        return self.lookupSource().sourceBlock
+#        return self.lookupSource().sourceBlock
 
     def getDatatype(self):
-        return self.linkedSignal.datatype
+        return self.lookupSource().datatype
 
     def setDatatype(self, datatype):
-        self.linkedSignal.datatype = datatype
+        self.lookupSource().datatype = datatype
 
         # notify the change of the datatype
         self.sim.datatypePropagation.notifySignal(self)
 
     def fixDatatype(self):
         # this shall explicitely not trigger a notification!
-        self.linkedSignal.datatype = self.linkedSignal.proposedDatatype
+        self.lookupSource().datatype = self.lookupSource().proposedDatatype
 
     def getProposedDatatype(self):
-        return self.linkedSignal.proposedDatatype
+        return self.lookupSource().proposedDatatype
 
     def setProposedDatatype(self, proposedDatatype):
         # only proceed if the datatype of this signals is not already fixed
-        if self.linkedSignal.datatype is None:
+        if self.lookupSource().datatype is None:
 
             # only proceed of the prosed datatype is diffent to the stored one
             # or the stored type is None (not set before)
-            if not proposedDatatype.isEqualTo( self.linkedSignal.proposedDatatype ) or self.linkedSignal.proposedDatatype is None:
+            if not proposedDatatype.isEqualTo( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
 
-                self.linkedSignal.proposedDatatype = proposedDatatype
-                # self.linkedSignal.proposedDatatypeUpdated = True
+                self.lookupSource().proposedDatatype = proposedDatatype
+                # self.lookupSource().proposedDatatypeUpdated = True
 
                 # notify the change of the datatype
                 self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
@@ -158,15 +136,15 @@ class Signal:
 
 
     def setNameOfOrigin(self, name):
-        if not self.linkedSignal.sourceBlock is None:
-            self.linkedSignal.sourceBlock.setName(name)
+        if not self.lookupSource().sourceBlock is None:
+            self.lookupSource().sourceBlock.setName(name)
 
         return self
 
-
+    # move to derived classes below
     def ShowOrigin(self):
-        if not self.linkedSignal.sourcePort is None and not self.linkedSignal.sourceBlock is None:
-            print("Signal >" + self.name + "< origin: port " + str(self.linkedSignal.sourcePort) + " of block #" + str(self.linkedSignal.sourceBlock.getId()) )
+        if not self.lookupSource().sourcePort is None and not self.lookupSource().sourceBlock is None:
+            print("Signal >" + self.name + "< origin: port " + str(self.lookupSource().sourcePort) + " of block #" + str(self.lookupSource().sourceBlock.getId()) )
 
         else:
             print("Signal >" + self.name + "< origin not defined (so far)")
@@ -175,7 +153,6 @@ class Signal:
 
 
 
-# TODO: this must be nameless!
 
 class UndeterminedSignal(Signal):
     """
@@ -191,18 +168,26 @@ class UndeterminedSignal(Signal):
         
         # link to myself by default to be able to colltect the blocks that are connected to
         # this fake-signal
-        self.linkedSignal = self
 
         # name undefined. Once connected to a block output the name is defined
         self.name = 'anonymous'
+        self.linkedSignal = self
 
         Signal.__init__(self, sim)
 
-
+    def toStr(self):
+        if self is self.linkedSignal:
+            return Signal.toStr(self) + ' (ANONYMOUS)'
+        else:
+            return Signal.toStr(self)
+            
     # connect to source
     def setequal(self, to):
+        if self is to:
+            raise BaseException("Cannot connect to the same signal.")
+
         # check if to is a BlockOutputSignal
-        if not isinstance(to, BlockOutputSignal):
+        if not isinstance(to.lookupSource(), BlockOutputSignal):
             raise BaseException("An anonymous signal can only be connected to a block output.")
 
         # build a link to the already existing signal 'to'
@@ -219,9 +204,19 @@ class UndeterminedSignal(Signal):
         # overwrite self
         self.linkedSignal = to
 
-
     def lookupSource(self):
-        return self.linkedSignal
+
+        if self is self.linkedSignal:
+            # Note at this point the anonymous signal does not have a proper
+            # source. return itself as a placeholder until sth. is connected 
+            # by calling setequal().
+            return self
+
+        if self.linkedSignal is not None:
+
+            return self.linkedSignal.lookupSource()
+
+
 
 
 
@@ -251,20 +246,16 @@ class SimulationInputSignal(Signal):
     """
 
     def __init__(self, sim, datatype = None):
-        
+
         self.port = sim.simulationInputSignalCounter
         sim.simulationInputSignalCounter += 1
 
-
-    # def newInput(self, datatype):
-    #     s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
-    #     self.simulationInputSignalCounter += 1
-
-    #     return s
-
         # give this signal a unique default name
-        # TODO: This shall be overwritten anyways, so maybe this can be removed 
+        # TODO: This shall be overwritten anyways by the user, so maybe this can be removed (or maybe not in case it is 
+        # used to auto-generate sub-systems)
         self.name = 's' + str(sim.getNewSignalId())
 
         Signal.__init__(self, sim, datatype=datatype)
 
+    def lookupSource(self):
+        return self
