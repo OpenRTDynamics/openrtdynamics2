@@ -78,6 +78,7 @@ def diff( u : dy.Signal, name : str):
 
 
 testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled'
+test_modification_1 = False
 
 if testname == 'test1':
 
@@ -203,49 +204,47 @@ if testname == 'test_oscillator_controlled':
     u_d = dy.operator1( [ Kd, d ], '*' ).setName('u_d')
 
     # I
-    u_i = dy.signal()
-    u_i_tmp = dy.delay(controlError + u_i) * Ki
+    u_i_tmp = dy.signal()
+    u_i = dy.delay(controlError + u_i_tmp) * Ki
+
+    u_i_tmp << u_i
 
     u_i_tmp.setName('u_i')
 
-    u_i << u_i_tmp
+    if test_modification_1:
+        u_i = u_i_tmp
 
     # sum up
-    #controlVar = dy.add( [ u_p, u_d ], [ 1, 1 ] ).setName('u')
-
-    controlVar = u_p + u_d + u_i
+    controlVar = u_p + u_d + u_i # TODO: compilation fails if u_i is removed
     controlVar.setName('u')
-
 
     # stupid test
     fancyVariable = controlVar - dy.const( 2.5, baseDatatype ) / dy.const( 1.5, baseDatatype )
 
-
-
     # plant starts here
-    U = dy.gain( controlVar, 1.0)
-    U = dy.sin( U)
-    # U = controlVar
+    # U = dy.gain( controlVar, 1.0 )
+    # U = dy.sin( U )
+    U = controlVar
 
     x = dy.signal()
     v = dy.signal()
 
     acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acceleration model')
 
-    v_tmp = eInt( acc, Ts=0.1, name="intV").setName('x')
+    v << eInt( acc, Ts=0.1, name="intV").setName('x')
     x_tmp = eInt( v, Ts=0.1, name="intX").setName('v')
 
-    # close feedback loops
+    # # close feedback loops
     x << x_tmp
-    v << v_tmp
+    # v << v_tmp
 
     #
-    controlledVariableFb << x_tmp
+    controlledVariableFb << x # TODO: This fails
 
     # define the outputs of the simulation
     x.setName('x')
     v.setName('v')
-    outputSignals = [  x,v ]
+    outputSignals = [ x,v ]
 
     # specify what the input signals shall be in the runtime
     inputSignalsMapping = {}

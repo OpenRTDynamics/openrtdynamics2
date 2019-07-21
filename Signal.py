@@ -8,11 +8,11 @@ init(autoreset=True)
 
 
 
-class Signal:
+class Signal(object):
     
     # TODO: remove  sourceBlock = None, sourcePort = None as they are not special to this base class
 
-    def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+    def __init__(self, sim, datatype = None):
         self.sim = sim
         
         # the fixed and final datatype of this signals either as a result of the datatype determination phase
@@ -23,24 +23,28 @@ class Signal:
         self.proposedDatatype = None
         # self.proposedDatatypeUpdated = False
 
-        self.sourceBlock = sourceBlock
-        self.sourcePort = sourcePort  # counting starts at zero
+        #self.sourceBlock = sourceBlock
+        #self.sourcePort = sourcePort  # counting starts at zero
 
-        # # give this signal a unique default name
-        # self.name = 's' + str(sim.getNewSignalId())
+        # give this signal a unique default name
+        # (NOTE: the name will be set by the derived classes)
+        # self.name = None # 's' + str(sim.getNewSignalId())
+
+        self._nameIsDefault = True
 
         # the list of destinations this signals goes to
         self.destinationBlocks = []
         self.destinationPorts = []
-
-        # link to myself by defaul
-        # self.linkedSignal = self
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = -1
 
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
+
+    @property
+    def nameIsDefault(self):
+        return self._nameIsDefault
 
     def lookupSource(self):
         return self
@@ -65,6 +69,9 @@ class Signal:
     # set the name of this signal
     def setName(self, name):
         self.lookupSource().name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
 
         return self
 
@@ -96,10 +103,6 @@ class Signal:
 
     def getDestinationBlocks(self):
         return self.lookupSource().destinationBlocks
-
-    def getSourceBlock(self):
-        return self.lookupSource().sourceBlock
-#        return self.lookupSource().sourceBlock
 
     def getDatatype(self):
         return self.lookupSource().datatype
@@ -135,13 +138,17 @@ class Signal:
             raise BaseException("setProposedDatatype: only possible for signals which datatype are not already fixed!")
 
 
+    # move to derived classes below
+    def getSourceBlock(self):
+        return self.lookupSource().sourceBlock
+
+
     def setNameOfOrigin(self, name):
         if not self.lookupSource().sourceBlock is None:
             self.lookupSource().sourceBlock.setName(name)
 
         return self
 
-    # move to derived classes below
     def ShowOrigin(self):
         if not self.lookupSource().sourcePort is None and not self.lookupSource().sourceBlock is None:
             print("Signal >" + self.name + "< origin: port " + str(self.lookupSource().sourcePort) + " of block #" + str(self.lookupSource().sourceBlock.getId()) )
@@ -157,9 +164,11 @@ class Signal:
 class UndeterminedSignal(Signal):
     """
         A signal that serves as a placeholder and will be connected later on by
-        calling connect()
+        calling connect(). As long as no connection to a real source is present
+        the blocks that are connected to this signal are colleted in a list. Once
+        this signal is conneted, the source's signal lists are merged.
 
-        NOTE: undetermined singlas must be connected to a blcok's output i.e. they
+        NOTE: undetermined singlas must be connected to a block's output i.e. they
         cannot be simulation inputs
 
     """
@@ -172,6 +181,7 @@ class UndeterminedSignal(Signal):
         # name undefined. Once connected to a block output the name is defined
         self.name = 'anonymous'
         self.linkedSignal = self
+        self.nameProposal = None
 
         Signal.__init__(self, sim)
 
@@ -180,7 +190,7 @@ class UndeterminedSignal(Signal):
             return Signal.toStr(self) + ' (ANONYMOUS)'
         else:
             return Signal.toStr(self)
-            
+
     # connect to source
     def setequal(self, to):
         if self is to:
@@ -201,18 +211,40 @@ class UndeterminedSignal(Signal):
         for p in self.destinationPorts:
             to.destinationPorts.append(p)
 
+        # merge name
+        if self.nameProposal is not None and not to.nameIsDefault:
+            # TODO: check if to holds just the default name. If so update it with the proposal
+
+            to.setName(self.nameProposal)
+            
         # overwrite self
         self.linkedSignal = to
 
+    def isConnectedToSth(self):
+        if self is self.linkedSignal:
+            return False
+        else:
+            return True
+
+    # set the name of this signal
+    def setName(self, name):
+        if not self.isConnectedToSth():
+            # not connected
+            self.nameProposal = name
+
+        else:
+            self.linkedSignal.lookupSource().setName(name)
+
+
     def lookupSource(self):
 
-        if self is self.linkedSignal:
+        if not self.isConnectedToSth():
             # Note at this point the anonymous signal does not have a proper
             # source. return itself as a placeholder until sth. is connected 
             # by calling setequal().
             return self
 
-        if self.linkedSignal is not None:
+        else:
 
             return self.linkedSignal.lookupSource()
 
@@ -232,8 +264,11 @@ class BlockOutputSignal(Signal):
 
         # give this signal a unique default name
         self.name = 's' + str(sim.getNewSignalId())
+        
+        self.sourceBlock = sourceBlock
+        self.sourcePort = sourcePort  # counting starts at zero
 
-        Signal.__init__(self, sim, datatype, sourceBlock, sourcePort)
+        Signal.__init__(self, sim, datatype)
 
     def lookupSource(self):
         return self
