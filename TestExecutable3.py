@@ -78,7 +78,8 @@ def diff( u : dy.Signal, name : str):
 
 
 testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled'
-test_modification_1 = False
+test_modification_1 = True  # option should not have an influence on the result
+test_modification_2 = False # shall raise an error once this is true
 
 if testname == 'test1':
 
@@ -158,12 +159,7 @@ if testname == 'test_oscillator':
     v = eInt( acc, Ts=0.1, name="intV")
     x = eInt( v, Ts=0.1, name="intX")
 
-    # xFb.setequal(x)
-    
     xFb << x
-
-    # vFb.setequal(v)
-
     vFb << v
     
 
@@ -215,7 +211,14 @@ if testname == 'test_oscillator_controlled':
         u_i = u_i_tmp
 
     # sum up
-    controlVar = u_p + u_d + u_i # TODO: compilation fails if u_i is removed
+    if not test_modification_2:
+        controlVar = u_p + u_d + u_i  # TODO: compilation fails if u_i is removed
+
+    else:
+        # shall raise an error
+        anonymous_signal = dy.signal()
+        controlVar = u_p + u_d + u_i + anonymous_signal
+
     controlVar.setName('u')
 
     # stupid test
@@ -229,7 +232,7 @@ if testname == 'test_oscillator_controlled':
     x = dy.signal()
     v = dy.signal()
 
-    acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acceleration model')
+    acc = dy.add( [ U, v, x ], [ 1, -1.1, -0.1 ] ).setNameOfOrigin('acceleration model')
 
     v << eInt( acc, Ts=0.1, name="intV").setName('x')
     x_tmp = eInt( v, Ts=0.1, name="intX").setName('v')

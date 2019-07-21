@@ -159,6 +159,21 @@ class Signal(object):
 
 
 
+def resolveUndeterminedSignals(signals : List[Signal] ):
+    """
+        Go through a list of signals and replace (inplace) all entries of the list
+        with their direct source signals, i.e. signals of type UndeterminedSignal
+        will become the connected block output of type BlockOutputSignal
+    """
+    for i in range(0,len(signals)):
+        signal = signals[i].lookupSource()
+
+        if isinstance(signal, UndeterminedSignal):
+            raise BaseException("Could not resolve ananymous singal " + signal.toStr() + ". Please ensure to connect this signal to a block output." )
+
+        signals[i] = signal
+
+
 
 
 class UndeterminedSignal(Signal):

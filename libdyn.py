@@ -250,6 +250,9 @@ class Simulation:
     def CompileConnections(self):
         print("Compiling connections")
 
+        for block in self.BlocksArray:
+            block.verifyInputSignals()
+
         # find out the output datatypes
         self.propagateDatatypesForward()
 
