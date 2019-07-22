@@ -19,6 +19,9 @@ class CompileDiagram:
 
     def compile(self, sim, outputSignals):
 
+        # prepare
+        resolveUndeterminedSignals(outputSignals)
+
         #
         # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
         # at runtime.
@@ -88,8 +91,12 @@ class CompileDiagram:
         signalsToCache = []
         for s in executionLineToCalculateOutputs.signalOrder:
 
-            # TODO: if isinstance(s, BlockOutputSignal):
-            if not isinstance(s, SimulationInputSignal):
+            if isinstance(s, UndeterminedSignal):
+                raise BaseException("found anonymous signal during compilation")
+
+            if isinstance(s, BlockOutputSignal):
+            #if not isinstance(s, SimulationInputSignal):
+
                 # only implement caching for intermediate computaion results.
                 # I.e. exclude the simulation input signals
 

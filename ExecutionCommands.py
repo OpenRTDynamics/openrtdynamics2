@@ -106,8 +106,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                 # remove the input signals in this loop
                 for s in SignalsWithoutOutputs:
 
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
+                    if isinstance(s, BlockOutputSignal):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
@@ -121,8 +120,7 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                 for s in self.executionLine.getSignalsToExecute():
 
-                    # TODO: if isinstance(s, BlockOutputSignal):
-                    if not isinstance(s, SimulationInputSignal):
+                    if isinstance(s, BlockOutputSignal):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
