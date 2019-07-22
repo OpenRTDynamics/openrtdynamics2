@@ -28,6 +28,19 @@ class PutRuntimeCppHelper:
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
         manifest = {}
+        
+
+        if not isinstance(self.mainSimulation.outputCommand, PutAPIFunction):
+            raise('...')
+
+
+        manifest['api_name'] = self.mainSimulation.getAPI_name()
+
+        manifest['api_functions'] = {'calculate_output' : self.mainSimulation.outputCommand.nameAPI,
+                                     'state_update' : self.mainSimulation.updateCommand.nameAPI,
+                                     'reset' : self.mainSimulation.resetCommand.nameAPI }
+
+
         manifest['io'] = {}
         
         manifest['io']['outputs'] = {}

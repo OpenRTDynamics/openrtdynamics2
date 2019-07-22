@@ -15,7 +15,7 @@ from string import Template
 
 
 
-class ExecutionCommand:
+class ExecutionCommand(object):
     def __init__(self):
 
         # the nesting level (by default 0)
@@ -89,13 +89,6 @@ class CommandCalculateOutputs(ExecutionCommand):
 
             if flag == 'localvar':
                 
-                
-                
-                #
-                # TODO(DONE): exclude the input singals (DONE)
-                #       also exclude the output signals (if needed) (DONE)
-                #
-
                 SignalsWithoutOutputs = self.executionLine.getSignalsToExecute()
 
                 # remove the output signals if requested
@@ -345,10 +338,15 @@ class PutAPIFunction(ExecutionCommand):
         self.outputSignals = outputSignals
         self.inputSignals = inputSignals
         self.executionCommands = executionCommands
-        self.nameAPI = nameAPI
+        self._nameAPI = nameAPI
 
         for e in executionCommands:
             e.setContext(self)
+
+
+    @property
+    def nameAPI(self):
+        return self._nameAPI
 
         
     def printExecution(self):
@@ -381,7 +379,7 @@ class PutAPIFunction(ExecutionCommand):
                 lines += '// calculate ' + ' '.join( signalListHelper_names( self.outputSignals ) )
                 
                 lines += '\n'
-                lines += 'void ' + self.nameAPI + '('
+                lines += 'void ' + self._nameAPI + '('
 
                 # put the parameter list e.g. double & y1, double & y2, u1, u2
                 elements = []
@@ -412,15 +410,15 @@ class PutAPIFunction(ExecutionCommand):
                 lines += '}\n\n'
 
                 # put structs to hold I/O signals
-                lines += '// output data structure for ' + self.nameAPI + '\n'
+                lines += '// output data structure for ' + self._nameAPI + '\n'
                 tmp = defineVariables( self.outputSignals )
                 tmp = indent(tmp, '  ')
-                lines += f'struct Outputs_{ self.nameAPI }  {{\n{ tmp }}};\n\n'
+                lines += f'struct Outputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
-                lines += '// input data structure for ' + self.nameAPI + '\n'
+                lines += '// input data structure for ' + self._nameAPI + '\n'
                 tmp = defineVariables( self.inputSignals )
                 tmp = indent(tmp, '  ')
-                lines += f'struct Inputs_{ self.nameAPI }  {{\n{ tmp }}};\n\n'
+                lines += f'struct Inputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
 
                 #
@@ -428,8 +426,8 @@ class PutAPIFunction(ExecutionCommand):
                 #
 
                 # put function header
-                lines += '// wrapper function for ' + self.nameAPI + '\n'
-                lines += 'Outputs_' + self.nameAPI + ' ' + self.nameAPI + '__ (Inputs_' + self.nameAPI + ' inputs)\n'
+                lines += '// wrapper function for ' + self._nameAPI + '\n'
+                lines += 'Outputs_' + self._nameAPI + ' ' + self._nameAPI + '__ (Inputs_' + self._nameAPI + ' inputs)\n'
 
                 if len(self.outputSignals) > 0 or len(self.inputSignals):
 
@@ -454,10 +452,10 @@ class PutAPIFunction(ExecutionCommand):
                 lines += '{\n'
 
                 innerLines = ''
-                innerLines += defineStructVar( 'Outputs_' + self.nameAPI, 'outputs'  ) + '\n'
+                innerLines += defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
                 innerLines += '// call to wrapped function\n'
-                innerLines += self.nameAPI + '(' + argumentsString + ');\n'
+                innerLines += self._nameAPI + '(' + argumentsString + ');\n'
 
 
                 innerLines += '\n'

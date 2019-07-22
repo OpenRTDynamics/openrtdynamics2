@@ -10,7 +10,7 @@ init(autoreset=True)
 #
 # Enter a new system (simulation)
 #
-sim = dy.enter_system('main')
+sim = dy.enter_system('simulation')
 
 # example
 # u = dy.const(123, datatype=dy.DataTypeFloat(1) )

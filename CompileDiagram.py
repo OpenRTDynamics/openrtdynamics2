@@ -275,7 +275,7 @@ class CompileDiagram:
 
 
         # define the interfacing class
-        commandToExecute_simulation = PutSimulation(    nameAPI = 'testSimulation',
+        commandToExecute_simulation = PutSimulation(    nameAPI = sim.getName(),
                                                         resetCommand = commandToResetStates, 
                                                         updateCommand = commandToUpdateStates,
                                                         outputCommand = commandToPublishTheResults

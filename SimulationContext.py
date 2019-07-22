@@ -28,7 +28,7 @@ def get_simulation_context():
 
 def enter_system(name : str):
     # new simulation
-    sim = Simulation(None, 'main')
+    sim = Simulation(None, name)
 
     push_simulation_context(sim)
 
