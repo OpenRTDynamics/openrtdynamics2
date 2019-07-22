@@ -406,7 +406,6 @@ class BuildExecutionPath:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
                 if isinstance(signal, SimulationInputSignal):
-                    # if signal.getSourceBlock() is None:
                     
                     # signal is an input to the simulation
                     # add to the list of dependent inputs

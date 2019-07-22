@@ -95,7 +95,6 @@ class CompileDiagram:
                 raise BaseException("found anonymous signal during compilation")
 
             if isinstance(s, BlockOutputSignal):
-            #if not isinstance(s, SimulationInputSignal):
 
                 # only implement caching for intermediate computaion results.
                 # I.e. exclude the simulation input signals
@@ -149,7 +148,7 @@ class CompileDiagram:
                 if isinstance(s, SimulationInputSignal):
                     simulationInputSignalsForStateUpdate.append(s)
 
-                else:  # TODO: if isinstance(s, BlockOutputSignal):
+                elif isinstance(s, BlockOutputSignal):
                     for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
 
                         print(Fore.YELLOW + Style.BRIGHT + "  - " + s_.toStr() )
@@ -207,11 +206,8 @@ class CompileDiagram:
             blocksWhoseStatesToUpdate = []
             for s in dependencySignals:
                 print("  - " + s.getName())
-                
-                
-                #  TODO: use: if isinstance(s, BlockOutputSignal):
-                if not isinstance(s, SimulationInputSignal):
-                    # s is a signal that comes from the block 'blk':
+                                
+                if isinstance(s, BlockOutputSignal):
                     blk = s.getSourceBlock()
 
                     # NOTE: instead of checking if 'blk' is already in the list of blocks to update, the block could also be

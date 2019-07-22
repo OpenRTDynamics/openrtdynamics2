@@ -179,7 +179,6 @@ class Simulation:
 
 
                     if isinstance(inSig.lookupSource(), BlockOutputSignal):
-                    # if not isinstance(inSig.lookupSource(), SimulationInputSignal):
                         # this is a block to block connection. Create a normal link in-between 
 
                         sourceBlock = inSig.getSourceBlock()
@@ -204,7 +203,7 @@ class Simulation:
 
 
 
-        # create nodes/links for the simulation outputs
+        # create nodes/links/something for the simulation outputs
         # (TODO)
 
 
