@@ -1,4 +1,5 @@
 from ExecutionCommands import *
+from SystemManifest import *
 
 import subprocess
 import os
@@ -27,29 +28,13 @@ class PutRuntimeCppHelper:
 
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
-        manifest = {}
         
+        # if not isinstance(self.mainSimulation.outputCommand, PutAPIFunction):
+        #     raise('...')
 
-        if not isinstance(self.mainSimulation.outputCommand, PutAPIFunction):
-            raise('...')
-
-
-        manifest['api_name'] = self.mainSimulation.getAPI_name()
-
-        manifest['api_functions'] = {'calculate_output' : self.mainSimulation.outputCommand.nameAPI,
-                                     'state_update' : self.mainSimulation.updateCommand.nameAPI,
-                                     'reset' : self.mainSimulation.resetCommand.nameAPI }
-
-
-        manifest['io'] = {}
+        self.manifestClass = SystemManifest( self.mainSimulation )
+        self.manifest = self.manifestClass.export_json()
         
-        manifest['io']['outputs'] = {}
-        manifest['io']['inputs'] = {}
-
-        manifest['io']['outputs']['calculate_output'] = {}
-        manifest['io']['inputs']['calculate_output'] = {}
-        manifest['io']['inputs']['state_update'] = {}
-
 
         #
         # make strings 
@@ -64,13 +49,6 @@ class PutRuntimeCppHelper:
             outputNamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             outputPrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
 
-            # manifest
-            signalDescription = {}
-            signalDescription['names'] = signalListHelper_names(signals)
-            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
-
-            manifest['io']['outputs']['calculate_output'] = signalDescription
-
 
         # the inputs to the output command
         for signals in [ self.mainSimulation.outputCommand.inputSignals ]:
@@ -81,13 +59,6 @@ class PutRuntimeCppHelper:
             input1_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             input1PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
 
-            # manifest
-            signalDescription = {}
-            signalDescription['names'] = signalListHelper_names(signals)
-            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
-
-            manifest['io']['inputs']['calculate_output'] = signalDescription
-
         # the inputs to the update command
         for signals in [ self.mainSimulation.updateCommand.inputSignals ]:
 
@@ -95,13 +66,6 @@ class PutRuntimeCppHelper:
             input2_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
             input2_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             input2_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
-
-            # manifest
-            signalDescription = {}
-            signalDescription['names'] = signalListHelper_names(signals)
-            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
-
-            manifest['io']['inputs']['state_update'] = signalDescription
 
         # all inputs
         # merge the list of inputs for the calcoutput and stateupdate function
@@ -140,7 +104,6 @@ class PutRuntimeCppHelper:
                                                     
                                                     calcOutputsArgs=calcOutputsArgs )
 
-        self.manifest = manifest
 
         return self.template, self.manifest
 

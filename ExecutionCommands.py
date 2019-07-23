@@ -487,7 +487,14 @@ class PutSimulation(ExecutionCommand):
         self.updateCommand = updateCommand
         self.outputCommand = outputCommand
 
+        self._api_function_names = {'calculate_output' : self.outputCommand.nameAPI,
+                         'state_update' : self.updateCommand.nameAPI,
+                         'reset' : self.resetCommand.nameAPI }
+
+
         self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
+
+
         self.nameAPI = nameAPI
 
         for e in self.executionCommands:
@@ -498,7 +505,9 @@ class PutSimulation(ExecutionCommand):
     def getAPI_name(self):
         return self.nameAPI
 
-
+    @property
+    def API_functionNames(self):
+        return self._api_function_names
         
     def printExecution(self):
 
