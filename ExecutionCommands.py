@@ -491,6 +491,9 @@ class PutSimulation(ExecutionCommand):
                          'state_update' : self.updateCommand.nameAPI,
                          'reset' : self.resetCommand.nameAPI }
 
+        self._api_functions = {'calculate_output' : self.outputCommand,
+                         'state_update' : self.updateCommand,
+                         'reset' : self.resetCommand }
 
         self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
@@ -509,6 +512,10 @@ class PutSimulation(ExecutionCommand):
     def API_functionNames(self):
         return self._api_function_names
         
+    @property
+    def API_functions(self):
+        return self._api_functions
+
     def printExecution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API:")
