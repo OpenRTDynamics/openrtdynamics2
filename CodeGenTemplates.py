@@ -35,50 +35,42 @@ class PutRuntimeCppHelper:
         self.manifestClass = SystemManifest( self.mainSimulation )
         self.manifest = self.manifestClass.export_json()
         
+        # TODO: iterate over all functions present in the API of the system
+        # NOTE: Currently only the main functions are used: output, update, and reset
+        #
+        API_functions = self.mainSimulation.API_functions
 
         #
         # make strings 
         # 
 
+        def makeStrings(signals):
+
+            namesCSVList = ', '.join( signalListHelper_names(signals)  )
+            namesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+            prinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+
+            return namesCSVList, namesVarDef, prinfPattern
+
+
         # for the output signals
-        for signals in [ self.mainSimulation.outputCommand.outputSignals ]:
-
-            # code
-            # str list of output signals. e.g. 'y1, y2, y3' 
-            outputNamesCSVList = ', '.join( signalListHelper_names(signals)  )
-            outputNamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
-            outputPrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
-
+        # input1_NamesCSVList; list of output signals. e.g. 'y1, y2, y3' 
+        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.mainSimulation.outputCommand.outputSignals )
 
         # the inputs to the output command
-        for signals in [ self.mainSimulation.outputCommand.inputSignals ]:
-
-            # code
-            # str list of output signals. e.g. 'y1, y2, y3' 
-            input1_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
-            input1_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
-            input1PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+        # input1_NamesCSVList: list of output signals. e.g. 'y1, y2, y3' 
+        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.mainSimulation.outputCommand.inputSignals )
 
         # the inputs to the update command
-        for signals in [ self.mainSimulation.updateCommand.inputSignals ]:
-
-            # str list of output signals. e.g. 'y1, y2, y3' 
-            input2_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
-            input2_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
-            input2_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+        # input2_NamesCSVList list of output signals. e.g. 'u1, u2, u3' 
+        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.mainSimulation.updateCommand.inputSignals )
 
         # all inputs
         # merge the list of inputs for the calcoutput and stateupdate function
         allInputs = list(set(self.mainSimulation.outputCommand.inputSignals + self.mainSimulation.updateCommand.inputSignals))
+        inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
 
-        for signals in [ allInputs ]:
-
-            # str list of output signals. e.g. 'y1, y2, y3' 
-            inputAll_NamesCSVList = ', '.join( signalListHelper_names(signals)  )
-            inputAll_NamesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
-            inputAll_PrinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
-        
-
+        # the names of input and output signals of the outputCommand combined
         calcOutputsArgsList = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals )
         calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
 
