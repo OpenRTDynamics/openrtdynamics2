@@ -11,11 +11,35 @@ init(autoreset=True)
 
 
 
+class CompileResults(object):
+    def __init__(self, manifest, commandToExecute):
+        self._commandToExecute = commandToExecute
+        self._manifest = manifest
+
+    @property
+    def manifest(self):
+        return self._manifest
+
+    @property
+    def commandToExecute(self):
+        return self._commandToExecute 
+
+
+
 class CompileDiagram:
 
     def __init__(self):
 
-        pass
+        self._manifest = None
+
+
+    # @property
+    # def manifest(self):
+    #     return self._manifest
+
+    @property
+    def compileResults(self):
+        return self._compleResults
 
     def compile(self, sim, outputSignals):
 
@@ -281,4 +305,11 @@ class CompileDiagram:
                                                         outputCommand = commandToPublishTheResults
                                                     )
 
-        return commandToExecute_simulation
+        # build the manifest for the compiled system
+        manifest = SystemManifest( commandToExecute_simulation )
+
+        self._compleResults = CompileResults( manifest, commandToExecute_simulation )
+
+        #
+        return self._compleResults
+

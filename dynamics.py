@@ -17,3 +17,42 @@ def signal():
 def system_input(datatype):
     return SimulationInputSignal(get_simulation_context(), datatype)
     
+
+def compile_system(sim, outputSignals):
+
+    sim.ShowBlocks()
+
+    print()
+    print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
+    print()
+
+    sim.CompileConnections()
+
+    print()
+    print(Style.BRIGHT + "-------- print datatypes --------")
+    print()
+
+    sim.ShowBlocks()
+
+    print()
+    print(Style.BRIGHT + "-------- export graph --------")
+    print()
+
+    graph = sim.exportGraph()
+
+    with open( os.path.join(  'generated/graph.json' ), 'w') as outfile:  
+        json.dump(graph, outfile)
+
+    #
+    # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+    # at runtime.
+    #
+
+    compiler = CompileDiagram()
+    comileResults = compiler.compile( sim, outputSignals )
+
+    #
+    return comileResults
+
+def compile_current_system(outputSignals):
+    return compile_system( get_simulation_context(), outputSignals )

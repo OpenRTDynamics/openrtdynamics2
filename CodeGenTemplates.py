@@ -1,12 +1,10 @@
 from ExecutionCommands import *
 from SystemManifest import *
+from CompileDiagram import CompileResults
 
 import subprocess
 import os
 import json
-
-
-
 
 
 
@@ -15,11 +13,11 @@ class PutRuntimeCppHelper:
         generates code for the runtime evironment
     """
 
-    def __init__(self, mainSimulation : ExecutionCommand ):
+    def __init__(self, compileResults : CompileResults ):
         ExecutionCommand.__init__(self)
 
-        self.mainSimulation = mainSimulation
-
+        self.compileResults = compileResults
+        self.mainSimulation = compileResults.commandToExecute
 
     def codeGen(self):
 
@@ -29,11 +27,7 @@ class PutRuntimeCppHelper:
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
         
-        # if not isinstance(self.mainSimulation.outputCommand, PutAPIFunction):
-        #     raise('...')
-
-        self.manifestClass = SystemManifest( self.mainSimulation )
-        self.manifest = self.manifestClass.export_json()
+        self.manifest = self.compileResults.manifest.export_json()
         
         # TODO: iterate over all functions present in the API of the system
         # NOTE: Currently only the main functions are used: output, update, and reset
@@ -45,7 +39,6 @@ class PutRuntimeCppHelper:
         # 
 
         def makeStrings(signals):
-
             namesCSVList = ', '.join( signalListHelper_names(signals)  )
             namesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
             prinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
@@ -106,9 +99,6 @@ class PutRuntimeCppHelper:
         with open( os.path.join( folder + '//simulation_manifest.json' ), 'w') as outfile:  
             json.dump(self.manifest, outfile)
 
-          
-        
-
     def build(self):
         pass
 
@@ -123,9 +113,9 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         generates code for the runtime evironment
     """
 
-    def __init__(self, mainSimulation : ExecutionCommand, inputSignalsMapping ):
+    def __init__(self, compileResults : CompileResults, inputSignalsMapping ):
 
-        PutRuntimeCppHelper.__init__(self, mainSimulation)
+        PutRuntimeCppHelper.__init__(self, compileResults)
 
         self.inputSignalsMapping = inputSignalsMapping
 
@@ -266,9 +256,9 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
     """
 
-    def __init__(self, mainSimulation : ExecutionCommand, inputSignalsMapping ):
+    def __init__(self, compileResults : CompileResults, inputSignalsMapping ):
 
-        PutRuntimeCppHelper.__init__(self, mainSimulation)
+        PutRuntimeCppHelper.__init__(self, compileResults)
 
         self.inputSignalsMapping = inputSignalsMapping
 

@@ -254,52 +254,19 @@ if testname == 'test_oscillator_controlled':
     inputSignalsMapping[ U ] = 1.0
 
 
+compileResults = dy.compile_current_system(outputSignals)
 
-
-
-
-dy.get_simulation_context().ShowBlocks()
-
-
-print()
-print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
-print()
-dy.get_simulation_context().CompileConnections()
-
-print()
-print(Style.BRIGHT + "-------- print datatypes --------")
-print()
-
-dy.get_simulation_context().ShowBlocks()
-
-print()
-print(Style.BRIGHT + "-------- export graph --------")
-print()
-
-graph = dy.get_simulation_context().exportGraph()
-
-with open( os.path.join(  'generated/graph.json' ), 'w') as outfile:  
-    json.dump(graph, outfile)
-
-#
-# compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
-# at runtime.
-#
-
-compiler = dy.CompileDiagram()
-commandToExecute = compiler.compile( dy.get_simulation_context(), outputSignals )
+# compleResults.commandToExecute
+# compleResults.manifest
 
 
 #
 # Build an executable based on a template
 #
 
+# runtimeCodeTemplate = PutBasicRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
 
-
-# runtimeCodeTemplate = PutBasicRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
-
-runtimeCodeTemplate = dy.WasmRuntimeCpp(commandToExecute, inputSignalsMapping=inputSignalsMapping)
-
+runtimeCodeTemplate = dy.WasmRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
 
 #
 # list all execution lists
@@ -309,7 +276,7 @@ print()
 print(Style.BRIGHT + "-------- List all execution commands  --------")
 print()
 
-commandToExecute.printExecution()
+compileResults.commandToExecute.printExecution()
 
 #
 # generate c++ cpde
