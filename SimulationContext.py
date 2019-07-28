@@ -19,8 +19,12 @@ def pop_simulation_context():
     global current_simulation_context
 
     old_context = simulation_stack.pop()
-    new_context = simulation_stack[-1]
-    
+
+    if not len(simulation_stack) == 0:
+        new_context = simulation_stack[-1]
+    else:
+        new_context = None
+
     current_simulation_context = new_context
 
     return new_context
