@@ -338,6 +338,17 @@ class BuildExecutionPath:
             tabs += '   '
 
 
+        if isinstance(startSignal, SimulationInputSignal):
+
+            # TODO:
+
+            raise BaseException('not implemented')
+
+            # self.dependencySignals.append( startSignal )
+
+            return
+
+
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
             # startSignal was already computed at this level
 

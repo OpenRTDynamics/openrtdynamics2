@@ -8,6 +8,7 @@ from CompileDiagram import *
 from SimulationContext import *
 from CompileDiagram import *
 from SignalInterface import *
+from SystemLibrary import *
 
 print("-- RTDynamics II loaded --")
 

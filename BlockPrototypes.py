@@ -177,6 +177,100 @@ class Dynamic_1To1(BlockPrototype):
 
 
 
+#
+# To include a sub-system by passing a manifest
+#
+# manifest['api_name']
+#
+
+# STOPPED HERE
+
+
+class Subsystem(BlockPrototype):
+    def __init__(self, sim : Simulation, manifest, inputSignals ):
+        # intputSignals is a hash array
+        #
+        # intputSignals = {'in1': in1, 'in2', : in2}
+
+        # self.inputSignals = inputSignals
+        self.manifest = manifest
+
+
+#        self.inutsToUpdateStates = manifest...
+
+        def collectDependingSignals(signals, manifestFunctionInputs):
+            # collect all depending input signals (that are needed to calculate the output) in a list
+            # MOVE TO A FUNCTION. MAYBE MOVE TO MANIFEST.PY
+            dependingInputs = []
+            for i in range( len(manifest.io.inputs.calculate_output.names) ):
+
+                dependingInput_name = manifestFunctionInputs.names[i]
+                dependingInput_cpptype = manifestFunctionInputs.cpptypes[i]
+
+                # TODO: CHECK FOR FAILING LOOKUP
+                signal = signals[ dependingInput_name ]
+
+                # check datatype (NOTE: MOVE.. not possible here in the contructor)
+                if not signal.getDatatype.cppDataType == dependingInput_cpptype:
+                    raise BaseException('datatype does not match the one specified in the manifest. (' + (dependingInput_cpptype) + ' is required in the manifest)' )
+
+                # append signal
+                dependingInputs.append( signal ) 
+
+            return dependingInputs
+
+
+
+
+
+        # collect all depending input signals (that are needed to calculate the output) in a list
+        self.dependingInputs = collectDependingSignals( inputSignals, manifest.io.inputs.calculate_output )
+
+        # collect all inputs required to perform the state update
+        self.inutsToUpdateStates = collectDependingSignals( inputSignals, manifest.io.inputs.state_update )
+
+
+
+
+        # if len(self.dependingInputs) != len():
+        #     raise BaseException('Number of input signals does not match the number given in the manifest.')
+
+#        self.outputTypes = manifest...
+
+#        Noutputs = manifest...
+
+        Noutputs = 1
+
+        BlockPrototype.__init__(self, sim, inputSignals, Noutputs)
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # the datatypes are fixed in the manifest 
+
+        return self.outputTypes        
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # no (direct feedtrough) dependence on any input - only state dependent
+        return self.inputSignals
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return self.inutsToUpdateStates
+
+    @property
+    def outputSignals(self):
+        # return the output signals
+
+        return self.outputSignal(0)
+
+    def codeGen_localvar(self, language):
+        if language == 'c++':
+            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+
+
+
 
 #
 # Sources

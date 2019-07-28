@@ -1,6 +1,7 @@
 from ExecutionCommands import *
 from SystemManifest import *
 from CompileDiagram import CompileResults
+from SystemLibrary import *
 
 import subprocess
 import os
@@ -19,10 +20,22 @@ class PutRuntimeCppHelper:
         self.compileResults = compileResults
         self.mainSimulation = compileResults.commandToExecute
 
+        # list of inlcuded system
+        self._includedSystems = []
+
+    def include_systems(self, system : SystemLibrary):
+        self._includedSystems = system
+
     def codeGen(self):
 
+        simulationCode = ''
+
+        # combine (concatenate) the code from the library entries
+        for include in self._includedSystems:
+            simulationCode += include.sourceCode
+
         # build the code for the implementation
-        simulationCode = self.mainSimulation.codeGen('c++', 'code')
+        simulationCode += self.mainSimulation.codeGen('c++', 'code')
 
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes

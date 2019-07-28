@@ -7,14 +7,15 @@ from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
 
+
+
 #
 # Enter a new system (simulation)
 #
 sim = dy.enter_system('simulation')
 
-# example
-# u = dy.const(123, datatype=dy.DataTypeFloat(1) )
-
+# list to collect systems importd from libraries
+libraryEntries = []
 
 
 
@@ -26,10 +27,6 @@ def firstOrder( u : dy.Signal, z_inf, name : str):
     y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
     yFb.setequal( y )
-
-    # inherit datatype
-    #i.setDatatype( u.getDatatype() )
-    #s.deriveDatatypeFrom(u)
 
     return y
 
@@ -77,7 +74,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled'
+testname = 'test_oscillator' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -86,18 +83,11 @@ if testname == 'test1':
     baseDatatype = dy.DataTypeFloat(1) 
     # baseDatatype = DataTypeInt32(1) 
 
-
-    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
     U = dy.system_input( baseDatatype ).setName('extU')
-
-    # y = firstOrder(sim, U, 0.2, name="1")
-    # y = firstOrder(sim, y, 0.2, name="2")
-    # y = firstOrder(sim, y, 0.2, name="3")
 
     y1 = firstOrderAndGain( U, 0.2, gain=0.8, name="1")
     y2 = firstOrderAndGain( y1, 0.2, gain=0.8, name="2")
     y3 = firstOrderAndGain( y2, 0.2, gain=0.8, name="3")
-
 
     E1 = dy.system_input( baseDatatype ).setName('extE1')
     E2 = dy.system_input( baseDatatype ).setName('extE2')
@@ -118,12 +108,8 @@ if testname == 'test1':
 if testname == 'test_integrator':
 
     baseDatatype = dy.DataTypeFloat(1) 
-    # baseDatatype = DataTypeInt32(1) 
 
-
-    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
     U = dy.system_input( baseDatatype ).setName('extU')
-
 
     y1 = dInt( U,  name="int1")
     y2 = dInt( y1, name="int2")
@@ -132,39 +118,29 @@ if testname == 'test_integrator':
     y5 = dInt( y4, name="int5")
     y6 = dInt( y5, name="int6")
 
-
     # define the outputs of the simulation
     outputSignals = [  y6 ]
 
     # specify what the input signals shall be in the runtime
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
-    
-
 
 if testname == 'test_oscillator':
 
     baseDatatype = dy.DataTypeFloat(1) 
-    # baseDatatype = DataTypeInt32(1) 
 
-
-    #U = dyn_const(sim, 1.123, baseDatatype ).setNameOfOrigin('U (const)').setName('U')
     U = dy.system_input( baseDatatype ).setName('extU')
 
-    xFb = dy.signal()
-    vFb = dy.signal()
+    x = dy.signal()
+    v = dy.signal()
 
-    acc = dy.add( [ U, vFb, xFb ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+    acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
 
-    v = eInt( acc, Ts=0.1, name="intV")
-    x = eInt( v, Ts=0.1, name="intX")
-
-    xFb << x
-    vFb << v
-    
+    v << eInt( acc, Ts=0.1, name="intV")
+    x << eInt( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
-    outputSignals = [  x,v ]
+    outputSignals = [ x, v ]
 
     # specify what the input signals shall be in the runtime
     inputSignalsMapping = {}
@@ -172,6 +148,10 @@ if testname == 'test_oscillator':
 
 
 if testname == 'test_oscillator_controlled':
+
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
+
 
     baseDatatype = dy.DataTypeFloat(1) 
 
@@ -225,8 +205,6 @@ if testname == 'test_oscillator_controlled':
     fancyVariable = controlVar - dy.const( 2.5, baseDatatype ) / dy.const( 1.5, baseDatatype )
 
     # plant starts here
-    # U = dy.gain( controlVar, 1.0 )
-    # U = dy.sin( U )
     U = controlVar
 
     x = dy.signal()
@@ -235,15 +213,11 @@ if testname == 'test_oscillator_controlled':
     acc = dy.add( [ U, v, x ], [ 1, -1.1, -0.1 ] ).setNameOfOrigin('acceleration model')
 
     v << eInt( acc, Ts=0.1, name="intV").setName('x')
-    x_tmp = eInt( v, Ts=0.1, name="intX").setName('v')
+    x << eInt( v, Ts=0.1, name="intX").setName('v')
 
-    # # close feedback loops
-    x << x_tmp
-    # v << v_tmp
-
-    #
-    controlledVariableFb << x # TODO: This fails
-
+    # x is the controlled variable
+    controlledVariableFb << x
+    
     # define the outputs of the simulation
     x.setName('x')
     v.setName('v')
@@ -251,22 +225,40 @@ if testname == 'test_oscillator_controlled':
 
     # specify what the input signals shall be in the runtime
     inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    inputSignalsMapping[ reference ] = 1.0
+    inputSignalsMapping[ Kp ] = 0.3
+    inputSignalsMapping[ Kd ] = 0.3
+    inputSignalsMapping[ Ki ] = 0.3
+
+if testname == 'test_oscillator_from_lib_controlled':
+    # import TestLibray as TestLibray
+    # libraryEntries.append( TestLibray.oscillator )
 
 
+    baseDatatype = dy.DataTypeFloat(1) 
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
+
+    outputSignals = [ x1 ]
+
+
+    # TestLibray.oscillator
+
+
+
+# Compile system (propagate datatypes)
 compileResults = dy.compile_current_system(outputSignals)
-
-# compleResults.commandToExecute
-# compleResults.manifest
 
 
 #
 # Build an executable based on a template
 #
 
-# runtimeCodeTemplate = PutBasicRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
-
 runtimeCodeTemplate = dy.WasmRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
+
+# add (pre-compiled) systems from the libraries
+runtimeCodeTemplate.include_systems( libraryEntries )
 
 #
 # list all execution lists
@@ -296,9 +288,11 @@ print()
 print(json.dumps(manifest, indent=4, sort_keys=True))
 
 
-#
+# write generated code into a folder and build
 runtimeCodeTemplate.writeCode("generated/")
 runtimeCodeTemplate.build()
 
+# run the code (in case the runtime template supports it)
 results = runtimeCodeTemplate.run()
+
 
