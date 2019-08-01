@@ -186,7 +186,7 @@ class Dynamic_1To1(BlockPrototype):
 # STOPPED HERE
 
 
-class Subsystem(BlockPrototype):
+class GenericSubsystem(BlockPrototype):
     def __init__(self, sim : Simulation, manifest, inputSignals ):
         # intputSignals is a hash array
         #
@@ -202,16 +202,19 @@ class Subsystem(BlockPrototype):
             # collect all depending input signals (that are needed to calculate the output) in a list
             # MOVE TO A FUNCTION. MAYBE MOVE TO MANIFEST.PY
             dependingInputs = []
-            for i in range( len(manifest.io.inputs.calculate_output.names) ):
+            for i in range( len(manifestFunctionInputs['names']) ):
 
-                dependingInput_name = manifestFunctionInputs.names[i]
-                dependingInput_cpptype = manifestFunctionInputs.cpptypes[i]
+                dependingInput_name = manifestFunctionInputs['names'][i]
+                dependingInput_type = manifestFunctionInputs['types'][i]
+                dependingInput_cpptype = manifestFunctionInputs['cpptypes'][i]
+
+                
 
                 # TODO: CHECK FOR FAILING LOOKUP
                 signal = signals[ dependingInput_name ]
 
                 # check datatype (NOTE: MOVE.. not possible here in the contructor)
-                if not signal.getDatatype.cppDataType == dependingInput_cpptype:
+                if not signal.getDatatype().cppDataType == dependingInput_cpptype:
                     raise BaseException('datatype does not match the one specified in the manifest. (' + (dependingInput_cpptype) + ' is required in the manifest)' )
 
                 # append signal
@@ -224,50 +227,63 @@ class Subsystem(BlockPrototype):
 
 
         # collect all depending input signals (that are needed to calculate the output) in a list
-        self.dependingInputs = collectDependingSignals( inputSignals, manifest.io.inputs.calculate_output )
+        self.dependingInputs = collectDependingSignals( inputSignals, manifest.io_inputs['calculate_output'] )
 
         # collect all inputs required to perform the state update
-        self.inutsToUpdateStates = collectDependingSignals( inputSignals, manifest.io.inputs.state_update )
+        self.inputsToUpdateStates = collectDependingSignals( inputSignals, manifest.io_inputs['state_update'] )
 
 
+        # combine all inputs to a list
+        self.allInputs = []
+        self.allInputs.extend( self.dependingInputs )
+        self.allInputs.extend( self.inputsToUpdateStates )
+
+        # the number of outputs
+        self.outputTypes = manifest.io_outputs['calculate_output']['types']  
+        Noutputs = len( manifest.io_outputs['calculate_output']['names'] )
+
+        BlockPrototype.__init__(self, sim, self.allInputs, Noutputs)
 
 
-        # if len(self.dependingInputs) != len():
-        #     raise BaseException('Number of input signals does not match the number given in the manifest.')
+        # self.outputSignals
 
-#        self.outputTypes = manifest...
-
-#        Noutputs = manifest...
-
-        Noutputs = 1
-
-        BlockPrototype.__init__(self, sim, inputSignals, Noutputs)
+        # self._outputSignals
 
     def configDefineOutputTypes(self, inputTypes):
 
         # the datatypes are fixed in the manifest 
-
         return self.outputTypes        
 
     def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
 
-        # no (direct feedtrough) dependence on any input - only state dependent
-        return self.inputSignals
+        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
+        #       (Every output depends on every signal in self.dependingInputs)
+
+        return self.dependingInputs
 
     def returnInutsToUpdateStates(self, outputSignal):
+ 
         # return a list of input signals that are required to update the states
-        return self.inutsToUpdateStates
+        return self.inputsToUpdateStates
 
     @property
     def outputSignals(self):
         # return the output signals
 
-        return self.outputSignal(0)
+        return self._outputSignals
 
     def codeGen_localvar(self, language):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            return ''
+            # self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+
+
+
+
+def generic_subsystem( manifest, inputSignals : List[Signal] ):
+    return GenericSubsystem(get_simulation_context(), manifest, inputSignals).outputSignals
+
+
 
 
 

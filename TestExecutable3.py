@@ -74,7 +74,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -146,6 +146,28 @@ if testname == 'test_oscillator':
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
 
+if testname == 'test_oscillator_with_modulation':
+
+    baseDatatype = dy.DataTypeFloat(1) 
+
+    U = dy.system_input( baseDatatype ).setName('extU')
+    damping = dy.system_input( baseDatatype ).setName('dampling')
+    spring = dy.system_input( baseDatatype ).setName('spring')
+
+    x = dy.signal()
+    v = dy.signal()
+
+    acc = U - damping * v - spring * x # TODO: make this work
+
+    v << eInt( acc, Ts=0.1, name="intV")
+    x << eInt( v, Ts=0.1, name="intX")
+
+    # define the outputs of the simulation
+    outputSignals = [ x, v ]
+
+    # specify what the input signals shall be in the runtime
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
 
 if testname == 'test_oscillator_controlled':
 
@@ -230,21 +252,36 @@ if testname == 'test_oscillator_controlled':
     inputSignalsMapping[ Kd ] = 0.3
     inputSignalsMapping[ Ki ] = 0.3
 
-if testname == 'test_oscillator_from_lib_controlled':
-    # import TestLibray as TestLibray
-    # libraryEntries.append( TestLibray.oscillator )
-
+if testname == 'basic':  # TODO: make this work
 
     baseDatatype = dy.DataTypeFloat(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
+    x1 = dy.delay(U)
 
     outputSignals = [ x1 ]
 
 
-    # TestLibray.oscillator
+if testname == 'test_oscillator_from_lib':
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
 
+    baseDatatype = dy.DataTypeFloat(1) 
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+
+    x = outputSignals[0]
+    v = outputSignals[1]
+
+#    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
+
+    outputSignals = [ x, v ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
+    # TestLibray.oscillator
 
 
 # Compile system (propagate datatypes)

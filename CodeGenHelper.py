@@ -58,6 +58,13 @@ def signalListHelper_typeNames(signals):
 
     return typeNames
 
+def signalListHelper_types(signals):
+    types = []
+
+    for s in signals:
+        types.append( s.getDatatype() )
+
+    return types
 
 def signalListHelper_CppVarDefStr(signals):
     vardefStr = []  # e.g. double y

@@ -17,15 +17,14 @@ class BlockPrototype:
 
     def __init__(self, sim, inputSignals, nOutputs ):
 
-        block = Block(sim, self, inputSignals, blockname = '')
+        self.block = Block(sim, self, inputSignals, blockname = '')
 
-        outputSignals = []
+        self._outputSignals = []
         for i in range(0,nOutputs):
-            outputSignals.append( BlockOutputSignalUser(sim, None, block, sourcePort=i  ) )
+            self._outputSignals.append( BlockOutputSignalUser(sim, None, self.block, sourcePort=i  ) )
 
-        block.configOutputSignals( outputSignals )
+        self.block.configOutputSignals( self._outputSignals )
 
-        self.block = block
 
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
@@ -36,6 +35,10 @@ class BlockPrototype:
     #
     # The derived classes shall use these shortcuts to access the I/O signals
     #
+
+    @property
+    def outputSignals(self):
+        return self._outputSignals
 
     # get a signal of a specific output port
     def outputSignal(self, port):

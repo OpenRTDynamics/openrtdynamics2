@@ -16,9 +16,9 @@ ORTD_DATATYPE_UINT8 = 11
 
 
 
-class DataType:
+class DataType(object):
     #
-    # TODO: feature: add type of datype: 1) 'C++', 'ORTD (old)', 'ORTD (V2)' + optional 'is reference flag' 
+    # TODO: feature: add type of datype: 1) 'C++', 'ORTD (V2)' + optional 'is reference flag' 
     #
     #
     #
@@ -67,6 +67,7 @@ class DataType:
     @property
     def cppDataType(self):
         return 'UNDEF (prototype)'
+
 
     @property
     def cppPrintfPattern(self):

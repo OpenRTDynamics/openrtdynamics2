@@ -30,6 +30,16 @@ from CodeGenHelper import *
 #         manifest['api_name'] = self.api_name
 
     
+def makeSignalDescription(signals, json : bool):
+    signalDescription = {}
+    signalDescription['names'] = signalListHelper_names(signals)
+    signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
+
+    if not json:
+        # types will not be available when exported to JSON
+        signalDescription['types'] = signalListHelper_types(signals)
+
+    return signalDescription
 
 
 class SystemManifest(object):
@@ -41,45 +51,50 @@ class SystemManifest(object):
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
         
-        self.manifest = {}
-        self.manifest['api_name'] = self.mainSimulation.getAPI_name()
+        self.API_functionNames = self.mainSimulation.API_functionNames
+        self.API_functions = self.mainSimulation.API_functions
 
-        API_functionNames = self.mainSimulation.API_functionNames
-        API_functions = self.mainSimulation.API_functions
-
-        self.manifest['api_functions'] = API_functionNames # remove
 
         # I/O
-        self.manifest['io'] = {}
-        self.manifest['io']['outputs'] = {}
-        self.manifest['io']['inputs'] = {}
+        self._io_inputs = {}
+        self._io_outputs = {}
 
         #
-        # make strings 
+        # make strings
         # 
 
-        def makeSignalDescription(signals):
-            signalDescription = {}
-            signalDescription['names'] = signalListHelper_names(signals)
-            signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
 
-            return signalDescription
-
-        for functionExportName, API_command in API_functions.items():
-
-             self.manifest['io']['inputs'][functionExportName] = makeSignalDescription( API_command.inputSignals )
-             self.manifest['io']['outputs'][functionExportName] = makeSignalDescription( API_command.outputSignals )
+        for functionExportName, API_command in self.API_functions.items():
+             self._io_inputs[functionExportName] = makeSignalDescription( API_command.inputSignals, json=False )
+             self._io_outputs[functionExportName] = makeSignalDescription( API_command.outputSignals, json=False )
 
 
-        # # for the output signals
-        # self.manifest['io']['outputs']['calculate_output'] = makeSignalDescription( self.mainSimulation.outputCommand.outputSignals )
+    @property
+    def io_inputs(self):
+        return self._io_inputs
 
-        # # the inputs to the output command
-        # self.manifest['io']['inputs']['calculate_output']  = makeSignalDescription( self.mainSimulation.outputCommand.inputSignals )
-
-        # # the inputs to the update command
-        # self.manifest['io']['inputs']['state_update']      = makeSignalDescription( self.mainSimulation.updateCommand.inputSignals )
+    @property
+    def io_outputs(self):
+        return self._io_outputs
+    
 
 
     def export_json(self):
+        self.manifest = {}
+        self.manifest['api_name'] = self.mainSimulation.getAPI_name()
+        self.manifest['api_functions'] = self.API_functionNames
+
+        # I/O
+        io_inputs = {}
+        io_outputs = {}
+
+        for functionExportName, API_command in self.API_functions.items():
+             io_inputs[functionExportName] = makeSignalDescription( API_command.inputSignals, json=True )
+             io_outputs[functionExportName] = makeSignalDescription( API_command.outputSignals, json=True )
+
+
+        self.manifest['io'] = {}
+        self.manifest['io']['outputs'] = io_outputs
+        self.manifest['io']['inputs'] = io_inputs
+
         return self.manifest
