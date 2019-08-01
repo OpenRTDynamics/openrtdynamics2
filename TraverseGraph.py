@@ -338,15 +338,10 @@ class BuildExecutionPath:
             tabs += '   '
 
 
-        if isinstance(startSignal, SimulationInputSignal):
-
-            # TODO:
-
-            raise BaseException('not implemented')
-
-            # self.dependencySignals.append( startSignal )
-
-            return
+        if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
+            
+            # this case must be an error..                  
+            raise BaseException('not implemented or internal error: unexpected type of signal' + startSignal.getName())
 
 
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
@@ -372,14 +367,32 @@ class BuildExecutionPath:
 
             self.dependencySignals.append( startSignal )
 
-
             return
-
-
 
         # mark the node visited
         startSignal.graphTraversionMarkerMarkVisited(self.level)
         self.markedSignals.append(startSignal)
+
+
+
+
+
+        # check if the signal is a system input signal
+        if isinstance(startSignal, SimulationInputSignal):
+            # signal is an input to the simulation
+            # add to the list of dependent inputs
+
+            # startSignal is at the top of the tree, so add it to the dependiencies
+            self.dependencySignals.append( startSignal )
+
+            # also add startSignal to the execution list
+            self.reachableSignals.append( startSignal ) 
+
+            return
+
+            
+
+
 
 
         # find out the links to other signals but only these ones that are 
@@ -399,40 +412,27 @@ class BuildExecutionPath:
             # also add startSignal to the execution list
             self.reachableSignals.append( startSignal )
 
-        else:
-            #
-            # store startSignal as reachable (put it on the exeution list)
-            # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
-            #       from this list. However, it is still in the list of dependencySignals.
-            #
-
-            print(Style.DIM + tabs + "added " + startSignal.toStr())
-            self.reachableSignals.append( startSignal )
-
-            # go through all signals needed to calculate startSignal
-            for signal in dependingSignals:
-                # for each input signal that is needed to compute 'startSignal'
+            return
 
 
-                print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
-                if isinstance(signal, SimulationInputSignal):
-                    
-                    # signal is an input to the simulation
-                    # add to the list of dependent inputs
+        #
+        # store startSignal as reachable (put it on the exeution list)
+        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+        #       from this list. However, it is still in the list of dependencySignals.
+        #
 
-                    # startSignal is at the top of the tree, so add it to the dependiencies
-                    self.dependencySignals.append( signal )
+        print(Style.DIM + tabs + "added " + startSignal.toStr())
+        self.reachableSignals.append( startSignal )
 
-                    # also add startSignal to the execution list
-                    self.reachableSignals.append( signal ) 
+        # go through all signals needed to calculate startSignal
+        for signal in dependingSignals:
+            # for each input signal that is needed to compute 'startSignal'
 
-                elif isinstance(signal, BlockOutputSignal):
-                    self.backwardTraverseSignalsExec__( signal, startSignalPrevious, depthCounter = depthCounter + 1 )
 
-                else:
+            print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
-                    # this case must be an error..                  
-                    print(tabs + '-- ERROR: no input signal defined for signal ' + signal.getName() + ' ! --')
+            self.backwardTraverseSignalsExec__( signal, startSignalPrevious, depthCounter = depthCounter + 1 )
+
 
 
