@@ -22,7 +22,7 @@ class Node:
 class TraverseGraph:
     # TODO: rename to TraverseBlocks
 
-    # NOTE: THis is currently nor needed but might be userd in the future for sth...
+    # NOTE: THis is currently not needed but might be userd in the future for sth...
 
     def __init__(self): #blockList : List[ Block ]
 
@@ -162,11 +162,7 @@ class TraverseGraph:
             if signal.getSourceBlock() is None:
                 print(tabs + '-- ERROR: no input signal defined for this block! --')
                 
-
             else:
-
-                # 
-
 
                 print( tabs + "*", signal.getSourceBlock().getName(), "(", signal.getSourceBlock().getBlockId(), ")"  )
 
@@ -214,15 +210,6 @@ class ExecutionLine():
 
 
     def appendExecutionLine(self, executionLineToAppend):
-
-        # check if executionLineToAppend.dependencySignals are all in either self.signalOrder
-        # or self.dependencySignals
-
-        #for s in executionLineToAppend.dependencySignals:
-        #    if not s in self.dependencySignals or not s in self.dependencySignals:
-        #        raise BaseException("execution line cannot be appeded because the signal " + s.toStr() + " depends on signal not computed by the previous list")
-
-
 
         # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
         # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
@@ -303,7 +290,7 @@ class BuildExecutionPath:
         self.dependencySignals = []
 
         #self.backwardTraverseSignalsExec(signalToCalculte)
-        self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, startSignalPrevious = None, depthCounter = 0)
+        self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
 
         # reverse of the list of reacheable signals gives the order of calculating the individual signals
         self.reachableSignals.reverse()
@@ -311,9 +298,7 @@ class BuildExecutionPath:
         #
         self.level = self.level + 1
 
-
         return ExecutionLine( self.reachableSignals, self.dependencySignals )
-
 
     def printExecutionLine(self):
         pass
@@ -331,7 +316,7 @@ class BuildExecutionPath:
         return signal.graphTraversionMarkerMarkIsVisited()
 
     # Start backward traversion starting from the given startSignal
-    def backwardTraverseSignalsExec__(self, startSignal : Signal, startSignalPrevious : Signal, depthCounter : int):
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int):
         
         tabs = ''
         for i in range(0, depthCounter):
@@ -373,6 +358,14 @@ class BuildExecutionPath:
         startSignal.graphTraversionMarkerMarkVisited(self.level)
         self.markedSignals.append(startSignal)
 
+        #
+        # store startSignal as reachable (put it on the exeution list)
+        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+        #       from this list. However, it is still in the list of dependencySignals.
+        #
+
+        print(Style.DIM + tabs + "added " + startSignal.toStr())
+        self.reachableSignals.append( startSignal )
 
 
 
@@ -385,14 +378,9 @@ class BuildExecutionPath:
             # startSignal is at the top of the tree, so add it to the dependiencies
             self.dependencySignals.append( startSignal )
 
-            # also add startSignal to the execution list
-            self.reachableSignals.append( startSignal ) 
-
             return
 
             
-
-
 
 
         # find out the links to other signals but only these ones that are 
@@ -402,37 +390,24 @@ class BuildExecutionPath:
         dependingSignals = startSignal.getSourceBlock().getBlockPrototype().returnDependingInputs(startSignal)
 
         if len(dependingSignals) == 0:
-            # no dependencies to calculate startSignal
+            # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
 
             # block startSignal.getSourceBlock() --> startSignal is a starting point
 
             # startSignal is at the top of the tree, so add it to the dependiencies
             self.dependencySignals.append( startSignal )
 
-            # also add startSignal to the execution list
-            self.reachableSignals.append( startSignal )
-
             return
 
 
 
-        #
-        # store startSignal as reachable (put it on the exeution list)
-        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
-        #       from this list. However, it is still in the list of dependencySignals.
-        #
-
-        print(Style.DIM + tabs + "added " + startSignal.toStr())
-        self.reachableSignals.append( startSignal )
 
         # go through all signals needed to calculate startSignal
         for signal in dependingSignals:
-            # for each input signal that is needed to compute 'startSignal'
-
 
             print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
 
-            self.backwardTraverseSignalsExec__( signal, startSignalPrevious, depthCounter = depthCounter + 1 )
+            self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
 
 
 
