@@ -17,7 +17,7 @@ class Signal(object):
         
         # the fixed and final datatype of this signals either as a result of the datatype determination phase
         # or manually fixed.
-        self.datatype = datatype
+        self._datatype = datatype
 
         # datatype proposal that may be filled out during the datatype determination phase
         self.proposedDatatype = None
@@ -28,7 +28,7 @@ class Signal(object):
 
         # give this signal a unique default name
         # (NOTE: the name will be set by the derived classes)
-        # self.name = None # 's' + str(sim.getNewSignalId())
+        self._name = 'undef'
 
         self._nameIsDefault = True
 
@@ -68,7 +68,7 @@ class Signal(object):
 
     # set the name of this signal
     def setName(self, name):
-        self.lookupSource().name = name
+        self.lookupSource()._name = name
 
         # indicate that this Signal has a specified name (not a default/auto-generated name)
         self._nameIsDefault = False
@@ -76,14 +76,18 @@ class Signal(object):
         return self
 
     def getName(self):
-        return self.lookupSource().name
+        return self.lookupSource()._name
+
+    @property
+    def name(self):
+        return self.lookupSource()._name
 
     def toStr(self):
         ret = ''
-        ret += self.lookupSource().name
+        ret += self.name
 
-        if self.lookupSource().datatype is not None:
-            ret += " (" + self.lookupSource().datatype.toStr() + ")"
+        if self.datatype is not None:
+            ret += " (" + self.datatype.toStr() + ")"
         else:
             ret += " (undef datatype)"
 
@@ -105,24 +109,28 @@ class Signal(object):
         return self.lookupSource().destinationBlocks
 
     def getDatatype(self):
-        return self.lookupSource().datatype
+        return self.lookupSource()._datatype
+
+    @property
+    def datatype(self):
+        return self.lookupSource()._datatype
 
     def setDatatype(self, datatype):
-        self.lookupSource().datatype = datatype
+        self.lookupSource()._datatype = datatype
 
         # notify the change of the datatype
         self.sim.datatypePropagation.notifySignal(self)
 
     def fixDatatype(self):
         # this shall explicitely not trigger a notification!
-        self.lookupSource().datatype = self.lookupSource().proposedDatatype
+        self.lookupSource()._datatype = self.lookupSource().proposedDatatype
 
     def getProposedDatatype(self):
         return self.lookupSource().proposedDatatype
 
     def setProposedDatatype(self, proposedDatatype):
         # only proceed if the datatype of this signals is not already fixed
-        if self.lookupSource().datatype is None:
+        if self.lookupSource()._datatype is None:
 
             # only proceed of the prosed datatype is diffent to the stored one
             # or the stored type is None (not set before)
@@ -144,17 +152,18 @@ class Signal(object):
 
 
     def setNameOfOrigin(self, name):
-        if not self.lookupSource().sourceBlock is None:
-            self.lookupSource().sourceBlock.setName(name)
+        if not self.lookupSource().getSourceBlock() is None:
+            self.lookupSource().getSourceBlock().setName(name)
 
         return self
 
     def ShowOrigin(self):
-        if not self.lookupSource().sourcePort is None and not self.lookupSource().sourceBlock is None:
-            print("Signal >" + self.name + "< origin: port " + str(self.lookupSource().sourcePort) + " of block #" + str(self.lookupSource().sourceBlock.getId()) )
+        pass
+        # if not self.lookupSource().sourcePort is None and not self.lookupSource().sourceBlock is None:
+        #     print("Signal >" + self.name + "< origin: port " + str(self.lookupSource().sourcePort) + " of block #" + str(self.lookupSource().sourceBlock.getId()) )
 
-        else:
-            print("Signal >" + self.name + "< origin not defined (so far)")
+        # else:
+        #     print("Signal >" + self.name + "< origin not defined (so far)")
 
 
 
@@ -194,7 +203,7 @@ class UndeterminedSignal(Signal):
         # this fake-signal
 
         # name undefined. Once connected to a block output the name is defined
-        self.name = 'anonymous'
+        self._name = 'anonymous'
         self.linkedSignal = self
         self.nameProposal = None
 
@@ -278,7 +287,7 @@ class BlockOutputSignal(Signal):
     def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
 
         # give this signal a unique default name
-        self.name = 's' + str(sim.getNewSignalId())
+        self._name = 's' + str(sim.getNewSignalId())
         
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
@@ -303,7 +312,7 @@ class SimulationInputSignal(Signal):
         # give this signal a unique default name
         # TODO: This shall be overwritten anyways by the user, so maybe this can be removed (or maybe not in case it is 
         # used to auto-generate sub-systems)
-        self.name = 's' + str(sim.getNewSignalId())
+        self._name = 's' + str(sim.getNewSignalId())
 
         Signal.__init__(self, sim, datatype=datatype)
 

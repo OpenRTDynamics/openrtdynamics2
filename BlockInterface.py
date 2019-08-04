@@ -92,7 +92,7 @@ class BlockPrototype:
     def codeGen_defStates(self, language):
         return ''
 
-    def codeGen_localvar(self, language):
+    def codeGen_localvar(self, language, signal : Signal):
         return ''
         
     def codeGen_constructor(self, language):
@@ -101,7 +101,7 @@ class BlockPrototype:
     def codeGen_destructor(self, language):
         return ''
         
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
         return ''
         
     def codeGen_update(self, language):

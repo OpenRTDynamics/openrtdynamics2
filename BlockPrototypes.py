@@ -79,9 +79,9 @@ class StaticFn_1To1(BlockPrototype):
 
         return self.outputSignal(0)
 
-    def codeGen_localvar(self, language):
+    def codeGen_localvar(self, language, signal : Signal):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
 
 
 
@@ -132,9 +132,10 @@ class StaticFn_NTo1(BlockPrototype):
 
         return output
 
-    def codeGen_localvar(self, language):
+    def codeGen_localvar(self, language, signal):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
 
 
 
@@ -172,9 +173,10 @@ class Dynamic_1To1(BlockPrototype):
 
         return self.outputSignal(0)
 
-    def codeGen_localvar(self, language):
+    def codeGen_localvar(self, language, signal):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
 
 
 
@@ -208,8 +210,6 @@ class GenericSubsystem(BlockPrototype):
                 dependingInput_name = manifestFunctionInputs['names'][i]
                 dependingInput_type = manifestFunctionInputs['types'][i]
                 dependingInput_cpptype = manifestFunctionInputs['cpptypes'][i]
-
-                
 
                 # TODO: CHECK FOR FAILING LOOKUP
                 signal = signals[ dependingInput_name ]
@@ -282,16 +282,26 @@ class GenericSubsystem(BlockPrototype):
             return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('reset') +  '();\n'
 
 
-    def codeGen_localvar(self, language):
+    def codeGen_localvar(self, language, signal):
         # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
         if language == 'c++':
-            return cgh.defineVariables( self.outputSignals )
+            if signal is self.outputSignals[0]:
+                return cgh.defineVariables( self.outputSignals )
 
-    def codeGen_output(self, language):
+            else:
+                return ''
+
+            # return cgh.defineVariables( [ signal ] )
+
+    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            
-            # input to this call are the signals in self.dependingInputs
-            return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+
+            if signal is self.outputSignals[0]:
+                # input to this call are the signals in self.dependingInputs
+                return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+
+            else:
+                return ''
 
     def codeGen_update(self, language):
         if language == 'c++':
@@ -299,23 +309,6 @@ class GenericSubsystem(BlockPrototype):
             # input to this call are the signals in self.inputsToUpdateStates
             return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
 
-
-
-    # def codeGen_defStates(self, language):
-    #     if language == 'c++':
-    #         return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
-
-    # def codeGen_output(self, language):
-    #     if language == 'c++':
-    #         return self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
-
-    # def codeGen_update(self, language):
-    #     if language == 'c++':
-    #         return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
-
-    # def codeGen_reset(self, language):
-    #     if language == 'c++':
-    #         return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
 
 
 
@@ -341,11 +334,13 @@ class Const(Source_To1):
 
     def codeGen_localvar(self, language):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            return self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
+            # return self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
+            return signal.name + ' = ' + str( self.constant ) + ';\n'
 
 def dyn_const(sim : Simulation, constant, datatype ):
     return Const(sim, constant, datatype).outputSignals
@@ -367,9 +362,10 @@ class Gain(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            return self.outputSignal(0).getName() + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).getName() +  ';\n'
+            # return self.outputSignal(0).getName() + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).getName() +  ';\n'
+            return signal.name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
 
 def dyn_gain(sim : Simulation, u : Signal, gain : float ):
     return Gain(sim, u, gain).outputSignals
@@ -393,7 +389,7 @@ class Add(StaticFn_NTo1):
         self.factors = factors
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
 
         if language == 'c++':
             strs = []
@@ -403,7 +399,7 @@ class Add(StaticFn_NTo1):
                 i = i + 1
 
             sumline = ' + '.join( strs )
-            lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
+            lines = signal.name + ' = ' + sumline + ';\n'
 
             return lines
 
@@ -420,7 +416,7 @@ class Operator1(StaticFn_NTo1):
         self.operator = operator
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
 
         if language == 'c++':
             strs = []
@@ -430,7 +426,7 @@ class Operator1(StaticFn_NTo1):
                 i = i + 1
 
             sumline = (' ' + self.operator + ' ').join( strs )
-            lines = self.outputSignal(0).getName() + ' = ' + sumline + ';\n'
+            lines = signal.name + ' = ' + sumline + ';\n'
 
             return lines
 
@@ -454,9 +450,9 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            return self.outputSignal(0).getName() + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
+            return signal.name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
 
 
 def dyn_sin(sim : Simulation, u : Signal ):
@@ -486,9 +482,9 @@ class Delay(Dynamic_1To1):
         if language == 'c++':
             return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
-    def codeGen_output(self, language):
+    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            return self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+            return signal.name + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
 
     def codeGen_update(self, language):
         if language == 'c++':

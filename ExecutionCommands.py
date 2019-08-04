@@ -105,10 +105,10 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                         print('output codegen to store the result ' +  s.toStr() )
                         lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar') # TODO: remove
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++')
+                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++')
 
                         # TODO: this should be:
-                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
 
 
 
@@ -123,10 +123,10 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                         print('output codegen to calculate ' +  s.toStr() )
                         lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output') # TODO: remove
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++')
+                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++')
 
                         # TODO: this should be:
-                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++', s)
+                        lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++', s)
 
         return lines
 
