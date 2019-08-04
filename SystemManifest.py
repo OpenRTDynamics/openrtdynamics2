@@ -2,33 +2,6 @@
 from CodeGenHelper import *
 
 
-# class SystemManifest(object):
-
-#     def __init__(self, api_name, api_functions  ):
-#         self.api_name = api_name
-#         self.api_functions = api_functions
-
-#         self.inputs = {}
-#         self.outputs = {}
-
-
-
-#         manifest['io'] = {}
-        
-#         manifest['io']['outputs'] = {}
-#         manifest['io']['inputs'] = {}
-
-#         manifest['io']['outputs']['calculate_output'] = {}
-#         manifest['io']['inputs']['calculate_output'] = {}
-#         manifest['io']['inputs']['state_update'] = {}
-
-#     def exportJSON(self):
-
-#         manifest = {}
-#         manifest['api_functions'] = self.api_functions
-
-#         manifest['api_name'] = self.api_name
-
     
 def makeSignalDescription(signals, json : bool):
     signalDescription = {}
@@ -63,7 +36,6 @@ class SystemManifest(object):
         # make strings
         # 
 
-
         for functionExportName, API_command in self.API_functions.items():
              self._io_inputs[functionExportName] = makeSignalDescription( API_command.inputSignals, json=False )
              self._io_outputs[functionExportName] = makeSignalDescription( API_command.outputSignals, json=False )
@@ -76,6 +48,17 @@ class SystemManifest(object):
     @property
     def io_outputs(self):
         return self._io_outputs
+
+    @property
+    def API_name(self):
+        return self.mainSimulation.getAPI_name()
+
+
+    def getAPIFunctionName(self, identifier : str ):
+        """
+            identifier : one of 'reset', 'calculate_output', 'state_update'
+        """
+        return self.API_functionNames[identifier]
     
 
 

@@ -52,9 +52,9 @@ class PutRuntimeCppHelper:
         # 
 
         def makeStrings(signals):
-            namesCSVList = ', '.join( signalListHelper_names(signals)  )
-            namesVarDef = '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
-            prinfPattern = ' '.join( signalListHelper_printfPattern(signals) )
+            namesCSVList = signalListHelper_names_string(signals)
+            namesVarDef = signalListHelper_CppVarDefStr_string(signals)
+            prinfPattern = signalListHelper_printfPattern_string(signals)
 
             return namesCSVList, namesVarDef, prinfPattern
 
@@ -77,10 +77,14 @@ class PutRuntimeCppHelper:
         inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
 
         # the names of input and output signals of the outputCommand combined
-        calcOutputsArgsList = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals )
-        calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
 
-        calcOutputsArgs = ', '.join( calcOutputsArgsList )
+        # old variant
+        #
+        # calcOutputsArgsList = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals )
+        # calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
+        # calcOutputsArgs = ', '.join( calcOutputsArgsList )
+
+        calcOutputsArgs = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals + self.mainSimulation.outputCommand.inputSignals )
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  

@@ -1,4 +1,6 @@
-
+#
+# Helper functions related to c++ code generation
+#
 
 def tabs(N):
     t = ''
@@ -9,35 +11,10 @@ def tabs(N):
 
 
 
-# def signalListHelper(self, signals):
-#     #
-#     # make strings for the output signals
-#     #
-#     names = []
-#     typeNames = []
-#     vardefStr = []  # e.g. double y
 
-#     printfPatterns = [] 
-
-#     for s in signals:
-#         names.append( s.getName() )
-
-#         typeNames.append( s.getDatatype().cppDataType )
-
-#         # e.g.: double y;
-#         vardefStr.append( s.getDatatype().cppDataType + ' ' + s.getName() + ';' )
-
-#         # e.g. %f
-#         printfPatterns.append( s.getDatatype().cppPrintfPattern )
-
-        
-
-#     # str list of output signals. e.g. 'y1, y2, y3' 
-#     outputNamesCSVList = ', '.join( names )
-#     outputNamesVarDef = ' '.join( vardefStr )
-#     outputPrinfPattern = ' '.join( printfPatterns )
-
-
+#
+#
+#
 
 
 def signalListHelper_names(signals):
@@ -48,6 +25,14 @@ def signalListHelper_names(signals):
 
     return names
 
+def signalListHelper_names_string(signals):
+    return ', '.join( signalListHelper_names(signals)  )
+
+
+
+#
+#
+#
 
 
 def signalListHelper_typeNames(signals):
@@ -66,6 +51,12 @@ def signalListHelper_types(signals):
 
     return types
 
+
+
+#
+#
+#
+
 def signalListHelper_CppVarDefStr(signals):
     vardefStr = []  # e.g. double y
 
@@ -75,12 +66,19 @@ def signalListHelper_CppVarDefStr(signals):
 
     return vardefStr
 
+
+def signalListHelper_CppVarDefStr_string(signals):
+    return '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+
 def defineVariables( signals ):
     elements = signalListHelper_CppVarDefStr(signals)
 
     return ';\n'.join( elements ) + ';\n'
 
 
+#
+#
+#
 
 def signalListHelper_printfPattern(signals):
     printfPatterns = [] 
@@ -92,6 +90,14 @@ def signalListHelper_printfPattern(signals):
     
     return printfPatterns
 
+def signalListHelper_printfPattern_string(signals):
+    return ' '.join( signalListHelper_printfPattern(signals) )
+
+
+
+#
+#
+#
 
 def defineStructVar( structName, structVarname ):
     return structName + ' ' + structVarname + ';\n'
@@ -108,7 +114,6 @@ def fillStruct( structName, structVarname, signals ):
 
     return lines
 
-
 def getStructElements( structVarname, signals ):
     # get list of e.g. 'outputs.y1', 'outputs.y2'
 
@@ -119,4 +124,3 @@ def getStructElements( structVarname, signals ):
 
     return structElements
 
-# def build

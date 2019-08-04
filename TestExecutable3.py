@@ -74,7 +74,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_oscillator_from_lib' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -214,7 +214,7 @@ if testname == 'test_oscillator_controlled':
 
     # sum up
     if not test_modification_2:
-        controlVar = u_p + u_d + u_i  # TODO: compilation fails if u_i is removed
+        controlVar = u_p + u_d + u_i  # TODO: compilation fails if u_i is removed because u_i is not connected to sth.
 
     else:
         # shall raise an error
@@ -252,7 +252,7 @@ if testname == 'test_oscillator_controlled':
     inputSignalsMapping[ Kd ] = 0.3
     inputSignalsMapping[ Ki ] = 0.3
 
-if testname == 'basic':  # TODO: make this work
+if testname == 'basic':
 
     baseDatatype = dy.DataTypeFloat(1) 
     U = dy.system_input( baseDatatype ).setName('input')
@@ -261,7 +261,9 @@ if testname == 'basic':  # TODO: make this work
 
     outputSignals = [ x1 ]
 
-
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+    
 if testname == 'test_oscillator_from_lib':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
@@ -271,8 +273,11 @@ if testname == 'test_oscillator_from_lib':
 
     outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
-    x = outputSignals[0]
-    v = outputSignals[1]
+    outputSignals[0].setName('x')
+    outputSignals[1].setName('v')
+
+    x = dy.delay( outputSignals[0] ).setName('x_delay')
+    v = dy.delay( outputSignals[1] ).setName('v_delay')
 
 #    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
 

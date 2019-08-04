@@ -4,6 +4,8 @@ from Block import *
 from SimulationContext import *
 from BlockInterface import *
 
+import CodeGenHelper as cgh
+
 #
 # block templates for common use-cases
 #
@@ -196,7 +198,6 @@ class GenericSubsystem(BlockPrototype):
         self.manifest = manifest
 
 
-#        self.inutsToUpdateStates = manifest...
 
         def collectDependingSignals(signals, manifestFunctionInputs):
             # collect all depending input signals (that are needed to calculate the output) in a list
@@ -232,7 +233,6 @@ class GenericSubsystem(BlockPrototype):
         # collect all inputs required to perform the state update
         self.inputsToUpdateStates = collectDependingSignals( inputSignals, manifest.io_inputs['state_update'] )
 
-
         # combine all inputs to a list
         self.allInputs = []
         self.allInputs.extend( self.dependingInputs )
@@ -244,10 +244,8 @@ class GenericSubsystem(BlockPrototype):
 
         BlockPrototype.__init__(self, sim, self.allInputs, Noutputs)
 
-
-        # self.outputSignals
-
-        # self._outputSignals
+        # for code generation
+        self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -272,11 +270,52 @@ class GenericSubsystem(BlockPrototype):
 
         return self._outputSignals
 
-    def codeGen_localvar(self, language):
+    def codeGen_defStates(self, language):
         if language == 'c++':
-            return ''
-            # self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+            lines = '// instance of ' + self.manifest.API_name + '\n'
+            lines += self.manifest.API_name + ' ' + self.instanceVarname + ';\n'
 
+            return lines
+
+    def codeGen_reset(self, language):
+        if language == 'c++':
+            return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('reset') +  '();\n'
+
+
+    def codeGen_localvar(self, language):
+        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
+        if language == 'c++':
+            return cgh.defineVariables( self.outputSignals )
+
+    def codeGen_output(self, language):
+        if language == 'c++':
+            
+            # input to this call are the signals in self.dependingInputs
+            return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+
+    def codeGen_update(self, language):
+        if language == 'c++':
+
+            # input to this call are the signals in self.inputsToUpdateStates
+            return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
+
+
+
+    # def codeGen_defStates(self, language):
+    #     if language == 'c++':
+    #         return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+
+    # def codeGen_output(self, language):
+    #     if language == 'c++':
+    #         return self.outputSignal(0).getName() + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+
+    # def codeGen_update(self, language):
+    #     if language == 'c++':
+    #         return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
+
+    # def codeGen_reset(self, language):
+    #     if language == 'c++':
+    #         return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
 
 
 
