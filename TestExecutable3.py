@@ -6,8 +6,9 @@ import json
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
-
-
+#
+# python3 -m http.server
+#
 
 #
 # Enter a new system (simulation)
@@ -74,7 +75,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator_from_lib' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_oscillator_from_lib2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -279,9 +280,32 @@ if testname == 'test_oscillator_from_lib':
     x = dy.delay( outputSignals[0] ).setName('x_delay')
     v = dy.delay( outputSignals[1] ).setName('v_delay')
 
-#    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
+
 
     outputSignals = [ x, v ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
+
+if testname == 'test_oscillator_from_lib2':
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
+
+    baseDatatype = dy.DataTypeFloat(1) 
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+
+    outputSignals[0].setName('x')
+    outputSignals[1].setName('v')
+
+    x = outputSignals[0].setName('x')
+    v = outputSignals[1].setName('v')
+
+#    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
+
+    outputSignals = [ x ]
 
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0

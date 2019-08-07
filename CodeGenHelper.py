@@ -75,6 +75,11 @@ def defineVariables( signals ):
 
     return ';\n'.join( elements ) + ';\n'
 
+def defineVariable( signal ):
+    element = signalListHelper_CppVarDefStr([signal])
+
+    return  element[0] + ';'
+
 
 #
 #

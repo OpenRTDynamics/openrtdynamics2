@@ -34,6 +34,13 @@ class ExecutionCommand(object):
         self.contextCommand = context
         self.treeLevel_ = context.treeLevel + 1
 
+    def codeGen_init(self, language):
+        # 
+        raise BaseException('codeGen_init unimplemented')
+
+    def codeGen_destruct(self, language):
+        raise BaseException('codeGen_destruct unimplemented')
+        pass
 
     def codeGen(self, language, flag):
 
@@ -81,6 +88,12 @@ class CommandCalculateOutputs(ExecutionCommand):
 
         self.executionLine.printExecutionLine()
 
+    def codeGen_init(self, language):
+        pass
+
+    def codeGen_destruct(self, language):
+        pass
+
     def codeGen(self, language, flag):
 
         lines = ''
@@ -96,18 +109,19 @@ class CommandCalculateOutputs(ExecutionCommand):
                     for s in self.targetSignals:
                         SignalsWithoutOutputs.remove( s )
 
-                # remove the input signals in this loop
+                        # notify the block prototype that the signal s will be a system output
+                        s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
+
+
+                # skip the input signals in this loop (as their variables are already defined by the function API)
                 for s in SignalsWithoutOutputs:
 
                     if isinstance(s, BlockOutputSignal):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
-                        print('output codegen to store the result ' +  s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar') # TODO: remove
-                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++')
-
-                        # TODO: this should be:
+                        print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
+                        #lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar') # TODO: remove
                         lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
 
 
@@ -121,11 +135,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
-                        print('output codegen to calculate ' +  s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output') # TODO: remove
-                        # lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++')
-
-                        # TODO: this should be:
+                        print('output codegen to calculate ' + s.name + ' / ' + s.toStr() )
+                        #lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output') # TODO: remove
                         lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++', s)
 
         return lines
@@ -152,6 +163,12 @@ class CommandResetStates(ExecutionCommand):
 
         # self.executionLine.printExecutionLine()
 
+    def codeGen_init(self, language):
+        pass
+
+    def codeGen_destruct(self, language):
+        pass
+
     def codeGen(self, language, flag):
 
         lines = ''
@@ -161,7 +178,7 @@ class CommandResetStates(ExecutionCommand):
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen('c++', 'reset') # TODO: remove
+                    #lines += b.getBlockPrototype().codeGen('c++', 'reset') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_reset('c++')
 
         return lines
@@ -192,6 +209,12 @@ class CommandUpdateStates(ExecutionCommand):
 
         # self.executionLine.printExecutionLine()
 
+    def codeGen_init(self, language):
+        pass
+
+    def codeGen_destruct(self, language):
+        pass
+
     def codeGen(self, language, flag):
 
         lines = ''
@@ -209,13 +232,13 @@ class CommandUpdateStates(ExecutionCommand):
                     # TODO: rename 'defStates' to 'variables'
                     #
                     
-                    lines += b.getBlockPrototype().codeGen('c++', 'defStates') # TODO: remove
+                    #lines += b.getBlockPrototype().codeGen('c++', 'defStates') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_defStates('c++')
 
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen('c++', 'update') # TODO: remove
+                    #lines += b.getBlockPrototype().codeGen('c++', 'update') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_update('c++')
 
             # if flag == 'codereset':
@@ -253,6 +276,12 @@ class CommandCacheOutputs(ExecutionCommand):
 
         for s in self.signals:
             print("  - " + s.toStr() )
+
+    def codeGen_init(self, language):
+        pass
+
+    def codeGen_destruct(self, language):
+        pass
 
     def codeGen(self, language, flag):
 
@@ -303,6 +332,11 @@ class CommandRestoreCache(ExecutionCommand):
         for s in self.signals:
             print("  - " + s.toStr() )
 
+    def codeGen_init(self, language):
+        pass
+
+    def codeGen_destruct(self, language):
+        pass
 
     def codeGen(self, language, flag):
 
@@ -369,6 +403,13 @@ class PutAPIFunction(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
+    def codeGen_init(self, language):
+        for c in self.executionCommands:
+            c.codeGen_init(language)
+
+    def codeGen_destruct(self, language):
+        for c in self.executionCommands:
+            c.codeGen_init(language)
 
     def codeGen(self, language, flag):
 
@@ -484,7 +525,7 @@ class PutAPIFunction(ExecutionCommand):
 
 class PutSimulation(ExecutionCommand):
     """
-        Represents a simulation that is represented by a class in c++
+        Represents a system that is represented by a class in c++
     """
 
     def __init__(self, nameAPI: str, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
@@ -532,6 +573,13 @@ class PutSimulation(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
+    def codeGen_init(self, language):
+        for c in self.executionCommands:
+            c.codeGen_init(language)
+
+    def codeGen_destruct(self, language):
+        for c in self.executionCommands:
+            c.codeGen_init(language)
 
     def codeGen(self, language, flag):
 

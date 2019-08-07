@@ -54,40 +54,27 @@ class BlockPrototype:
     # Standard functions that should be re-implemented
     #
 
+    def codeGen_init(self, language):
+        """
+            called to when the code generator initializes and before code is generated
+        """
+        pass
+
+    def codeGen_destruct(self, language):
+        """
+            called when code generation has finished finished
+        """
+        pass
+
     def configDefineOutputTypes(self, inputTypes):
         raise BaseException("configDefineOutputTypes not implemented")
 
-    # function to generate code
-    def codeGen(self, language, flag):
-        # raise BaseException("code generation not implemented")
-
-        # This is to show what could be implemented
-        lines = ''
-
-        if language == 'c++':
-
-            if flag == 'defStates':
-                lines = ''
-
-            elif flag == 'localvar':
-                lines = ''
-
-            elif flag == 'constructor':
-                lines = ''
-
-            elif flag == 'destructor':
-                lines = ''
-
-            elif flag == 'output':
-                lines = ''
-
-            elif flag == 'update':
-                lines = ''
-
-            elif flag == 'reset':
-                lines = ''
-
-        return lines
+    def codeGen_setOutputReference(self, language, signal):
+        """
+            infcates that for the given signal no local variable will be reserved by calling codeGen_localvar.
+            Insted the variable to store the signal is an output of the system and has been already defined.
+        """
+        pass
 
     def codeGen_defStates(self, language):
         return ''

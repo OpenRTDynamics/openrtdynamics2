@@ -181,16 +181,11 @@ class Dynamic_1To1(BlockPrototype):
 
 
 
-#
-# To include a sub-system by passing a manifest
-#
-# manifest['api_name']
-#
-
-# STOPPED HERE
-
 
 class GenericSubsystem(BlockPrototype):
+    """
+        To include a sub-system by passing a manifest
+    """
     def __init__(self, sim : Simulation, manifest, inputSignals ):
         # intputSignals is a hash array
         #
@@ -247,6 +242,9 @@ class GenericSubsystem(BlockPrototype):
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
+        # TODO remove this (up to now, codeGen_init is not called by the codegenerator)
+        self.codeGen_init('c++')
+
     def configDefineOutputTypes(self, inputTypes):
 
         # the datatypes are fixed in the manifest 
@@ -264,11 +262,14 @@ class GenericSubsystem(BlockPrototype):
         # return a list of input signals that are required to update the states
         return self.inputsToUpdateStates
 
+
+    # TODO what's with this
     @property
     def outputSignals(self):
         # return the output signals
 
         return self._outputSignals
+
 
     def codeGen_defStates(self, language):
         if language == 'c++':
@@ -285,23 +286,81 @@ class GenericSubsystem(BlockPrototype):
     def codeGen_localvar(self, language, signal):
         # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
         if language == 'c++':
-            if signal is self.outputSignals[0]:
-                return cgh.defineVariables( self.outputSignals )
+            #return cgh.defineVariables( signal )
 
-            else:
-                return ''
+            # if signal is self.outputSignals[0]:
+            #     return cgh.defineVariables( self.outputSignals )
 
-            # return cgh.defineVariables( [ signal ] )
+            # else:
+            #     return ''
+
+            self.codeGen_outputsCalculated = True
+
+            self.isSignalVariableDefined[ signal ] = True
+
+            return cgh.defineVariables( [ signal ] )
+
+    # def codeGen_externalSignal(self, language, signal):
+    #     # to indicate this is a signals comming from a system input
+
+
+    def codeGen_init(self, language):
+        # TODO: must be called from the code generation framework
+        self.codeGen_outputsCalculated = False
+
+        self.isSignalVariableDefined = {}
+        for s in self.outputSignals:
+            self.isSignalVariableDefined[ s ] = False
+
+    def codeGen_destruct(self, language):
+        pass
+
+
+    def codeGen_setOutputReference(self, language, signal):
+        # infcates that for signal, no localvar will be reserved, but a reference to that data is used
+        # This is the case for signals that are system outputs
+
+        # 
+        self.isSignalVariableDefined[ signal ] = True
+
+
+
+
 
     def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
+            lines = ''
 
-            if signal is self.outputSignals[0]:
+            #if signal is self.outputSignals[0]:
+
+            #if not self.isSignalVariableDefined[ signal ]:
+            #    lines += cgh.defineVariables( [ signal ] )
+
+
+            for signal, isDefined in self.isSignalVariableDefined.items():
+                # if the signal is not a simulation output
+
+                if not isDefined:   # and not signal.codeGen_memoryReserved:
+                    lines += cgh.defineVariable( signal ) + ' // NOTE: unused output signal\n'
+
+                    self.isSignalVariableDefined[ signal ] = True
+
+
+                # if not isinstance(signal, SimulationInputSignal):
+
+
+
+            if not self.codeGen_outputsCalculated:
                 # input to this call are the signals in self.dependingInputs
-                return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+
+                lines += self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+
+                self.codeGen_outputsCalculated = True
 
             else:
-                return ''
+                lines = ''
+
+        return lines
 
     def codeGen_update(self, language):
         if language == 'c++':

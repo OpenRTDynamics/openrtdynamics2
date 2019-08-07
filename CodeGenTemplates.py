@@ -35,7 +35,9 @@ class PutRuntimeCppHelper:
             simulationCode += include.sourceCode
 
         # build the code for the implementation
+        self.mainSimulation.codeGen_init('c++')
         simulationCode += self.mainSimulation.codeGen('c++', 'code')
+        self.mainSimulation.codeGen_destruct('c++')
 
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
