@@ -83,7 +83,7 @@ class Simulation:
                     print(Style.DIM + "    - " + inSig.toStr() )
 
     def exportGraph(self):
-        # remove from this class and move to aonther class 'visualization' or 'editor'
+        # TODO: remove from this class and move to aonther class 'visualization' or 'editor'
 
         def createBlockNode(nodes_array_index, block):
             idstr = 'bid_' + str( block.getBlockId() )
@@ -222,9 +222,11 @@ class Simulation:
         return graph
 
 
+    @property
+    def blocks(self):
+        return self.BlocksArray
 
-
-
+    # TODO: remove
     def getBlocksArray(self):
         return self.BlocksArray
 

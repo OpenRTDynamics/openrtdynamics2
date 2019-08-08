@@ -528,7 +528,7 @@ class PutSimulation(ExecutionCommand):
         Represents a system that is represented by a class in c++
     """
 
-    def __init__(self, nameAPI: str, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
+    def __init__(self, simulation : Simulation, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
         ExecutionCommand.__init__(self)
 
         self.resetCommand = resetCommand
@@ -545,8 +545,8 @@ class PutSimulation(ExecutionCommand):
 
         self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
-
-        self.nameAPI = nameAPI
+        self.simulation = simulation
+        self.nameAPI = simulation.getName()
 
         for e in self.executionCommands:
             e.setContext(self)
@@ -576,6 +576,10 @@ class PutSimulation(ExecutionCommand):
     def codeGen_init(self, language):
         for c in self.executionCommands:
             c.codeGen_init(language)
+
+        # call init codegen for each block in the simulation
+        for block in self.simulation.blocks:
+            block.getBlockPrototype().codeGen_init(language)
 
     def codeGen_destruct(self, language):
         for c in self.executionCommands:

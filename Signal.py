@@ -285,14 +285,17 @@ class BlockOutputSignal(Signal):
     """
 
     def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
-
-        # give this signal a unique default name
-        self._name = 's' + str(sim.getNewSignalId())
         
         self.sourceBlock = sourceBlock
         self.sourcePort = sourcePort  # counting starts at zero
 
         Signal.__init__(self, sim, datatype)
+
+        # give this signal a unique default name
+        #
+        # NOTE: It is not nice that this must be performed after calling the super constructor
+        #
+        self._name = 's' + str(sim.getNewSignalId())
 
     def lookupSource(self):
         return self
@@ -309,12 +312,14 @@ class SimulationInputSignal(Signal):
         self.port = sim.simulationInputSignalCounter
         sim.simulationInputSignalCounter += 1
 
-        # give this signal a unique default name
-        # TODO: This shall be overwritten anyways by the user, so maybe this can be removed (or maybe not in case it is 
-        # used to auto-generate sub-systems)
-        self._name = 's' + str(sim.getNewSignalId())
-
+        #
         Signal.__init__(self, sim, datatype=datatype)
+
+        # give this signal a unique default name
+        #
+        # NOTE: It is not nice that this must be performed after calling the super constructor
+        #
+        self._name = 's' + str(sim.getNewSignalId())
 
     def lookupSource(self):
         return self

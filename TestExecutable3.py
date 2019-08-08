@@ -75,7 +75,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator_from_lib2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 

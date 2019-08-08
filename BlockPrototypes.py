@@ -79,9 +79,11 @@ class StaticFn_1To1(BlockPrototype):
 
         return self.outputSignal(0)
 
-    def codeGen_localvar(self, language, signal : Signal):
+    def codeGen_localvar(self, language, signal):
+        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
+
         if language == 'c++':
-            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+            return cgh.defineVariableLine( signal )
 
 
 
@@ -133,9 +135,12 @@ class StaticFn_NTo1(BlockPrototype):
         return output
 
     def codeGen_localvar(self, language, signal):
+        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
+
         if language == 'c++':
             # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+            # return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+            return cgh.defineVariableLine( signal )
 
 
 
@@ -174,10 +179,12 @@ class Dynamic_1To1(BlockPrototype):
         return self.outputSignal(0)
 
     def codeGen_localvar(self, language, signal):
+        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
+
         if language == 'c++':
             # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
-
+            # return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+            return cgh.defineVariableLine( signal )
 
 
 
@@ -242,9 +249,6 @@ class GenericSubsystem(BlockPrototype):
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
-        # TODO remove this (up to now, codeGen_init is not called by the codegenerator)
-        self.codeGen_init('c++')
-
     def configDefineOutputTypes(self, inputTypes):
 
         # the datatypes are fixed in the manifest 
@@ -261,7 +265,6 @@ class GenericSubsystem(BlockPrototype):
  
         # return a list of input signals that are required to update the states
         return self.inputsToUpdateStates
-
 
     # TODO what's with this
     @property
@@ -284,25 +287,10 @@ class GenericSubsystem(BlockPrototype):
 
 
     def codeGen_localvar(self, language, signal):
-        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
         if language == 'c++':
-            #return cgh.defineVariables( signal )
-
-            # if signal is self.outputSignals[0]:
-            #     return cgh.defineVariables( self.outputSignals )
-
-            # else:
-            #     return ''
-
-            self.codeGen_outputsCalculated = True
-
             self.isSignalVariableDefined[ signal ] = True
 
-            return cgh.defineVariables( [ signal ] )
-
-    # def codeGen_externalSignal(self, language, signal):
-    #     # to indicate this is a signals comming from a system input
-
+            return cgh.defineVariableLine( signal )
 
     def codeGen_init(self, language):
         # TODO: must be called from the code generation framework
@@ -331,24 +319,12 @@ class GenericSubsystem(BlockPrototype):
         if language == 'c++':
             lines = ''
 
-            #if signal is self.outputSignals[0]:
-
-            #if not self.isSignalVariableDefined[ signal ]:
-            #    lines += cgh.defineVariables( [ signal ] )
-
-
             for signal, isDefined in self.isSignalVariableDefined.items():
                 # if the signal is not a simulation output
 
                 if not isDefined:   # and not signal.codeGen_memoryReserved:
                     lines += cgh.defineVariable( signal ) + ' // NOTE: unused output signal\n'
-
                     self.isSignalVariableDefined[ signal ] = True
-
-
-                # if not isinstance(signal, SimulationInputSignal):
-
-
 
             if not self.codeGen_outputsCalculated:
                 # input to this call are the signals in self.dependingInputs
@@ -391,10 +367,15 @@ class Const(Source_To1):
         # call super
         Source_To1.__init__(self, sim, datatype)
 
-    def codeGen_localvar(self, language):
+    # def codeGen_localvar(self, language):
+    #     if language == 'c++':
+    #         # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
+    #         return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+
+
+    def codeGen_localvar(self, language, signal):
         if language == 'c++':
-            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-            return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
+            return cgh.defineVariableLine( signal )
 
     def codeGen_output(self, language, signal : Signal):
         if language == 'c++':

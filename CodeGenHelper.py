@@ -71,15 +71,35 @@ def signalListHelper_CppVarDefStr_string(signals):
     return '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
 
 def defineVariables( signals ):
+    """
+        create a sting containing e.g.
+
+        'double signalName1;\n
+         double signalName2;\n'
+    """
     elements = signalListHelper_CppVarDefStr(signals)
 
     return ';\n'.join( elements ) + ';\n'
 
 def defineVariable( signal ):
+    """
+        create a sting containing e.g.
+
+        'double signalName;'
+    """
     element = signalListHelper_CppVarDefStr([signal])
 
-    return  element[0] + ';'
+    return element[0] + ';'
 
+def defineVariableLine( signal ):
+    """
+        create a sting containing e.g.
+
+        'double signalName;\n'
+    """
+    element = signalListHelper_CppVarDefStr([signal])
+
+    return element[0] + ';\n'
 
 #
 #
