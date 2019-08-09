@@ -27,8 +27,11 @@
 
         for (var key in inputValues) {
             if (manifest.io.inputs.state_update.names.includes(key)) {
+                // input 'key' is an input to the function 'updateStates'
                 inputs_updateStates[key] = inputValues[key]
-            } else if (manifest.io.inputs.calculate_output.names.includes(key)) {
+            }
+            if (manifest.io.inputs.calculate_output.names.includes(key)) {
+                // input 'key' is an input to the function 'calcOutputs'
                 inputs_calcOutputs[key] = inputValues[key]
             }
         }
