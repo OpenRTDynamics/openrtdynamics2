@@ -74,6 +74,21 @@ class DataType(object):
         return None
 
 
+class DataTypeBoolean(DataType):
+
+    def __init__(self, size : int):
+        DataType.__init__(self, type=ORTD_DATATYPE_BOOLEAN, size=size)
+
+    @property
+    def cppDataType(self):
+        return 'bool'
+
+    @property
+    def cppPrintfPattern(self):
+        return '%d'
+
+
+
 #
 # numeric types
 #
@@ -86,7 +101,6 @@ class DataTypeNumeric(DataType):
 class DataTypeFloat(DataTypeNumeric):
 
     def __init__(self, size : int):
-
         DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
 
     @property
@@ -96,6 +110,8 @@ class DataTypeFloat(DataTypeNumeric):
     @property
     def cppPrintfPattern(self):
         return '%f'
+
+
 
 
 class DataTypeInt32(DataTypeNumeric):
