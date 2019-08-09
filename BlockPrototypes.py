@@ -479,6 +479,35 @@ def operator1(inputSignals : List[Signal], operator : str ):
 
 
 
+
+
+
+class ComparisionOperator(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, left : Signal, right : Signal, operator : str ):
+
+        self.operator = operator
+
+        # set output signal to boolean
+
+        StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # return a proposal for an output type. 
+        return [ DataTypeBoolean(1) ]
+
+    def codeGen_output(self, language, signal : Signal):
+
+        if language == 'c++':
+            lines = signal.name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
+            return lines
+
+
+def comparison(left : Signal, right : Signal, operator : str ):
+    return ComparisionOperator(get_simulation_context(), left, right, operator).outputSignals
+
+
+
 #
 # Static functions that map 1 --> 1
 #

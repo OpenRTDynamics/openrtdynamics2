@@ -75,7 +75,7 @@ def diff( u : dy.Signal, name : str):
     return y
 
 
-testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_comparison' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -288,7 +288,7 @@ if testname == 'test_oscillator_from_lib':
     inputSignalsMapping[ U ] = 1.0
 
 
-if testname == 'test_oscillator_from_lib2':
+if testname == 'test_oscillator_from_lib':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
@@ -303,14 +303,51 @@ if testname == 'test_oscillator_from_lib2':
     x = outputSignals[0].setName('x')
     v = outputSignals[1].setName('v')
 
-#    x1 = dy.delay(U) # * dy.const( 2.5, baseDatatype )
-
+    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
     outputSignals = [ x ]
 
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
 
-    # TestLibray.oscillator
+
+if testname == 'test_triggered_oscillator_from_lib':
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
+
+    baseDatatype = dy.DataTypeFloat(1) 
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+
+    outputSignals[0].setName('x')
+    outputSignals[1].setName('v')
+
+    x = outputSignals[0].setName('x')
+    v = outputSignals[1].setName('v')
+
+    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
+    outputSignals = [ x ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
+
+
+if testname == 'test_comparison':
+
+    baseDatatype = dy.DataTypeFloat(1) 
+    u1 = dy.system_input( baseDatatype ).setName('u1')
+    u2 = dy.system_input( baseDatatype ).setName('u2')
+
+    isGreater = dy.comparison(left = u1, right = u2, operator = '>' )
+
+    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
+    outputSignals = [ isGreater ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ u1 ] = 1.0
+    inputSignalsMapping[ u2 ] = 1.1
+
 
 
 # Compile system (propagate datatypes)
