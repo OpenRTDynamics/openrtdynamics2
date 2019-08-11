@@ -182,10 +182,11 @@ class ExecutionLine():
         'dependencySignals'.
     """
 
-    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], blocksToUpdateStates : List[ Block ] ):
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
         self.signalOrder = signalOrder
         self.dependencySignals = dependencySignals
         self.blocksToUpdateStates = blocksToUpdateStates
+        self.dependencySignalsThroughStates = dependencySignalsThroughStates
 
     def printExecutionLine(self):
         print("------ print of execution line -----")
@@ -193,6 +194,11 @@ class ExecutionLine():
         print(Fore.RED + "dependent sources:")
         
         for s in self.dependencySignals:
+            print("  - " + s.getName() )
+
+        print(Fore.RED + "dependent sources (through state-dependend blocks):")
+        
+        for s in self.dependencySignalsThroughStates:
             print("  - " + s.getName() )
 
         print(Fore.GREEN + "execution order:")
@@ -204,6 +210,7 @@ class ExecutionLine():
 
         for block in self.blocksToUpdateStates:
             print("  - " + block.getName() )
+
 
     def getSignalsToExecute(self):
         l = []
@@ -219,13 +226,18 @@ class ExecutionLine():
         # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
         # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
 
+        # TODO: use sets to merge..
+
         for s in executionLineToAppend.dependencySignals:
             if not s in self.dependencySignals and not s in self.signalOrder:
                 self.dependencySignals.append(s)
-                # print("append " + s.toStr() + " to the list of dependencySignals")
-            else:
-                # print("did not append " + s.toStr() + " to the list of dependencySignals")
-                pass
+
+        
+        for s in executionLineToAppend.dependencySignalsThroughStates:
+            if not s in self.dependencySignalsThroughStates and not s in self.signalOrder:
+                self.dependencySignalsThroughStates.append(s)
+
+        
 
         for s in executionLineToAppend.signalOrder:
             # TODO: (for optimization purposes) 
@@ -239,7 +251,7 @@ class ExecutionLine():
         for s in executionLineToAppend.blocksToUpdateStates:
             # TODO: (for optimization purposes) 
             # check if there comcon blocks in the list. 
-            
+
             # just append the 
             self.blocksToUpdateStates.append( s )
 
@@ -264,6 +276,8 @@ class BuildExecutionPath:
 
         # list of signals the computation depends on (the tips of the execution tree)
         self.dependencySignals = []
+
+        self.dependencySignalsThroughStates = []
 
         # the list of reachable signals
         self.reachableSignals = []
@@ -304,6 +318,7 @@ class BuildExecutionPath:
         # reset the lists
         self.reachableSignals = []
         self.dependencySignals = []
+        self.dependencySignalsThroughStates = []
         self.blocksToUpdateStates = []
 
         # compute by traversing the tree
@@ -315,7 +330,7 @@ class BuildExecutionPath:
         #
         self.level = self.level + 1
 
-        return ExecutionLine( self.reachableSignals, self.dependencySignals, self.blocksToUpdateStates )
+        return ExecutionLine( self.reachableSignals, self.dependencySignals, self.blocksToUpdateStates, self.dependencySignalsThroughStates )
 
     def printExecutionLine(self):
         pass
@@ -404,7 +419,11 @@ class BuildExecutionPath:
 
         # check if the block that yields startSignal uses internal-states to compute startSignal
         if blocksPrototype.returnInutsToUpdateStates( startSignal ) is not None:
+            # 
             self.blocksToUpdateStates.append( block )
+
+            # add the signals that are required to perform the state update
+            self.dependencySignalsThroughStates.extend( blocksPrototype.returnInutsToUpdateStates( startSignal ) )
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'

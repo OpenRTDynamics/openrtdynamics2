@@ -66,7 +66,7 @@ class CompileDiagram:
 
 
         # collect all execution lines with:
-        executionLineToCalculateOutputs = ExecutionLine( [], [], [] )
+        executionLineToCalculateOutputs = ExecutionLine( [], [], [], [] )
 
         # for all requested output singals
         for s in outputSignals:
@@ -92,6 +92,7 @@ class CompileDiagram:
 
         # start with following signals to be computed
         dependencySignals = executionLineToCalculateOutputs.dependencySignals
+        blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
 
         # get the simulation-input signals in dependencySignals
         # NOTE: these are only the simulation inputs that are needed to calculate the output y
@@ -205,7 +206,7 @@ class CompileDiagram:
 
 
             # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-            executionLineForCurrentOrder = ExecutionLine( [], [], [] )
+            executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
             for e in executionLinesForCurrentOrder:
 
                 # append execution line
@@ -275,8 +276,7 @@ class CompileDiagram:
             # get the dependendy singals of the current order
             # TODO important: remove the signals that are already computable from this list
             dependencySignals = executionLineForCurrentOrder.dependencySignals
-
-            # dependencySignals = executionLineForCurrentOrder.undeterminedDependencySignals
+            blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
 
             # iterate
             order = order + 1

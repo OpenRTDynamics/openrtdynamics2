@@ -10,7 +10,10 @@ import CodeGenHelper as cgh
 # block templates for common use-cases
 #
 
-class Source_To1(BlockPrototype):
+class StaticSource_To1(BlockPrototype):
+    """
+        This defines a static source
+    """
     def __init__(self, sim : Simulation, datatype ):
 
         self.outputType = datatype
@@ -33,7 +36,7 @@ class Source_To1(BlockPrototype):
 
     def returnInutsToUpdateStates(self, outputSignal):
         # return a list of input signals that are required to update the states
-        return []
+        return None  # no states
 
     @property
     def outputSignals(self):
@@ -42,6 +45,15 @@ class Source_To1(BlockPrototype):
 
         return output
 
+
+
+class DynamicSource_To1(StaticSource_To1):
+    """
+        This defines a dynamic source
+    """
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return [] # indicates state dependency but these states do not depend on external signals
 
 
 
@@ -71,7 +83,7 @@ class StaticFn_1To1(BlockPrototype):
 
     def returnInutsToUpdateStates(self, outputSignal):
         # return a list of input signals that are required to update the states
-        return []  # no inputs
+        return None  # no states
 
     @property
     def outputSignals(self):
@@ -125,7 +137,7 @@ class StaticFn_NTo1(BlockPrototype):
 
     def returnInutsToUpdateStates(self, outputSignal):
         # return a list of input signals that are required to update the states
-        return []
+        return None  # no states
 
     @property
     def outputSignals(self):
@@ -402,13 +414,13 @@ def triggered_subsystem( manifest, inputSignals : List[Signal], trigger : Signal
 # Sources
 #
 
-class Const(Source_To1):
+class Const(StaticSource_To1):
     def __init__(self, sim : Simulation, constant, datatype ):
 
         self.constant = constant
 
         # call super
-        Source_To1.__init__(self, sim, datatype)
+        StaticSource_To1.__init__(self, sim, datatype)
 
     # def codeGen_localvar(self, language):
     #     if language == 'c++':
