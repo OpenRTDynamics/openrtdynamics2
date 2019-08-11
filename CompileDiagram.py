@@ -66,7 +66,7 @@ class CompileDiagram:
 
 
         # collect all execution lines with:
-        executionLineToCalculateOutputs = ExecutionLine( [], [] )
+        executionLineToCalculateOutputs = ExecutionLine( [], [], [] )
 
         # for all requested output singals
         for s in outputSignals:
@@ -166,6 +166,11 @@ class CompileDiagram:
             dependencySignals__ = []
             for s in dependencySignals:
 
+                # TODO: iterating over dependencySignals is not complete here: 
+                # iterate over all signals that are connecteed to a block that 
+                # has an internal state and an input that is needed to update 
+                # the internal states
+
                 # find out which signals are needed to calculate the states needed to calculate dependencySignals
                 # returnInutsToUpdateStates
 
@@ -173,11 +178,12 @@ class CompileDiagram:
                     simulationInputSignalsForStateUpdate.append(s)
 
                 elif isinstance(s, BlockOutputSignal):
+                    # step over to (and iterate) the blocks inputs that are required for state-update
                     for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
 
                         print(Fore.YELLOW + Style.BRIGHT + "  - " + s_.toStr() )
 
-                        # only append of this signals is not already computable
+                        # only append these signals is not already computable
                         if not E.isSignalAlreadyComputable(s_):
                             dependencySignals__.append(s_)
 
@@ -199,7 +205,7 @@ class CompileDiagram:
 
 
             # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-            executionLineForCurrentOrder = ExecutionLine( [], [] )
+            executionLineForCurrentOrder = ExecutionLine( [], [], [] )
             for e in executionLinesForCurrentOrder:
 
                 # append execution line
@@ -224,11 +230,15 @@ class CompileDiagram:
             # create commands for the blocks that have dependencySignals as outputs
             #
 
-            # TODO: This is new and unchecked
-            print("state update of blocks connected to:")
+            print("state update of blocks that yield the following output signals:")
 
             blocksWhoseStatesToUpdate = []
             for s in dependencySignals:
+                # TODO: iterating over dependencySignals is not complete here: 
+                # iterate over all signals that are connecteed to a block that 
+                # has an internal state 
+
+
                 print("  - " + s.getName())
                                 
                 if isinstance(s, BlockOutputSignal):

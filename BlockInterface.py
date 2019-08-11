@@ -5,7 +5,7 @@ from Signal import *
 from Datatypes import *
 from SignalInterface import *
 
-class BlockPrototype:
+class BlockPrototype(object):
     """
         This is a base class to be deviated from each block type.
         It contains logic to handle the input/ output types and
@@ -29,15 +29,21 @@ class BlockPrototype:
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
         # to be used for code generation 
-        return "" + self.block.getName() +  "_" + str(self.block.getBlockId())
+        return "" + self.block.getName() +  "_" + str(self.block.id)
 
 
     #
     # The derived classes shall use these shortcuts to access the I/O signals
     #
 
+    # TODO what's with this? remove this and replace with 'outputs'
     @property
     def outputSignals(self):
+        return self._outputSignals
+
+    @property
+    def outputs(self):
+        # return the output signals
         return self._outputSignals
 
     # get a signal of a specific output port

@@ -21,14 +21,14 @@ class Block:
         self.sim = sim
 
         # create a new unique block id 
-        self.id = sim.getNewBlockId()
+        self._id = sim.getNewBlockId()
 
         # default names
         if blockname is None:
             blockname = 'block'
 
-        self.blocknameShort =  blockname + '_bid' + str( self.id )   # variable name
-        self.blockname = blockname + '_bid' + str( self.id )  # description
+        self.blocknameShort =  blockname + '_bid' + str( self._id )   # variable name
+        self.blockname = blockname + '_bid' + str( self._id )  # description
 
         # add myself to the given simulation
         self.sim.addBlock(self)
@@ -146,9 +146,18 @@ class Block:
         return self.blockPrototype
 
     def getBlockId(self):
-        return self.id # a unique id within the simulation the block is part of
+        return self._id # a unique id within the simulation the block is part of
+
+    @property
+    def id(self):
+        return self._id
+
 
     def getInputSignals(self):
+        return self.inputSignals
+
+    @property 
+    def inputs(self):
         return self.inputSignals
 
     def getOutputSignals(self):

@@ -191,17 +191,14 @@ class Dynamic_1To1(BlockPrototype):
 
 class GenericSubsystem(BlockPrototype):
     """
-        To include a sub-system by passing a manifest
+        Include a sub-system by passing a manifest
     """
-    def __init__(self, sim : Simulation, manifest, inputSignals ):
+    def __init__(self, sim : Simulation, manifest, inputSignals, additionalInputs : List[ Signal ] = None ):
         # intputSignals is a hash array
         #
         # intputSignals = {'in1': in1, 'in2', : in2}
 
-        # self.inputSignals = inputSignals
         self.manifest = manifest
-
-
 
         def collectDependingSignals(signals, manifestFunctionInputs):
             # collect all depending input signals (that are needed to calculate the output) in a list
@@ -225,10 +222,6 @@ class GenericSubsystem(BlockPrototype):
 
             return dependingInputs
 
-
-
-
-
         # collect all depending input signals (that are needed to calculate the output) in a list
         self.dependingInputs = collectDependingSignals( inputSignals, manifest.io_inputs['calculate_output'] )
 
@@ -236,7 +229,12 @@ class GenericSubsystem(BlockPrototype):
         self.inputsToUpdateStates = collectDependingSignals( inputSignals, manifest.io_inputs['state_update'] )
 
         # combine all inputs to a list
-        self.allInputs = []
+        if additionalInputs is not None:
+            self.allInputs = additionalInputs
+
+        else:
+            self.allInputs = {}
+
         self.allInputs.extend( self.dependingInputs )
         self.allInputs.extend( self.inputsToUpdateStates )
 
@@ -265,14 +263,6 @@ class GenericSubsystem(BlockPrototype):
  
         # return a list of input signals that are required to update the states
         return self.inputsToUpdateStates
-
-    # TODO what's with this
-    @property
-    def outputSignals(self):
-        # return the output signals
-
-        return self._outputSignals
-
 
     def codeGen_defStates(self, language):
         if language == 'c++':
@@ -312,7 +302,11 @@ class GenericSubsystem(BlockPrototype):
         self.isSignalVariableDefined[ signal ] = True
 
 
+    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
 
+    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+        return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
 
 
     def codeGen_output(self, language, signal : Signal):
@@ -329,7 +323,7 @@ class GenericSubsystem(BlockPrototype):
             if not self.codeGen_outputsCalculated:
                 # input to this call are the signals in self.dependingInputs
 
-                lines += self.instanceVarname + '.' + self.manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+                lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
 
                 self.codeGen_outputsCalculated = True
 
@@ -342,10 +336,7 @@ class GenericSubsystem(BlockPrototype):
         if language == 'c++':
 
             # input to this call are the signals in self.inputsToUpdateStates
-            return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
-
-
-
+            return self.codeGen_call_UpdateFunction(self.instanceVarname, self.manifest, language)
 
 def generic_subsystem( manifest, inputSignals : List[Signal] ):
     return GenericSubsystem(get_simulation_context(), manifest, inputSignals).outputSignals
@@ -353,6 +344,58 @@ def generic_subsystem( manifest, inputSignals : List[Signal] ):
 
 
 
+
+class TruggeredSubsystem(GenericSubsystem):
+    """
+        Include a triggered sub-system by passing a manifest
+    """
+    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal ):
+
+        # TODO: add this signal to the blocks inputs
+        self.triggerSignal = trigger
+
+        GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ trigger ] )
+
+    def returnDependingInputs(self, outputSignal):
+
+        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
+        #       (Every output depends on every signal in self.dependingInputs)
+
+        dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
+        dependingInputs.append( self.triggerSignal )
+
+        return dependingInputs
+
+
+    def codeGen_localvar(self, language, signal):
+        if language == 'c++':
+
+            return GenericSubsystem.codeGen_localvar(self, language, signal)
+
+
+    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+        lines = 'if (' +  self.triggerSignal.name + ') {\n'
+        lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+        lines += '}\n'
+
+        return lines
+
+    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+        lines = 'if (' +  self.triggerSignal.name + ') {\n'
+        lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+        lines += '}\n'
+
+        return lines
+        
+def triggered_subsystem( manifest, inputSignals : List[Signal], trigger : Signal ):
+    return TruggeredSubsystem( get_simulation_context(), manifest, inputSignals, trigger ).outputSignals
+
+        
+
+
+
+
+            
 
 
 #
@@ -486,8 +529,6 @@ class ComparisionOperator(StaticFn_NTo1):
     def __init__(self, sim : Simulation, left : Signal, right : Signal, operator : str ):
 
         self.operator = operator
-
-        # set output signal to boolean
 
         StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
 

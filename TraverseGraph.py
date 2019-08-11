@@ -63,7 +63,7 @@ class TraverseGraph:
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") ****")  ## TODO investigtare: why is this never reached?
+            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
             return
 
         # store this block as it is reachable
@@ -72,7 +72,7 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print(tabs + "-- " + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") --" )
+        print(tabs + "-- " + startBlock.getName() + " (" + str( startBlock.id ) + ") --" )
 
 
 
@@ -88,7 +88,7 @@ class TraverseGraph:
             for destinationBlock in signal.getDestinationBlocks():
                 # destinationBlock is a link to a connected block
 
-                print( tabs + "*", destinationBlock.getName(), "(", destinationBlock.getBlockId(), ")"  )
+                print( tabs + "*", destinationBlock.getName(), "(", destinationBlock.id, ")"  )
 
             #for destinationBlock in signal.getDestinationBlocks():
                 # destinationBlock is a link to a connected block
@@ -136,7 +136,7 @@ class TraverseGraph:
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") ****")  ## TODO investigtare: why is this never reached?
+            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
             return
 
         # check of the block 'startBlock'
@@ -148,7 +148,7 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print(tabs + "--- " + startBlock.getName() + " (" + str( startBlock.getBlockId() ) + ") --" )
+        print(tabs + "--- " + startBlock.getName() + " (" + str( startBlock.id ) + ") --" )
 
 
 
@@ -164,7 +164,7 @@ class TraverseGraph:
                 
             else:
 
-                print( tabs + "*", signal.getSourceBlock().getName(), "(", signal.getSourceBlock().getBlockId(), ")"  )
+                print( tabs + "*", signal.getSourceBlock().getName(), "(", signal.getSourceBlock().id, ")"  )
 
                 self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )
 
@@ -182,9 +182,10 @@ class ExecutionLine():
         'dependencySignals'.
     """
 
-    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ]):
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], blocksToUpdateStates : List[ Block ] ):
         self.signalOrder = signalOrder
         self.dependencySignals = dependencySignals
+        self.blocksToUpdateStates = blocksToUpdateStates
 
     def printExecutionLine(self):
         print("------ print of execution line -----")
@@ -199,6 +200,10 @@ class ExecutionLine():
         for s in self.signalOrder:
             print("  - " + s.getName() )
 
+        print(Fore.GREEN + "blocks whose states must be updated:")
+
+        for block in self.blocksToUpdateStates:
+            print("  - " + block.getName() )
 
     def getSignalsToExecute(self):
         l = []
@@ -231,6 +236,12 @@ class ExecutionLine():
             # just append the 
             self.signalOrder.append( s )
 
+        for s in executionLineToAppend.blocksToUpdateStates:
+            # TODO: (for optimization purposes) 
+            # check if there comcon blocks in the list. 
+            
+            # just append the 
+            self.blocksToUpdateStates.append( s )
 
 
 
@@ -257,6 +268,11 @@ class BuildExecutionPath:
         # the list of reachable signals
         self.reachableSignals = []
 
+        # For each signgal self.reachableSignals there might be a blocks that
+        # has an internal memory. It is required to build a list of those blocks
+        # that need a state update after their output(s) are calculated.
+        self.blocksToUpdateStates = []
+
         # list of marked signals (important to reset their visited flags)
         self.markedSignals = []
 
@@ -280,16 +296,17 @@ class BuildExecutionPath:
         #   
 
         # TODO: dependency signals should stay as theiy are but reachableSignals should not contain signals
-        #       that already have been calculated. Further, reachableSignals shall also contain dependency if theiy 
+        #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
         #       were not already calculated
 
         print("getExecutionLine on level " + str(self.level) )
 
-
+        # reset the lists
         self.reachableSignals = []
         self.dependencySignals = []
+        self.blocksToUpdateStates = []
 
-        #self.backwardTraverseSignalsExec(signalToCalculte)
+        # compute by traversing the tree
         self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
 
         # reverse of the list of reacheable signals gives the order of calculating the individual signals
@@ -298,7 +315,7 @@ class BuildExecutionPath:
         #
         self.level = self.level + 1
 
-        return ExecutionLine( self.reachableSignals, self.dependencySignals )
+        return ExecutionLine( self.reachableSignals, self.dependencySignals, self.blocksToUpdateStates )
 
     def printExecutionLine(self):
         pass
@@ -380,14 +397,20 @@ class BuildExecutionPath:
 
             return
 
-            
 
+        # get the blocks prototype function to calculate startSignal
+        block = startSignal.getSourceBlock()
+        blocksPrototype = block.getBlockPrototype()
+
+        # check if the block that yields startSignal uses internal-states to compute startSignal
+        if blocksPrototype.returnInutsToUpdateStates( startSignal ) is not None:
+            self.blocksToUpdateStates.append( block )
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
         print(tabs + "--- signals needed for " + startSignal.getName() + " (" + ") --" )
 
-        dependingSignals = startSignal.getSourceBlock().getBlockPrototype().returnDependingInputs(startSignal)
+        dependingSignals = blocksPrototype.returnDependingInputs(startSignal)
 
         if len(dependingSignals) == 0:
             # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)

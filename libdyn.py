@@ -68,7 +68,7 @@ class Simulation:
         print("-----------------------------")
 
         for blk in self.BlocksArray:
-            print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.getName() + "' (" + str(blk.getBlockId()) + ")"  )
+            print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.getName() + "' (" + str(blk.id) + ")"  )
 
             # list input singals
             if len( blk.getInputSignals() ) > 0:
@@ -86,7 +86,7 @@ class Simulation:
         # TODO: remove from this class and move to aonther class 'visualization' or 'editor'
 
         def createBlockNode(nodes_array_index, block):
-            idstr = 'bid_' + str( block.getBlockId() )
+            idstr = 'bid_' + str( block.id )
 
             node = {}
             node['name'] = block.getName()
@@ -123,11 +123,11 @@ class Simulation:
             link['source'] = ''
             link['target'] = ''
 
-            link['source_bid'] = sourceBlock.getBlockId()
-            link['target_bid'] = destBlock.getBlockId()
+            link['source_bid'] = sourceBlock.id
+            link['target_bid'] = destBlock.id
 
-            link['source_key'] = 'bid_' + str( sourceBlock.getBlockId() )
-            link['target_key'] = 'bid_' + str( destBlock.getBlockId() )
+            link['source_key'] = 'bid_' + str( sourceBlock.id )
+            link['target_key'] = 'bid_' + str( destBlock.id )
 
             return link
 
@@ -142,10 +142,10 @@ class Simulation:
             link['source'] = ''
             link['target'] = ''
 
-            link['target_bid'] = destBlock.getBlockId()
+            link['target_bid'] = destBlock.id
 
             link['source_key'] = idstr
-            link['target_key'] = 'bid_' + str( destBlock.getBlockId() )
+            link['target_key'] = 'bid_' + str( destBlock.id )
 
             return link
 
