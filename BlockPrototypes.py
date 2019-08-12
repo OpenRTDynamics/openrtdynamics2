@@ -305,7 +305,6 @@ class GenericSubsystem(BlockPrototype):
     def codeGen_destruct(self, language):
         pass
 
-
     def codeGen_setOutputReference(self, language, signal):
         # infcates that for signal, no localvar will be reserved, but a reference to that data is used
         # This is the case for signals that are system outputs
@@ -374,9 +373,15 @@ class TruggeredSubsystem(GenericSubsystem):
         #       (Every output depends on every signal in self.dependingInputs)
 
         dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
-        dependingInputs.append( self.triggerSignal )
 
-        return dependingInputs
+        # NOTE: important here to make a copy of the list returned by GenericSubsystem.
+        #       otherwise the original list would be modified by append.
+        dependingInputsOuter = dependingInputs.copy()
+        
+        dependingInputsOuter.append( self.triggerSignal )
+
+        return dependingInputsOuter
+        
 
 
     def codeGen_localvar(self, language, signal):
