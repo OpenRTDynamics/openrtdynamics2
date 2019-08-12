@@ -168,41 +168,6 @@ class CompileDiagram:
 
 
 
-
-            # # TODO: remove this loop and replace
-            # dependencySignals__ = []
-            # for s in dependencySignals:
-
-            #     # TODO: iterating over dependencySignals is not complete here: 
-            #     # iterate over all signals that are connecteed to a block that 
-            #     # has an internal state and an input that is needed to update 
-            #     # the internal states
-
-            #     # find out which signals are needed to calculate the states needed to calculate dependencySignals
-            #     # returnInutsToUpdateStates
-
-            #     if isinstance(s, SimulationInputSignal):
-            #         simulationInputSignalsForStateUpdate.append(s)
-
-            #     elif isinstance(s, BlockOutputSignal):
-            #         # step over to (and iterate) the blocks inputs that are required for state-update
-            #         for s_ in s.getSourceBlock().getBlockPrototype().returnInutsToUpdateStates( s ):
-
-            #             print(Fore.YELLOW + Style.BRIGHT + "  - " + s_.toStr() )
-
-            #             # only append these signals is not already computable
-            #             if not E.isSignalAlreadyComputable(s_):
-            #                 dependencySignals__.append(s_)
-
-            #             else:
-            #                 print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
-
-
-
-
-
-
-
             # find out which singnals must be further computed to allow a state-update of the blocks
             dependencySignals__ = []
             for s in dependencySignalsThroughStates + dependencySignals:
@@ -217,17 +182,13 @@ class CompileDiagram:
                     print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
 
 
-            # # remaining dependencies e.g. simulation inputs to calculate the outputs
-            # for s in dependencySignals:
-                
-            #     if isinstance(s, SimulationInputSignal):
-            #         simulationInputSignalsForStateUpdate.append(s)
 
-            #     elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
-            #         dependencySignals__.append(s)
 
-            #     else:
-            #         print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
+            # TODO: check whether to abort in case of len(dependencySignals__) == 0
+    
+    
+
+
 
 
             # print the list of signals
@@ -243,9 +204,6 @@ class CompileDiagram:
                 # get execution line to calculate s
                 executionLineForS = E.getExecutionLine(s)
 
-                #print('  - - - the line for signal - - - ' + s.toStr() )
-                #executionLineForS.printExecutionLine()
-
                 # store this execution line
                 executionLinesForCurrentOrder.append(executionLineForS)
 
@@ -256,9 +214,6 @@ class CompileDiagram:
 
                 # append execution line
                 executionLineForCurrentOrder.appendExecutionLine( e )
-
-            #print('  - - - the line for this order - - - '  )
-            #executionLineForCurrentOrder.printExecutionLine()
 
 
             # create a command to calcurate executionLineForCurrentOrder and append to the
@@ -297,41 +252,6 @@ class CompileDiagram:
                 else:
                     print("    (already added) " + blk.toStr())
 
-
-
-
-
-
-            # blocksWhoseStatesToUpdate = []
-            # for s in dependencySignals:
-            #     # TODO: iterating over dependencySignals is not complete here: 
-            #     # iterate over all signals that are connecteed to a block that 
-            #     # has an internal state 
-
-
-            #     print("  - " + s.getName())
-                                
-            #     if isinstance(s, BlockOutputSignal):
-            #         blk = s.getSourceBlock()
-
-            #         # NOTE: instead of checking if 'blk' is already in the list of blocks to update, the block could also be
-            #         # marked by a flag, which might be faster to execute.
-            #         if not blk in blocksWhoseStatesToUpdate_All:
-            #             # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
-            #             # dependencySignals are outputs of the same block)
-            #             blocksWhoseStatesToUpdate.append( blk )
-            #             blocksWhoseStatesToUpdate_All.append( blk )
-
-            #             print("    (added) " + blk.toStr())
-            #         else:
-            #             print("    (already added) " + blk.toStr())
-
-            #     if isinstance(s, SimulationInputSignal):
-            #         # append this signals s to the list of needed simulation inputs
-            #         # TODO: investigate if this is really needed and does not produce double appends to the list
-            #         # simulationInputSignalsForStateUpdate.append(s)
-
-            #         pass
 
 
 
