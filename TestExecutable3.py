@@ -74,8 +74,20 @@ def diff( u : dy.Signal, name : str):
 
     return y
 
+def counter():
 
-testname = 'test_triggered_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+    increase = dy.const(1, dy.DataTypeInt32(1) )
+
+    cnt = dy.signal()
+    
+    cnt << dy.delay(cnt + increase)
+
+    return cnt
+
+
+
+
+testname = 'test_forloop_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -376,6 +388,72 @@ if testname == 'test_triggered_subsystem':
 
     inputSignalsMapping = {}
     inputSignalsMapping[ U ] = 1.0
+
+
+if testname == 'test_triggered_subsystem_2':
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
+
+    baseDatatype = dy.DataTypeFloat(1) 
+
+    i_activate = dy.system_input( dy.DataTypeInt32(1) ).setName('i_activate')
+
+    i = counter()
+
+    isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).setName('isGreater')
+
+
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    outputSignals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
+
+    outputSignals[0].setName('x')
+    outputSignals[1].setName('v')
+
+    x = outputSignals[0].setName('x')
+    v = outputSignals[1].setName('v')
+
+    x = dy.delay( outputSignals[0] ).setName('x_delay')
+    v = dy.delay( outputSignals[1] ).setName('v_delay')
+
+    outputSignals = [ x, v ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
+
+
+
+
+if testname == 'test_forloop_subsystem':
+    import TestLibray as TestLibray
+    libraryEntries.append( TestLibray.oscillator )
+
+    baseDatatype = dy.DataTypeFloat(1) 
+
+    i_max = dy.system_input( dy.DataTypeInt32(1) ).setName('i_max')
+
+
+    U = dy.system_input( baseDatatype ).setName('input')
+
+    outputSignals = dy.for_loop_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, i_max=i_max )
+
+    outputSignals[0].setName('x')
+    outputSignals[1].setName('v')
+
+    x = outputSignals[0].setName('x')
+    v = outputSignals[1].setName('v')
+
+    x = dy.delay( outputSignals[0] ).setName('x_delay')
+    v = dy.delay( outputSignals[1] ).setName('v_delay')
+
+    outputSignals = [ x, v ]
+
+    inputSignalsMapping = {}
+    inputSignalsMapping[ U ] = 1.0
+
+
+    
 
 
 

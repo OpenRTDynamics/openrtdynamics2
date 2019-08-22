@@ -412,6 +412,64 @@ def triggered_subsystem( manifest, inputSignals : List[Signal], trigger : Signal
 
 
 
+
+class ForLoopSubsystem(GenericSubsystem):
+    """
+        Include a triggered sub-system by passing a manifest
+    """
+    def __init__(self, sim : Simulation, manifest, inputSignals, i_max : Signal ):
+
+        # TODO: add this signal to the blocks inputs
+        self.i_max_signal = i_max
+
+        GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ i_max ] )
+
+    def returnDependingInputs(self, outputSignal):
+
+        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
+        #       (Every output depends on every signal in self.dependingInputs)
+
+        dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
+
+        # NOTE: important here to make a copy of the list returned by GenericSubsystem.
+        #       otherwise the original list would be modified by append.
+        dependingInputsOuter = dependingInputs.copy()
+        
+        dependingInputsOuter.append( self.i_max_signal )
+
+        return dependingInputsOuter
+        
+
+
+    def codeGen_localvar(self, language, signal):
+        if language == 'c++':
+
+            return GenericSubsystem.codeGen_localvar(self, language, signal)
+
+
+    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+        lines = 'for (int i = 0; i < '  +  self.i_max_signal.name + '; ++i) {\n'
+        lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+        lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+        lines += '}\n'
+
+        return lines
+
+    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+        # lines = 'if (' +  self.triggerSignal.name + ') {\n'
+        # lines += '}\n'
+
+        lines = ''
+
+        return lines
+        
+def for_loop_subsystem( manifest, inputSignals : List[Signal], i_max : Signal ):
+    return ForLoopSubsystem( get_simulation_context(), manifest, inputSignals, i_max ).outputSignals
+
+        
+
+
+
             
 
 
