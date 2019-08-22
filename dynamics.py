@@ -10,6 +10,8 @@ from CompileDiagram import *
 from SignalInterface import *
 from SystemLibrary import *
 
+from StandardLibrary import *
+
 print("-- RTDynamics II loaded --")
 
 def signal():

@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'test_forloop_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_triggered_subsystem_2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -398,7 +398,7 @@ if testname == 'test_triggered_subsystem_2':
 
     i_activate = dy.system_input( dy.DataTypeInt32(1) ).setName('i_activate')
 
-    i = counter()
+    i = dy.counter()
 
     isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).setName('isGreater')
 
