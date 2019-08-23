@@ -35,6 +35,29 @@ class SignalUser(UndeterminedSignal):
     def __truediv__(self, other): 
         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
+    # comparison operators
+    def __le__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+    def __ge__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+
+
+    def __lt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<' )
+
+    def __gt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>' )
+
+
+    def __eq__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '==' )
+
+    def __ne__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+
+
+
     def __lshift__(self, other): 
         # close a feedback loop by connecting the signals self and other        
         print("closing loop: " + self.getName() + ' <--> ' + other.getName() )

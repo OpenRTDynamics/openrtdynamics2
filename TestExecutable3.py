@@ -400,7 +400,9 @@ if testname == 'test_triggered_subsystem_2':
 
     i = dy.counter()
 
-    isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).setName('isGreater')
+#    isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).setName('isGreater')
+    isGreater = i_activate < i 
+    isGreater.setName('isGreater')
 
 
     U = dy.system_input( baseDatatype ).setName('input')
