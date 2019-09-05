@@ -532,6 +532,29 @@ def gain(u : Signal, gain : float ):
     return Gain(get_simulation_context(), u, gain).outputSignals
 
 
+#
+# Cast to given datatype
+#
+
+class ConvertDatatype(StaticFn_1To1):
+    def __init__(self, sim : Simulation, u : Signal, target_type : DataType ):
+
+        self._target_type = target_type
+
+        StaticFn_1To1.__init__(self, sim, u)
+
+    def configDefineOutputTypes(self, inputTypes):
+        return [ self._target_type ]  
+
+    def codeGen_output(self, language, signal : Signal):
+        if language == 'c++':
+            # TODO: only = is used and the c++ compiler decides how to convert...
+            return signal.name + ' = ' + self.inputSignal(0).name + ';\n'
+
+def convert(u : Signal, target_type : DataType ):
+    return ConvertDatatype(get_simulation_context(), u, target_type).outputSignals
+
+
 
 #
 # Basic operators

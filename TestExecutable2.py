@@ -75,7 +75,7 @@ testname = 'test_oscillator_controlled' # 'test1', 'test_integrator', 'test_osci
 
 if testname == 'test1':
 
-    baseDatatype = DataTypeFloat(1) 
+    baseDatatype = DataTypeFloat64(1) 
     # baseDatatype = DataTypeInt32(1) 
 
 
@@ -112,7 +112,7 @@ if testname == 'test1':
 
 if testname == 'test_integrator':
 
-    baseDatatype = DataTypeFloat(1) 
+    baseDatatype = DataTypeFloat64(1) 
     # baseDatatype = DataTypeInt32(1) 
 
 
@@ -142,7 +142,7 @@ if testname == 'test_integrator':
 
 if testname == 'test_oscillator':
 
-    baseDatatype = DataTypeFloat(1) 
+    baseDatatype = DataTypeFloat64(1) 
     # baseDatatype = DataTypeInt32(1) 
 
 
@@ -174,7 +174,7 @@ if testname == 'test_oscillator':
 
 if testname == 'test_oscillator_controlled':
 
-    baseDatatype = DataTypeFloat(1) 
+    baseDatatype = DataTypeFloat64(1) 
 
     # input to simulations
     # Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')

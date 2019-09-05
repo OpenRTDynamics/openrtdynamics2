@@ -27,7 +27,7 @@ def define_system_oscillator():
 
     print(dy.get_simulation_context())
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     # input to the system
     damping = dy.system_input( baseDatatype ).setName('damping')

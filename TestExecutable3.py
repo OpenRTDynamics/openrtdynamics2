@@ -87,13 +87,13 @@ def counter():
 
 
 
-testname = 'test_triggered_subsystem_2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_ramp' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
 if testname == 'test1':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     # baseDatatype = DataTypeInt32(1) 
 
     U = dy.system_input( baseDatatype ).setName('extU')
@@ -120,7 +120,7 @@ if testname == 'test1':
 
 if testname == 'test_integrator':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     U = dy.system_input( baseDatatype ).setName('extU')
 
@@ -140,7 +140,7 @@ if testname == 'test_integrator':
 
 if testname == 'test_oscillator':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     U = dy.system_input( baseDatatype ).setName('extU')
 
@@ -161,7 +161,7 @@ if testname == 'test_oscillator':
 
 if testname == 'test_oscillator_with_modulation':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     U = dy.system_input( baseDatatype ).setName('extU')
     damping = dy.system_input( baseDatatype ).setName('dampling')
@@ -188,7 +188,7 @@ if testname == 'test_oscillator_controlled':
     libraryEntries.append( TestLibray.oscillator )
 
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     # input to simulations
     # Kp = SimulationInputSignal(sim, port=0, datatype=baseDatatype ).setName('extU')
@@ -267,7 +267,7 @@ if testname == 'test_oscillator_controlled':
 
 if testname == 'basic':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
     x1 = dy.delay(U)
@@ -281,7 +281,7 @@ if testname == 'test_oscillator_from_lib':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
     outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
@@ -304,7 +304,7 @@ if testname == 'test_oscillator_from_lib':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
     outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
@@ -326,7 +326,7 @@ if testname == 'test_triggered_oscillator_from_lib':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
     outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
@@ -347,7 +347,7 @@ if testname == 'test_triggered_oscillator_from_lib':
 
 if testname == 'test_comparison':
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
     u1 = dy.system_input( baseDatatype ).setName('u1')
     u2 = dy.system_input( baseDatatype ).setName('u2')
 
@@ -360,11 +360,38 @@ if testname == 'test_comparison':
     inputSignalsMapping[ u1 ] = 1.0
     inputSignalsMapping[ u2 ] = 1.1
 
+
+if testname == 'test_step':
+    y = dy.float64(3) * dy.step(10) + dy.float64(-5) * dy.step(40) + dy.float64(2) * dy.step(70) 
+
+    outputSignals = [ y ]
+    inputSignalsMapping = {}
+
+if testname == 'test_ramp':
+    y1 = dy.float64(3) * dy.ramp(10)  # + dy.float64(2) * dy.ramp(70) 
+    # y2 = dy.float64(-5) * dy.ramp(40)
+
+    outputSignals = [ y1 ]
+    inputSignalsMapping = {}
+
+
+
+if testname == 'test_datatype_convertion':
+    y = dy.int32(333)
+
+    y = dy.convert(y, dy.DataTypeFloat64(1) )
+    
+    outputSignals = [ y ]
+    inputSignalsMapping = {}
+
+
+
+
 if testname == 'test_triggered_subsystem':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     u1 = dy.system_input( baseDatatype ).setName('u1')
     u2 = dy.system_input( baseDatatype ).setName('u2')
@@ -394,7 +421,7 @@ if testname == 'test_triggered_subsystem_2':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     i_activate = dy.system_input( dy.DataTypeInt32(1) ).setName('i_activate')
 
@@ -431,7 +458,7 @@ if testname == 'test_forloop_subsystem':
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat(1) 
+    baseDatatype = dy.DataTypeFloat64(1) 
 
     i_max = dy.system_input( dy.DataTypeInt32(1) ).setName('i_max')
 

@@ -98,7 +98,7 @@ class DataTypeNumeric(DataType):
         DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
 
 
-class DataTypeFloat(DataTypeNumeric):
+class DataTypeFloat64(DataTypeNumeric):
 
     def __init__(self, size : int):
         DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
@@ -149,8 +149,8 @@ def computeResultingNumericType( datatypes : List[ DataTypeNumeric ] ):
     for t in datatypes:
         # ignore undefined types
         if t is not None:
-            if isinstance(t, DataTypeFloat):
-                returnType = DataTypeFloat(1)
+            if isinstance(t, DataTypeFloat64):
+                returnType = DataTypeFloat64(1)
 
     return returnType
         

@@ -63,7 +63,7 @@ class SignalUser(UndeterminedSignal):
         print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
         self.setequal(other)
         
-        return self
+        return other
 
 
 class BlockOutputSignalUser(BlockOutputSignal):
@@ -97,6 +97,27 @@ class BlockOutputSignalUser(BlockOutputSignal):
         return self
 
 
+    # comparison operators
+    def __le__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+    def __ge__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+
+
+    def __lt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<' )
+
+    def __gt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>' )
+
+
+    def __eq__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '==' )
+
+    def __ne__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+
 class SimulationInputSignalUser(SimulationInputSignal):
     """
         A special signal that markes an input to a simulation.
@@ -126,3 +147,25 @@ class SimulationInputSignalUser(SimulationInputSignal):
     #     other.setequal(self)
         
         return self
+
+
+    # comparison operators
+    def __le__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+    def __ge__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+
+
+    def __lt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '<' )
+
+    def __gt__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '>' )
+
+
+    def __eq__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '==' )
+
+    def __ne__(self, other):
+        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
