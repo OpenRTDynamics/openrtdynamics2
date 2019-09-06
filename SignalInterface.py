@@ -1,5 +1,6 @@
 
 # from BlockPrototypes import Operator1
+from typing import Dict, List
 
 import BlockPrototypes as block_prototypes
 
@@ -13,159 +14,285 @@ from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInpu
     signal variables among each other.
 """
 
-# TODO: This shall be the undetermined signal
-class SignalUser(UndeterminedSignal):
-    def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
 
-        UndeterminedSignal.__init__(self, sim)
-    
+class SignalUserTemplate(object):
+    def __init__(self, sim, wrapped_signal : Signal):
+
+        self.sim = sim
+        self.wrapped_signal_ = wrapped_signal
+
+    @property
+    def unwrap(self):
+        return self.wrapped_signal_
+
+
+    @property
+    def name(self):
+        return self.wrapped_signal_.name
+
+    # ...
 
     #
     # operator overloads
     #
     def __add__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
+        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputSignals )
 
     def __sub__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
+        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputSignals )
 
     def __mul__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
+        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputSignals )
 
     def __truediv__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
+        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputSignals )
 
     # comparison operators
     def __le__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '<=' ) )
 
     def __ge__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '>=' ) )
 
 
     def __lt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '<' ) )
 
     def __gt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '>' ) )
 
 
     def __eq__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '==' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '==' ) )
 
     def __ne__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+        return ( block_prototypes.comparison(left = self, right = other, operator = '!=' ) )
 
 
 
+
+
+# prev name was SignalUser, SignalUserAnonymous
+class SignalUser(SignalUserTemplate):
+
+    def __init__(self, sim):
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
+
+
+# only ananymous signal
     def __lshift__(self, other): 
         # close a feedback loop by connecting the signals self and other        
-        print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
-        self.setequal(other)
+        print("closing loop: " + self.name + ' <--> ' + other.name )
+        self.unwrap.setequal(other.unwrap)
         
         return other
 
 
-class BlockOutputSignalUser(BlockOutputSignal):
+
+
+
+
+
+class BlockOutputSignalUser(SignalUserTemplate):
     """
         A signal that is the output of a block (normal case)
     """
 
-    def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
-        BlockOutputSignal.__init__(self, sim, datatype, sourceBlock, sourcePort)
-
-    #
-    # operator overloads
-    #
-    def __add__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
-
-    def __sub__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
-
-    def __mul__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
-
-    def __truediv__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
-
-    # def __lshift__(self, other): 
-    #     # close a feedback loop by connecting the signals self and other        
-    #     print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
-    #     other.setequal(self)
-        
-        return self
+    def __init__(self, signalToWrap : BlockOutputSignal):
+        SignalUserTemplate.__init__( self, sim=signalToWrap.system, wrapped_signal=signalToWrap  )
 
 
-    # comparison operators
-    def __le__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
-
-    def __ge__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
 
 
-    def __lt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<' )
-
-    def __gt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>' )
 
 
-    def __eq__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '==' )
 
-    def __ne__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
-
-class SimulationInputSignalUser(SimulationInputSignal):
+class SimulationInputSignalUser(SignalUserTemplate):
     """
         A special signal that markes an input to a simulation.
     """
 
     def __init__(self, sim, datatype = None):
-        SimulationInputSignal.__init__(self, sim, datatype=datatype)
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )
 
-    #
-    # operator overloads
-    #
-    def __add__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
 
-    def __sub__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
 
-    def __mul__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
 
-    def __truediv__(self, other): 
-        return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
 
-    # def __lshift__(self, other): 
-    #     # close a feedback loop by connecting the signals self and other        
-    #     print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
-    #     other.setequal(self)
+def unwrap( signal : SignalUserTemplate ):
+    return signal.unwrap
+
+def unwrap_list( signals : List[SignalUserTemplate] ):
+
+    # create a new list of signals
+    list_of_unwrapped_signals=[]
+    for signal in signals:
+        list_of_unwrapped_signals.append( signal.unwrap )
+
+    return list_of_unwrapped_signals 
+
+def wrap_signal( signal : Signal ):
+    # wraps a block output signal
+    return BlockOutputSignalUser( signal )
+
+
+def wrap_signal_list( signals : List[ Signal ] ):
+    # wraps a list of block output signals
+    list_of_wrapped_signals=[]
+    for signal in signals:
+        list_of_wrapped_signals.append( BlockOutputSignalUser( signal ) )
+
+    return list_of_wrapped_signals
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # TODO: This shall be the undetermined signal
+# class SignalUser(UndeterminedSignal):
+#     def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+
+#         UndeterminedSignal.__init__(self, sim)
+    
+
+#     #
+#     # operator overloads
+#     #
+#     def __add__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
+
+#     def __sub__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
+
+#     def __mul__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
+
+#     def __truediv__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
+
+#     # comparison operators
+#     def __le__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+#     def __ge__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+
+
+#     def __lt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<' )
+
+#     def __gt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>' )
+
+
+#     def __eq__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '==' )
+
+#     def __ne__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+
+
+
+#     def __lshift__(self, other): 
+#         # close a feedback loop by connecting the signals self and other        
+#         print("closing loop: " + self.getName() + ' <--> ' + other.getName() )
+#         self.setequal(other)
         
-        return self
+#         return other
 
 
-    # comparison operators
-    def __le__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+# class BlockOutputSignalUser(BlockOutputSignal):
+#     """
+#         A signal that is the output of a block (normal case)
+#     """
 
-    def __ge__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+#     def __init__(self,  sim, datatype = None, sourceBlock = None, sourcePort = None):
+#         BlockOutputSignal.__init__(self, sim, datatype, sourceBlock, sourcePort)
+
+#     #
+#     # operator overloads
+#     #
+#     def __add__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
+
+#     def __sub__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
+
+#     def __mul__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
+
+#     def __truediv__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
+
+#     # comparison operators
+#     def __le__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+#     def __ge__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>=' )
 
 
-    def __lt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '<' )
+#     def __lt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<' )
 
-    def __gt__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '>' )
+#     def __gt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>' )
 
 
-    def __eq__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '==' )
+#     def __eq__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '==' )
 
-    def __ne__(self, other):
-        return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+#     def __ne__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '!=' )
+
+# class SimulationInputSignalUser(SimulationInputSignal):
+#     """
+#         A special signal that markes an input to a simulation.
+#     """
+
+#     def __init__(self, sim, datatype = None):
+#         SimulationInputSignal.__init__(self, sim, datatype=datatype)
+
+#     #
+#     # operator overloads
+#     #
+#     def __add__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='+').outputSignals
+
+#     def __sub__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='-').outputSignals
+
+#     def __mul__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='*').outputSignals
+
+#     def __truediv__(self, other): 
+#         return block_prototypes.Operator1(self.sim, inputSignals=[ self, other ], operator='/').outputSignals
+
+#     # comparison operators
+#     def __le__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<=' )
+
+#     def __ge__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>=' )
+
+
+#     def __lt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '<' )
+
+#     def __gt__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '>' )
+
+
+#     def __eq__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '==' )
+
+#     def __ne__(self, other):
+#         return block_prototypes.comparison(left = self, right = other, operator = '!=' )

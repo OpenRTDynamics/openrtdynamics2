@@ -108,13 +108,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                 if self.defineVarsForOutputs: # This is flipped by its name
                     for s in self.targetSignals:
 
-                        iseq = SignalsWithoutOutputs[0] == s
-                        print(iseq)
-
-
                         SignalsWithoutOutputs.remove( s )
-
-
 
                         # notify the block prototype that the signal s will be a system output
                         s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)

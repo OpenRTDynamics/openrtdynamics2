@@ -38,6 +38,11 @@ class Signal(object):
     def nameIsDefault(self):
         return self._nameIsDefault
 
+    @property
+    def system(self):
+        # system == simulation
+        return self.sim
+
     def lookupSource(self):
         return self
 

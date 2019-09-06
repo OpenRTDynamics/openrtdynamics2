@@ -3,6 +3,7 @@ from Signal import *
 from Block import *
 from SimulationContext import *
 from BlockInterface import *
+from SignalInterface import *
 
 import CodeGenHelper as cgh
 
@@ -349,8 +350,8 @@ class GenericSubsystem(BlockPrototype):
             # input to this call are the signals in self.inputsToUpdateStates
             return self.codeGen_call_UpdateFunction(self.instanceVarname, self.manifest, language)
 
-def generic_subsystem( manifest, inputSignals : List[Signal] ):
-    return GenericSubsystem(get_simulation_context(), manifest, inputSignals).outputSignals
+def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
+    return wrap_signal_list( GenericSubsystem(get_simulation_context(), manifest, unwrap_list(inputSignals) ).outputSignals )
 
 
 
@@ -404,8 +405,8 @@ class TruggeredSubsystem(GenericSubsystem):
 
         return lines
         
-def triggered_subsystem( manifest, inputSignals : List[Signal], trigger : Signal ):
-    return TruggeredSubsystem( get_simulation_context(), manifest, inputSignals, trigger ).outputSignals
+def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate ):
+    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_list( inputSignals ), unwrap( trigger ) ).outputSignals )
 
         
 
@@ -463,8 +464,8 @@ class ForLoopSubsystem(GenericSubsystem):
 
         return lines
         
-def for_loop_subsystem( manifest, inputSignals : List[Signal], i_max : Signal ):
-    return ForLoopSubsystem( get_simulation_context(), manifest, inputSignals, i_max ).outputSignals
+def for_loop_subsystem( manifest, inputSignals : List[SignalUserTemplate], i_max : SignalUserTemplate ):
+    return wrap_signal_list( ForLoopSubsystem( get_simulation_context(), manifest, unwrap_list( inputSignals ), unwrap( i_max ) ).outputSignals )
 
         
 
@@ -501,10 +502,10 @@ class Const(StaticSource_To1):
             return signal.name + ' = ' + str( self.constant ) + ';\n'
 
 def dyn_const(sim : Simulation, constant, datatype ):
-    return Const(sim, constant, datatype).outputSignals
+    return wrap_signal( Const(sim, constant, datatype).outputSignals )
 
 def const(constant, datatype ):
-    return Const(get_simulation_context(), constant, datatype).outputSignals
+    return wrap_signal( Const(get_simulation_context(), constant, datatype).outputSignals )
 
 
 
@@ -526,10 +527,10 @@ class Gain(StaticFn_1To1):
             return signal.name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
 
 def dyn_gain(sim : Simulation, u : Signal, gain : float ):
-    return Gain(sim, u, gain).outputSignals
+    return wrap_signal( Gain(sim, u.unwrap, gain).outputSignals )
 
-def gain(u : Signal, gain : float ):
-    return Gain(get_simulation_context(), u, gain).outputSignals
+def gain(u : SignalUserTemplate, gain : float ):
+    return wrap_signal( Gain(get_simulation_context(), u.unwrap, gain).outputSignals )
 
 
 #
@@ -551,8 +552,8 @@ class ConvertDatatype(StaticFn_1To1):
             # TODO: only = is used and the c++ compiler decides how to convert...
             return signal.name + ' = ' + self.inputSignal(0).name + ';\n'
 
-def convert(u : Signal, target_type : DataType ):
-    return ConvertDatatype(get_simulation_context(), u, target_type).outputSignals
+def convert(u : SignalUserTemplate, target_type : DataType ):
+    return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputSignals )
 
 
 
@@ -584,11 +585,11 @@ class Add(StaticFn_NTo1):
 
             return lines
 
-def dyn_add(sim : Simulation, inputSignals : List[Signal], factors : List[float]):
-    return Add(sim, inputSignals, factors).outputSignals
+def dyn_add(sim : Simulation, inputSignals : List[SignalUserTemplate], factors : List[float]):
+    return wrap_signal( Add(sim, unwrap_list( inputSignals ), factors).outputSignals )
 
-def add(inputSignals : List[Signal], factors : List[float]):
-    return Add(get_simulation_context(), inputSignals, factors).outputSignals
+def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
+    return wrap_signal( Add(get_simulation_context(), inputSignals, factors).outputSignals )
 
 
 class Operator1(StaticFn_NTo1):
@@ -612,11 +613,11 @@ class Operator1(StaticFn_NTo1):
             return lines
 
 
-def dyn_operator1(sim : Simulation, inputSignals : List[Signal], operator : str ):
-    return Operator1(sim, inputSignals, operator).outputSignals
+def dyn_operator1(sim : Simulation, inputSignals : List[SignalUserTemplate], operator : str ):
+    return wrap_signal( Operator1(sim, unwrap_list( inputSignals ), operator).outputSignals )
 
-def operator1(inputSignals : List[Signal], operator : str ):
-    return Operator1(get_simulation_context(), inputSignals, operator).outputSignals
+def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
+    return wrap_signal( Operator1(get_simulation_context(), unwrap_list( inputSignals ), operator).outputSignals )
 
 
 
@@ -642,8 +643,8 @@ class ComparisionOperator(StaticFn_NTo1):
             return lines
 
 
-def comparison(left : Signal, right : Signal, operator : str ):
-    return ComparisionOperator(get_simulation_context(), left, right, operator).outputSignals
+def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
+    return wrap_signal( ComparisionOperator(get_simulation_context(), left.unwrap, right.unwrap, operator).outputSignals )
 
 
 
@@ -663,17 +664,17 @@ class StaticFnByName_1To1(StaticFn_1To1):
             return signal.name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
 
 
-def dyn_sin(sim : Simulation, u : Signal ):
-    return StaticFnByName_1To1(sim, u, 'sin').outputSignals
+def dyn_sin(sim : Simulation, u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(sim, u.unwrap, 'sin').outputSignals )
 
-def dyn_cos(sim : Simulation, u : Signal ):
-    return StaticFnByName_1To1(sim, u, 'cos').outputSignals
+def dyn_cos(sim : Simulation, u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(sim, u.unwrap, 'cos').outputSignals )
 
-def sin(u : Signal ):
-    return StaticFnByName_1To1(get_simulation_context(), u, 'sin').outputSignals
+def sin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sin').outputSignals )
 
-def cos(u : Signal ):
-    return StaticFnByName_1To1(get_simulation_context(), u, 'cos').outputSignals
+def cos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'cos').outputSignals )
 
 
 
@@ -703,11 +704,11 @@ class Delay(Dynamic_1To1):
             return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
 
 
-def dyn_delay(sim : Simulation, inputSignals : Signal ):
-    return Delay(sim, inputSignals).outputSignals
+def dyn_delay(sim : Simulation, u : SignalUserTemplate ):
+    return wrap_signal( Delay(sim, u.unwrap ).outputSignals )
 
-def delay(inputSignals : Signal):
-    return Delay(get_simulation_context(), inputSignals).outputSignals
+def delay(u : SignalUserTemplate):
+    return wrap_signal( Delay(get_simulation_context(), u.unwrap ).outputSignals )
 
 
 

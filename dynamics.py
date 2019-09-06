@@ -15,9 +15,11 @@ from StandardLibrary import *
 print("-- RTDynamics II loaded --")
 
 def signal():
+    # return an anonymous signal
     return SignalUser(get_simulation_context())
 
 def system_input(datatype):
+    # intoduce a system input 
     return SimulationInputSignal(get_simulation_context(), datatype)
     
 
@@ -58,4 +60,4 @@ def compile_system(sim, outputSignals):
     return comileResults
 
 def compile_current_system(outputSignals):
-    return compile_system( get_simulation_context(), outputSignals )
+    return compile_system( get_simulation_context(), unwrap_list( outputSignals ) )

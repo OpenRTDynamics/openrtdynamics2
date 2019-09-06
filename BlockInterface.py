@@ -17,11 +17,16 @@ class BlockPrototype(object):
 
     def __init__(self, sim, inputSignals, nOutputs ):
 
+        # unwrap the input signals
+        # inputSignalsUnwrapped = []
+        #for i in range(0, len( inputSignals )):
+        #    inputSignalsUnwrapped.append( inputSignals[i].unwrap )
+
         self.block = Block(sim, self, inputSignals, blockname = '')
 
         self._outputSignals = []
         for i in range(0,nOutputs):
-            self._outputSignals.append( BlockOutputSignalUser(sim, None, self.block, sourcePort=i  ) )
+            self._outputSignals.append( BlockOutputSignal(sim, None, self.block, sourcePort=i  ) )
 
         self.block.configOutputSignals( self._outputSignals )
 

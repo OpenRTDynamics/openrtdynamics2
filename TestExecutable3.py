@@ -91,6 +91,8 @@ testname = 'test_ramp' # 'test1', 'test_integrator', 'test_oscillator_controlled
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
+testname = 'test_step'
+
 if testname == 'test1':
 
     baseDatatype = dy.DataTypeFloat64(1) 
