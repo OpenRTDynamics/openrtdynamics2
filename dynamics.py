@@ -20,7 +20,7 @@ def signal():
 
 def system_input(datatype):
     # intoduce a system input 
-    return SimulationInputSignal(get_simulation_context(), datatype)
+    return SimulationInputSignalUser(get_simulation_context(), datatype)
     
 
 def compile_system(sim, outputSignals):

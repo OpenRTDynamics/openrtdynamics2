@@ -13,7 +13,7 @@ def eInt( u : dy.Signal, Ts : float, name : str):
     i = dy.add( [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
     y = dy.delay( i ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
-    yFb.setequal( y )
+    yFb << y 
 
     return y
 

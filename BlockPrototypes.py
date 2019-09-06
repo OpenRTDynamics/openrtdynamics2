@@ -589,7 +589,7 @@ def dyn_add(sim : Simulation, inputSignals : List[SignalUserTemplate], factors :
     return wrap_signal( Add(sim, unwrap_list( inputSignals ), factors).outputSignals )
 
 def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
-    return wrap_signal( Add(get_simulation_context(), inputSignals, factors).outputSignals )
+    return wrap_signal( Add(get_simulation_context(), unwrap_list( inputSignals ), factors).outputSignals )
 
 
 class Operator1(StaticFn_NTo1):

@@ -27,7 +27,7 @@ def firstOrder( u : dy.Signal, z_inf, name : str):
     i = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
     y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
-    yFb.setequal( y )
+    yFb << y
 
     return y
 
@@ -40,7 +40,7 @@ def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str):
     d = dy.delay( s).setNameOfOrigin(name + '_d (delay)').setName('d'+name+'')
     y = dy.gain( d, gain).setNameOfOrigin(name + '_y (gain)').setName('y'+name+'')
 
-    yFb.setequal( y )
+    yFb << y
 
     return y
 
@@ -52,7 +52,7 @@ def dInt( u : dy.Signal, name : str):
     i = dy.add( [ yFb, u ], [ 1, 1 ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
     y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
-    yFb.setequal( y )
+    yFb << y
 
     return y
 
@@ -63,7 +63,7 @@ def eInt( u : dy.Signal, Ts : float, name : str):
     i = dy.add( [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
     y = dy.delay( i ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
-    yFb.setequal( y )
+    yFb << y
 
     return y
 
@@ -91,7 +91,7 @@ testname = 'test_ramp' # 'test1', 'test_integrator', 'test_oscillator_controlled
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
-testname = 'test_step'
+testname = 'test_oscillator_controlled'
 
 if testname == 'test1':
 

@@ -306,7 +306,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
         ioExport += self.codeGen_writeIO(self.mainSimulation.resetCommand)
 
         self.template = Template(self.template).safe_substitute( iMax=iMax,
-                                                                    ioExport=ioExport,
+                                                                 ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
         # call helper to fill in some generic elements into the template
