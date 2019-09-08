@@ -373,6 +373,18 @@ class BuildExecutionPath:
             #print(tabs + "algebraic loop detected at signal " + startSignal.toStr())
             #raise BaseException("algebraic loop detected at signal " + startSignal.toStr())
 
+            #
+            # move startSignal to an upper level in the execution linst
+            #
+
+            # remove from its current position
+            self.reachableSignals.remove( startSignal )
+
+            # put to the front
+            self.reachableSignals.append( startSignal )
+
+            print(Style.DIM + tabs + "moved to the current head of the execution list")
+            
             return
 
 
@@ -380,7 +392,7 @@ class BuildExecutionPath:
         if startSignal.graphTraversionMarkerMarkIsVisited():
             # - a previously computed signal has been reached
 
-            print(Style.DIM + tabs + "*** visited *** "  + startSignal.getName() + " (" + ") ****") 
+            print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
 
             self.dependencySignals.append( startSignal )
 
