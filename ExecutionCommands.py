@@ -128,7 +128,10 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 
             if flag == 'code':
-                # lines += '{\n'
+                lines += '\n// calculating the block outputs in the following order ' + signalListHelper_names_string(self.executionLine.signalOrder ) + '\n'
+                lines += '// that depend on ' + signalListHelper_names_string(self.executionLine.dependencySignals) + '\n'
+                lines += '// dependencies that require a state update are ' + signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
+                lines += '\n'
 
                 for s in self.executionLine.getSignalsToExecute():
 
@@ -179,7 +182,6 @@ class CommandResetStates(ExecutionCommand):
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    #lines += b.getBlockPrototype().codeGen('c++', 'reset') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_reset('c++')
 
         return lines
@@ -237,7 +239,9 @@ class CommandUpdateStates(ExecutionCommand):
                     lines += b.getBlockPrototype().codeGen_defStates('c++')
 
             if flag == 'code':
+                lines += '\n'
                 lines += ''
+
                 for b in self.blockList:
                     #lines += b.getBlockPrototype().codeGen('c++', 'update') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_update('c++')
@@ -302,7 +306,11 @@ class CommandCacheOutputs(ExecutionCommand):
                     lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
 
             if flag == 'code':
-                lines += ''
+                lines += '\n'
+                lines += '// saving the signals ' + signalListHelper_names_string(self.signals) + ' into the states \n'
+                lines += '\n'
+
+
                 for s in self.signals:
 
                     cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
@@ -347,7 +355,8 @@ class CommandRestoreCache(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n'
-                lines = '// restore cached signals\n'
+                lines += '// restoring the signals ' + signalListHelper_names_string(self.signals) + ' from the states \n'
+                lines += '\n'
 
                 for s in self.signals:
 
