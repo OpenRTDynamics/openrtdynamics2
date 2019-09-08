@@ -91,7 +91,7 @@ testname = 'test_ramp' # 'test1', 'test_integrator', 'test_oscillator_controlled
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
-testname = 'test_oscillator_controlled'
+# testname = 'test_oscillator_controlled' # TODO: this fails
 
 if testname == 'test1':
 
@@ -370,10 +370,12 @@ if testname == 'test_step':
     inputSignalsMapping = {}
 
 if testname == 'test_ramp':
-    y1 = dy.float64(3) * dy.ramp(10)  # + dy.float64(2) * dy.ramp(70) 
-    # y2 = dy.float64(-5) * dy.ramp(40)
+    y1 = dy.float64(3) * dy.ramp(10) - dy.float64(2) * dy.ramp(70) 
+    y2 = dy.float64(-5) * dy.ramp(40)
 
-    outputSignals = [ y1 ]
+    y1.setName('y1')
+
+    outputSignals = [ y1, y2 ]
     inputSignalsMapping = {}
 
 

@@ -58,14 +58,21 @@ def step(k_step : int):
 def ramp(k_start : int):
     # TODO
     k = dy.counter()
+
+    # k.setName('k')
+
     active = dy.int32(k_start) <= k
 
-    y = dy.convert( (k - dy.int32(k_start)), dy.DataTypeFloat64(1) ) * dy.convert( active, dy.DataTypeFloat64(1) ) 
+    # active.setName('active')
 
+    # y = dy.convert( (k - dy.int32(k_start)), dy.DataTypeFloat64(1) ) * dy.convert( active, dy.DataTypeFloat64(1) ) 
 
-    #y = dy.convert( (k ), dy.DataTypeFloat64(1) )
+    # return y
 
-    return y
+    linearRise = dy.convert( (k - dy.int32(k_start) ), dy.DataTypeFloat64(1) )  # .setName('linearRise')
+    activation = dy.convert( active, dy.DataTypeFloat64(1) )  #.setName('activation')
+
+    return activation * linearRise
 
 
 
