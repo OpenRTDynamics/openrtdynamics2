@@ -5,7 +5,7 @@ import dynamics as dy
 def int32(value : int):
     return dy.const(value, dy.DataTypeInt32(1) )
 
-def float64(value : int):
+def float64(value : float):
     return dy.const(value, dy.DataTypeFloat64(1) )
 
 def boolean(value : int):
@@ -31,7 +31,7 @@ class Counter():
         by more than one destination block. The instance of this class is per simulation
         and will be stored in the components property of the current get_simulation_context()
     """
-    def __init__(self, counter_signal):
+    def __init__(self, counter_signal : dy.Signal):
         self.counter_signal_ = counter_signal
         self.hits = 0
     
@@ -66,6 +66,29 @@ def counter():
 
 
 
+# def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
+
+#     zinf = dy.float64( z_infinity )
+#     zinf_ = dy.float64( 1 - z_infinity )
+
+#     y = dy.signal()
+
+#     y << dy.delay( zinf * y + zinf_ * u )
+
+#     return y
+
+
+def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
+
+    zinf = dy.float64( z_infinity )
+    zinf_ = dy.float64( 1 - z_infinity )
+
+    y_delayed = dy.signal()
+    y =  zinf * y_delayed + zinf_ * u
+
+    y_delayed << dy.delay(y)
+    
+    return y
 
 
 def diff(u : dy.Signal):

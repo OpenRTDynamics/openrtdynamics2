@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'test_ramp' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'dtf_lowpass_1_order_V2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -389,6 +389,28 @@ if testname == 'test_datatype_convertion':
     inputSignalsMapping = {}
 
 
+if testname == 'dtf_lowpass_1_order':
+
+    u = dy.float64(1.0)
+
+    y = dy.dtf_lowpass_1_order(u, z_infinity=0.95 )
+    
+    outputSignals = [ y ]
+    inputSignalsMapping = {}
+
+
+if testname == 'dtf_lowpass_1_order_V2':
+
+    u = dy.float64(1.0)
+
+    y1 = dy.dtf_lowpass_1_order(u, z_infinity=0.97 ).setName('_1st_order')
+    y2 = dy.dtf_lowpass_1_order(y1, z_infinity=0.97 ).setName('_2nd_order')
+    y3 = dy.dtf_lowpass_1_order(y2, z_infinity=0.97 ).setName('_3rd_order')
+    y4 = dy.dtf_lowpass_1_order(y3, z_infinity=0.97 ).setName('_4th_order')
+    y5 = dy.dtf_lowpass_1_order(y4, z_infinity=0.97 ).setName('_5th_order')
+    
+    outputSignals = [ y1, y2, y3, y4, y5 ]
+    inputSignalsMapping = {}
 
 
 if testname == 'test_triggered_subsystem':
