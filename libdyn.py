@@ -37,6 +37,9 @@ class Simulation:
         # manager to determine datatypes as new blocks are added
         self.datatypePropagation = DatatypePropagation(self)
 
+        # components
+        self.components_ = {}
+
     def getName(self):
         return self.name
 
@@ -53,13 +56,6 @@ class Simulation:
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
         print("added block ", blk.getName() )
-
-    # create and return a new simulation input signal
-    # def newInput(self, datatype):
-    #     s = SimulationInputSignal(self, port=self.simulationInputSignalCounter, datatype=datatype )
-    #     self.simulationInputSignalCounter += 1
-
-    #     return s
 
 
     def ShowBlocks(self):
@@ -81,6 +77,11 @@ class Simulation:
                 print(Fore.GREEN + "  output signals")
                 for inSig in blk.getOutputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
+
+    @property
+    def components(self):
+        return self.components_
+
 
     def exportGraph(self):
         # TODO: remove from this class and move to aonther class 'visualization' or 'editor'
