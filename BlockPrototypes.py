@@ -101,6 +101,7 @@ class StaticFn_1To1(BlockPrototype):
 
 
 
+
 class StaticFn_NTo1(BlockPrototype):
     def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
 
@@ -645,6 +646,64 @@ class ComparisionOperator(StaticFn_NTo1):
 
 def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
     return wrap_signal( ComparisionOperator(get_simulation_context(), left.unwrap, right.unwrap, operator).outputSignals )
+
+
+
+
+
+
+
+class SwitchNto1(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, state : Signal, inputs : List [Signal] ):
+
+        self.inputs = inputs
+        self.state = state
+
+        inputSignals = [state]
+        inputSignals.extend(inputs)
+
+        StaticFn_NTo1.__init__(self, sim, inputSignals )
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # check weather the trigger input is int32
+        if inputTypes[0] is not None:
+            if DataTypeInt32(1).isEqualTo( inputTypes[0] ) == 0:
+                raise BaseException('state input must be of type Int32')  
+
+        # determine a guess for the output datatype
+        # check if all given datatypes are equal
+        autoDatatype = autoDatatype_Nto1(self.outputSignal(0).getDatatype(), inputTypes[1:-1] )
+
+        return [ autoDatatype ] # DataTypeFloat64(1)
+
+    def codeGen_output(self, language, signal : Signal):
+
+        if language == 'c++':
+            lines = '\n// switch ' + str(len(self.inputs)) + ' inputs --> ' + self.state.name + '\n'
+            i = 1
+            for ip in self.inputs:
+                if i == 1:
+                    lines += 'if (' + self.state.name + ' == ' + str(i) + ') {\n'
+                else:
+                    lines += 'else if (' + self.state.name + ' == ' + str(i) + ') {\n'
+
+                lines += '  ' + signal.name + ' = ' + ip.name + ';\n'
+                lines += '} '
+
+                i += 1
+
+            lines += 'else {\n'
+            lines += '  ' + signal.name + ' = ' + self.inputs[0].name + ';\n'
+            lines += '}\n'
+            
+            return lines
+
+
+def switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate ):
+    return wrap_signal( SwitchNto1(get_simulation_context(), state.unwrap, unwrap_list(inputs) ).outputSignals )
+
+
 
 
 

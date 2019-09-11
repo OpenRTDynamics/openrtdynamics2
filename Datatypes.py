@@ -154,3 +154,34 @@ def computeResultingNumericType( datatypes : List[ DataTypeNumeric ] ):
 
     return returnType
         
+
+def autoDatatype_Nto1(outputSignal : DataType, inputSignal : List[DataType] ):
+    """
+        Verifies that the datatypes for the given signalstype match and returns
+        that that datatype. 
+    """
+    
+    referenceDatatype = None
+
+    # if the output is defined, use its datatype
+    if outputSignal is not None:
+        referenceDatatype = outputSignal
+
+    # otherwise, look for a defined input signal und use its datatype as the reference type
+    else:
+        for s in inputSignal:
+            if s is not None:
+                referenceDatatype = s
+
+                break
+
+    # if no reference datatype could be found return nothing
+    if referenceDatatype is None:
+        return None
+
+    # check if all inputs have the refernce type
+    for s in inputSignal:
+        if s.isEqualTo( referenceDatatype ) == 0:
+            raise BaseException('Type error: input do not match to the output datatype')
+
+    return referenceDatatype

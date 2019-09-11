@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'dtf_lowpass_1_order_V2' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'switchNto1' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -411,6 +411,24 @@ if testname == 'dtf_lowpass_1_order_V2':
     
     outputSignals = [ y1, y2, y3, y4, y5 ]
     inputSignalsMapping = {}
+
+
+
+
+if testname == 'switchNto1':
+    switch_state = dy.system_input( dy.DataTypeInt32(1) ).setName('switch_state')
+
+    u1 = dy.float64(1.0)
+    u2 = dy.float64(2.0)
+    u3 = dy.float64(3.0)
+    u4 = dy.float64(4.0)
+
+    y = dy.switchNto1( state=switch_state, inputs=[u1,u2,u3,u4] )
+    
+    outputSignals = [ y ]
+    inputSignalsMapping = {}
+
+
 
 
 if testname == 'test_triggered_subsystem':
