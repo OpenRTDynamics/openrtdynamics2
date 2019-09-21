@@ -43,7 +43,7 @@ class CompileDiagram:
 
     def compile(self, sim, outputSignals):
 
-        # prepare
+        # prepare (input filter of the given signals)
         resolveUndeterminedSignals(outputSignals)
 
         #

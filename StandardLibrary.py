@@ -1,4 +1,4 @@
-
+from typing import Dict, List
 import dynamics as dy
 
 
@@ -89,6 +89,85 @@ def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
     y_delayed << dy.delay(y)
     
     return y
+
+
+
+def dtf_filter(u : dy.Signal, num_coeff : List[float], den_coeff : List[float] ):
+
+    """
+
+    Realize a discrete-time transfer function by using 'direct form II'
+
+            b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
+    H(z) = ----------------------------------------
+             1 + a1 z^-1 + a2 z^-2 + ... + aM z^-M
+
+    c.f. https://en.wikipedia.org/wiki/Digital_filter
+
+    The coefficients are encoded as follows:
+
+    num_coeff = [b0, b1, .., bN]
+    den_coeff = [a1, a2, ... aM] 
+    
+    """
+
+
+    # get filter order
+    N = len(num_coeff)-1
+
+    # feedback start signal
+    z_pre = dy.signal()
+
+    # array to store state signals
+    z_ = []
+
+    # create delay chain
+    z_iterate = z_pre
+    for i in range(0,N):
+
+        z_iterate = dy.delay( z_iterate ).extendName('_z' + str(i) )
+        z_.append( z_iterate ) 
+
+
+    # build feedback path
+    #
+    # a1 = den_coeff[0]
+    # a2 = den_coeff[1]
+    # a3 = den_coeff[2]
+    #        ...
+    sum_feedback = u
+    for i in range(0,N):
+
+        a_ip1 = dy.float64( den_coeff[i] ).extendName('_a' + str(i+1) )
+
+        sum_feedback = sum_feedback - a_ip1 * z_[i]
+
+    sum_feedback.extendName('_i')
+
+
+    # close the feedback loop
+    z_pre << sum_feedback
+
+    # build output path
+    #
+    # b0 = num_coeff[0]
+    # b1 = num_coeff[1]
+    # b2 = num_coeff[2]
+    #        ...    
+    for i in range(0,N+1):
+        
+        b_i = dy.float64( num_coeff[i] ).extendName('_b' + str(i) )
+
+        if i==0:
+            y = b_i * sum_feedback
+        else:
+            y = y + b_i * z_[i-1]
+
+    # y is the filter output   
+    return y
+
+
+
 
 
 def diff(u : dy.Signal):

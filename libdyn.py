@@ -18,7 +18,7 @@ from DatatypePropagation import *
 #     print 
 
 class Simulation:
-    def __init__(self, upperLevelSim , name : str ):
+    def __init__(self, upperLevelSim, name : str ):
         if upperLevelSim is None:
             print("New simulation")
         else:

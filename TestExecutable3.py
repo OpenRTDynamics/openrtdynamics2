@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'switchNto1' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'dtf_filter' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -413,6 +413,57 @@ if testname == 'dtf_lowpass_1_order_V2':
     inputSignalsMapping = {}
 
 
+if testname == 'dtf_filter':
+
+    # b = [  1, 1     ] # num
+    # a = [     -0.9   ] # den
+
+
+    import numpy as np
+    import control as cntr
+
+    def get_zm1_coeff(L):
+        
+        numcf = L.num[0][0]
+        dencf = L.den[0][0]
+        
+        N = len(dencf)-1
+        M = len(numcf)-1
+
+        # convert to normalized z^-1 representation
+        a0 = dencf[0]
+        
+        numcf_ = np.concatenate( [np.zeros(N-M), numcf] ) / a0
+        dencf_ = dencf[1:] / a0
+        
+        return numcf_, dencf_
+
+
+
+    # some transfer function calcus 
+    z = cntr.TransferFunction([1,0], [1], True)
+
+    L = (1-0.96) / (z-0.96)
+    L2 = L*L
+
+    # p-controlled system
+    kp = 2
+
+    # calc response of the closed loop
+    T = kp*L2 / ( 1 + kp*L2 )
+
+    # convert the transfer function T to the representation needed for dy.dtf_filter
+    b, a = get_zm1_coeff(T)
+
+    # system input
+    u = dy.float64(1.0)
+
+    # implement the transfer function
+    y = dy.dtf_filter(u, num_coeff=b, den_coeff=a ).setName('y')
+    
+
+    outputSignals = [ y ]
+    inputSignalsMapping = {}
 
 
 if testname == 'switchNto1':
@@ -527,6 +578,122 @@ if testname == 'test_forloop_subsystem':
 
 
     
+if testname == 'inline_subsystem':
+    
+
+    
+    
+#     def subsystem(U_input, damping_input):
+
+#         dy.enter_system('oscillator')
+
+#         print(dy.get_simulation_context())
+
+# #         baseDatatype = dy.DataTypeFloat64(1) 
+
+#         # input to the system
+#         damping = dy.system_input( None ).setName('damping')
+#         U = dy.system_input( None ).setName('u')
+
+#         inputSignals = [damping, U]
+
+#         # connect (proposal), also derives datatypes from the sources, if available
+#         damping.connect( damping_input )
+#         U.connect( U_input )
+
+#         x = dy.signal()
+#         v = dy.signal()
+
+#         acc = dy.add( [ U, v, x ], [ 1, -0.5, -0.1 ] ).setNameOfOrigin('acceleration model')
+
+#         v << eInt( acc, Ts=0.1, name="intV").setName('x')
+#         x << eInt( v, Ts=0.1, name="intX").setName('v')
+
+#         # define the outputs of the simulation
+#         x.setName('x')
+#         v.setName('v')
+
+#         # define output variables
+#         outputSignals = [ x,v ]
+
+#         # store this system in a reference variable
+#         # i.e. store connections do not compile or propagate the datatypes now
+#         stored_subsystem = dy.store_current_system(inputSignals, outputSignals)
+
+
+#         dy.leave_system()
+
+#         return x,y
+
+
+
+
+
+    class subsystem_if:
+        def __init__(self, condition_signal : dy.SignalUserTemplate):
+            self._condition_signal = condition_signal
+
+            self._outputs = []
+
+        def add_output(self, signal : dy.SignalUserTemplate):
+
+            print("added output signal " + signal.name)
+            self._outputs.append(signal)
+
+
+        def __enter__(self):
+
+            print("Entering if subsystem")
+
+            dy.enter_system('if_subsystem')
+
+            return self
+
+
+        def __exit__(self, type, value, traceback):
+
+            print("leave if subsystem")
+
+            dy.leave_system()
+
+
+
+            # 1) find the outputs (they shall be defined)   ---> self._outputs
+            # 2) get the inputs as a result of an intersection between two simulations
+            # 3) cut the inputs and replace them by dy.system_input
+            # 4) store the subsystem: stored_subsystem = dy.store_current_system(inputSignals, outputSignals)
+            # 5) build an new block for embedding the subsystem. The variable stored_subsystem is a parameter
+            # 6) connect the inputs of the block to the cutted signals
+            #
+            # 7) Datatype propagation: ???
+            #
+            # 8) on compile of the surrounding system, the embedding block will compile the nested subsystem
+
+
+
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    switch = dy.system_input( baseDatatype ).setName('switch')
+    inpu = dy.system_input( baseDatatype ).setName('input')
+
+    # outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+
+    # outputSignals[0].setName('x')
+    # outputSignals[1].setName('v')
+
+
+    with subsystem_if( switch > dy.float64(1.0) ) as system:
+
+        output = inpu * dy.float64(2.5)
+
+        system.add_output(output)
+        
+
+    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
+    outputSignals = [ output ]
+
+    inputSignalsMapping = {}
+
 
 
 
