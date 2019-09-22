@@ -1,5 +1,6 @@
 from libdyn import *
 from Signal import *
+from SignalInterface import *
 # from Block import *
 # from BlockPrototypes import *
 
@@ -38,7 +39,11 @@ def get_simulation_context():
 
 def enter_system(name : str):
     # new simulation
-    sim = Simulation(None, name)
+    sim = Simulation(get_simulation_context(), name)
+
+    # register this subsystem to the parent system
+    if get_simulation_context() is not None:
+        get_simulation_context().appendNestedSystem( sim )
 
     print("enter_system: created " + str(sim) )
 
@@ -48,3 +53,8 @@ def enter_system(name : str):
 
 def leave_system():
     return pop_simulation_context()
+
+
+def set_primary_outputs(output_signals):
+    get_simulation_context().setPrimaryOutputs( unwrap_list( output_signals ) )
+

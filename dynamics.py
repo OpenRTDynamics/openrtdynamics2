@@ -23,7 +23,7 @@ def system_input(datatype):
     return SimulationInputSignalUser(get_simulation_context(), datatype)
     
 
-def compile_system(sim, outputSignals):
+def compile_system(sim):
 
     sim.ShowBlocks()
 
@@ -54,10 +54,10 @@ def compile_system(sim, outputSignals):
     #
 
     compiler = CompileDiagram()
-    comileResults = compiler.compile( sim, outputSignals )
+    comileResults = compiler.compile( sim )
 
     #
     return comileResults
 
 def compile_current_system(outputSignals):
-    return compile_system( get_simulation_context(), unwrap_list( outputSignals ) )
+    return compile_system( get_simulation_context() ) # unwrap_list( outputSignals )

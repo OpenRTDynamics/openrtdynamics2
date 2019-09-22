@@ -40,6 +40,12 @@ class Simulation:
         # components
         self.components_ = {}
 
+        # subsystems
+        self._subsystems = []
+
+        # primary outputs
+        self._output_signals = []
+
     def getName(self):
         return self.name
 
@@ -52,11 +58,19 @@ class Simulation:
         self.signalIdCounter += 1
         return self.signalIdCounter
 
+    def appendNestedSystem(self, system):
+        self._subsystems.append( system )
 
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
         print("added block ", blk.getName() )
 
+    def setPrimaryOutputs(self, outputSignals):
+        self._output_signals = outputSignals
+
+    @property
+    def primaryOutputs(self):
+        return self._output_signals
 
     def ShowBlocks(self):
         print("-----------------------------")
@@ -77,6 +91,11 @@ class Simulation:
                 print(Fore.GREEN + "  output signals")
                 for inSig in blk.getOutputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
+
+        print()
+        print(" --- nested subsystems ---")
+        for sys in self._subsystems:
+            print("  - " + sys.getName() )
 
     @property
     def components(self):

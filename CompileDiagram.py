@@ -32,16 +32,14 @@ class CompileDiagram:
 
         self._manifest = None
 
-
-    # @property
-    # def manifest(self):
-    #     return self._manifest
-
     @property
     def compileResults(self):
         return self._compleResults
 
-    def compile(self, sim, outputSignals):
+    def compile(self, sim):
+
+        # the primary output signals are the outputs of the compiled system
+        outputSignals = sim.primaryOutputs
 
         # prepare (input filter of the given signals)
         resolveUndeterminedSignals(outputSignals)

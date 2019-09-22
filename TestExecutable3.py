@@ -403,7 +403,7 @@ if testname == 'dtf_lowpass_1_order_V2':
 
     u = dy.float64(1.0)
 
-    y1 = dy.dtf_lowpass_1_order(u, z_infinity=0.97 ).setName('_1st_order')
+    y1 = dy.dtf_lowpass_1_order(u,  z_infinity=0.97 ).setName('_1st_order')
     y2 = dy.dtf_lowpass_1_order(y1, z_infinity=0.97 ).setName('_2nd_order')
     y3 = dy.dtf_lowpass_1_order(y2, z_infinity=0.97 ).setName('_3rd_order')
     y4 = dy.dtf_lowpass_1_order(y3, z_infinity=0.97 ).setName('_4th_order')
@@ -654,6 +654,8 @@ if testname == 'inline_subsystem':
 
             print("leave if subsystem")
 
+            dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs ) )
+
             dy.leave_system()
 
 
@@ -699,6 +701,8 @@ if testname == 'inline_subsystem':
 
 
 
+# set the outputs of the system
+dy.set_primary_outputs(outputSignals)
 
 # Compile system (propagate datatypes)
 compileResults = dy.compile_current_system(outputSignals)
