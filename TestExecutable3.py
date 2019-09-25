@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'dtf_filter' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'inline_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -654,14 +654,24 @@ if testname == 'inline_subsystem':
 
             print("leave if subsystem")
 
+            # set the outputs of the system
             dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs ) )
 
+            # TODO: add a system wrapper/embedded (e.g. this if-block) to leave_system
             dy.leave_system()
 
 
 
             # 1) find the outputs (they shall be defined)   ---> self._outputs
             # 2) get the inputs as a result of an intersection between two simulations
+            #
+            #       -> During the compile process, the borders to the upper-level simulation shall be detected
+            #
+            #       -> split the compilation process into two phases: propagate datatypes, and generate code
+            #
+            #
+            #  -- below is obsolete --
+            #
             # 3) cut the inputs and replace them by dy.system_input
             # 4) store the subsystem: stored_subsystem = dy.store_current_system(inputSignals, outputSignals)
             # 5) build an new block for embedding the subsystem. The variable stored_subsystem is a parameter

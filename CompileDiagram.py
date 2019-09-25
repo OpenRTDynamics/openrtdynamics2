@@ -12,6 +12,11 @@ init(autoreset=True)
 
 
 class CompileResults(object):
+    """
+        compilation results for one system
+        (excluding subsystems)
+    """
+    
     def __init__(self, manifest, commandToExecute):
         self._commandToExecute = commandToExecute
         self._manifest = manifest
@@ -31,284 +36,323 @@ class CompileDiagram:
     def __init__(self):
 
         self._manifest = None
+        self._compleResults = None
 
     @property
     def compileResults(self):
         return self._compleResults
 
-    def compile(self, sim):
 
-        # the primary output signals are the outputs of the compiled system
-        outputSignals = sim.primaryOutputs
-
-        # prepare (input filter of the given signals)
-        resolveUndeterminedSignals(outputSignals)
-
-        #
-        # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
-        # at runtime.
-        #
-
-
-
-        #
-        # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
-        #
-
-        E=BuildExecutionPath()
-
-
-        print()
-        print(Style.BRIGHT + "-------- Find dependencies for calcularing the outputs  --------")
-        print()
-
-
-        # collect all execution lines with:
-        executionLineToCalculateOutputs = ExecutionLine( [], [], [], [] )
-
-        # for all requested output singals
-        for s in outputSignals:
-            elForOutputS = E.getExecutionLine( s )
-            elForOutputS.printExecutionLine()
-
-            # merge all lines into one
-            executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
-
-
-
-
-        print()
-        print(Style.BRIGHT + "-------- Build all execution paths  --------")
-        print()
-
-        # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
-        # element. Also collect the newly appearing dependency signals in a list and also 
-        # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
-        # finally concatenare the execution lines
-
-        # 
-
-        # start with following signals to be computed
-        dependencySignals = executionLineToCalculateOutputs.dependencySignals
-        blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
-        dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
-
-        # get the simulation-input signals in dependencySignals
-        # NOTE: these are only the simulation inputs that are needed to calculate the output y
-        simulationInputSignalsForCalcOutputs = []
-        for s in dependencySignals:
-            if isinstance(s, SimulationInputSignal):
-                simulationInputSignalsForCalcOutputs.append(s)
-
-        # counter for the order (i.e. step through all delays present in the system)
-        order = 0
-
-
-        # execution line per order
-        commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals, defineVarsForOutputs = True)
-
-        #
-        # cache all signals that are calculated so far
-        # TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
-        #
-
-        signalsToCache = []
-        for s in executionLineToCalculateOutputs.signalOrder:
-
-            if isinstance(s, UndeterminedSignal):
-                raise BaseException("found anonymous signal during compilation")
-
-            if isinstance(s, BlockOutputSignal):
-
-                # only implement caching for intermediate computaion results.
-                # I.e. exclude the simulation input signals
-
-                signalsToCache.append( s )
-
-        commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
-
-        # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
-        # Further, it stores intermediate results
-        commandToPublishTheResults = PutAPIFunction("calcResults_1", 
-                                                    inputSignals=simulationInputSignalsForCalcOutputs,   # TODO: only add the elements that are inputs
-                                                    outputSignals=outputSignals, 
-                                                    executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
-
-        # Initialize the list of commands to execute to update the states
-        commandsToExecuteForStateUpdate = []
-
-        # restore the cache of output signals to update the states
-        commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
-
-        # the simulation intputs needed to perform the state update
-        simulationInputSignalsForStateUpdate = []
-
-        # the list of blocks that are updated. Note: So far this list is only used to prevent
-        # double uodates.
-        blocksWhoseStatesToUpdate_All = []
-
-        while True:
-
-            print("--------- Computing order "+ str(order) + " --------")
-            print("dependent sources:")
-                
-            for s in dependencySignals:
-                print(Fore.YELLOW + "  - " + s.toStr() )
-
-
-            # collect all executions lines build in this order in:
-            executionLinesForCurrentOrder = []
-
-            # backwards jump over the blocks that compute dependencySignals through their states.
-            # The result is dependencySignals__ which are the inputs to these blocks
-            print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
-
-
-
-
-            # find out which singnals must be further computed to allow a state-update of the blocks
-            dependencySignals__ = []
-            for s in dependencySignalsThroughStates + dependencySignals:
-
-                if isinstance(s, SimulationInputSignal):
-                    simulationInputSignalsForStateUpdate.append(s)
-
-                elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
-                    dependencySignals__.append(s)
-
-                else:
-                    print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
-
-
-
-
-            # TODO: check whether to abort in case of len(dependencySignals__) == 0
+    
+    # TODO: for all subsystems in the simulation:
+    #       - compile these subsystems first.
+    #       - add their system embeddeds (e.g. if-subsystem)
     
     
+    def traverseSubSystems(self, system : Simulation, level):
+        print("-- List of subsystems --")
 
+        for subSystem in system.subsystems:
+            print(" level %d - %s" % (level, subSystem.name ) )
 
+            self.traverseSubSystems(subSystem, level=level+1)
 
-
-            # print the list of signals
-            print("-- dependency signals __ --")
-            for s in dependencySignals__:
-                print("  - " + s.name)
-
-
-
-            # iterate over all needed input signals and find out how to compute each signal
-            for s in dependencySignals__:
-
-                # get execution line to calculate s
-                executionLineForS = E.getExecutionLine(s)
-
-                # store this execution line
-                executionLinesForCurrentOrder.append(executionLineForS)
-
-
-            # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-            executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
-            for e in executionLinesForCurrentOrder:
-
-                # append execution line
-                executionLineForCurrentOrder.appendExecutionLine( e )
-
-
-            # create a command to calcurate executionLineForCurrentOrder and append to the
-            # list of commands for state update: 'commandsToExecuteForStateUpdate'
-            
-            #
-            # TODO: ensure somehow that variables are reserved for the inputs to the blocks
-            #       whose states are updated
-            #
-
-            commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__, defineVarsForOutputs = False) )
-
-            #
-            # find out which blocks need a call to update their states:
-            # create commands for the blocks that have dependencySignals as outputs
-            #
-
-            print("state update of blocks that yield the following output signals:")
-
-
-
-            # TODO: rework this loop
-            # blocksToUpdateStates Is already computed
-
-            blocksWhoseStatesToUpdate = []
-
-            for blk in blocksToUpdateStates:
-
-                if not blk in blocksWhoseStatesToUpdate_All:
-                    # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
-                    # dependencySignals are outputs of the same block)
-                    blocksWhoseStatesToUpdate.append( blk )
-                    blocksWhoseStatesToUpdate_All.append( blk )
-
-                    print("    (added) " + blk.toStr())
-                else:
-                    print("    (already added) " + blk.toStr())
-
-
-
-
-            # create state update command and append to the list of commnds to execute for state-update
-            sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
-            commandsToExecuteForStateUpdate.append( sUpCmd )
-
-            #print("added command(s) to perform state update:")
-            #sUpCmd.printExecution()
-
-            # get the dependendy singals of the current order
-            # TODO important: remove the signals that are already computable from this list
-            dependencySignals = executionLineForCurrentOrder.dependencySignals
-            blocksToUpdateStates = executionLineForCurrentOrder.blocksToUpdateStates
-            dependencySignalsThroughStates = executionLineForCurrentOrder.dependencySignalsThroughStates
-
-            # iterate
-            order = order + 1
-            if len(dependencySignals__) == 0:
-                print(Fore.GREEN + "All dependencies are resolved")
-
-                break
-
-            if order == 1000:
-                print(Fore.GREEN + "Maxmimum iteration limit reached -- this is likely a bug or your simulation is very complex")
-                break
-
-
-
-
-        # Build API to update the states: e.g. c++ function updateStates()
-        commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
-                                                inputSignals=simulationInputSignalsForStateUpdate, 
-                                                outputSignals=[], 
-                                                executionCommands=commandsToExecuteForStateUpdate )
-
-        # code to reset add blocks in the simulation
-        # TODO: only add blocksWhoseStatesToUpdate_All
-        commandsToExecuteForStateReset = CommandResetStates( blockList=sim.getBlocksArray() )
-
-        # create an API-function resetStates()
-        commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 
-                                                inputSignals=[], 
-                                                outputSignals=[], 
-                                                executionCommands=[commandsToExecuteForStateReset] )
-
-
-        # define the interfacing class
-        commandToExecute_simulation = PutSimulation(    simulation = sim,
-                                                        resetCommand = commandToResetStates, 
-                                                        updateCommand = commandToUpdateStates,
-                                                        outputCommand = commandToPublishTheResults
-                                                    )
-
-        # build the manifest for the compiled system
-        manifest = SystemManifest( commandToExecute_simulation )
-
-        self._compleResults = CompileResults( manifest, commandToExecute_simulation )
 
         #
+        print("Now compiling: " + system.name )
+
+        # compile
+        compileResult = compileSystem( system )
+
+        # store the compilation result in the system's structure
+        system.compileResult = compileResult
+
+
+
+    def compile(self, system):
+
+        self.traverseSubSystems(system, level = 0)
+
+        
+        self._compleResults = compileSystem(system)
+
         return self._compleResults
+
+
+
+def compileSystem(sim):
+
+    # the primary output signals are the outputs of the compiled system
+    outputSignals = sim.primaryOutputs
+
+    # prepare (input filter of the given signals)
+    resolveUndeterminedSignals(outputSignals)
+
+    #
+    # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+    # at runtime.
+    #
+
+
+
+    #
+    # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
+    #
+
+    E=BuildExecutionPath()
+
+
+    print()
+    print(Style.BRIGHT + "-------- Find dependencies for calcularing the outputs  --------")
+    print()
+
+
+    # collect all execution lines with:
+    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
+
+    # for all requested output singals
+    for s in outputSignals:
+        elForOutputS = E.getExecutionLine( s )
+        elForOutputS.printExecutionLine()
+
+        # merge all lines into one
+        executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+
+
+
+
+    print()
+    print(Style.BRIGHT + "-------- Build all execution paths  --------")
+    print()
+
+    # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
+    # element. Also collect the newly appearing dependency signals in a list and also 
+    # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
+    # finally concatenare the execution lines
+
+    # 
+
+    # start with following signals to be computed
+    dependencySignals = executionLineToCalculateOutputs.dependencySignals
+    blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
+    dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
+
+    # get the simulation-input signals in dependencySignals
+    # NOTE: these are only the simulation inputs that are needed to calculate the output y
+    simulationInputSignalsForCalcOutputs = []
+    for s in dependencySignals:
+        if isinstance(s, SimulationInputSignal):
+            simulationInputSignalsForCalcOutputs.append(s)
+
+    # counter for the order (i.e. step through all delays present in the system)
+    order = 0
+
+
+    # execution line per order
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals, defineVarsForOutputs = True)
+
+    #
+    # cache all signals that are calculated so far
+    # TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
+    #
+
+    signalsToCache = []
+    for s in executionLineToCalculateOutputs.signalOrder:
+
+        if isinstance(s, UndeterminedSignal):
+            raise BaseException("found anonymous signal during compilation")
+
+        if isinstance(s, BlockOutputSignal):
+
+            # only implement caching for intermediate computaion results.
+            # I.e. exclude the simulation input signals
+
+            signalsToCache.append( s )
+
+    commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
+
+    # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
+    # Further, it stores intermediate results
+    commandToPublishTheResults = PutAPIFunction("calcResults_1", 
+                                                inputSignals=simulationInputSignalsForCalcOutputs,   # TODO: only add the elements that are inputs
+                                                outputSignals=outputSignals, 
+                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
+
+    # Initialize the list of commands to execute to update the states
+    commandsToExecuteForStateUpdate = []
+
+    # restore the cache of output signals to update the states
+    commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
+
+    # the simulation intputs needed to perform the state update
+    simulationInputSignalsForStateUpdate = []
+
+    # the list of blocks that are updated. Note: So far this list is only used to prevent
+    # double uodates.
+    blocksWhoseStatesToUpdate_All = []
+
+    while True:
+
+        print("--------- Computing order "+ str(order) + " --------")
+        print("dependent sources:")
+            
+        for s in dependencySignals:
+            print(Fore.YELLOW + "  - " + s.toStr() )
+
+
+        # collect all executions lines build in this order in:
+        executionLinesForCurrentOrder = []
+
+        # backwards jump over the blocks that compute dependencySignals through their states.
+        # The result is dependencySignals__ which are the inputs to these blocks
+        print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
+
+
+
+
+        # find out which singnals must be further computed to allow a state-update of the blocks
+        dependencySignals__ = []
+        for s in dependencySignalsThroughStates + dependencySignals:
+
+            if isinstance(s, SimulationInputSignal):
+                simulationInputSignalsForStateUpdate.append(s)
+
+            elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
+                dependencySignals__.append(s)
+
+            else:
+                print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
+
+
+
+
+        # TODO: check whether to abort in case of len(dependencySignals__) == 0
+
+
+
+
+
+
+        # print the list of signals
+        print("-- dependency signals __ --")
+        for s in dependencySignals__:
+            print("  - " + s.name)
+
+
+
+        # iterate over all needed input signals and find out how to compute each signal
+        for s in dependencySignals__:
+
+            # get execution line to calculate s
+            executionLineForS = E.getExecutionLine(s)
+
+            # store this execution line
+            executionLinesForCurrentOrder.append(executionLineForS)
+
+
+        # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
+        executionLineForCurrentOrder = ExecutionLine( [], [], [], [], [] )
+        for e in executionLinesForCurrentOrder:
+
+            # append execution line
+            executionLineForCurrentOrder.appendExecutionLine( e )
+
+
+        # create a command to calcurate executionLineForCurrentOrder and append to the
+        # list of commands for state update: 'commandsToExecuteForStateUpdate'
+        
+        #
+        # TODO: ensure somehow that variables are reserved for the inputs to the blocks
+        #       whose states are updated
+        #
+
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__, defineVarsForOutputs = False) )
+
+        #
+        # find out which blocks need a call to update their states:
+        # create commands for the blocks that have dependencySignals as outputs
+        #
+
+        print("state update of blocks that yield the following output signals:")
+
+
+
+        # TODO: rework this loop
+        # blocksToUpdateStates Is already computed
+
+        blocksWhoseStatesToUpdate = []
+
+        for blk in blocksToUpdateStates:
+
+            if not blk in blocksWhoseStatesToUpdate_All:
+                # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
+                # dependencySignals are outputs of the same block)
+                blocksWhoseStatesToUpdate.append( blk )
+                blocksWhoseStatesToUpdate_All.append( blk )
+
+                print("    (added) " + blk.toStr())
+            else:
+                print("    (already added) " + blk.toStr())
+
+
+
+
+        # create state update command and append to the list of commnds to execute for state-update
+        sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
+        commandsToExecuteForStateUpdate.append( sUpCmd )
+
+        #print("added command(s) to perform state update:")
+        #sUpCmd.printExecution()
+
+        # get the dependendy singals of the current order
+        # TODO important: remove the signals that are already computable from this list
+        dependencySignals = executionLineForCurrentOrder.dependencySignals
+        blocksToUpdateStates = executionLineForCurrentOrder.blocksToUpdateStates
+        dependencySignalsThroughStates = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+        # iterate
+        order = order + 1
+        if len(dependencySignals__) == 0:
+            print(Fore.GREEN + "All dependencies are resolved")
+
+            break
+
+        if order == 1000:
+            print(Fore.GREEN + "Maxmimum iteration limit reached -- this is likely a bug or your simulation is very complex")
+            break
+
+
+
+
+    # Build API to update the states: e.g. c++ function updateStates()
+    commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
+                                            inputSignals=simulationInputSignalsForStateUpdate, 
+                                            outputSignals=[], 
+                                            executionCommands=commandsToExecuteForStateUpdate )
+
+    # code to reset add blocks in the simulation
+    # TODO: only add blocksWhoseStatesToUpdate_All
+    commandsToExecuteForStateReset = CommandResetStates( blockList=sim.getBlocksArray() )
+
+    # create an API-function resetStates()
+    commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 
+                                            inputSignals=[], 
+                                            outputSignals=[], 
+                                            executionCommands=[commandsToExecuteForStateReset] )
+
+
+    # define the interfacing class
+    commandToExecute_simulation = PutSimulation(    simulation = sim,
+                                                    resetCommand = commandToResetStates, 
+                                                    updateCommand = commandToUpdateStates,
+                                                    outputCommand = commandToPublishTheResults
+                                                )
+
+    # build the manifest for the compiled system
+    manifest = SystemManifest( commandToExecute_simulation )
+
+    compleResults = CompileResults( manifest, commandToExecute_simulation )
+
+    #
+    return compleResults
 

@@ -25,7 +25,7 @@ def system_input(datatype):
 
 def compile_system(sim):
 
-    sim.ShowBlocks()
+    # sim.ShowBlocks()
 
     print()
     print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")

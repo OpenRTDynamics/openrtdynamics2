@@ -182,9 +182,10 @@ class ExecutionLine():
         'dependencySignals'.
     """
 
-    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
         self.signalOrder = signalOrder
         self.dependencySignals = dependencySignals
+        self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
         self.blocksToUpdateStates = blocksToUpdateStates
         self.dependencySignalsThroughStates = dependencySignalsThroughStates
 
@@ -192,8 +193,13 @@ class ExecutionLine():
         print("------ print of execution line -----")
 
         print(Fore.RED + "dependent sources:")
-        
+
         for s in self.dependencySignals:
+            print("  - " + s.getName() )
+
+        print(Fore.RED + "dependent sources (simulation inputs):")
+                
+        for s in self.dependencySignalsSimulationInputs:
             print("  - " + s.getName() )
 
         print(Fore.RED + "dependent sources (through state-dependend blocks):")
@@ -231,6 +237,11 @@ class ExecutionLine():
         for s in executionLineToAppend.dependencySignals:
             if not s in self.dependencySignals and not s in self.signalOrder:
                 self.dependencySignals.append(s)
+
+
+        for s in executionLineToAppend.dependencySignalsSimulationInputs:
+            if not s in self.dependencySignalsSimulationInputs and not s in self.signalOrder:
+                self.dependencySignalsSimulationInputs.append(s)
 
         
         for s in executionLineToAppend.dependencySignalsThroughStates:
@@ -319,7 +330,11 @@ class BuildExecutionPath:
         self.reachableSignals = []
         self.dependencySignals = []
         self.dependencySignalsThroughStates = []
+        self.dependencySignalsSimulationInputs = []
         self.blocksToUpdateStates = []
+
+        # search within this system
+        self.system = signalToCalculte.sim
 
         # compute by traversing the tree
         self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
@@ -327,10 +342,10 @@ class BuildExecutionPath:
         # reverse of the list of reacheable signals gives the order of calculating the individual signals
         self.reachableSignals.reverse()
 
-        #
+        # the iteration level
         self.level = self.level + 1
 
-        return ExecutionLine( self.reachableSignals, self.dependencySignals, self.blocksToUpdateStates, self.dependencySignalsThroughStates )
+        return ExecutionLine( self.reachableSignals, self.dependencySignals, self.dependencySignalsSimulationInputs, self.blocksToUpdateStates, self.dependencySignalsThroughStates )
 
     def printExecutionLine(self):
         pass
@@ -396,6 +411,7 @@ class BuildExecutionPath:
 
             self.dependencySignals.append( startSignal )
 
+
             return
 
         # mark the node visited
@@ -422,7 +438,23 @@ class BuildExecutionPath:
             # startSignal is at the top of the tree, so add it to the dependiencies
             self.dependencySignals.append( startSignal )
 
+            # also note down that this is a (actually used) simulation input
+            self.dependencySignalsSimulationInputs.append( startSignal )
+
             return
+
+
+        # when the system the signal belongs to changes we reached a boundary to a upperl-level system
+        if startSignal.sim != self.system:
+            print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
+
+            self.dependencySignals.append( startSignal )
+
+            # also note down that this is a (actually used) simulation input
+            self.dependencySignalsSimulationInputs.append( startSignal )
+
+            return
+
 
 
         # get the blocks prototype function to calculate startSignal

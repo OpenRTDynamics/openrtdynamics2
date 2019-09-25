@@ -17,6 +17,8 @@ from DatatypePropagation import *
 # def showSimulationContext():
 #     print 
 
+
+# TODO: rename this to System
 class Simulation:
     def __init__(self, upperLevelSim, name : str ):
         if upperLevelSim is None:
@@ -25,7 +27,7 @@ class Simulation:
             print("New simulation as a child of " + upperLevelSim.getName())
 
         self.UpperLevelSim = upperLevelSim
-        self.name = name
+        self._name = name
         self.BlocksArray = []
         self.BlockIdCounter = 0
         self.signalIdCounter = 0
@@ -47,7 +49,11 @@ class Simulation:
         self._output_signals = []
 
     def getName(self):
-        return self.name
+        return self._name
+
+    @property
+    def name(self):
+        return self._name
 
     def getNewBlockId(self):
         self.BlockIdCounter += 1
@@ -60,6 +66,10 @@ class Simulation:
 
     def appendNestedSystem(self, system):
         self._subsystems.append( system )
+
+    @property
+    def subsystems(self):
+        return self._subsystems
 
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
@@ -74,7 +84,7 @@ class Simulation:
 
     def ShowBlocks(self):
         print("-----------------------------")
-        print("Blocks in simulation " + self.name + ":")
+        print("Blocks in simulation " + self._name + ":")
         print("-----------------------------")
 
         for blk in self.BlocksArray:
