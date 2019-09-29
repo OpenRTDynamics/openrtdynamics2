@@ -2,6 +2,7 @@
 # from BlockPrototypes import Operator1
 from typing import Dict, List
 
+import dynamics as dy
 import BlockPrototypes as block_prototypes
 
 from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
@@ -49,16 +50,16 @@ class SignalUserTemplate(object):
     # operator overloads
     #
     def __add__(self, other): 
-        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputSignals )
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputSignals )
 
     def __sub__(self, other): 
-        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputSignals )
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputSignals )
 
     def __mul__(self, other): 
-        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputSignals )
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputSignals )
 
     def __truediv__(self, other): 
-        return wrap_signal( block_prototypes.Operator1(self.sim, inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputSignals )
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputSignals )
 
     # comparison operators
     def __le__(self, other):

@@ -696,7 +696,13 @@ if testname == 'inline_subsystem':
 
     with subsystem_if( switch > dy.float64(1.0) ) as system:
 
-        output = inpu * dy.float64(2.5)
+        tmp = dy.float64(2.5).setName('tmp')
+        output = inpu * tmp # warum ist output dem system 'simulation' zugeordnet und nicht zu 'if_subsystem'?
+
+        test = dy.delay( tmp )
+        test2 = dy.delay( inpu )
+
+        output.setName('subsystem_output')
 
         system.add_output(output)
         

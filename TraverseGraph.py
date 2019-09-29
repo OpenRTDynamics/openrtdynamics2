@@ -446,14 +446,20 @@ class BuildExecutionPath:
 
         # when the system the signal belongs to changes we reached a boundary to a upperl-level system
         if startSignal.sim != self.system:
-            print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
 
-            self.dependencySignals.append( startSignal )
+            print()
 
-            # also note down that this is a (actually used) simulation input
-            self.dependencySignalsSimulationInputs.append( startSignal )
+            # check whether startSignal is coming from an outer system
+            if self.system.UpperLevelSim is not None and startSignal.sim is self.system.UpperLevelSim:
 
-            return
+                print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
+
+                self.dependencySignals.append( startSignal )
+
+                # also note down that this is a (actually used) simulation input
+                self.dependencySignalsSimulationInputs.append( startSignal )
+
+                return
 
 
 

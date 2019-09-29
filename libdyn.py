@@ -22,9 +22,10 @@ from DatatypePropagation import *
 class Simulation:
     def __init__(self, upperLevelSim, name : str ):
         if upperLevelSim is None:
-            print("New simulation")
+            # This system is a main system (no upper-level systems)
+            print("New system (top-level system)")
         else:
-            print("New simulation as a child of " + upperLevelSim.getName())
+            print("New system as a subsystem of " + upperLevelSim.getName())
 
         self.UpperLevelSim = upperLevelSim
         self._name = name
@@ -32,12 +33,18 @@ class Simulation:
         self.BlockIdCounter = 0
         self.signalIdCounter = 0
 
-        # counter for simulation input signals
+        # counter for system input signals
         # This determines the order of teh arguments of the generated c++ functions
         self.simulationInputSignalCounter = 0
 
-        # manager to determine datatypes as new blocks are added
-        self.datatypePropagation = DatatypePropagation(self)
+        if upperLevelSim is None:
+            # manager to determine datatypes as new blocks are added
+            # only for the highest-level system -- subsystems use the 
+            # dataatyüe propagation of the main system
+            self.datatypePropagation = DatatypePropagation(self)
+        else:
+            # re-use the upper-level propagation
+            self.datatypePropagation = upperLevelSim.datatypePropagation
 
         # components
         self.components_ = {}

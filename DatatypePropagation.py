@@ -38,7 +38,7 @@ class DatatypePropagation:
     def notifySignal(self, signal : Signal):
         # a new singals has been created
 
-        print("DatatypePropagation: new signal " + signal.toStr( ))
+        print("DatatypePropagation: new signal " + signal.toStr() )
 
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUpdatedProposedTypes
 
@@ -75,6 +75,7 @@ class DatatypePropagation:
         # signalsWithProposedTypes and signalsWithUpdatedProposedTypes are empty
         # or nothing chanegs any more (no notifications arrive within a loop-cycle)
 
+        # TODO: implement this loop properly 29.9.19
         for i in range(0,10):
 
 
@@ -157,7 +158,7 @@ class DatatypePropagation:
         # turn the proposal datatypes into fixed types
         for s in self.signalsWithProposedTypes:
 
-            print('  - fixing - ' + s.toStr())
+            print('  - turing proposed type into fixed - ' + s.toStr())
 
             # fixate datatype of s
             s.fixDatatype()

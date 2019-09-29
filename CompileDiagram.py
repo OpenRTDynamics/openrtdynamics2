@@ -61,6 +61,9 @@ class CompileDiagram:
         #
         print("Now compiling: " + system.name )
 
+        if system.name == 'if_subsystem':
+            print('compiling if_subsystem')
+
         # compile
         compileResult = compileSystem( system )
 
@@ -134,11 +137,22 @@ def compileSystem(sim):
 
     # start with following signals to be computed
     dependencySignals = executionLineToCalculateOutputs.dependencySignals
+    dependencySignalsSimulationInputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
     blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
     dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
 
+
+
+
     # get the simulation-input signals in dependencySignals
     # NOTE: these are only the simulation inputs that are needed to calculate the output y
+
+
+    # TODO: stopped here: investigate missmatch between those two
+    simulationInputSignalsForCalcOutputs = dependencySignalsSimulationInputs
+
+
+
     simulationInputSignalsForCalcOutputs = []
     for s in dependencySignals:
         if isinstance(s, SimulationInputSignal):
