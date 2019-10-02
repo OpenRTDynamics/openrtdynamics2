@@ -38,16 +38,22 @@ class DatatypePropagation:
     def notifySignal(self, signal : Signal):
         # a new singal was created
 
+        if isinstance( signal, UndeterminedSignal ):
+            # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
+            return
+
         print("DatatypePropagation: new signal " + signal.toStr() )
 
-        # TODO: Why are there signals with the same name? maybe ignore these anonymous signals?!
-
-        # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUpdatedProposedTypes
+        # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
 
         if signal.getDatatype() is None:
-            
+
+            # put to the list of signals with undetermined datatypes
             self.signalsWithUnderminedTypes.append( signal )
+
         else:
+
+            # put to the list of signals with already fixed datatypes
             self.signalsWithUpdatedDeterminedTypes.append( signal )
 
         self.updateCounter += 1
@@ -77,15 +83,11 @@ class DatatypePropagation:
         # signalsWithProposedTypes and signalsWithUpdatedProposedTypes are empty
         # or nothing chanegs any more (no notifications arrive within a loop-cycle)
 
-        # TODO: implement this loop properly 29.9.19
-        for i in range(0,10):
-
+        while True:
 
             # during the call of .configDefineOutputTypes() the lists might be updated
             # by hereby triggered calls to the notify_* funcrions of this class
             # Hence, make copies of these lists before
-
-
 
             signalsWithUpdatedDeterminedTypes = self.signalsWithUpdatedDeterminedTypes
             signalsWithUpdatedProposedTypes = self.signalsWithUpdatedProposedTypes
@@ -98,8 +100,9 @@ class DatatypePropagation:
             self.signalsWithDeterminedTypes.extend( signalsWithUpdatedDeterminedTypes )
             self.signalsWithProposedTypes.extend( signalsWithUpdatedProposedTypes )
 
-            # print("update counter is before " + str(self.updateCounter))
-
+            # a counter that counts the number of signal datatype updates within this loop
+            # Please note, that this counter is increased in external functions
+            # triggered by the calls 'destBlock.configDefineOutputTypes()'
             updateCounterBefore = self.updateCounter
 
             # at fitst ask all blocks who have a signal with an already fixed datatype connected to their inputs 
@@ -109,7 +112,7 @@ class DatatypePropagation:
                 # ask each block connected to the signal s to update its output type (proposals)
                 for destBlock in s.getDestinationBlocks():
 
-                    print("  asking block " + destBlock.toStr())
+                    # print("  asking block " + destBlock.toStr())
 
                     destBlock.configDefineOutputTypes()
 
@@ -121,15 +124,12 @@ class DatatypePropagation:
                 # ask each block connected to the signal s to update its output type (proposals)
                 for destBlock in s.getDestinationBlocks():
 
-                    print("  asking block " + destBlock.toStr())
+                    # print("  asking block " + destBlock.toStr())
                     destBlock.configDefineOutputTypes()
 
-            # print("update counter is after " + str(self.updateCounter))
+            if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedProposedTypes) == 0:
 
-
-            if updateCounterBefore == self.updateCounter:
-
-                print("nothing changed -- abort")
+                print("resolved all datatypes as far as possible in this update-run")
 
                 print("signals with fixed types:")
                 for s in self.signalsWithDeterminedTypes:
@@ -143,16 +143,16 @@ class DatatypePropagation:
                 for s in self.signalsWithProposedTypes:
                     print('  - ' + s.toStr())
 
+                # leave the - while True - loop
                 break
+
 
     def fixateTypes(self):
 
         # discover datatype
         self.updateTypes()
 
-
         # check if something is missing.. TODO
-
         for s in self.signalsWithDeterminedTypes:
 
             if s.name == 'acc':
