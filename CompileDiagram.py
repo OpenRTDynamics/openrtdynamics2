@@ -64,15 +64,29 @@ class CompileDiagram:
         if system.name == 'if_subsystem':
             print('compiling if_subsystem')
 
-        # compile
+        # compile : NOTE: TODO: not needed to determine datatypes 
         compileResult = compileSystem( system )
 
         # store the compilation result in the system's structure
         system.compileResult = compileResult
 
+        if system.UpperLevelSim is not None:
+            # means the compiled system is a subsystem
+
+            # TODO: in the upper-level system: place a new block embeddeding 'system' and re-connect the
+            # in- and outputs to the new block compiled replace the 
+
+            # embeddedingBlockPrototype = system.embeddedingBlockPrototype
+
+            pass
+
 
 
     def compile(self, system):
+
+        # first! Determine datatypes
+
+        # TODO
 
         self.traverseSubSystems(system, level = 0)
 

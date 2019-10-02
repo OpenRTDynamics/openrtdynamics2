@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'inline_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'test_triggered_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -645,7 +645,7 @@ if testname == 'inline_subsystem':
 
             print("Entering if subsystem")
 
-            dy.enter_system('if_subsystem')
+            dy.enter_subsystem('if_subsystem')
 
             return self
 
@@ -721,7 +721,7 @@ if testname == 'inline_subsystem':
 dy.set_primary_outputs(outputSignals)
 
 # Compile system (propagate datatypes)
-compileResults = dy.compile_current_system(outputSignals)
+compileResults = dy.compile_current_system()
 
 
 #

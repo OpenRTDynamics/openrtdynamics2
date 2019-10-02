@@ -35,21 +35,28 @@ def get_simulation_context():
     global current_simulation_context
     return current_simulation_context
 
-
-
-def enter_system(name : str):
+def enter_system(name : str, upper_level_system = None):
+    """
+        create a new system
+    """
     # new simulation
-    sim = Simulation(get_simulation_context(), name)
+    system = Simulation(upper_level_system, name)
 
     # register this subsystem to the parent system
     if get_simulation_context() is not None:
-        get_simulation_context().appendNestedSystem( sim )
+        get_simulation_context().appendNestedSystem( system )
 
-    print("enter_system: created " + str(sim) )
+    print("enter_system: created " + str(system) )
 
-    push_simulation_context(sim)
+    push_simulation_context(system)
 
-    return sim
+    return system
+
+def enter_subsystem(name : str):
+    """
+        create a new subsystem in the current system context
+    """
+    enter_system(name, get_simulation_context())
 
 def leave_system():
     return pop_simulation_context()

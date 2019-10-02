@@ -59,5 +59,5 @@ def compile_system(sim):
     #
     return comileResults
 
-def compile_current_system(outputSignals):
-    return compile_system( get_simulation_context() ) # unwrap_list( outputSignals )
+def compile_current_system():
+    return compile_system( get_simulation_context() )

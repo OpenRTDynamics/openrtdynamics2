@@ -294,7 +294,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
         # constant inputs
         inputConstAssignments = []
         for signal, value in self.inputSignalsMapping.items():
-            inputConstAssignments.append( signal.getName() + ' = ' + str(value) )
+            inputConstAssignments.append( signal.name + ' = ' + str(value) )
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 

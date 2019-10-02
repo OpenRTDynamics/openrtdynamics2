@@ -37,6 +37,7 @@ def define_system_oscillator():
     v = dy.signal()
 
     acc = dy.add( [ U, v, x ], [ 1, -0.5, -0.1 ] ).setNameOfOrigin('acceleration model')
+    acc.setName('acc')
 
     v << eInt( acc, Ts=0.1, name="intV").setName('x')
     x << eInt( v, Ts=0.1, name="intX").setName('v')
@@ -48,10 +49,13 @@ def define_system_oscillator():
     # define output variables
     outputSignals = [ x,v ]
 
-    # compile this system
-    compileResults = dy.compile_current_system(outputSignals)
+    # set the outputs of the system
+    dy.set_primary_outputs(outputSignals)
 
-    # 
+    # compile this system
+    compileResults = dy.compile_current_system()
+
+    # add to library
     lib = dy.SystemLibrary(compileResults)
 
     # print(lib.sourceCode)

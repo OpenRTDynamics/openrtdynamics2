@@ -203,6 +203,10 @@ class Dynamic_1To1(BlockPrototype):
 
 
 
+#
+# Subsystem prototypes
+#
+
 class GenericSubsystem(BlockPrototype):
     """
         Include a sub-system by passing a manifest
@@ -213,6 +217,23 @@ class GenericSubsystem(BlockPrototype):
         # intputSignals = {'in1': in1, 'in2', : in2}
 
         self.manifest = manifest
+        self.sim = sim
+        self.additionalInputs = additionalInputs
+
+        # the number of outputs
+        self.outputTypes = manifest.io_outputs['calculate_output']['types']  
+        self.Noutputs = len( manifest.io_outputs['calculate_output']['names'] )
+
+
+        # if input signals are already defined
+        #
+        # Note: the inputSignals are not defined when subsystems are pre-defined in the code
+        # but are automatically placed and connected by the compiler during compilation
+        self.connectSystemInputs( inputSignals )
+
+    def connectSystemInputs(self, inputSignals):
+        # delayed specification of the I/O-ports of the nested system
+
 
         def collectDependingSignals(signals, manifestFunctionInputs):
             # collect all depending input signals (that are needed to calculate the output) in a list
@@ -227,7 +248,7 @@ class GenericSubsystem(BlockPrototype):
                 # TODO: CHECK FOR FAILING LOOKUP
                 signal = signals[ dependingInput_name ]
 
-                # check datatype (NOTE: MOVE.. not possible here in the contructor)
+                # check datatype (NOTE: MOVE.. not possible here in the constructor)
                 if not signal.getDatatype().cppDataType == dependingInput_cpptype:
                     raise BaseException('datatype does not match the one specified in the manifest. (' + (dependingInput_cpptype) + ' is required in the manifest)' )
 
@@ -236,30 +257,33 @@ class GenericSubsystem(BlockPrototype):
 
             return dependingInputs
 
+
         # collect all depending input signals (that are needed to calculate the output) in a list
-        self.dependingInputs = collectDependingSignals( inputSignals, manifest.io_inputs['calculate_output'] )
+        self.dependingInputs = collectDependingSignals( inputSignals, self.manifest.io_inputs['calculate_output'] )
 
         # collect all inputs required to perform the state update
-        self.inputsToUpdateStates = collectDependingSignals( inputSignals, manifest.io_inputs['state_update'] )
+        self.inputsToUpdateStates = collectDependingSignals( inputSignals, self.manifest.io_inputs['state_update'] )
+
 
         # combine all inputs to a list
-        if additionalInputs is not None:
-            self.allInputs = additionalInputs
+        if self.additionalInputs is not None:
+            self.allInputs = self.additionalInputs
 
         else:
             self.allInputs = {}
 
+        #
         self.allInputs.extend( self.dependingInputs )
         self.allInputs.extend( self.inputsToUpdateStates )
 
-        # the number of outputs
-        self.outputTypes = manifest.io_outputs['calculate_output']['types']  
-        Noutputs = len( manifest.io_outputs['calculate_output']['names'] )
 
-        BlockPrototype.__init__(self, sim, self.allInputs, Noutputs)
+        # now initialize the propotype
+        BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
 
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
+
+        
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -352,7 +376,7 @@ class GenericSubsystem(BlockPrototype):
             return self.codeGen_call_UpdateFunction(self.instanceVarname, self.manifest, language)
 
 def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
-    return wrap_signal_list( GenericSubsystem(get_simulation_context(), manifest, unwrap_list(inputSignals) ).outputSignals )
+    return wrap_signal_list( GenericSubsystem(get_simulation_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )
 
 
 
@@ -407,7 +431,7 @@ class TruggeredSubsystem(GenericSubsystem):
         return lines
         
 def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate ):
-    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_list( inputSignals ), unwrap( trigger ) ).outputSignals )
+    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals ), unwrap( trigger ) ).outputSignals )
 
         
 
@@ -466,7 +490,7 @@ class ForLoopSubsystem(GenericSubsystem):
         return lines
         
 def for_loop_subsystem( manifest, inputSignals : List[SignalUserTemplate], i_max : SignalUserTemplate ):
-    return wrap_signal_list( ForLoopSubsystem( get_simulation_context(), manifest, unwrap_list( inputSignals ), unwrap( i_max ) ).outputSignals )
+    return wrap_signal_list( ForLoopSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals ), unwrap( i_max ) ).outputSignals )
 
         
 

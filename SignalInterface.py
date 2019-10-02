@@ -22,6 +22,10 @@ class SignalUserTemplate(object):
         self.sim = sim
         self.wrapped_signal_ = wrapped_signal
 
+    def __hash__(self):
+        return id(self)
+
+
     @property
     def unwrap(self):
         return self.wrapped_signal_
@@ -133,6 +137,7 @@ class SimulationInputSignalUser(SignalUserTemplate):
 
 
 
+
 def unwrap( signal : SignalUserTemplate ):
     return signal.unwrap
 
@@ -144,6 +149,21 @@ def unwrap_list( signals : List[SignalUserTemplate] ):
         list_of_unwrapped_signals.append( signal.unwrap )
 
     return list_of_unwrapped_signals 
+
+def unwrap_hash( signals ):
+    """
+        unwrap all signals in a hash array and return a copy 
+    """
+
+    # make a copy
+    list_of_unwrapped_signals = signals.copy()
+
+    # create a new list of signals
+    for key, signal in list_of_unwrapped_signals.items():
+        list_of_unwrapped_signals[key] = signal.unwrap
+
+    return list_of_unwrapped_signals 
+
 
 def wrap_signal( signal : Signal ):
     # wraps a block output signal

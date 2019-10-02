@@ -36,9 +36,11 @@ class DatatypePropagation:
 
 
     def notifySignal(self, signal : Signal):
-        # a new singals has been created
+        # a new singal was created
 
         print("DatatypePropagation: new signal " + signal.toStr() )
+
+        # TODO: Why are there signals with the same name? maybe ignore these anonymous signals?!
 
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUpdatedProposedTypes
 
@@ -53,7 +55,7 @@ class DatatypePropagation:
 
 
     def notify_updateOfProposedDatatype(self, signal : Signal):
-        # a proposal for a datatype has been updated
+        # a proposal for the datatype of signal was updated
 
         print("DatatypePropagation: datatype proposol for signal updated " + signal.toStr( ))
 
@@ -148,9 +150,14 @@ class DatatypePropagation:
         # discover datatype
         self.updateTypes()
 
+
         # check if something is missing.. TODO
 
         for s in self.signalsWithDeterminedTypes:
+
+            if s.name == 'acc':
+                print("")
+
             # remove from
             if s in self.signalsWithUnderminedTypes:
                 self.signalsWithUnderminedTypes.remove( s )
@@ -158,7 +165,7 @@ class DatatypePropagation:
         # turn the proposal datatypes into fixed types
         for s in self.signalsWithProposedTypes:
 
-            print('  - turing proposed type into fixed - ' + s.toStr())
+            print('  - turning proposed type into fixed - ' + s.toStr())
 
             # fixate datatype of s
             s.fixDatatype()

@@ -30,6 +30,12 @@ class BlockPrototype(object):
 
         self.block.configOutputSignals( self._outputSignals )
 
+    #
+    # TODO: allow connecting the inputs after creating a prototype instance
+    #
+    def connectInputs(self, inputSignals):
+        pass
+
 
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
