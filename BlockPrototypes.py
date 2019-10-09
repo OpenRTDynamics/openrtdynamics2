@@ -343,7 +343,12 @@ class GenericSubsystem(BlockPrototype):
         self.allInputs.extend( self.inputsToUpdateStates )
 
         # now initialize the propotype
-        BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
+        if self.compileResult is None:
+            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
+
+        else:
+            output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
+            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, datatypes=output_datatypes)
 
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name

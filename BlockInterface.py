@@ -15,18 +15,19 @@ class BlockPrototype(object):
         the one, how, implements new blocks.
     """
 
-    def __init__(self, sim, inputSignals, nOutputs ):
-
-        # unwrap the input signals
-        # inputSignalsUnwrapped = []
-        #for i in range(0, len( inputSignals )):
-        #    inputSignalsUnwrapped.append( inputSignals[i].unwrap )
+    def __init__(self, sim, inputSignals, nOutputs, datatypes = None  ):
 
         self.block = Block(sim, self, inputSignals, blockname = '')
 
         self._outputSignals = []
         for i in range(0,nOutputs):
-            self._outputSignals.append( BlockOutputSignal(sim, None, self.block, sourcePort=i  ) )
+
+            if datatypes is None:
+                datatype = None
+            else:
+                datatype = datatypes[i]
+
+            self._outputSignals.append( BlockOutputSignal(sim, datatype, self.block, sourcePort=i  ) )
 
         self.block.configOutputSignals( self._outputSignals )
 

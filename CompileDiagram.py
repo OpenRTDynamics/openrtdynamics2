@@ -82,45 +82,19 @@ class CompileDiagram:
             embeddedingBlockPrototype.set_manifest( compileResult.manifest )
             embeddedingBlockPrototype.set_compile_result(compileResult)
 
-            # TODO: in the upper-level system 'system.UpperLevelSim' connect the inputs 
-            # using embeddedingBlockPrototype.set_inputSignals(  )
-
-            # # get the inputs to the embedded system
-            # i_o = compileResult.commandToExecute.API_functions['calculate_output'].inputSignals
-            # i_r = compileResult.commandToExecute.API_functions['reset'].inputSignals
-            # i_s = compileResult.commandToExecute.API_functions['state_update'].inputSignals
-
-            # # join into sets
-            # input_signals = set(( i_o ))
-            # input_signals.update( i_r )
-            # input_signals.update( i_s )
-            # input_signals = list( input_signals )
 
 
             # connect these inputs to the embeddedingBlockPrototype
             # note these signals must be order somehow
-
             embeddedingBlockPrototype.set_inputSignals( compileResult.inputSignals )
 
             #
             embeddedingBlockPrototype.init(sim=system.UpperLevelSim)
 
-            # initialize the datatypes of the signals yielded by embeddedingBlockPrototype
+            # TODO: initialize the datatypes of the signals yielded by embeddedingBlockPrototype
             # (copy this information)
 
 
-            # make all outputs coming from embeddedingBlockPrototype
-            # make the original connections to phantom connections (or vice versa)
-
-            # o_o = compileResult.commandToExecute.API_functions['calculate_output'].outputSignals
-            # o_r = compileResult.commandToExecute.API_functions['reset'].outputSignals
-            # o_s = compileResult.commandToExecute.API_functions['state_update'].outputSignals
-
-            # output_signals = set(( o_o ))
-            # output_signals.update( o_r )
-            # output_signals.update( o_s )
-
-            # TODO: stopped here 3.10.19
             # embeddedingBlockPrototype.embeddedSystemsOutputs
 
             # get the output signals of the embedded system (returned by the function 'calculate_output')

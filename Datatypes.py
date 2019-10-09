@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+import Signal as sig
+
 ORTD_DATATYPE_UNCONFIGURED = 0
 ORTD_DATATYPE_FLOAT = (1 | (8 << 5))
 ORTD_DATATYPE_SHORTFLOAT = 4
@@ -14,7 +16,16 @@ ORTD_DATATYPE_INT8 = 10
 ORTD_DATATYPE_UINT8 = 11
 
 
+def extract_datatypes_from_signals(signals : List[sig.Signal]):
+    """
+        extract the datatytes for each element of a list of signals and return them in a list 
+    """
 
+    datatypes = []
+    for s in signals:
+        datatypes.append( s.getDatatype() )
+
+    return datatypes
 
 class DataType(object):
     #
