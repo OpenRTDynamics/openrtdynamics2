@@ -101,16 +101,20 @@ class CommandCalculateOutputs(ExecutionCommand):
         if language == 'c++':
 
             if flag == 'localvar':
-                
+
+                # 
                 SignalsWithoutOutputs = self.executionLine.getSignalsToExecute()
 
                 # remove the system-output signals if requested
                 if self.defineVarsForOutputs: # This is flipped by its name
                     for s in self.targetSignals:
+                        # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
 
                         SignalsWithoutOutputs.remove( s )
 
                         # notify the block prototype that the signal s will be a system output
+                        # and, hence, no memory shall be allocated for s (because the memory is already
+                        # available)
                         s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
 
 

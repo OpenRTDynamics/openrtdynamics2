@@ -80,7 +80,7 @@ class Simulation:
 
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
-        print("added block ", blk.getName() )
+        # print("added block ", blk.getName() )
 
     def setPrimaryOutputs(self, outputSignals):
         self._output_signals = outputSignals
@@ -286,7 +286,7 @@ class Simulation:
 
 
     def CompileConnections(self):
-        print("Compiling connections")
+        print("Propagating datatypes...")
 
         for block in self.BlocksArray:
             block.verifyInputSignals()

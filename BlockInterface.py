@@ -31,7 +31,7 @@ class BlockPrototype(object):
         self.block.configOutputSignals( self._outputSignals )
 
     #
-    # TODO: allow connecting the inputs after creating a prototype instance
+    # TODO: allow connecting the inputs after creating a prototype instance using this function
     #
     def connectInputs(self, inputSignals):
         pass

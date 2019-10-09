@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'test_triggered_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
+testname = 'inline_subsystem' # 'test1', 'test_integrator', 'test_oscillator_controlled', 'test_oscillator_from_lib_controlled'
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -657,8 +657,17 @@ if testname == 'inline_subsystem':
             # set the outputs of the system
             dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs ) )
 
+            # Please note: in case it is really necessary to specify a system != None here, use the upper-level system
+            # not the embedded one.
+            dy.get_simulation_context().embeddedingBlockPrototype = dy.GenericSubsystem( sim=None, inputSignals=None, manifest=None, additionalInputs=None )
+
+
             # TODO: add a system wrapper/embedded (e.g. this if-block) to leave_system
             dy.leave_system()
+
+
+            #
+            
 
 
 

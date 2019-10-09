@@ -217,23 +217,71 @@ class GenericSubsystem(BlockPrototype):
         # intputSignals = {'in1': in1, 'in2', : in2}
 
         self.manifest = manifest
+        self.inputSignals = inputSignals
         self.sim = sim
         self.additionalInputs = additionalInputs
 
-        # the number of outputs
-        self.outputTypes = manifest.io_outputs['calculate_output']['types']  
-        self.Noutputs = len( manifest.io_outputs['calculate_output']['names'] )
-
+        # optional (in case this block is in charge of putting the code for the subsystem)
+        self.compileResult = None
 
         # if input signals are already defined
         #
         # Note: the inputSignals are not defined when subsystems are pre-defined in the code
         # but are automatically placed and connected by the compiler during compilation
-        self.connectSystemInputs( inputSignals )
 
-    def connectSystemInputs(self, inputSignals):
-        # delayed specification of the I/O-ports of the nested system
+        # 
+        if inputSignals is not None and manifest is not None:
+            self.init()
 
+    def set_manifest(self, manifest):
+        """
+            set the manifest of the subsystem
+        """
+
+        if self.manifest is not None:
+            raise BaseException("cannot call this function as the subsystem's manifest was already specified in the constructor.")
+
+        self.manifest = manifest
+
+    def set_compile_result(self, compileResult):
+        """
+            Set the compilation result of the embedded system (if available)
+        """
+        self.compileResult = compileResult
+
+    def set_inputSignals(self, inputSignals):
+        """
+            connect the inputs (coming from the upper-level system)
+        """
+
+        if self.inputSignals is not None:
+            raise BaseException("cannot call this function as the subsystem's inputSignals were already specified in the constructor.")
+
+        self.inputSignals = inputSignals
+
+        
+
+
+    def init(self, sim : Simulation):
+        """
+            This is a second phase initialization of this subsystem block
+
+            This function shall be called when the subsystem to embedd is compiled
+            after the instance of 'GenericSubsystem' is created. This way, it is possible
+            to add blocks embeddeding sub-systems without haveing these subsystems to be
+            already compiled.
+
+            Optionally, the system this block belongs to can be set.
+        """        
+        
+        if self.manifest is None:
+            raise BaseException("the subsystem's manifest was not specified.")
+
+        if self.inputSignals is None:
+            raise BaseException("the subsystem's inputSignals were not specified.")
+
+        if sim is not None:
+            self.sim = sim
 
         def collectDependingSignals(signals, manifestFunctionInputs):
             # collect all depending input signals (that are needed to calculate the output) in a list
@@ -258,24 +306,41 @@ class GenericSubsystem(BlockPrototype):
             return dependingInputs
 
 
-        # collect all depending input signals (that are needed to calculate the output) in a list
-        self.dependingInputs = collectDependingSignals( inputSignals, self.manifest.io_inputs['calculate_output'] )
 
-        # collect all inputs required to perform the state update
-        self.inputsToUpdateStates = collectDependingSignals( inputSignals, self.manifest.io_inputs['state_update'] )
+        # the number of outputs of the embedded system
+        self.Noutputs = len( self.manifest.io_outputs['calculate_output']['names'] )
 
+        # get the output datatypes of the embedded system
+        self.outputTypes = self.manifest.io_outputs['calculate_output']['types']  
+
+
+        if self.compileResult is None:
+            # collect all depending input signals (that are needed to calculate the output) in a list
+            self.inputsToCalculateOutputs = collectDependingSignals( self.inputSignals, self.manifest.io_inputs['calculate_output'] )
+
+            # collect all inputs required to perform the state update
+            self.inputsToUpdateStates = collectDependingSignals( self.inputSignals, self.manifest.io_inputs['state_update'] )
+
+        else:
+            # use the available compile results to get the I/O signals
+            # in this case, self.inputSignals shall be a list of signals. The order
+            # shall match the signal order in self.compileResults.inputSignals
+
+            self.inputsToCalculateOutputs = self.compileResult.simulationInputSignalsToCalculateOutputs
+            self.inputsToUpdateStates = self.compileResult.simulationInputSignalsToUpdateStates
+
+            
 
         # combine all inputs to a list
         if self.additionalInputs is not None:
             self.allInputs = self.additionalInputs
 
         else:
-            self.allInputs = {}
+            self.allInputs = list()
 
         #
-        self.allInputs.extend( self.dependingInputs )
+        self.allInputs.extend( self.inputsToCalculateOutputs )
         self.allInputs.extend( self.inputsToUpdateStates )
-
 
         # now initialize the propotype
         BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
@@ -284,6 +349,19 @@ class GenericSubsystem(BlockPrototype):
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
         
+    @property
+    def embeddedSystemsInputs(self):
+        """
+            the input signals forwarded to the embedded system
+        """
+        return self._XXX
+
+    @property
+    def embeddedSystemsOutputs(self):
+        """
+            the output signals forwarded to the embedded system
+        """
+        return self._XXX
 
     def configDefineOutputTypes(self, inputTypes):
 
@@ -293,9 +371,12 @@ class GenericSubsystem(BlockPrototype):
     def returnDependingInputs(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in self.dependingInputs)
+        #       (Every output depends on every signal in self.inputsToCalculateOutputs)
 
-        return self.dependingInputs
+        # TODO: 6.10.19 implement this in a more granular way.
+        # also use self.compileResults to get those information
+
+        return self.inputsToCalculateOutputs
 
     def returnInutsToUpdateStates(self, outputSignal):
  
@@ -321,9 +402,10 @@ class GenericSubsystem(BlockPrototype):
             return cgh.defineVariableLine( signal )
 
     def codeGen_init(self, language):
-        # TODO: must be called from the code generation framework
         self.codeGen_outputsCalculated = False
 
+        # isSignalVariableDefined contains for each output signal a flag that indicates wheter veriables 
+        # for these output signals shall be defined (i.e. memory reserved)
         self.isSignalVariableDefined = {}
         for s in self.outputSignals:
             self.isSignalVariableDefined[ s ] = False
@@ -332,7 +414,7 @@ class GenericSubsystem(BlockPrototype):
         pass
 
     def codeGen_setOutputReference(self, language, signal):
-        # infcates that for signal, no localvar will be reserved, but a reference to that data is used
+        # infcates that for signal, no localvar will be created, but a reference to that data is used
         # This is the case for signals that are system outputs
 
         # 
@@ -340,7 +422,7 @@ class GenericSubsystem(BlockPrototype):
 
 
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
-        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.dependingInputs) + ');\n'
+        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
 
     def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
@@ -358,7 +440,7 @@ class GenericSubsystem(BlockPrototype):
                     self.isSignalVariableDefined[ signal ] = True
 
             if not self.codeGen_outputsCalculated:
-                # input to this call are the signals in self.dependingInputs
+                # input to this call are the signals in self.inputsToCalculateOutputs
 
                 lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
 
@@ -396,7 +478,7 @@ class TruggeredSubsystem(GenericSubsystem):
     def returnDependingInputs(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in self.dependingInputs)
+        #       (Every output depends on every signal in dependingInputs)
 
         dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
 
@@ -453,7 +535,7 @@ class ForLoopSubsystem(GenericSubsystem):
     def returnDependingInputs(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in self.dependingInputs)
+        #       (Every output depends on every signal in dependingInputs)
 
         dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
 

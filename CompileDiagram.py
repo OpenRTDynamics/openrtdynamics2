@@ -64,11 +64,11 @@ class CompileDiagram:
         if system.name == 'if_subsystem':
             print('compiling if_subsystem')
 
-        # compile : NOTE: TODO: not needed to determine datatypes 
+        # compile the system
         compileResult = compileSystem( system )
 
         # store the compilation result in the system's structure
-        system.compileResult = compileResult
+        system.compilationResult = compileResult
 
         if system.UpperLevelSim is not None:
             # means the compiled system is a subsystem
@@ -76,22 +76,89 @@ class CompileDiagram:
             # TODO: in the upper-level system: place a new block embeddeding 'system' and re-connect the
             # in- and outputs to the new block compiled replace the 
 
-            # embeddedingBlockPrototype = system.embeddedingBlockPrototype
+            embeddedingBlockPrototype = system.embeddedingBlockPrototype
 
-            pass
+            # set the manifest and the compile results describing the embedded subsystem
+            embeddedingBlockPrototype.set_manifest( compileResult.manifest )
+            embeddedingBlockPrototype.set_compile_result(compileResult)
+
+            # TODO: in the upper-level system 'system.UpperLevelSim' connect the inputs 
+            # using embeddedingBlockPrototype.set_inputSignals(  )
+
+            # # get the inputs to the embedded system
+            # i_o = compileResult.commandToExecute.API_functions['calculate_output'].inputSignals
+            # i_r = compileResult.commandToExecute.API_functions['reset'].inputSignals
+            # i_s = compileResult.commandToExecute.API_functions['state_update'].inputSignals
+
+            # # join into sets
+            # input_signals = set(( i_o ))
+            # input_signals.update( i_r )
+            # input_signals.update( i_s )
+            # input_signals = list( input_signals )
+
+
+            # connect these inputs to the embeddedingBlockPrototype
+            # note these signals must be order somehow
+
+            embeddedingBlockPrototype.set_inputSignals( compileResult.inputSignals )
+
+            #
+            embeddedingBlockPrototype.init(sim=system.UpperLevelSim)
+
+            # initialize the datatypes of the signals yielded by embeddedingBlockPrototype
+            # (copy this information)
+
+
+            # make all outputs coming from embeddedingBlockPrototype
+            # make the original connections to phantom connections (or vice versa)
+
+            # o_o = compileResult.commandToExecute.API_functions['calculate_output'].outputSignals
+            # o_r = compileResult.commandToExecute.API_functions['reset'].outputSignals
+            # o_s = compileResult.commandToExecute.API_functions['state_update'].outputSignals
+
+            # output_signals = set(( o_o ))
+            # output_signals.update( o_r )
+            # output_signals.update( o_s )
+
+            # TODO: stopped here 3.10.19
+            # embeddedingBlockPrototype.embeddedSystemsOutputs
+
+            # get the output signals of the embedded system (returned by the function 'calculate_output')
+            output_signals = system.primaryOutputs
+
+            # iterate over all ouputs given by the calculate_outputs function
+            portNum = 0
+            for s in compileResult.outputSignals:
+                s.sourcePort_inEmbeddedSystem = s.sourcePort
+                s.sourceBlock_inEmbeddedSystem = s.sourceBlock
+
+                # s.redefine_source(embeddedingBlockPrototype.block, portNum)
+                s.redefine_source(sourceBlock=embeddedingBlockPrototype.block, sourcePort=portNum)
+
+                portNum += 1
+
+
+        else:
+            # this system is the top-level system
+            self._compleResults = compileResult
 
 
 
     def compile(self, system):
+        #
+        # The datatypes of all signals must be determined here
+        #
 
-        # first! Determine datatypes
-
-        # TODO
+        if system.UpperLevelSim is not None:
+            raise BaseException("given system is not a top-level system (but dispite a sub-system of sth.)")
 
         self.traverseSubSystems(system, level = 0)
 
+        if self._compleResults is None:
+            raise BaseException("failed to obtain the compilation results")
+
         
-        self._compleResults = compileSystem(system)
+        # self._compleResults = compileSystem(system)
 
         return self._compleResults
 
@@ -163,14 +230,14 @@ def compileSystem(sim):
 
 
     # TODO: stopped here: investigate missmatch between those two
-    simulationInputSignalsForCalcOutputs = dependencySignalsSimulationInputs
+    simulationInputSignalsToCalculateOutputs = dependencySignalsSimulationInputs
 
 
 
-    simulationInputSignalsForCalcOutputs = []
+    simulationInputSignalsToCalculateOutputs = []
     for s in dependencySignals:
         if isinstance(s, SimulationInputSignal):
-            simulationInputSignalsForCalcOutputs.append(s)
+            simulationInputSignalsToCalculateOutputs.append(s)
 
     # counter for the order (i.e. step through all delays present in the system)
     order = 0
@@ -202,7 +269,7 @@ def compileSystem(sim):
     # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
     # Further, it stores intermediate results
     commandToPublishTheResults = PutAPIFunction("calcResults_1", 
-                                                inputSignals=simulationInputSignalsForCalcOutputs,   # TODO: only add the elements that are inputs
+                                                inputSignals=simulationInputSignalsToCalculateOutputs,
                                                 outputSignals=outputSignals, 
                                                 executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
 
@@ -213,7 +280,10 @@ def compileSystem(sim):
     commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
 
     # the simulation intputs needed to perform the state update
-    simulationInputSignalsForStateUpdate = []
+    #
+    # TODO: 6.10.19: use sets for this to collect
+    #
+    simulationInputSignalsToUpdateStates = []
 
     # the list of blocks that are updated. Note: So far this list is only used to prevent
     # double uodates.
@@ -243,7 +313,7 @@ def compileSystem(sim):
         for s in dependencySignalsThroughStates + dependencySignals:
 
             if isinstance(s, SimulationInputSignal):
-                simulationInputSignalsForStateUpdate.append(s)
+                simulationInputSignalsToUpdateStates.append(s)
 
             elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
                 dependencySignals__.append(s)
@@ -354,7 +424,7 @@ def compileSystem(sim):
 
     # Build API to update the states: e.g. c++ function updateStates()
     commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
-                                            inputSignals=simulationInputSignalsForStateUpdate, 
+                                            inputSignals=simulationInputSignalsToUpdateStates, 
                                             outputSignals=[], 
                                             executionCommands=commandsToExecuteForStateUpdate )
 
@@ -376,10 +446,31 @@ def compileSystem(sim):
                                                     outputCommand = commandToPublishTheResults
                                                 )
 
+    # collect all (needed) inputs to this system
+    
+    # simulationInputSignalsToUpdateStates
+    # simulationInputSignalsToCalculateOutputs
+
+    allinputs = set(( simulationInputSignalsToUpdateStates ))
+    allinputs.update( simulationInputSignalsToCalculateOutputs )
+    allinputs = list(allinputs)
+
+    # output signals
+    # outputSignals
+
+
+
     # build the manifest for the compiled system
     manifest = SystemManifest( commandToExecute_simulation )
 
-    compleResults = CompileResults( manifest, commandToExecute_simulation )
+    compleResults = CompileResults( manifest, commandToExecute_simulation)
+
+    compleResults.inputSignals = allinputs
+    compleResults.simulationInputSignalsToUpdateStates = simulationInputSignalsToUpdateStates
+    compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
+    compleResults.outputSignals = outputSignals
+
+    
 
     #
     return compleResults
