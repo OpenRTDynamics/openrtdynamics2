@@ -6,8 +6,10 @@ import subprocess
 import os
 import json
 
+# compileResults.commandToExecute.mainSimulation.codeGen('c++', 'code')
+
 # rename to SystemLibraryEntry
-class SystemLibrary(object):
+class SystemLibraryEntry(object):
     """
         creates a library entry
     """

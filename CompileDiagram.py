@@ -254,10 +254,7 @@ def compileSystem(sim):
     commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
 
     # the simulation intputs needed to perform the state update
-    #
-    # TODO: 6.10.19: use sets for this to collect
-    #
-    simulationInputSignalsToUpdateStates = []
+    simulationInputSignalsToUpdateStates = set()
 
     # the list of blocks that are updated. Note: So far this list is only used to prevent
     # double uodates.
@@ -287,7 +284,7 @@ def compileSystem(sim):
         for s in dependencySignalsThroughStates + dependencySignals:
 
             if isinstance(s, SimulationInputSignal):
-                simulationInputSignalsToUpdateStates.append(s)
+                simulationInputSignalsToUpdateStates.update([s])
 
             elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
                 dependencySignals__.append(s)
@@ -398,7 +395,7 @@ def compileSystem(sim):
 
     # Build API to update the states: e.g. c++ function updateStates()
     commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
-                                            inputSignals=simulationInputSignalsToUpdateStates, 
+                                            inputSignals=list(simulationInputSignalsToUpdateStates), 
                                             outputSignals=[], 
                                             executionCommands=commandsToExecuteForStateUpdate )
 
@@ -421,16 +418,9 @@ def compileSystem(sim):
                                                 )
 
     # collect all (needed) inputs to this system
-    
-    # simulationInputSignalsToUpdateStates
-    # simulationInputSignalsToCalculateOutputs
-
     allinputs = set(( simulationInputSignalsToUpdateStates ))
     allinputs.update( simulationInputSignalsToCalculateOutputs )
     allinputs = list(allinputs)
-
-    # output signals
-    # outputSignals
 
 
 

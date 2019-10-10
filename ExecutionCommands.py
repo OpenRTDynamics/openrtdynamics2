@@ -609,6 +609,14 @@ class PutSimulation(ExecutionCommand):
                 pass
 
             if flag == 'code':
+                #
+        
+                # Add code within the same namespace this simulation sits in.
+                # E.g. to add helper functions, classes, ...
+                for b in self.simulation.blocks:
+                    lines += b.getBlockPrototype().codegen_addToNamespace(language)
+
+
                 # define the API-function (start)
                 lines += 'class ' + self.nameAPI + ' {'
                 lines += '\n'

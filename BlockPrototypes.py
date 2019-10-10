@@ -388,6 +388,16 @@ class GenericSubsystem(BlockPrototype):
         # return a list of input signals that are required to update the states
         return self.inputsToUpdateStates
 
+    def codegen_addToNamespace(self, language):
+        if language == 'c++':
+            lines = ''
+
+            if self.compileResult is not None:
+                # add the code of the subsystem
+                lines = self.compileResult.commandToExecute.codeGen('c++', 'code')
+
+            return lines
+
     def codeGen_defStates(self, language):
         if language == 'c++':
             lines = '// instance of ' + self.manifest.API_name + '\n'

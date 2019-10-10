@@ -64,21 +64,6 @@ class Block:
     
     def graphTraversionMarkerMarkIsVisited(self):
         return self.graphTraversionMarker
-    
-    # # TODO remove soon 13.7.19
-    # def configAddOutputSignal(self):
-    #     # add an output signals to this block typically called by the block prototypes
-    #     # NOTE: This just reservates that there will be an output
-    #     #       the type is undefined at this point
-
-    #     print("---------------------------- obsolet function configAddOutputSignal ------------------------")
-
-    #     portNumber = len(self.OutputSignals)
-    #     newSignal = Signal(self.sim, None, self, portNumber )
-
-    #     self.OutputSignals.append( newSignal )
-
-    #     return self
 
     def configOutputSignals(self, signals):
         self.OutputSignals = signals

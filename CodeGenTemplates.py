@@ -23,7 +23,7 @@ class PutRuntimeCppHelper:
         # list of inlcuded system
         self._includedSystems = []
 
-    def include_systems(self, system : SystemLibrary):
+    def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system
 
     def codeGen(self):

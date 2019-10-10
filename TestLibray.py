@@ -56,7 +56,7 @@ def define_system_oscillator():
     compileResults = dy.compile_current_system()
 
     # add to library
-    lib = dy.SystemLibrary(compileResults)
+    lib = dy.SystemLibraryEntry(compileResults)
 
     # print(lib.sourceCode)
 

@@ -89,12 +89,23 @@ class BlockPrototype(object):
 
     def codeGen_setOutputReference(self, language, signal):
         """
-            infcates that for the given signal no local variable will be reserved by calling codeGen_localvar.
+            indicates that for the given signal no local variable will be reserved by calling codeGen_localvar.
             Insted the variable to store the signal is an output of the system and has been already defined.
         """
         pass
 
+    def codegen_addToNamespace(self, language):
+        """
+            Add code within the same namespace the block sits in.
+            E.g. to add helper functions, classes, ...
+        """
+        return ''
+
     def codeGen_defStates(self, language):
+        """
+            to define discrete-time states of the block
+        """
+
         return ''
 
     def codeGen_localvar(self, language, signal : Signal):
