@@ -65,6 +65,12 @@ class CompileDiagram:
             print('compiling if_subsystem')
 
         # compile the system
+
+        # TODO: when the inner system gets compiled, the system is okay (unmodified)
+        #       as code generation is triggered, modified I/O signals are present which cases 
+        #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
+
+
         compileResult = compileSystem( system )
 
         # store the compilation result in the system's structure
@@ -73,9 +79,9 @@ class CompileDiagram:
         if system.UpperLevelSim is not None:
             # means the compiled system is a subsystem
 
-            # TODO: in the upper-level system: place a new block embeddeding 'system' and re-connect the
-            # in- and outputs to the new block compiled replace the 
+            print("-- configuring the embedding block prototype --")
 
+            # get the block prototype that will embedd this system
             embeddedingBlockPrototype = system.embeddedingBlockPrototype
 
             # set the manifest and the compile results describing the embedded subsystem
@@ -106,6 +112,11 @@ class CompileDiagram:
                 s.sourcePort_inEmbeddedSystem = s.sourcePort
                 s.sourceBlock_inEmbeddedSystem = s.sourceBlock
 
+
+                # TODO: This redefine_source kills the proper source block for generating code of the 
+                # embedded system. Don't touch the signal, instead introduce a new signal type 
+                # that serves as an output of a embedding system block
+                #  
                 # s.redefine_source(embeddedingBlockPrototype.block, portNum)
                 s.redefine_source(sourceBlock=embeddedingBlockPrototype.block, sourcePort=portNum)
 

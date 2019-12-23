@@ -210,6 +210,8 @@ class Dynamic_1To1(BlockPrototype):
 class GenericSubsystem(BlockPrototype):
     """
         Include a sub-system by passing a manifest
+
+        sim - the simulation this block is embedded into
     """
     def __init__(self, sim : Simulation, manifest, inputSignals, additionalInputs : List[ Signal ] = None ):
         # intputSignals is a hash array
