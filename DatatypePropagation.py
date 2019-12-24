@@ -37,12 +37,13 @@ class DatatypePropagation:
 
     def notifySignal(self, signal : Signal):
         # a new singal was created
+        # (Note: it might haven been also only updated, meaning it go registered even before)
 
         if isinstance( signal, UndeterminedSignal ):
             # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
             return
 
-        print("DatatypePropagation: new signal " + signal.toStr() )
+        print("DatatypePropagation: new/updated signal " + signal.toStr() )
 
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
 
@@ -53,8 +54,24 @@ class DatatypePropagation:
 
         else:
 
-            # put to the list of signals with already fixed datatypes
+            # put on the list of signals with already fixed datatypes
             self.signalsWithUpdatedDeterminedTypes.append( signal )
+
+
+            # inherit the type of signal to the signals that inherit from
+            
+            # set datatypes of block that inherit this datatype
+            for to_signal in signal.inherit_datatype_to_list:
+
+                print("inherit datatype of " + signal.toStr() + " --> " + to_signal.toStr() )
+
+                # NOTE: running setDatatype_nonotitication prevents a callback to notifySignal (This function)
+                to_signal.setDatatype_nonotitication( signal.datatype )
+
+                # put on the list of signals with already fixed datatypes
+                self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+
 
         self.updateCounter += 1
 
@@ -105,7 +122,7 @@ class DatatypePropagation:
             # triggered by the calls 'destBlock.configDefineOutputTypes()'
             updateCounterBefore = self.updateCounter
 
-            # at fitst ask all blocks who have a signal with an already fixed datatype connected to their inputs 
+            # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
             for s in signalsWithUpdatedDeterminedTypes:
                 # ask all blocks connected to s to update their output type proposal or fix their type
 

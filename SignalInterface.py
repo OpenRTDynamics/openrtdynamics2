@@ -96,15 +96,39 @@ class SignalUser(SignalUserTemplate):
     def __init__(self, sim):
         SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
 
+    def enherit_datatype(self, from_signal : SignalUserTemplate):
+        """
+            The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'
+        """
+        self.linked_datatype_of_signal = from_signal
 
-# only ananymous signal
+        from_signal.unwrap.inherit_datatype_to( self.unwrap )
+
+    # only ananymous signal
     def __lshift__(self, other): 
         # close a feedback loop by connecting the signals self and other        
-        print("closing loop: " + self.name + ' <--> ' + other.name )
+        print("EDITOR: closing loop: " + self.name + ' <--> ' + other.name )
         self.unwrap.setequal(other.unwrap)
         
         return other
 
+
+
+
+
+class SubsystemOutputLinkUser(SignalUser):
+    """
+        A signal that serves as a placeholder for a subsystem output to be used in the embedding
+        system. A datatype must be specified.
+
+        Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
+        from the subsystem blocks. 
+    """
+
+    def __init__(self, sim, original_signal : Signal):
+        self._original_signal = original_signal
+
+        SignalUser.__init__(self, sim)
 
 
 

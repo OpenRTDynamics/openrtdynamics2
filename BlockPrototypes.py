@@ -223,6 +223,10 @@ class GenericSubsystem(BlockPrototype):
         self.sim = sim
         self.additionalInputs = additionalInputs
 
+        # output signals that were created by sth. ourside of this prototype
+        # and that need to be connected to the actual outputs when init() is called.
+        self.anonymous_output_signals = None
+
         # optional (in case this block is in charge of putting the code for the subsystem)
         self.compileResult = None
 
@@ -260,6 +264,10 @@ class GenericSubsystem(BlockPrototype):
             raise BaseException("cannot call this function as the subsystem's inputSignals were already specified in the constructor.")
 
         self.inputSignals = inputSignals
+
+    def set_anonymous_output_signal_to_connect(self, anonymous_output_signals):
+        # List of raw signals 
+        self.anonymous_output_signals = anonymous_output_signals
 
         
 
@@ -352,6 +360,34 @@ class GenericSubsystem(BlockPrototype):
             output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
             BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, datatypes=output_datatypes)
 
+        # connect the outputs signals
+        if self.anonymous_output_signals is not None:
+
+            # TODO implement
+
+            print(" -- Nesting block: connecting anonymous signals -- ")
+
+
+
+            Ns = len(self.outputSignals)
+
+            if not Ns == len(  self.anonymous_output_signals ):
+                raise BaseException(" missmatch in the number of output signals")
+
+            for i in range(0,Ns):
+                
+                s_ananon = self.anonymous_output_signals[i]
+                s_source = self.outputSignals[i]
+
+                print("connecting the output " + s_ananon.toStr() + " of the embedding block")
+                s_ananon.setequal( s_source )
+
+
+
+
+
+
+
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
@@ -422,7 +458,7 @@ class GenericSubsystem(BlockPrototype):
         self.codeGen_outputsCalculated = False
 
         # isSignalVariableDefined contains for each output signal a flag that indicates wheter veriables 
-        # for these output signals shall be defined (i.e. memory reserved)
+        # for these output signals shall be defined (i.e., memory reserved)
         self.isSignalVariableDefined = {}
         for s in self.outputSignals:
             self.isSignalVariableDefined[ s ] = False
@@ -551,7 +587,7 @@ class ForLoopSubsystem(GenericSubsystem):
 
     def returnDependingInputs(self, outputSignal):
 
-        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
+        # NOTE: This is a simplified variant so far.. no dependence on the given 'outputSignal'
         #       (Every output depends on every signal in dependingInputs)
 
         dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
