@@ -96,7 +96,7 @@ class SignalUser(SignalUserTemplate):
     def __init__(self, sim):
         SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
 
-    def enherit_datatype(self, from_signal : SignalUserTemplate):
+    def inherit_datatype(self, from_signal : SignalUserTemplate):
         """
             The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'
         """
@@ -104,7 +104,7 @@ class SignalUser(SignalUserTemplate):
 
         # from_signal.unwrap.inherit_datatype_to( self.unwrap )
 
-        self.unwrap.enherit_datatype_from_signal( from_signal.unwrap )
+        self.unwrap.inherit_datatype_from_signal( from_signal.unwrap )
 
 
 

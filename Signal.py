@@ -134,7 +134,7 @@ class Signal(object):
         self.lookupSource()._datatype = self.lookupSource().proposedDatatype
 
     def inherit_datatype_to(self, to_signal):
-        # once the datatype of this signal is fixed, enherit it to to_signal
+        # once the datatype of this signal is fixed, inherit it to to_signal
         self.lookupSource().inherit_datatype_to_list.append( to_signal )
 
     def getProposedDatatype(self):
@@ -276,7 +276,7 @@ class UndeterminedSignal(Signal):
         self.linkedSignal = to
 
 
-    def enherit_datatype_from_signal(self, from_signal : Signal):
+    def inherit_datatype_from_signal(self, from_signal : Signal):
         """
             The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'
         """

@@ -12,6 +12,8 @@ from SystemLibrary import *
 
 from StandardLibrary import *
 
+from subsystems import *
+
 print("-- RTDynamics II loaded --")
 
 def signal():
