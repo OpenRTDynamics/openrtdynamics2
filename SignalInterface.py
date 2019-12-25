@@ -100,9 +100,13 @@ class SignalUser(SignalUserTemplate):
         """
             The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'
         """
-        self.linked_datatype_of_signal = from_signal
+        # self.inherit_datatype_of_signal = from_signal
 
-        from_signal.unwrap.inherit_datatype_to( self.unwrap )
+        # from_signal.unwrap.inherit_datatype_to( self.unwrap )
+
+        self.unwrap.enherit_datatype_from_signal( from_signal.unwrap )
+
+
 
     # only ananymous signal
     def __lshift__(self, other): 

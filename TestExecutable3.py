@@ -734,22 +734,30 @@ if testname == 'inline_subsystem':
 
         # the signal 'inpu' is automatically detected to be an input to the subsystem
 
-        tmp = dy.float64(2.5).setName('tmp')
+        tmp = dy.float64(2.5).setName('const25')
 
-        # warum ist output dem system 'simulation' zugeordnet und nicht zu 'if_subsystem'?
-        # vor compilierung gehört es zu 'if_subsystem' 
+
         output = inpu * tmp 
 
 
-        test = dy.delay( tmp )
-        test2 = dy.delay( inpu )
+        # test = dy.delay( tmp )
+        # test2 = dy.delay( inpu )
 
         output.setName('output_of_if')
         output = system.add_output(output)
+
+        output.setName("embedder_output")
         
 
+
+
+    # opt
+    y = dy.float64(10.0) * output
+
+
     # main simulation ouput
-    outputSignals = [ output ]
+#    outputSignals = [ output ]
+    outputSignals = [ y ]
 
     inputSignalsMapping = {}
 

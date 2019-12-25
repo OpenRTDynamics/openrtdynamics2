@@ -31,7 +31,7 @@ def compile_system(sim):
     print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
     print()
 
-    sim.CompileConnections()
+    sim.propagate_datatypes()
 
     print()
     print(Style.BRIGHT + "-------- print datatypes --------")

@@ -280,19 +280,35 @@ class Simulation:
         return self.ExternalConnectionsArray
 
 
-    def propagateDatatypesForward(self):
+    def resolve_anonymous_signals(self, ignore_signals_with_datatype_inheritance=False):
+        """
+            close down the anonymous signals and wire the connected blocks directly to the source. 
+        """
+        
+        for block in self.BlocksArray:
+            block.verifyInputSignals(ignore_signals_with_datatype_inheritance)
 
+    def propagate_datatypes(self):
+        #
+        #
+        #
+
+        print("Propagating datatypes...")
+
+        # for block in self.BlocksArray:
+        #     block.verifyInputSignals(ignore_signals_with_datatype_inheritance=True)
+
+        self.resolve_anonymous_signals(ignore_signals_with_datatype_inheritance=True)
+
+        # find out the output datatypes
         self.datatypePropagation.fixateTypes()
 
 
-    def CompileConnections(self):
-        print("Propagating datatypes...")
+        # execute this later in the compilatin process
 
-        for block in self.BlocksArray:
-            block.verifyInputSignals()
+        # for block in self.BlocksArray:
+        #     block.verifyInputSignals(ignore_signals_with_datatype_inheritance=False)
 
-        # find out the output datatypes
-        self.propagateDatatypesForward()
 
         
 

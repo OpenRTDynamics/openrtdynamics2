@@ -157,8 +157,18 @@ def compileSystem(sim):
     # the primary output signals are the outputs of the compiled system
     outputSignals = sim.primaryOutputs
 
+
+    print()
+    print(Style.BRIGHT + "-------- replacing all anonymous signals  --------")
+    print()
+
     # prepare (input filter of the given signals)
     resolveUndeterminedSignals(outputSignals)
+
+    # remove all anonymous signal
+    sim.resolve_anonymous_signals()
+
+
 
     #
     # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute

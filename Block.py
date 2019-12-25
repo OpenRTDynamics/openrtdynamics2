@@ -68,10 +68,10 @@ class Block:
     def configOutputSignals(self, signals):
         self.OutputSignals = signals
 
-    def verifyInputSignals(self):
+    def verifyInputSignals(self, ignore_signals_with_datatype_inheritance = False):
         # check the input signals for proper connections to other blocks or simulation inputs
         # i.e. replace all anonymous signals with the sources
-        resolveUndeterminedSignals( self.inputSignals )
+        resolveUndeterminedSignals( self.inputSignals, ignore_signals_with_datatype_inheritance )
 
 
     def configDefineOutputTypes(self):
