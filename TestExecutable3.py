@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'inline_ifsubsystem' # 
+testname = 'inline_ifsubsystem_oscillator' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -627,20 +627,20 @@ if testname == 'inline_ifsubsystem':
     input = dy.system_input( baseDatatype ).setName('input')
 
 
-    with dy.sub_if( switch > dy.float64(1.0) ) as system:
+    ramp = dy.ramp(10).setName('ramp')
+
+    activated = ramp > switch
+
+
+    with dy.sub_if( activated ) as system:
 
         # the signal 'input' is automatically detected to be an input to the subsystem
 
         tmp = dy.float64(2.5).setName('const25')
-
-
         output = input * tmp 
 
-
-        # test = dy.delay( tmp )
-        # test2 = dy.delay( input )
-
         output.setName('output_of_if')
+        
         output = system.add_output(output)
 
         output.setName("embedder_output")
@@ -649,10 +649,40 @@ if testname == 'inline_ifsubsystem':
     # optional y = output
     y = dy.float64(10.0) * output
 
+    # main simulation ouput
+    outputSignals = [ y, ramp ]
+
+    inputSignalsMapping = {}
+
+
+
+
+
+
+
+
+if testname == 'inline_ifsubsystem_oscillator':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    activation_sample = dy.system_input( baseDatatype ).setName('activation_sample')
+    U = dy.system_input( baseDatatype ).setName('osc_excitement')
+
+    with dy.sub_if( dy.ramp(0) > activation_sample ) as system:
+
+        x = dy.signal()
+        v = dy.signal()
+
+        acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+        v << eInt( acc, Ts=0.1, name="intV")
+        x << eInt( v, Ts=0.1, name="intX")
+
+        output_x = system.add_output(x)
+        output_v = system.add_output(v)
 
     # main simulation ouput
-#    outputSignals = [ output ]
-    outputSignals = [ y ]
+    outputSignals = [ output_x, output_v ]
 
     inputSignalsMapping = {}
 

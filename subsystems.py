@@ -77,6 +77,12 @@ class sub:
 
 
 class sub_if:
+    """
+
+        NOTE: in case the if condition is false, the outputs are hold. Eventally uninitialized.
+    """
+
+
     def __init__(self, condition_signal : dy.SignalUserTemplate):
         self._condition_signal = condition_signal
 
