@@ -901,32 +901,41 @@ def cos(u : SignalUserTemplate ):
 #
 
 class Delay(Dynamic_1To1):
-    def __init__(self, sim : Simulation, u : Signal ):
+    def __init__(self, sim : Simulation, u : Signal, initial_state = None ):
+
+        self._initial_state = initial_state
 
         StaticFn_1To1.__init__(self, sim, u)
 
     def codeGen_defStates(self, language):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+            return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
 
     def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            return signal.name + ' = ' + self.getUniqueVarnamePrefix() + '_previousOutput' + ';\n'
+            return signal.name + ' = ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
 
     def codeGen_update(self, language):
         if language == 'c++':
-            return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = ' + self.inputSignal(0).getName() + ';\n'
+            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).getName() + ';\n'
 
     def codeGen_reset(self, language):
         if language == 'c++':
-            return self.getUniqueVarnamePrefix() + '_previousOutput' + ' = 0;\n'
+
+            if self._initial_state is None:
+                # get the zero element for the given datatype
+                initial_state_str = str(self.outputType.cpp_zero_element)
+            else:
+                initial_state_str = str(self._initial_state)
+
+            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + initial_state_str + ';\n'
 
 
-def dyn_delay(sim : Simulation, u : SignalUserTemplate ):
-    return wrap_signal( Delay(sim, u.unwrap ).outputSignals )
+def dyn_delay(sim : Simulation, u : SignalUserTemplate, initial_state = None ):
+    return wrap_signal( Delay(sim, u.unwrap, initial_state ).outputSignals )
 
-def delay(u : SignalUserTemplate):
-    return wrap_signal( Delay(get_simulation_context(), u.unwrap ).outputSignals )
+def delay(u : SignalUserTemplate, initial_state = None):
+    return wrap_signal( Delay(get_simulation_context(), u.unwrap, initial_state ).outputSignals )
 
 
 

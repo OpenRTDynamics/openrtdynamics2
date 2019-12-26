@@ -84,6 +84,10 @@ class DataType(object):
     def cppPrintfPattern(self):
         return None
 
+    @property
+    def cpp_zero_element(self):
+        return 'UNDEF'
+
 
 class DataTypeBoolean(DataType):
 
@@ -98,6 +102,9 @@ class DataTypeBoolean(DataType):
     def cppPrintfPattern(self):
         return '%d'
 
+    @property
+    def cpp_zero_element(self):
+        return 'false'
 
 
 #
@@ -122,6 +129,9 @@ class DataTypeFloat64(DataTypeNumeric):
     def cppPrintfPattern(self):
         return '%f'
 
+    @property
+    def cpp_zero_element(self):
+        return '0.0'
 
 
 
@@ -138,6 +148,10 @@ class DataTypeInt32(DataTypeNumeric):
     @property
     def cppPrintfPattern(self):
         return '%d'
+
+    @property
+    def cpp_zero_element(self):
+        return '0'
 
 
 def areAllTypesDefined( datatypes : List[ DataType ] ):

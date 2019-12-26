@@ -56,12 +56,12 @@ def dInt( u : dy.Signal, name : str):
 
     return y
 
-def eInt( u : dy.Signal, Ts : float, name : str):
+def eInt( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
     yFb = dy.signal()
 
     i = dy.add( [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
-    y = dy.delay( i ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+    y = dy.delay( i, initial_state ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
 
     yFb << y
 
@@ -675,7 +675,7 @@ if testname == 'inline_ifsubsystem_oscillator':
 
         acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
 
-        v << eInt( acc, Ts=0.1, name="intV")
+        v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
         x << eInt( v, Ts=0.1, name="intX")
 
         output_x = system.add_output(x)
