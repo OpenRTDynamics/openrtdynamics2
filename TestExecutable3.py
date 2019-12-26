@@ -668,7 +668,7 @@ if testname == 'inline_ifsubsystem_oscillator':
     activation_sample = dy.system_input( baseDatatype ).setName('activation_sample')
     U = dy.system_input( baseDatatype ).setName('osc_excitement')
 
-    with dy.sub_if( dy.ramp(0) > activation_sample ) as system:
+    with dy.sub_if( dy.ramp(0) > activation_sample, prevent_output_computation=False ) as system:
 
         x = dy.signal()
         v = dy.signal()

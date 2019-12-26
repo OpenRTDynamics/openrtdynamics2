@@ -520,11 +520,19 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 class TruggeredSubsystem(GenericSubsystem):
     """
         Include a triggered sub-system by passing a manifest
+
+        Optional:
+        
+            prevent_output_computation = True: 
+                The subsystems outputs are only computed when triggered. Please note that the outputs
+                of the subsystem are uninitialized until the subsystem is triggered.
+
     """
-    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal ):
+    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal, prevent_output_computation = False ):
 
         # TODO: add this signal to the blocks inputs
         self.triggerSignal = trigger
+        self.prevent_output_computation = prevent_output_computation
 
         GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ trigger ] )
 
@@ -552,9 +560,16 @@ class TruggeredSubsystem(GenericSubsystem):
 
 
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
-        lines = 'if (' +  self.triggerSignal.name + ') {\n'
-        lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
-        lines += '}\n'
+
+        if self.prevent_output_computation:
+            # the subsystems outputs are only computed when triggered
+            lines = 'if (' +  self.triggerSignal.name + ') {\n'
+            lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+            lines += '}\n'
+        else:
+            # the subsystems outputs are always computed
+            lines = GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+
 
         return lines
 
@@ -565,8 +580,8 @@ class TruggeredSubsystem(GenericSubsystem):
 
         return lines
         
-def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate ):
-    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals ), unwrap( trigger ) ).outputSignals )
+def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate, prevent_output_computation = False ):
+    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals, prevent_output_computation ), unwrap( trigger ) ).outputSignals )
 
         
 
