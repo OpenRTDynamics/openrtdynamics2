@@ -1,12 +1,25 @@
 from libdyn import *
 from Signal import *
 from SignalInterface import *
-# from Block import *
-# from BlockPrototypes import *
 
 
 current_simulation_context = None
 simulation_stack = []
+
+counter_of_created_systems = 1000
+
+def generate_subsystem_name():
+    """
+        automatically created unique name for a system
+    """
+    global counter_of_created_systems
+
+    name = 'sub' + str(counter_of_created_systems)
+    counter_of_created_systems += 1
+
+    return name
+
+
 
 def push_simulation_context(sim):
     global simulation_stack

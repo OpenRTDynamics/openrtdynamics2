@@ -11,7 +11,12 @@ from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInpu
 
 
 class sub:
-    def __init__(self):
+    def __init__(self, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = dy.generate_subsystem_name()
 
         self._outputs_inside_subsystem = []
         self._outputs_of_embedding_block = []
@@ -36,16 +41,15 @@ class sub:
 
     def __enter__(self):
 
-        print("Entering subsystem")
-
-        dy.enter_subsystem('subsystem')
+        print("enter subsystem " + self._subsystem_name )
+        dy.enter_subsystem(self._subsystem_name )
 
         return self
 
 
     def __exit__(self, type, value, traceback):
 
-        print("leave subsystem")
+        print("leave subsystem " + self._subsystem_name )
 
         # set the outputs of the system
         dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
@@ -83,7 +87,13 @@ class sub_if:
     """
 
 
-    def __init__(self, condition_signal : dy.SignalUserTemplate):
+    def __init__(self, condition_signal : dy.SignalUserTemplate, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = dy.generate_subsystem_name()
+
         self._condition_signal = condition_signal
 
         self._outputs_inside_subsystem = []
@@ -91,10 +101,7 @@ class sub_if:
 
     def add_output(self, output_signal : dy.SignalUserTemplate):
 
-        print("added output signal " + output_signal.name)
-
         self._outputs_inside_subsystem.append(output_signal)
-
 
         # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
         # This creates a link output_signal_of_embedding_system --> output_signal
@@ -113,16 +120,15 @@ class sub_if:
 
     def __enter__(self):
 
-        print("Entering if subsystem")
-
-        dy.enter_subsystem('if_subsystem')
+        print("enter triggered subsystem " + self._subsystem_name )
+        dy.enter_subsystem(self._subsystem_name )
 
         return self
 
 
     def __exit__(self, type, value, traceback):
 
-        print("leave if subsystem")
+        print("leave triggered subsystem " + self._subsystem_name )
 
         # set the outputs of the system
         dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
