@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'inline_ifsubsystem_oscillator' # 
+testname = 'system_switch' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -668,7 +668,7 @@ if testname == 'inline_ifsubsystem_oscillator':
     activation_sample = dy.system_input( baseDatatype ).setName('activation_sample')
     U = dy.system_input( baseDatatype ).setName('osc_excitement')
 
-    with dy.sub_if( dy.ramp(0) > activation_sample, prevent_output_computation=False ) as system:
+    with dy.sub_if( (dy.ramp(0) > activation_sample) * (dy.ramp(100) < activation_sample), prevent_output_computation=False ) as system:
 
         x = dy.signal()
         v = dy.signal()
@@ -687,6 +687,86 @@ if testname == 'inline_ifsubsystem_oscillator':
     inputSignalsMapping = {}
 
 
+
+
+
+
+class MyNumbers:
+  def __iter__(self):
+    self.a = 1
+    return self
+
+  def __next__(self):
+    x = self.a
+    self.a += 1
+    return x
+
+
+
+if testname == 'system_switch':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    active_system = dy.system_input( dy.DataTypeInt32(1) ).setName('active_system')
+
+    U = dy.system_input( baseDatatype ).setName('osc_excitement')
+
+
+
+
+
+    with dy.sub_switch( "switch1", active_system ) as switch:
+
+        # define outputs of the switch system
+        # switch.add_output()
+
+
+        with switch.new_subsystem('default') as system:
+            # this is defined to be the default subsystem
+            # the datatypes of the outputs defined here a
+            # used for the main outputs of the function 
+            # dy.sub_switch
+
+            # inputs are []
+
+            x = dy.float64(0.0).setName('x_def')
+            v = dy.float64(0.0).setName('v_def')
+
+            system.set_switched_outputs([ x, v ])
+            # the 
+
+        
+
+        with switch.new_subsystem('running') as system:
+            # inputs are [U]
+
+            x = dy.signal()
+            v = dy.signal()
+
+            acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eInt( v, Ts=0.1, name="intX")
+
+            system.set_switched_outputs([ x, v ])
+
+
+
+        output_list = switch.outputs
+
+
+
+
+
+    output_x = output_list[0]
+    output_y = output_list[1]
+
+
+
+    # main simulation ouput
+    outputSignals = [ output_x, output_v ]
+
+    inputSignalsMapping = {}
 
 
 

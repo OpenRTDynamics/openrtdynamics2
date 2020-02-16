@@ -58,11 +58,14 @@ class CompileDiagram:
             self.traverseSubSystems(subSystem, level=level+1)
 
 
+        if system.UpperLevelSim is not None:
+
+            # run the pre-compilation callback of the block prototype that embedds the subsystem
+            print("calling pre-compile hook function for: " + system.name )
+            system.embeddedingBlockPrototype.pre_compile_callback()
+
         #
         print("Now compiling: " + system.name )
-
-        if system.name == 'if_subsystem':
-            print('compiling if_subsystem')
 
         # compile the system
 
@@ -81,49 +84,21 @@ class CompileDiagram:
 
             print("-- configuring the embedding block prototype --")
 
-            # get the block prototype that will embedd this system
-            embeddedingBlockPrototype = system.embeddedingBlockPrototype
 
-            # set the manifest and the compile results describing the embedded subsystem
-            embeddedingBlockPrototype.set_manifest( compileResult.manifest )
-            embeddedingBlockPrototype.set_compile_result( compileResult )
+            # # set the manifest and the compile results describing the embedded subsystem
+            # system.embeddedingBlockPrototype.set_manifest( compileResult.manifest )
+            # system.embeddedingBlockPrototype.set_compile_result( compileResult )
 
 
 
-            # connect these inputs to the embeddedingBlockPrototype
-            # note these signals must be order somehow
-            embeddedingBlockPrototype.set_inputSignals( compileResult.inputSignals )
+            # # connect these inputs to the embeddedingBlockPrototype
+            # # note these signals must be order somehow
+            # system.embeddedingBlockPrototype.set_inputSignals( compileResult.inputSignals )
 
             # initialize the block that embedds the subsystem
             # This must also connect the output signals that are annonymous signals right now
             #
-            embeddedingBlockPrototype.init(sim=system.UpperLevelSim)
-
-       
-
-
-            # embeddedingBlockPrototype.embeddedSystemsOutputs
-
-            # get the output signals of the embedded system (returned by the function 'calculate_output')
-            # output_signals = system.primaryOutputs
-
-
-
-            # # iterate over all ouputs given by the calculate_outputs function
-            # portNum = 0
-            # for s in compileResult.outputSignals:
-            #     s.sourcePort_inEmbeddedSystem = s.sourcePort
-            #     s.sourceBlock_inEmbeddedSystem = s.sourceBlock
-
-
-            #     # TODO: This redefine_source kills the proper source block for generating code of the 
-            #     # embedded system. Don't touch the signal, instead introduce a new signal type 
-            #     # that serves as an output of a embedding system block
-            #     #  
-            #     # s.redefine_source(embeddedingBlockPrototype.block, portNum)
-            #     s.redefine_source(sourceBlock=embeddedingBlockPrototype.block, sourcePort=portNum)
-
-            #     portNum += 1
+            system.embeddedingBlockPrototype.init(sim=system.UpperLevelSim, manifest=compileResult.manifest, compileResult=compileResult, inputSignals=compileResult.inputSignals )
 
 
         else:
@@ -137,8 +112,9 @@ class CompileDiagram:
         # The datatypes of all signals must be determined here
         #
 
-        if system.UpperLevelSim is not None:
-            raise BaseException("given system is not a top-level system (but dispite a sub-system of sth.)")
+        if system.UpperLevelSim is not None:#
+            # compilation can only start at top level subsystems
+            raise BaseException("given system is not a top-level system (but instead a sub-system of sth.)")
 
         self.traverseSubSystems(system, level = 0)
 

@@ -75,6 +75,7 @@ class Signal(object):
 
         return self
 
+    # TODO: remove this soon (just use anme)
     def getName(self):
         return self.lookupSource()._name
 

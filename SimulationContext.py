@@ -69,7 +69,7 @@ def enter_subsystem(name : str):
     """
         create a new subsystem in the current system context
     """
-    enter_system(name, get_simulation_context())
+    return enter_system(name, get_simulation_context())
 
 def leave_system():
     return pop_simulation_context()

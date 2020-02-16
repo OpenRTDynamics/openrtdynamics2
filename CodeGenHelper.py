@@ -21,7 +21,7 @@ def signalListHelper_names(signals):
     names = []
 
     for s in signals:
-        names.append( s.getName() )
+        names.append( s.name )
 
     return names
 
@@ -62,7 +62,7 @@ def signalListHelper_CppVarDefStr(signals):
 
     for s in signals:
         # e.g.: double y;
-        vardefStr.append( s.getDatatype().cppDataType + ' ' + s.getName() )
+        vardefStr.append( s.getDatatype().cppDataType + ' ' + s.name )
 
     return vardefStr
 
@@ -135,7 +135,7 @@ def fillStruct( structName, structVarname, signals ):
 
 
     for s in signals:
-        lines += structVarname + '.' + s.getName() + ' = ' + s.getName() + ';\n'
+        lines += structVarname + '.' + s.name + ' = ' + s.name + ';\n'
 
     return lines
 
@@ -145,7 +145,7 @@ def getStructElements( structVarname, signals ):
     structElements = []
 
     for s in signals:
-        structElements.append( structVarname + '.' + s.getName()  )
+        structElements.append( structVarname + '.' + s.name  )
 
     return structElements
 

@@ -21,6 +21,7 @@ from DatatypePropagation import *
 # TODO: rename this to System
 class Simulation:
     def __init__(self, upperLevelSim, name : str ):
+        
         if upperLevelSim is None:
             # This system is a main system (no upper-level systems)
             print("New system (top-level system)")
