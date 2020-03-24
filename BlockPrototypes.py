@@ -413,7 +413,7 @@ class GenericSubsystem(BlockPrototype):
 
         else:
             output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
-            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, datatypes=output_datatypes)
+            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, output_datatype_list=output_datatypes)
 
         # connect the outputs signals
         if self.anonymous_output_signals is not None:
@@ -568,7 +568,7 @@ def union_of_systems_inputs( system_list ):
 
 
 
-class SwitchSubsystem(GenericSubsystem):
+class SubsystemSwitch(GenericSubsystem):
     """
         Include a switch including multiple sub-systems 
 

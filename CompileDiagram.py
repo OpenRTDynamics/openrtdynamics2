@@ -62,7 +62,7 @@ class CompileDiagram:
 
             # run the pre-compilation callback of the block prototype that embedds the subsystem
             print("calling pre-compile hook function for: " + system.name )
-            system.embeddedingBlockPrototype.pre_compile_callback()
+            system.embeddedingBlockPrototype.pre_compile_callback( system )
 
         #
         print("Now compiling: " + system.name )

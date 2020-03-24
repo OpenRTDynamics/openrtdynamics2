@@ -691,18 +691,6 @@ if testname == 'inline_ifsubsystem_oscillator':
 
 
 
-class MyNumbers:
-  def __iter__(self):
-    self.a = 1
-    return self
-
-  def __next__(self):
-    x = self.a
-    self.a += 1
-    return x
-
-
-
 if testname == 'system_switch':
     
     baseDatatype = dy.DataTypeFloat64(1) 
@@ -746,20 +734,23 @@ if testname == 'system_switch':
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
 
             v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eInt( v, Ts=0.1, name="intX")
+            x << eInt( v,   Ts=0.1, name="intX" )
 
             system.set_switched_outputs([ x, v ])
 
 
+            #  python3 -m http.server
 
-        output_list = switch.outputs
+    output_list = switch.outputs
+
+    print(".")
 
 
 
 
 
     output_x = output_list[0]
-    output_y = output_list[1]
+    output_v = output_list[1]
 
 
 

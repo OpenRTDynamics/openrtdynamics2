@@ -13,19 +13,33 @@ class BlockPrototype(object):
 
         Herein, all technical stuff shall be hidden from the user and
         the one, how, implements new blocks.
+
+        sim                     - the system the block shall belong to
+        inputSignals            - a list of input signals
+        N_outputs               - prepare a number of nOutputs (optional in case output_datatype_list is given)
+        output_datatype_list    - a list of datetypes for each output (optional)
+
     """
 
-    def __init__(self, sim, inputSignals, nOutputs, datatypes = None  ):
+    def __init__(self, sim, inputSignals, N_outputs, output_datatype_list = None  ):
 
         self.block = Block(sim, self, inputSignals, blockname = '')
 
-        self._outputSignals = []
-        for i in range(0,nOutputs):
+        # detect the number of outputs
+        if N_outputs is None:
+            if output_datatype_list is not None:
+                N_outputs = len(output_datatype_list)
+            else:
+                BaseException("unable to determine the number of output ports")
 
-            if datatypes is None:
+        # create the outputs
+        self._outputSignals = []
+        for i in range(0, N_outputs):
+
+            if output_datatype_list is None:
                 datatype = None
             else:
-                datatype = datatypes[i]
+                datatype = output_datatype_list[i]
 
             self._outputSignals.append( BlockOutputSignal(sim, datatype, self.block, sourcePort=i  ) )
 
