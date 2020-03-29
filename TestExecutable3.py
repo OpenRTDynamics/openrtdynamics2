@@ -722,7 +722,7 @@ if testname == 'system_switch':
 
             system.set_switched_outputs([ x, v ])
             # the 
-
+            
         
 
         with switch.new_subsystem('running') as system:

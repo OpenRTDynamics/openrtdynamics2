@@ -36,6 +36,16 @@ class DatatypePropagation:
 
 
     def notifySignal(self, signal : Signal):
+        """
+            This function is called back from the signal instances in Signal.py
+
+            - when a new signal is created
+            - when a datatype of a signal has been updated 
+              (e.g. indirectly due to an inherited datatype from another signal that was updated)
+        """
+        # TODO 25.3.20: maybe all notification shall be just put into a line and the processed at the end of update
+
+
         # a new singal was created
         # (Note: it might haven been also only updated, meaning it go registered even before)
 
@@ -63,9 +73,10 @@ class DatatypePropagation:
             # set datatypes of block that inherit this datatype
             for to_signal in signal.inherit_datatype_to_list:
 
-                print("inherit datatype of " + signal.toStr() + " --> " + to_signal.toStr() )
+                print("inherit datatype of " + signal.toStr() + " to --> " + to_signal.toStr() )
 
                 # NOTE: running setDatatype_nonotitication prevents a callback to notifySignal (This function)
+                # and, hence, possible infinite loops
                 to_signal.setDatatype_nonotitication( signal.datatype )
 
                 # put on the list of signals with already fixed datatypes
@@ -172,9 +183,6 @@ class DatatypePropagation:
         # check if something is missing.. TODO
         for s in self.signalsWithDeterminedTypes:
 
-            if s.name == 'acc':
-                print("")
-
             # remove from
             if s in self.signalsWithUnderminedTypes:
                 self.signalsWithUnderminedTypes.remove( s )
@@ -193,5 +201,7 @@ class DatatypePropagation:
         print("signals with undetermined types:")  # TODO: investigate why this list contains some leftovers...
         for s in self.signalsWithUnderminedTypes:
             print('  - ' + s.toStr())
+
+        # TODO: notify the fixation of the datatypes using compile_callback_all_datatypes_defined() of the block prototypes
 
 

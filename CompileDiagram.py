@@ -50,22 +50,20 @@ class CompileDiagram:
     
     
     def traverseSubSystems(self, system : Simulation, level):
-        print("-- List of subsystems --")
 
+        # go deper and compile subsystems first
         for subSystem in system.subsystems:
-            print(" level %d - %s" % (level, subSystem.name ) )
-
             self.traverseSubSystems(subSystem, level=level+1)
 
+        # notify each block abour the compilation of all subsystems in the system
+        for block in system.blocks:
+            block.blockPrototype.compile_callback_all_subsystems_compiled()
 
-        if system.UpperLevelSim is not None:
-
-            # run the pre-compilation callback of the block prototype that embedds the subsystem
-            print("calling pre-compile hook function for: " + system.name )
-            system.embeddedingBlockPrototype.pre_compile_callback( system )
+        #     # run the pre-compilation callback of the block prototype that embedds the subsystem
+        #     system.embeddedingBlockPrototype.pre_compile_callback( system )
 
         #
-        print("Now compiling: " + system.name )
+        print("Now compiling (dept level = " + str(level) + "): " + system.name )
 
         # compile the system
 
@@ -80,26 +78,16 @@ class CompileDiagram:
         system.compilationResult = compileResult
 
         if system.UpperLevelSim is not None:
-            # means the compiled system is a subsystem
+            # TODO: remove this again and acieve the same with 
 
-            print("-- configuring the embedding block prototype --")
+            # means the compiled system is a subsystem compile_callback_all_subsystems_compiled
 
-
-            # # set the manifest and the compile results describing the embedded subsystem
-            # system.embeddedingBlockPrototype.set_manifest( compileResult.manifest )
-            # system.embeddedingBlockPrototype.set_compile_result( compileResult )
-
-
-
-            # # connect these inputs to the embeddedingBlockPrototype
-            # # note these signals must be order somehow
-            # system.embeddedingBlockPrototype.set_inputSignals( compileResult.inputSignals )
+            print("Configuring the embedding block prototype of subsystem " + system.name )
 
             # initialize the block that embedds the subsystem
             # This must also connect the output signals that are annonymous signals right now
             #
             system.embeddedingBlockPrototype.init(sim=system.UpperLevelSim, manifest=compileResult.manifest, compileResult=compileResult, inputSignals=compileResult.inputSignals )
-
 
         else:
             # this system is the top-level system

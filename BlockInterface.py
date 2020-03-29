@@ -19,9 +19,10 @@ class BlockPrototype(object):
         N_outputs               - prepare a number of nOutputs (optional in case output_datatype_list is given)
         output_datatype_list    - a list of datetypes for each output (optional)
 
+        Note: the number of outputs must be defined
     """
 
-    def __init__(self, sim, inputSignals, N_outputs, output_datatype_list = None  ):
+    def __init__(self, sim, inputSignals = None, N_outputs = None, output_datatype_list = None  ):
 
         self.block = Block(sim, self, inputSignals, blockname = '')
 
@@ -43,13 +44,29 @@ class BlockPrototype(object):
 
             self._outputSignals.append( BlockOutputSignal(sim, datatype, self.block, sourcePort=i  ) )
 
+
+#        for output_signal in self._outputSignals:
+#            output_signal.update_source_config(self, sourceBlock = self.block, sourcePort = None)
+
         self.block.configOutputSignals( self._outputSignals )
 
     #
-    # TODO: allow connecting the inputs after creating a prototype instance using this function
-    #
-    def connectInputs(self, inputSignals):
-        pass
+    def update_input_config(self, input_signals):
+        """
+            The input signal might be unknown on construction. 
+        """
+        self.block.update_input_config(input_signals)
+
+    def update_output_datatypes(self, output_datatype_list : List [Signal] ):
+
+        N_outputs = len(self._outputSignals)
+
+        if not len(output_datatype_list) == N_outputs:
+            raise BaseException("number of given datatypes does not match the number of outputs")
+
+        for i in range(0, N_outputs):
+            self._outputSignals[i].update_datatype_config( output_datatype_list[i] )
+
 
 
     def getUniqueVarnamePrefix(self):
@@ -83,8 +100,27 @@ class BlockPrototype(object):
 
 
     #
-    # Standard functions that should be re-implemented
+    # Callback functions that should/could be re-implemented
     #
+
+    def compile_callback_all_subsystems_compiled(self):
+        """
+            callback notifiing when all subsystems inside the system this block is placed into
+            are compiled. Hence, it is possible to e.g. access subsystem data like the input
+            array or the I/O datatypes, which might have not beed defined before.
+        """
+
+        pass
+
+    def compile_callback_all_datatypes_defined(self):
+        """
+            callback notifiing when all datatypes are defined
+        """
+
+        # TODO: implement notification in compile process
+
+        pass
+
 
     def codeGen_init(self, language):
         """

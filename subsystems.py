@@ -235,6 +235,8 @@ class switch_single_sub:
 
 
     def __exit__(self, type, value, traceback):
+        #
+        number_of_subsystem_ouputs = len(self._outputs_inside_subsystem)
 
         # set the outputs of the system
         dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
@@ -253,8 +255,13 @@ class switch_single_sub:
             self._anonymous_output_signals.append( output_signal_of_embedding_system.unwrap )
 
 
-        # create generic subsystem prototype
-        self._embeddedingBlockPrototype = dy.GenericSubsystem( sim=None, manifest=None, inputSignals=None, additionalInputs=None )
+        create generic subsystem prototype
+        self._embeddedingBlockPrototype = dy.GenericSubsystem( sim=None, 
+                                                    manifest=None, inputSignals=None, 
+                                                    additionalInputs=None, 
+                                                    embedded_subsystem=dy.get_simulation_context(),
+                                                    N_outputs=number_of_subsystem_ouputs )
+
         self._embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._anonymous_output_signals )
 
         dy.get_simulation_context().embeddedingBlockPrototype = self._embeddedingBlockPrototype
@@ -281,8 +288,12 @@ class sub_switch:
         self._number_of_outputs = None
         self._switch_output_links = None
         self._switch_system = None
-        # self._outputs_inside_subsystem = []
-        # self._outputs_of_embedding_block = []
+
+        # List [ dy.GenericSubsystem ]
+        self._subsystem_prototypes = None
+
+        # List [ switch_single_sub ]
+        self._subsystem_list = None
 
 
     def new_subsystem(self, subsystem_name = None):
@@ -299,6 +310,7 @@ class sub_switch:
     def __enter__(self):
 
         self._subsystem_list = []
+        self._subsystem_prototypes = []
 
         self._switch_system = dy.enter_subsystem( self._switch_subsystem_name )
 
@@ -309,68 +321,81 @@ class sub_switch:
 
         # 
 
+        # collect all prototyes thet embedd the subsystems
+        for system in self._subsystem_list:
+            self._subsystem_prototypes.append( system.subsystem_prototype )
+
         # analyze the default subsystem (the first) to get the output datatypes to use
         for subsystem in [ self._subsystem_list[0] ]:
 
             print("The reference outputs are: " + signalListHelper_names_string( subsystem.outputs ) )
 
+            # get the outputs that will serve as reference points for datatype inheritance
             self._reference_outputs = subsystem.outputs
             self._number_of_outputs = len(subsystem.outputs)
 
 
 
 
-        print("The switch subsystem contains the following subsystems:")
+        # print("The switch subsystem contains the following subsystems:")
 
-        # the subsystem prototyps of the individual subsystems
-        subsystem_prototypes = []
+        # # the subsystem prototyps of the individual subsystems
+        # subsystem_prototypes = []
 
-        for subsystem in self._subsystem_list:
+        # for subsystem in self._subsystem_list:
 
-            subsystem_prototypes.append( subsystem.subsystem_prototype )
+        #     subsystem_prototypes.append( subsystem.subsystem_prototype )
 
-            print(" - " + subsystem.system.name )
+        #     print(" - " + subsystem.system.name )
 
-            # investigate the individual outputs
-            print( "    outputs of this subsystem: " + signalListHelper_names_string( subsystem.outputs ) )
+        #     # investigate the individual outputs
+        #     print( "    outputs of this subsystem: " + signalListHelper_names_string( subsystem.outputs ) )
 
-            if not self._number_of_outputs == len(subsystem.outputs):
-                raise BaseException("missmatch of the number of outputs of subsystem '" +  subsystem.name + "' (expected " + str(self._number_of_outputs) + ", got " + str(len(subsystem.outputs)) + ")")
-
-        # create anonymous signals in bahalf of the outputs of the main switch
-        self._switch_output_links = []
-        for reference_signal in self._reference_outputs:
+        #     if not self._number_of_outputs == len(subsystem.outputs):
+        #         raise BaseException("missmatch of the number of outputs of subsystem '" +  subsystem.name + "' (expected " + str(self._number_of_outputs) + ", got " + str(len(subsystem.outputs)) + ")")
 
 
-            # swithed_embedded_output_signal = XXXX
-
-            # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
-            # This creates a link output_signal_of_embedding_system --> output_signal
-            # output_link_signal = dy.SubsystemOutputLinkUser( dy.get_simulation_context().UpperLevelSim, swithed_embedded_output_signal )
-
-            # How to set the datatype?
-            output_link_signal = dy.SignalUser( dy.get_simulation_context().UpperLevelSim )
 
 
-            # inherit datatype from output_signal
-            output_link_signal.inherit_datatype( reference_signal )
+        # # create anonymous signals in bahalf of the outputs of the main switch
+        # self._switch_output_links = []
+        # for reference_signal in self._reference_outputs:
 
 
-            self._switch_output_links.append( output_link_signal )
+        #     # swithed_embedded_output_signal = XXXX
+
+        #     # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
+        #     # This creates a link output_signal_of_embedding_system --> output_signal
+        #     # output_link_signal = dy.SubsystemOutputLinkUser( dy.get_simulation_context().UpperLevelSim, swithed_embedded_output_signal )
+
+        #     # How to set the datatype?
+        #     output_link_signal = dy.SignalUser( dy.get_simulation_context().UpperLevelSim )
+
+
+        #     # inherit datatype from output_signal
+        #     output_link_signal.inherit_datatype( reference_signal )
+
+
+        #     self._switch_output_links.append( output_link_signal )
 
 
         # create generic switch subsystem prototype
         # ...
         # dy.SwitchSubsystem(sim , inputSignals )
 
-        # store an embeeder prototype (as generated by dy.GenericSubsystem) into the date structure of the subsystem
-        embeddedingBlockPrototype = dy.SubsystemSwitch( sim=dy.get_simulation_context(), additionalInputs=[], subsystem_prototypes=subsystem_prototypes )
-        embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._switch_output_links )
+        # store an embeeder prototype (as generated by dy.MultiSubsystemEmbedder) into the date structure of the subsystem
+        embeddedingBlockPrototype = dy.MultiSubsystemEmbedder( sim=dy.get_simulation_context(), 
+                additional_inputs=[], subsystem_prototypes=self._subsystem_prototypes, N_outputs=self._number_of_outputs )
+
+
+        self._switch_output_links = embeddedingBlockPrototype.outputSignals
+
+        # embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._switch_output_links )
 
         # TODO: (not here) the embeddedingBlockPrototype of the switch must be initialized somehow
 
         # register this prototype
-        dy.get_simulation_context().embeddedingBlockPrototype = embeddedingBlockPrototype
+        # dy.get_simulation_context().embeddedingBlockPrototype = embeddedingBlockPrototype
 
 
         # leave the switch system

@@ -56,6 +56,11 @@ class SystemManifest(object):
     def API_name(self):
         return self.mainSimulation.getAPI_name()
 
+    @property
+    def number_of_default_ouputs(self):
+        return len( self._io_outputs['calculate_output']['names'] )
+
+
 
     def getAPIFunctionName(self, identifier : str ):
         """

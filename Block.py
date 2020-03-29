@@ -13,10 +13,13 @@ class Block:
      
         BlockPrototype - describes the block's prototype implementation
                          that defined IO, parameters, ...
+        inputSignal    - list of input signals serving as the inputs to the block (might be set later
+                         by update_input_config() )
+        blockname      - A string name of the block (default '')
     """
 
-    def __init__(self, sim, blockPrototype, inputSignals : List[Signal], blockname : str):
-        print("Creating new block " + blockname)
+    def __init__(self, sim, blockPrototype, inputSignals : List[Signal] = None, blockname : str = ''):
+        # print("Creating new block " + blockname)
 
         self.sim = sim
 
@@ -25,7 +28,7 @@ class Block:
 
         # default names
         if blockname is None:
-            blockname = 'block'
+            blockname = ''
 
         self.blocknameShort =  blockname + '_bid' + str( self._id )   # variable name
         self.blockname = blockname + '_bid' + str( self._id )  # description
@@ -38,9 +41,9 @@ class Block:
         self.blockPrototype = blockPrototype
 
         # The input singals in form of a list
-        self.inputSignals = []
+        self.inputSignals = None
 
-        if not inputSignals is None:
+        if inputSignals is not None:
             # store the list of input signals
             self.inputSignals = inputSignals # array of Signal
 
@@ -54,6 +57,17 @@ class Block:
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
+
+    def update_input_config(self, input_signals):
+        """
+            Set the input signals after creation of the block (only if they were not set on
+            construction)
+        """
+        if self.inputSignals is not None:
+            raise BaseException("Input signals are already defined")
+
+        self.inputSignals = input_signals
+
 
 
     def graphTraversionMarkerReset(self):

@@ -216,19 +216,28 @@ class GenericSubsystem(BlockPrototype):
 
         parameters required only in case the subsystem is already defined (e.g. loaded from a library):
 
-        - manifest - the manifest 
+        - manifest     - the manifest of the subsystem to include (optional, might be handed over by init())
         - inputSignals - the inputs to the subsystem 
+        - N_outputs    - prepare a number of nOutputs (optional in case a manifest is given)
+        - embedded_subsystem - the system to embed (optional)
+
+        Note: the number of outputs must be defined either by N_outputs or by a manifest
 
     """
-    def __init__(self, sim : Simulation = None, manifest=None, inputSignals=None, additionalInputs : List[ Signal ] = None ):
-        # intputSignals is a hash array
-        #
-        # intputSignals = {'in1': in1, 'in2', : in2}
+    def __init__(self, sim : Simulation = None, manifest=None, inputSignals=None, additionalInputs : List[ Signal ] = None, N_outputs = None, embedded_subsystem=None ):
 
         self.manifest = manifest
         self.inputSignals = inputSignals
         self.sim = sim
         self.additionalInputs = additionalInputs
+        self.Noutputs = N_outputs
+        self._embedded_subsystem = embedded_subsystem
+
+        if manifest is not None:
+            if N_outputs is None:
+                self.Noutputs = self.manifest.number_of_default_ouputs
+            else:
+                raise BaseException("N_outputs and a manifest specified at the same time")
 
         # output signals that were created by sth. ourside of this prototype
         # and that need to be connected to the actual outputs when init() is called.
@@ -237,8 +246,9 @@ class GenericSubsystem(BlockPrototype):
         # optional (in case this block is in charge of putting the code for the subsystem)
         self.compileResult = None
 
-        # if input signals are already defined
-        #
+        # init super class
+        BlockPrototype.__init__(self, self.sim, N_outputs = self.Noutputs)
+
         # Note: the inputSignals are not defined when subsystems are pre-defined in the code
         # but are automatically placed and connected by the compiler during compilation
 
@@ -249,39 +259,13 @@ class GenericSubsystem(BlockPrototype):
 
 
 
+    @property
+    def embedded_subsystem(self):
+        """
+            Return the system that is embedded (in case it was provided, returns None otherwise)
+        """
 
-
-
-    # def set_manifest(self, manifest):
-    #     """
-    #         set the manifest of the subsystem
-    #     """
-
-    #     if self.manifest is not None:
-    #         raise BaseException("cannot call this function as the subsystem's manifest was already defined.")
-
-    #     self.manifest = manifest
-
-    # def set_compile_result(self, compileResult):
-    #     """
-    #         Set the compilation result of the embedded system (if available)
-    #     """
-    #     self.compileResult = compileResult
-
-    # def set_inputSignals(self, inputSignals):
-    #     """
-    #         connect the inputs (coming from the upper-level system)
-    #     """
-
-    #     if self.inputSignals is not None:
-    #         raise BaseException("cannot call this function as the subsystem's inputSignals were already specified in the constructor.")
-
-    #     self.inputSignals = inputSignals
-
-
-
-
-
+        return self._embedded_subsystem
 
     def set_anonymous_output_signal_to_connect(self, anonymous_output_signals):
         """
@@ -291,16 +275,19 @@ class GenericSubsystem(BlockPrototype):
         # List of raw signals 
         self.anonymous_output_signals = anonymous_output_signals
 
-        
-    def pre_compile_callback(self, sim : Simulation):
-        """
-            called directly before the system that is embedded is compiled
-            - the datatypes are already defined and fixed at this stage  
-        """
+    def compile_callback_all_subsystems_compiled(self):
+        # TODO: call init() here
+
+        # embedded_system = self._embedded_subsystem
+        #
+        # potential code:
+        #
+        # self.init(embedded_system, embedded_system.compileResult.manifest, embedded_system.compileResult, embedded_system.compileResult.inputSignals)
 
         pass
+        
 
-    # post_compile_callback
+    # post_compile_callback (called after the subsystem to embedd was compiled)
     def init(self, sim : Simulation, manifest, compileResult, inputSignals):
         """
             This is a second phase initialization of this subsystem block
@@ -372,8 +359,16 @@ class GenericSubsystem(BlockPrototype):
 
 
 
-        # the number of outputs of the embedded system
-        self.Noutputs = len( self.manifest.io_outputs['calculate_output']['names'] )
+        # verify the number of outputs of the embedded system
+#        number_of_outputs_as_described_by_manifest = len( self.manifest.io_outputs['calculate_output']['names'] )
+        number_of_outputs_as_described_by_manifest = self.manifest.number_of_default_ouputs
+
+        # if self.Noutputs is None:
+        #     self.Noutputs = number_of_outputs_as_described_by_manifest
+
+        # else:
+        if not number_of_outputs_as_described_by_manifest == self.Noutputs:
+            BaseException("missmatch in the number of outputs")
 
         # get the output datatypes of the embedded system
         self.outputTypes = self.manifest.io_outputs['calculate_output']['types']  
@@ -407,13 +402,26 @@ class GenericSubsystem(BlockPrototype):
         self.allInputs.extend( self.inputsToCalculateOutputs )
         self.allInputs.extend( self.inputsToUpdateStates )
 
+        #
         # now initialize the propotype
-        if self.compileResult is None:
-            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
+        #
 
-        else:
+        # define the inputs
+        self.update_input_config( self.allInputs )
+
+        # get output datatypes of the embedded system
+        if self.compileResult is not None:
             output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
-            BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, output_datatype_list=output_datatypes)
+            self.update_output_datatypes( output_datatypes )
+
+
+        #if self.compileResult is None:
+        #    BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
+
+        #else:
+            # BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, output_datatype_list=output_datatypes)
+
+            
 
         # connect the outputs signals
         if self.anonymous_output_signals is not None:
@@ -568,15 +576,17 @@ def union_of_systems_inputs( system_list ):
 
 
 
-class SubsystemSwitch(GenericSubsystem):
+class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
     """
         Include a switch including multiple sub-systems 
 
         - 
-        - additionalInputs     - inputs used to control the switing strategy
-        - subsystem_prototypes - a list of the prototypes of all subsystems (of type GenericSubsystem)
+        - additional_inputs       - inputs used to control the switing strategy
+        - subsystem_prototypes    - a list of the prototypes of all subsystems (of type GenericSubsystem)
+        # - subsystem_input_signals : List [Signal] - input signals to be forwarded to each embedded subsystem
+        N_outputs               - prepare a number of nOutputs (optional in case output_datatype_list is given)
     """
-    def __init__(self, sim : Simulation, additionalInputs, subsystem_prototypes : List [GenericSubsystem] ):
+    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], N_outputs ):
 
         #
         # TODO: build a common manifest from manifest_list:
@@ -586,8 +596,26 @@ class SubsystemSwitch(GenericSubsystem):
         # - consider the additional outputs
         #
 
+        self._subsystem_prototypes = subsystem_prototypes
+        
+        # analyze the default subsystem (the first) to get the output datatypes to use
+        # NOTE: not possible, reference_subsystem.outputs does not exist so far
+        reference_subsystem = self._subsystem_prototypes[0]
+        self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
 
-        GenericSubsystem.__init__(self, sim=sim, manifest=None, inputSignals=None, additionalInputs=additionalInputs )
+        # self._number_of_outputs_of_all_nested_systems = N_outputs
+
+        # assertion
+        for subsystem_prototype in self._subsystem_prototypes:
+            if not len(subsystem_prototype.outputs) == self._number_of_outputs_of_all_nested_systems:
+                raise BaseException("all subsystems must have the same number of outputs")
+
+        #
+        self._additional_inputs = additional_inputs 
+        self._subsystem_input_signals = None
+
+
+        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_outputs_of_all_nested_systems )
 
         # a list of the prototypes of all subsystems
         self._subsystem_prototypes = subsystem_prototypes
@@ -595,25 +623,32 @@ class SubsystemSwitch(GenericSubsystem):
         # compile results of the subsystems
         self._compile_result_list = None
 
-    #
-    # The manifests and compile results are only available after compilation
-    # not when the class is created. Hence, they are defined at a later stage.
-    #
+    # #
+    # # The manifests and compile results are only available after compilation
+    # # not when the class is created. Hence, they are defined at a later stage.
+    # #
+    # def set_manifests_of_subsystems(self, manifest_list):
+    #     """
+    #         set the list of manifests of the subsystems
+    #     """
 
-    def set_manifests_of_subsystems(self, manifest_list):
-        """
-            set the list of manifests of the subsystems
-        """
+    #     self.manifests_of_subsystems_list = manifest_list
 
-        self.manifests_of_subsystems_list = manifest_list
-
-    def set_compile_results_of_subsystems(self, compile_result_list):
-        """
-            Set the compilation result of the embedded system (if available)
-        """
+    # def set_compile_results_of_subsystems(self, compile_result_list):
+    #     """
+    #         Set the compilation result of the embedded system (if available)
+    #     """
         
-        self.compile_results_of_subsystems_list = compile_result_list
+    #     self.compile_results_of_subsystems_list = compile_result_list
 
+
+    def compile_callback_all_subsystems_compiled(self):
+        """
+            TODO: 
+
+        """
+
+        print("notification: all subsystems were compiled")
 
 
 
