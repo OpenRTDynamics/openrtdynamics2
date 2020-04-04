@@ -82,14 +82,16 @@ class CompileDiagram:
 
             # means the compiled system is a subsystem compile_callback_all_subsystems_compiled
 
-            print("Configuring the embedding block prototype of subsystem " + system.name )
+            ####print("Configuring the embedding block prototype of subsystem " + system.name )
 
             # initialize the block that embedds the subsystem
             # This must also connect the output signals that are annonymous signals right now
             #
-            system.embeddedingBlockPrototype.init(sim=system.UpperLevelSim, manifest=compileResult.manifest, compileResult=compileResult, inputSignals=compileResult.inputSignals )
+            #####system.embeddedingBlockPrototype.init(sim=system.UpperLevelSim, manifest=compileResult.manifest, compileResult=compileResult, inputSignals=compileResult.inputSignals )
 
-        else:
+            pass
+
+        if system.UpperLevelSim is None:
             # this system is the top-level system
             self._compleResults = compileResult
 

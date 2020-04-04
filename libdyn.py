@@ -56,6 +56,9 @@ class Simulation:
         # primary outputs
         self._output_signals = []
 
+        # the results of the compilation of this system
+        self.compilationResult = None
+
     def getName(self):
         return self._name
 
@@ -99,10 +102,13 @@ class Simulation:
             print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.getName() + "' (" + str(blk.id) + ")"  )
 
             # list input singals
-            if len( blk.getInputSignals() ) > 0:
-                print(Fore.RED + "  input signals")
+            print(Fore.RED + "  input signals")
+            if blk.getInputSignals() is not None and len( blk.getInputSignals() ) > 0:
                 for inSig in blk.getInputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )
+
+            else:
+                print(Style.DIM + "    * undef *")
 
             # list output singals
             if len( blk.getOutputSignals() ) > 0:
@@ -111,7 +117,7 @@ class Simulation:
                     print(Style.DIM + "    - " + inSig.toStr() )
 
         print()
-        print(" --- nested subsystems ---")
+        print("  nested subsystems")
         for sys in self._subsystems:
             print("  - " + sys.getName() )
 
@@ -210,7 +216,7 @@ class Simulation:
         for blk in self.BlocksArray:
 
             # list input singals
-            if len( blk.getInputSignals() ) > 0:
+            if blk.getInputSignals() is not None and len( blk.getInputSignals() ) > 0:
                 print(Fore.RED + "  input signals")
                 for inSig in blk.getInputSignals():
                     print(Style.DIM + "    - " + inSig.toStr() )

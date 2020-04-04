@@ -89,6 +89,11 @@ class BlockPrototype(object):
         # return the output signals
         return self._outputSignals
 
+    @property
+    def inputs(self):
+        return self.block.inputs
+
+
     # get a signal of a specific output port
     def outputSignal(self, port):
         #return self.block.getOutputSignals()[port]

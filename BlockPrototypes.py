@@ -19,7 +19,7 @@ class StaticSource_To1(BlockPrototype):
 
         self.outputType = datatype
 
-        BlockPrototype.__init__(self, sim, None, 1)
+        BlockPrototype.__init__(self, sim, [], 1)
 
         # output datatype is fixed
         self.outputSignal(0).setDatatype(datatype)
@@ -278,17 +278,18 @@ class GenericSubsystem(BlockPrototype):
     def compile_callback_all_subsystems_compiled(self):
         # TODO: call init() here
 
-        # embedded_system = self._embedded_subsystem
+        embedded_system = self._embedded_subsystem
         #
         # potential code:
         #
-        # self.init(embedded_system, embedded_system.compileResult.manifest, embedded_system.compileResult, embedded_system.compileResult.inputSignals)
+        self.init(embedded_system.compilationResult.manifest, embedded_system.compilationResult, embedded_system.compilationResult.inputSignals)
 
+        
         pass
         
 
     # post_compile_callback (called after the subsystem to embedd was compiled)
-    def init(self, sim : Simulation, manifest, compileResult, inputSignals):
+    def init(self, manifest, compileResult, inputSignals):
         """
             This is a second phase initialization of this subsystem block
 
@@ -299,17 +300,11 @@ class GenericSubsystem(BlockPrototype):
 
             Optionally, the system this block belongs to can be set.
 
-            sim            - the system this block (this block containing subsystems is emebedded into)
             manifest       - the system manifest of the subsystem to embedd
             compileResults - the compile results of the subsystem to embedd
             inputSignals   - input signals to the subsystem to embedd (links comming from an upper-level subsystem)
 
         """        
-
-        if sim is None:
-            raise BaseException("system cannot be undefined")
-
-        self.sim = sim
 
         #
         #    set the manifest of the subsystem
@@ -409,7 +404,7 @@ class GenericSubsystem(BlockPrototype):
         # define the inputs
         self.update_input_config( self.allInputs )
 
-        # get output datatypes of the embedded system
+        # get output datatypes of the embedded system TODO: Shall I kick this out because the outputs of the embedding block shall be derived by inheritance?
         if self.compileResult is not None:
             output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
             self.update_output_datatypes( output_datatypes )
@@ -581,10 +576,10 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
         Include a switch including multiple sub-systems 
 
         - 
-        - additional_inputs       - inputs used to control the switing strategy
+        - additional_inputs       - inputs used to control the switching strategy
         - subsystem_prototypes    - a list of the prototypes of all subsystems (of type GenericSubsystem)
         # - subsystem_input_signals : List [Signal] - input signals to be forwarded to each embedded subsystem
-        N_outputs               - prepare a number of nOutputs (optional in case output_datatype_list is given)
+        N_outputs                 - prepare a number of nOutputs (optional in case output_datatype_list is given)
     """
     def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], N_outputs ):
 
@@ -610,12 +605,11 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
             if not len(subsystem_prototype.outputs) == self._number_of_outputs_of_all_nested_systems:
                 raise BaseException("all subsystems must have the same number of outputs")
 
-        #
-        self._additional_inputs = additional_inputs 
-        self._subsystem_input_signals = None
-
 
         BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_outputs_of_all_nested_systems )
+
+        # control inputs that are used to control how the subsystems are handled
+        self._additional_inputs = additional_inputs 
 
         # a list of the prototypes of all subsystems
         self._subsystem_prototypes = subsystem_prototypes
@@ -623,50 +617,50 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
         # compile results of the subsystems
         self._compile_result_list = None
 
-    # #
-    # # The manifests and compile results are only available after compilation
-    # # not when the class is created. Hence, they are defined at a later stage.
-    # #
-    # def set_manifests_of_subsystems(self, manifest_list):
-    #     """
-    #         set the list of manifests of the subsystems
-    #     """
+        # a list of all inputs used by all subsystems
+        self._list_of_all_subsystem_inputs = None
 
-    #     self.manifests_of_subsystems_list = manifest_list
-
-    # def set_compile_results_of_subsystems(self, compile_result_list):
-    #     """
-    #         Set the compilation result of the embedded system (if available)
-    #     """
-        
-    #     self.compile_results_of_subsystems_list = compile_result_list
+        # a list of all inputs including self._list_of_all_subsystem_inputs and self._additional_inputs
+        self._list_of_all_inputs = None
 
 
     def compile_callback_all_subsystems_compiled(self):
-        """
-            TODO: 
 
-        """
+        # collect a set of all inputs of each subsystem
+        set_of_all_inputs = set()
 
-        print("notification: all subsystems were compiled")
+        for subsystem_prototype in self._subsystem_prototypes:
+            set_of_all_inputs.update( subsystem_prototype.inputs )
+
+        self._list_of_all_subsystem_inputs = list( set_of_all_inputs )
+
+        # add additional inputs
+        set_of_all_inputs.update( self._additional_inputs )
+
+        self._list_of_all_inputs = list(set_of_all_inputs)
+            
+
+
+    def compile_callback_all_datatypes_defined(self):
+        pass
 
 
 
     def returnDependingInputs(self, outputSignal):
 
-        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in dependingInputs)
+        # NOTE: This is a simplified veriant so far..
+        #       Every output depends on every signal
 
-        dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
-
-        # NOTE: important here to make a copy of the list returned by GenericSubsystem.
-        #       otherwise the original list would be modified by append.
-        dependingInputsOuter = dependingInputs.copy()
+        return self._list_of_all_inputs
         
-        dependingInputsOuter.append( self.triggerSignal )
 
-        return dependingInputsOuter
-        
+    def returnInutsToUpdateStates(self, outputSignal):
+ 
+        # NOTE: This is a simplified veriant so far..
+        #       Every output depends on every signal
+
+        return self._list_of_all_inputs
+
 
 
     # this overwrites the method of the super class
@@ -738,13 +732,18 @@ class TruggeredSubsystem(GenericSubsystem):
                 of the subsystem are uninitialized until the subsystem is triggered.
 
     """
-    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal, prevent_output_computation = False ):
+    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal, N_outputs = None, prevent_output_computation = False ):
 
         # TODO: add this signal to the blocks inputs
         self.triggerSignal = trigger
         self.prevent_output_computation = prevent_output_computation
 
-        GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ trigger ] )
+        GenericSubsystem.__init__(self, 
+                                    sim=sim, 
+                                    manifest=manifest, 
+                                    inputSignals=inputSignals, 
+                                    N_outputs = N_outputs, 
+                                    additionalInputs=[ trigger ] )
 
     def returnDependingInputs(self, outputSignal):
 

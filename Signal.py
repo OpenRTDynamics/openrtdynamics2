@@ -54,7 +54,7 @@ class Signal(object):
         """
             set the datatype in case it was not defined in the constructor
         """
-        if self.lookupSource()._datatype is None:
+        if self.lookupSource()._datatype is not None:
             raise BaseException("datatype already defined")
         
         self.lookupSource()._datatype = datatype
@@ -225,6 +225,10 @@ def resolveUndeterminedSignals(signals : List[Signal], ignore_signals_with_datat
         with their direct source signals, i.e., signals of type UndeterminedSignal
         will become the connected block output of type BlockOutputSignal
     """
+
+    if signals is None:
+        return
+
     for i in range(0,len(signals)):
         signal = signals[i].lookupSource()
 
