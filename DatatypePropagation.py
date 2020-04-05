@@ -12,14 +12,11 @@ class DatatypePropagation:
 
     def __init__(self, sim ):
 
-        self.signalsWithDeterminedTypes = []
+        self.signalsWithDeterminedTypes = set()
+        self.signalsWithProposedTypes = set()
 
         self.signalsWithUpdatedDeterminedTypes = []
-
-        self.signalsWithProposedTypes = []
-
         self.signalsWithUpdatedProposedTypes = []
-
         self.signalsWithUnderminedTypes = []
 
 
@@ -53,7 +50,7 @@ class DatatypePropagation:
             # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
             return
 
-        print("DatatypePropagation: new/updated signal " + signal.toStr() )
+        # print("DatatypePropagation: new/updated signal " + signal.toStr() )
 
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
 
@@ -66,25 +63,6 @@ class DatatypePropagation:
 
             # put on the list of signals with already fixed datatypes
             self.signalsWithUpdatedDeterminedTypes.append( signal )
-
-
-            # inherit the type of signal to the signals that inherit from
-            
-            # set datatypes of block that inherit this datatype
-            if signal.inherit_datatype_to_list is not None:
-                for to_signal in signal.inherit_datatype_to_list:
-                    
-
-                    print("inherit datatype of " + signal.toStr() + " to --> " + to_signal.toStr() )
-
-                    # NOTE: running setDatatype_nonotitication prevents a callback to notifySignal (This function)
-                    # and, hence, possible infinite loops
-                    to_signal.setDatatype_nonotitication( signal.datatype )
-
-                    # put on the list of signals with already fixed datatypes
-                    self.signalsWithUpdatedDeterminedTypes.append( to_signal )
-
-
 
         self.updateCounter += 1
 
@@ -105,7 +83,124 @@ class DatatypePropagation:
 
 
 
-    def updateTypes(self):
+    def iteration(self, signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current):
+
+        def inherit_fixed_datatype(signal):
+
+            print()
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    print("inherit fixed datatype " + signal.toStr() + " --> " + to_signal.toStr() )
+
+                    to_signal.setDatatype( signal.datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+        def inherit_proposed_datatype(signal):
+
+            print()
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    print("inherit proposed datatype " + signal.toStr() + " --> " + to_signal.toStr() )
+
+                    to_signal.setProposedDatatype( signal.proposed_datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+
+        # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
+        for s in signals_with_updated_determined_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.configDefineOutputTypes()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_fixed_datatype(s)
+
+
+        # forward the datatype proposals to the connected blocks
+        for s in signals_with_updated_proposed_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+            
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.configDefineOutputTypes()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_proposed_datatype(s)
+                
+
+        # remove the already fixed signals from the list of undetermined signals
+        for s in signals_with_updated_determined_types_current:
+            if s in self.signalsWithUnderminedTypes:
+                self.signalsWithUnderminedTypes.remove( s )
+
+
+    def update_types_iterate(self):
+        print("DatatypePropagation: update types " )
+
+
+        print( self.signalsWithUpdatedDeterminedTypes[2].inherit_datatype_to_list )
+
+        while True:
+
+            # 5.4.2020 DEBUG: look for 'ox' and why they did not get a datatype
+
+            signals_with_updated_determined_types_current = self.signalsWithUpdatedDeterminedTypes
+            signals_with_updated_proposed_types_current = self.signalsWithUpdatedProposedTypes
+
+            # clear that list as it is about to be processed now
+            self.signalsWithUpdatedDeterminedTypes = [] 
+            self.signalsWithUpdatedProposedTypes = [] 
+
+            # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
+            self.signalsWithDeterminedTypes.update(  (signals_with_updated_determined_types_current) )
+            self.signalsWithProposedTypes.update( (signals_with_updated_proposed_types_current) )
+
+            #
+            updateCounterBefore = self.updateCounter
+
+            # iterate..
+            # herein, the lists might fill up yielding new signals to process in the ongoing iteration
+            self.iteration(signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current)
+
+            # check if there is sth. left to to
+            if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedDeterminedTypes) == 0 and len(self.signalsWithUpdatedProposedTypes) == 0:
+
+                print("resolved all datatypes as far as possible in this update-run")
+
+                print(Fore.GREEN + "signals with fixed types:")
+                for s in list(self.signalsWithDeterminedTypes):
+                    print('  - ' + s.toStr())
+
+                print(Fore.YELLOW + "signals with proposed types:")
+                for s in list(self.signalsWithProposedTypes):
+                    print('  - ' + s.toStr())
+
+                if len(self.signalsWithUnderminedTypes) > 0:
+
+                    print(Fore.RED + "signals with undetermined types:")
+                    for s in self.signalsWithUnderminedTypes:
+                        print('  - ' + s.toStr())
+                
+                else:
+                    print(Fore.GREEN + "no undetermined types are left")
+
+                # leave the - while True - loop
+                break
+
+
+    def update_types_iterate_old(self):
 
         print("DatatypePropagation: update types " )
 
@@ -142,8 +237,6 @@ class DatatypePropagation:
                 # ask each block connected to the signal s to update its output type (proposals)
                 for destBlock in s.getDestinationBlocks():
 
-                    # print("  asking block " + destBlock.toStr())
-
                     destBlock.configDefineOutputTypes()
 
 
@@ -154,7 +247,6 @@ class DatatypePropagation:
                 # ask each block connected to the signal s to update its output type (proposals)
                 for destBlock in s.getDestinationBlocks():
 
-                    # print("  asking block " + destBlock.toStr())
                     destBlock.configDefineOutputTypes()
 
             if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedProposedTypes) == 0:
@@ -170,7 +262,7 @@ class DatatypePropagation:
                     print('  - ' + s.toStr())
 
                 print("signals with undetermined types:")
-                for s in self.signalsWithProposedTypes:
+                for s in self.signalsWithUnderminedTypes:
                     print('  - ' + s.toStr())
 
                 # leave the - while True - loop
@@ -180,17 +272,17 @@ class DatatypePropagation:
     def fixateTypes(self):
 
         # discover datatype
-        self.updateTypes()
+        self.update_types_iterate()
 
-        # check if something is missing.. TODO
-        for s in self.signalsWithDeterminedTypes:
+        # # check if something is missing.. TODO
+        # for s in self.signalsWithDeterminedTypes:
 
-            # remove from
-            if s in self.signalsWithUnderminedTypes:
-                self.signalsWithUnderminedTypes.remove( s )
+        #     # remove from
+        #     if s in self.signalsWithUnderminedTypes:
+        #         self.signalsWithUnderminedTypes.remove( s )
 
         # turn the proposal datatypes into fixed types
-        for s in self.signalsWithProposedTypes:
+        for s in list(self.signalsWithProposedTypes):
 
             print('  - turning proposed type into fixed - ' + s.toStr())
 
@@ -205,5 +297,6 @@ class DatatypePropagation:
             print('  - ' + s.toStr())
 
         # TODO: notify the fixation of the datatypes using compile_callback_all_datatypes_defined() of the block prototypes
+
 
 

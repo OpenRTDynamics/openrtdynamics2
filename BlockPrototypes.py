@@ -405,9 +405,9 @@ class GenericSubsystem(BlockPrototype):
         self.update_input_config( self.allInputs )
 
         # get output datatypes of the embedded system TODO: Shall I kick this out because the outputs of the embedding block shall be derived by inheritance?
-        if self.compileResult is not None:
-            output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
-            self.update_output_datatypes( output_datatypes )
+        # if self.compileResult is not None:
+        #     output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
+        #     self.update_output_datatypes( output_datatypes )
 
 
         #if self.compileResult is None:

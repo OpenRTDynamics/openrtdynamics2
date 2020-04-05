@@ -175,6 +175,9 @@ class Signal(object):
         else:
             raise BaseException("setProposedDatatype: only possible for signals which datatype are not already fixed!")
 
+    @property
+    def proposed_datatype(self):
+        return self.lookupSource().proposedDatatype
 
 
 
@@ -196,7 +199,7 @@ class Signal(object):
 
     @property
     def inherit_datatype_to_list(self):
-        self.lookupSource()._inherit_datatype_to_list
+        return self.lookupSource()._inherit_datatype_to_list
 
 
     # move to derived classes below
