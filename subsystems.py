@@ -250,18 +250,18 @@ class switch_single_sub:
         # set the outputs of the system
         dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
 
-        # generate anonymous signals for each output
-        self._anonymous_output_signals = []
-        for s in self._outputs_inside_subsystem:
+        # # generate anonymous signals for each output
+        # self._anonymous_output_signals = []
+        # for s in self._outputs_inside_subsystem:
 
-            # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
-            # This creates a link output_signal_of_embedding_system --> output_signal
-            output_signal_of_embedding_system = dy.SubsystemOutputLinkUser( dy.get_simulation_context().UpperLevelSim, s )
+        #     # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
+        #     # This creates a link output_signal_of_embedding_system --> output_signal
+        #     output_signal_of_embedding_system = dy.SubsystemOutputLinkUser( dy.get_simulation_context().UpperLevelSim, s )
 
-            # inherit datatype from output_signal
-            output_signal_of_embedding_system.inherit_datatype( s )
+        #     # inherit datatype from output_signal
+        #     output_signal_of_embedding_system.inherit_datatype( s )
 
-            self._anonymous_output_signals.append( output_signal_of_embedding_system.unwrap )
+        #     self._anonymous_output_signals.append( output_signal_of_embedding_system.unwrap )
 
 
         # create generic subsystem prototype
@@ -271,9 +271,16 @@ class switch_single_sub:
                                                     embedded_subsystem=dy.get_simulation_context(),
                                                     N_outputs=number_of_subsystem_ouputs )
 
-        self._embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._anonymous_output_signals )
+        for i in range(0, len( self._embeddedingBlockPrototype.outputs )):
 
-        dy.get_simulation_context().embeddedingBlockPrototype = self._embeddedingBlockPrototype
+            output_signal_of_embedding_block = self._embeddedingBlockPrototype.outputs[i]
+            output_signal_of_subsystem = self._outputs_inside_subsystem[i].unwrap
+
+            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+
+        #self._embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._anonymous_output_signals )
+        #dy.get_simulation_context().embeddedingBlockPrototype = self._embeddedingBlockPrototype
 
         # TODO: 1.4.2020: The input signals do not seem to be set
 

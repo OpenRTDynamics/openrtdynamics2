@@ -71,16 +71,18 @@ class DatatypePropagation:
             # inherit the type of signal to the signals that inherit from
             
             # set datatypes of block that inherit this datatype
-            for to_signal in signal.inherit_datatype_to_list:
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
 
-                print("inherit datatype of " + signal.toStr() + " to --> " + to_signal.toStr() )
+                    print("inherit datatype of " + signal.toStr() + " to --> " + to_signal.toStr() )
 
-                # NOTE: running setDatatype_nonotitication prevents a callback to notifySignal (This function)
-                # and, hence, possible infinite loops
-                to_signal.setDatatype_nonotitication( signal.datatype )
+                    # NOTE: running setDatatype_nonotitication prevents a callback to notifySignal (This function)
+                    # and, hence, possible infinite loops
+                    to_signal.setDatatype_nonotitication( signal.datatype )
 
-                # put on the list of signals with already fixed datatypes
-                self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+                    # put on the list of signals with already fixed datatypes
+                    self.signalsWithUpdatedDeterminedTypes.append( to_signal )
 
 
 

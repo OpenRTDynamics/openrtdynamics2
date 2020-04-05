@@ -29,7 +29,7 @@ class Signal(object):
         self.destinationPorts = []
 
         # the list of signals to which the datatype of this signal is inherited
-        self.inherit_datatype_to_list = []
+        self._inherit_datatype_to_list = []
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = -1
@@ -192,9 +192,11 @@ class Signal(object):
             add to_signal to the list of signals that inherit the datatype of this signal
         """
         # once the datatype of this signal is fixed, inherit it to to_signal
-        self.lookupSource().inherit_datatype_to_list.append( to_signal )
+        self.lookupSource()._inherit_datatype_to_list.append( to_signal )
 
-
+    @property
+    def inherit_datatype_to_list(self):
+        self.lookupSource()._inherit_datatype_to_list
 
 
     # move to derived classes below

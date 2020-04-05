@@ -752,6 +752,9 @@ if testname == 'system_switch':
     output_x = output_list[0]
     output_v = output_list[1]
 
+    output_x.setName("ox")
+    output_v.setName("ov")
+
 
 
     # main simulation ouput
