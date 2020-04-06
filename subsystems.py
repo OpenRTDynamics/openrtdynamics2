@@ -406,8 +406,17 @@ class sub_switch:
                 additional_inputs=[], subsystem_prototypes=self._subsystem_prototypes, N_outputs=self._number_of_outputs )
 
 
-        # TODO: must be user interface signals here!
-        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputSignals )
+
+        for i in range(0, len( embeddedingBlockPrototype.outputs )):
+
+            output_signal_of_embedding_block = embeddedingBlockPrototype.outputs[i]
+            output_signal_of_subsystem = self._reference_outputs[i].unwrap
+
+            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+
+        #
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
 
         # embeddedingBlockPrototype.set_anonymous_output_signal_to_connect( self._switch_output_links )
 

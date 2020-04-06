@@ -471,6 +471,11 @@ class GenericSubsystem(BlockPrototype):
             # add the code of the subsystem
             lines = self.compileResult.commandToExecute.codeGen(language, 'code')
 
+            if lines is None:
+                raise BaseException("lines is None")
+
+            # TODO 5.4.2020 why does this become None?
+
         return lines
 
     def codeGen_defStates(self, language):
@@ -678,7 +683,7 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
                 lines += cr.commandToExecute.codeGen(language, 'code')
 
 
-            return lines
+        return lines
 
 
 
@@ -688,16 +693,23 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
             return GenericSubsystem.codeGen_localvar(self, language, signal)
 
 
-    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+#    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+    def codeGen_output(self, language, signal : Signal):
+        if language == 'c++':
+            lines = ''
 
-        # call each subsystem embedder to generate its code
 
-        # TODO: implement the switch
+            # call each subsystem embedder to generate its code
 
-        for system_prototype in self._subsystem_prototypes:
-            lines = '{\n'
-            lines += system_prototype.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
-            lines += '}\n'
+            # TODO: implement the switch
+
+            for system_prototype in self._subsystem_prototypes:
+                lines += '{\n'
+
+                for subsystem_output_signal in system_prototype.outputs:
+                    lines += system_prototype.codeGen_output(language, subsystem_output_signal)
+                
+                lines += '}\n'
 
         return lines
 
@@ -707,10 +719,6 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
         # lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
 
         return lines
-        
-#def switch_subsystem( manifest_list, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate, prevent_output_computation = False ):
-#    return wrap_signal_list( SwitchSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals, prevent_output_computation ), unwrap( trigger ) ).outputSignals )
-
         
 
 

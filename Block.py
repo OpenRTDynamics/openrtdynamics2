@@ -134,6 +134,10 @@ class Block:
     def getName(self):
         return self.blocknameShort
 
+    @property
+    def name(self):
+        return self.blocknameShort
+
     def setName(self, name):
         self.blockname = name
         return self

@@ -126,7 +126,6 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # I.e. exclude the simulation input signals
 
                         print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
-                        #lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'localvar') # TODO: remove
                         lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
 
 
@@ -144,7 +143,6 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # I.e. exclude the simulation input signals
 
                         print('output codegen to calculate ' + s.name + ' / ' + s.toStr() )
-                        #lines += s.getSourceBlock().getBlockPrototype().codeGen('c++', 'output') # TODO: remove
                         lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++', s)
 
         return lines
@@ -615,7 +613,6 @@ class PutSimulation(ExecutionCommand):
                 # E.g. to add helper functions, classes, ...
                 for b in self.simulation.blocks:
                     lines += b.getBlockPrototype().codegen_addToNamespace(language)
-
 
                 # define the API-function (start)
                 lines += 'class ' + self.nameAPI + ' {'
