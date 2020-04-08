@@ -144,6 +144,8 @@ class BlockPrototype(object):
 
     def codeGen_setOutputReference(self, language, signal):
         """
+            NOTE 8.4.2020: unused 
+
             indicates that for the given signal no local variable will be reserved by calling codeGen_localvar.
             Insted the variable to store the signal is an output of the system and has been already defined.
         """
@@ -172,8 +174,12 @@ class BlockPrototype(object):
     def codeGen_destructor(self, language):
         return ''
         
+    # TODO: obsolet, remove
     def codeGen_output(self, language, signal : Signal):
         return ''
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+        return '// WARNING: * unimplemented output computation *'
         
     def codeGen_update(self, language):
         return ''

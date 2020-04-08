@@ -7,6 +7,8 @@ from SignalInterface import *
 
 import CodeGenHelper as cgh
 
+from textwrap import *
+
 #
 # block templates for common use-cases
 #
@@ -474,8 +476,6 @@ class GenericSubsystem(BlockPrototype):
             if lines is None:
                 raise BaseException("lines is None")
 
-            # TODO 5.4.2020 why does this become None?
-
         return lines
 
     def codeGen_defStates(self, language):
@@ -496,7 +496,6 @@ class GenericSubsystem(BlockPrototype):
             return cgh.defineVariableLine( signal )
 
     def codeGen_init(self, language):
-        self.codeGen_outputsCalculated = False
 
         # isSignalVariableDefined contains for each output signal a flag that indicates wheter veriables 
         # for these output signals shall be defined (i.e., memory reserved)
@@ -507,41 +506,32 @@ class GenericSubsystem(BlockPrototype):
     def codeGen_destruct(self, language):
         pass
 
-    def codeGen_setOutputReference(self, language, signal):
-        # infcates that for signal, no localvar will be created, but a reference to that data is used
-        # This is the case for signals that are system outputs
-
-        # 
-        self.isSignalVariableDefined[ signal ] = True
-
-
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
 
     def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
 
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
-    def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
             lines = ''
-
+            
             for signal, isDefined in self.isSignalVariableDefined.items():
                 # if the signal is not a simulation output
 
-                if not isDefined:   # and not signal.codeGen_memoryReserved:
-                    lines += cgh.defineVariable( signal ) + ' // NOTE: unused output signal\n'
+                if not isDefined:
+
+                    lines += cgh.defineVariable( signal ) 
+
+                    if signal not in signals:
+                        lines += ' // NOTE: unused output signal\n'
+                    else:
+                        lines += '\n'
+
                     self.isSignalVariableDefined[ signal ] = True
 
-            if not self.codeGen_outputsCalculated:
-                # input to this call are the signals in self.inputsToCalculateOutputs
-
-                lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
-
-                self.codeGen_outputsCalculated = True
-
-            else:
-                lines = ''
+            lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
 
         return lines
 
@@ -560,23 +550,8 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 
 
-#
-# under construction
-#
-# TODO: 
-#   - need separate manifest for I/O config
-#   - 
-#
-#
 
-
-def union_of_systems_inputs( system_list ):
-    
-    pass
-
-
-
-class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
+class MultiSubsystemEmbedder(BlockPrototype):
     """
         Include a switch including multiple sub-systems 
 
@@ -693,23 +668,35 @@ class MultiSubsystemEmbedder(BlockPrototype):  # --> BlockPrototype ?
             return GenericSubsystem.codeGen_localvar(self, language, signal)
 
 
-#    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
-    def codeGen_output(self, language, signal : Signal):
+    def generate_cpp_code_switch( self, language, switch_ouput_signals : List [ Signal ] ):
+
+        lines = ''
+
+        # call each subsystem embedder to generate its code
+
+        for system_prototype in self._subsystem_prototypes:
+
+            lines += '{ // multisubsystem: condition for system ' + system_prototype.embedded_subsystem.name + '\n'
+
+            innerLines = system_prototype.codeGen_output_list(language, system_prototype.outputs)
+
+            for i in range( 0, len( switch_ouput_signals ) ):
+                innerLines += cgh.asign( system_prototype.outputs[i], switch_ouput_signals[i] )
+
+            lines += indent(innerLines, '  ')
+            lines += '}\n'
+
+        return lines
+
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+
+        lines = ''
         if language == 'c++':
-            lines = ''
+            lines += cgh.defineVariables( signals ) + '\n'
 
+            lines += self.generate_cpp_code_switch( language, signals )
 
-            # call each subsystem embedder to generate its code
-
-            # TODO: implement the switch
-
-            for system_prototype in self._subsystem_prototypes:
-                lines += '{\n'
-
-                for subsystem_output_signal in system_prototype.outputs:
-                    lines += system_prototype.codeGen_output(language, subsystem_output_signal)
-                
-                lines += '}\n'
 
         return lines
 
@@ -888,10 +875,10 @@ class Const(StaticSource_To1):
         if language == 'c++':
             return cgh.defineVariableLine( signal )
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            # return self.outputSignal(0).getName() + ' = ' + str( self.constant ) + ';\n'
-            return signal.name + ' = ' + str( self.constant ) + ';\n'
+            return signals[0].name + ' = ' + str( self.constant ) + ';\n'
 
 def dyn_const(sim : Simulation, constant, datatype ):
     return wrap_signal( Const(sim, constant, datatype).outputSignals )
@@ -913,10 +900,11 @@ class Gain(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    #def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
             # return self.outputSignal(0).getName() + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).getName() +  ';\n'
-            return signal.name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
+            return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
 
 def dyn_gain(sim : Simulation, u : Signal, gain : float ):
     return wrap_signal( Gain(sim, u.unwrap, gain).outputSignals )
@@ -939,10 +927,11 @@ class ConvertDatatype(StaticFn_1To1):
     def configDefineOutputTypes(self, inputTypes):
         return [ self._target_type ]  
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             # TODO: only = is used and the c++ compiler decides how to convert...
-            return signal.name + ' = ' + self.inputSignal(0).name + ';\n'
+            return signals[0].name + ' = ' + self.inputSignal(0).name + ';\n'
 
 def convert(u : SignalUserTemplate, target_type : DataType ):
     return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputSignals )
@@ -963,7 +952,8 @@ class Add(StaticFn_NTo1):
         self.factors = factors
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
@@ -973,7 +963,7 @@ class Add(StaticFn_NTo1):
                 i = i + 1
 
             sumline = ' + '.join( strs )
-            lines = signal.name + ' = ' + sumline + ';\n'
+            lines = signals[0].name + ' = ' + sumline + ';\n'
 
             return lines
 
@@ -990,7 +980,8 @@ class Operator1(StaticFn_NTo1):
         self.operator = operator
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
@@ -1000,7 +991,7 @@ class Operator1(StaticFn_NTo1):
                 i = i + 1
 
             sumline = (' ' + self.operator + ' ').join( strs )
-            lines = signal.name + ' = ' + sumline + ';\n'
+            lines = signals[0].name + ' = ' + sumline + ';\n'
 
             return lines
 
@@ -1028,10 +1019,11 @@ class ComparisionOperator(StaticFn_NTo1):
         # return a proposal for an output type. 
         return [ DataTypeBoolean(1) ]
 
-    def codeGen_output(self, language, signal : Signal):
+    # def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
-            lines = signal.name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
+            lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
             return lines
 
 
@@ -1068,7 +1060,8 @@ class SwitchNto1(StaticFn_NTo1):
 
         return [ autoDatatype ] # DataTypeFloat64(1)
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             lines = '\n// switch ' + str(len(self.inputs)) + ' inputs --> ' + self.state.name + '\n'
@@ -1079,13 +1072,13 @@ class SwitchNto1(StaticFn_NTo1):
                 else:
                     lines += 'else if (' + self.state.name + ' == ' + str(i) + ') {\n'
 
-                lines += '  ' + signal.name + ' = ' + ip.name + ';\n'
+                lines += '  ' + signals[0].name + ' = ' + ip.name + ';\n'
                 lines += '} '
 
                 i += 1
 
             lines += 'else {\n'
-            lines += '  ' + signal.name + ' = ' + self.inputs[0].name + ';\n'
+            lines += '  ' + signals[0].name + ' = ' + self.inputs[0].name + ';\n'
             lines += '}\n'
             
             return lines
@@ -1109,9 +1102,10 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output(self, language, signal : Signal):
+    # def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signal.name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
+            return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
 
 
 def dyn_sin(sim : Simulation, u : SignalUserTemplate ):
@@ -1143,9 +1137,10 @@ class Delay(Dynamic_1To1):
         if language == 'c++':
             return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
 
-    def codeGen_output(self, language, signal : Signal):
+    #def codeGen_output(self, language, signal : Signal):
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signal.name + ' = ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
+            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
 
     def codeGen_update(self, language):
         if language == 'c++':

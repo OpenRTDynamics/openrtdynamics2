@@ -136,15 +136,26 @@ class CommandCalculateOutputs(ExecutionCommand):
                 lines += '// dependencies that require a state update are ' + signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
                 lines += '\n'
 
-                for s in self.executionLine.getSignalsToExecute():
 
-                    if isinstance(s, BlockOutputSignal):
+                # build map block -> list of signals
+                blocks_with_outputs_to_compute = {}
+
+                for s in self.executionLine.getSignalsToExecute():
+                    if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
-                        print('output codegen to calculate ' + s.name + ' / ' + s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen_output('c++', s)
+                        block = s.getSourceBlock()
 
+                        if block not in blocks_with_outputs_to_compute:
+                            blocks_with_outputs_to_compute[ block ] = [ s ]
+                        else:
+                            blocks_with_outputs_to_compute[ block ].append( s )
+
+
+                for block in blocks_with_outputs_to_compute:
+                    lines += block.getBlockPrototype().codeGen_output_list('c++', blocks_with_outputs_to_compute[ block ] )
+                    
         return lines
 
 
