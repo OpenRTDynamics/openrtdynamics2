@@ -567,9 +567,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
         # a list of the prototypes of all subsystems
         self._subsystem_prototypes = subsystem_prototypes
 
-        # compile results of the subsystems
-        self._compile_result_list = None
-
         # a list of all inputs used by all subsystems
         self._list_of_all_subsystem_inputs = None
 
@@ -622,32 +619,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return self._list_of_all_inputs
 
 
-
-    # this overwrites the method of the super class
-    def codegen_addToNamespace(self, language):
-
-        lines = ''
-
-        # generate the code for each subsystem
-        print("SwitchSubsystem: building code for each subsystem.")
-
-        if self._compile_result_list is not None:
-            # add the code of the subsystem
-
-            for cr in self._compile_result_list:
-                lines += cr.commandToExecute.codeGen(language, 'code')
-
-
-        return lines
-
-
-
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-
-            return GenericSubsystem.codeGen_localvar(self, language, signal)
-
-
     def generate_subsystem_embedder(self, language, system_prototype, ouput_signals : List [ Signal ]):
 
         lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
@@ -661,6 +632,18 @@ class MultiSubsystemEmbedder(BlockPrototype):
         lines += '}\n'
 
         return lines
+
+    def generate_subsystem_embedder_update(self, language, system_prototype):
+
+        lines = '{ // update of subsystem ' + system_prototype.embedded_subsystem.name + '\n'
+
+        innerLines = system_prototype.codeGen_update(language)
+
+        lines += indent(innerLines, '  ')
+        lines += '}\n'
+
+        return lines
+
 
     def generate_if_else(self, language, condition_list, action_list):
 
@@ -706,27 +689,87 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         return lines
 
+    def generate_switch_update( self, language, switch_control_signal : Signal ):
+
+        lines = ''
+
+        action_list = []
+        condition_list = []
+
+        subsystem_counter = 0
+        for system_prototype in self._subsystem_prototypes:
+
+            # call each subsystem embedder to generate its code
+            action_list.append( self.generate_subsystem_embedder_update( language, system_prototype) )
+
+            # generate conditions when to execute the respective subsystem 
+            condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal , subsystem_counter ) )
+
+            subsystem_counter += 1
+
+        # combine conditions and their repective actions
+        lines += self.generate_if_else(language, condition_list, action_list)
+
+        return lines
+
+
+    # def codeGen_output_list(self, language, signals : List [ Signal ] ):
+
+    #     lines = ''
+    #     lines += cgh.defineVariables( signals ) + '\n'
+
+    #     # lines += self.generate_switch( language=language, switch_control_signal=self._additional_inputs[0], switch_ouput_signals=signals )
+
+    #     return lines
+
+    # def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+
+    #     lines = ''
+    #     # lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+
+    #     return lines
+        
+
+
+
+class SwichSubsystems(MultiSubsystemEmbedder):
+    """
+
+    """
+
+    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
+        
+        self._control_input = control_input
+
+        MultiSubsystemEmbedder.__init__(self, sim, 
+                                        additional_inputs=[control_input], 
+                                        subsystem_prototypes=subsystem_prototypes, 
+                                        reference_outputs=reference_outputs )
+
+
+    def codeGen_defStates(self, language):
+        return ''
+
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
             lines += cgh.defineVariables( signals ) + '\n'
-
-            lines += self.generate_switch( language=language, switch_control_signal=self._additional_inputs[0], switch_ouput_signals=signals )
-
+            lines += self.generate_switch( language=language, 
+                                            switch_control_signal=self._control_input,
+                                            switch_ouput_signals=signals )
 
         return lines
 
-    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+    def codeGen_update(self, language):
 
         lines = ''
-        # lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+        if language == 'c++':
+            lines += self.generate_switch_update( language=language, 
+                                                    switch_control_signal=self._control_input )
 
         return lines
-        
-
-
 
 
 

@@ -321,8 +321,8 @@ class sub_switch:
 
 
         # create the  embeeder prototype
-        embeddedingBlockPrototype = dy.MultiSubsystemEmbedder( sim=dy.get_simulation_context(), 
-                additional_inputs=[ self._select_signal.unwrap ], 
+        embeddedingBlockPrototype = dy.SwichSubsystems( sim=dy.get_simulation_context(), 
+                control_input=self._select_signal.unwrap, 
                 subsystem_prototypes=self._subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 

@@ -701,8 +701,6 @@ if testname == 'system_switch':
 
 
 
-
-
     with dy.sub_switch( "switch1", active_system ) as switch:
 
         # define outputs of the switch system
@@ -742,10 +740,6 @@ if testname == 'system_switch':
             #  python3 -m http.server
 
     output_list = switch.outputs
-
-    print(".")
-
-
 
 
 

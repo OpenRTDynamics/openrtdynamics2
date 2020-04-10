@@ -174,9 +174,9 @@ class BlockPrototype(object):
     def codeGen_destructor(self, language):
         return ''
         
-    # TODO: obsolet, remove
-    def codeGen_output(self, language, signal : Signal):
-        return ''
+    # # TODO: obsolet, remove
+    # def codeGen_output(self, language, signal : Signal):
+    #     return ''
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         return '// WARNING: * unimplemented output computation *'
