@@ -41,13 +41,6 @@ class CompileDiagram:
     @property
     def compileResults(self):
         return self._compleResults
-
-
-    
-    # TODO: for all subsystems in the simulation:
-    #       - compile these subsystems first.
-    #       - add their system embeddeds (e.g. if-subsystem)
-    
     
     def traverseSubSystems(self, system : Simulation, level):
 
@@ -58,9 +51,6 @@ class CompileDiagram:
         # notify each block abour the compilation of all subsystems in the system
         for block in system.blocks:
             block.blockPrototype.compile_callback_all_subsystems_compiled()
-
-        #     # run the pre-compilation callback of the block prototype that embedds the subsystem
-        #     system.embeddedingBlockPrototype.pre_compile_callback( system )
 
         #
         print("Now compiling (dept level = " + str(level) + "): " + system.name )
@@ -76,20 +66,6 @@ class CompileDiagram:
 
         # store the compilation result in the system's structure
         system.compilationResult = compileResult
-
-        if system.UpperLevelSim is not None:
-            # TODO: remove this again and acieve the same with 
-
-            # means the compiled system is a subsystem compile_callback_all_subsystems_compiled
-
-            ####print("Configuring the embedding block prototype of subsystem " + system.name )
-
-            # initialize the block that embedds the subsystem
-            # This must also connect the output signals that are annonymous signals right now
-            #
-            #####system.embeddedingBlockPrototype.init(sim=system.UpperLevelSim, manifest=compileResult.manifest, compileResult=compileResult, inputSignals=compileResult.inputSignals )
-
-            pass
 
         if system.UpperLevelSim is None:
             # this system is the top-level system
@@ -121,7 +97,7 @@ class CompileDiagram:
 def compileSystem(sim):
 
     # the primary output signals are the outputs of the compiled system
-    outputSignals = sim.primaryOutputs
+    outputSignals = sim.primary_outputs
 
 
     print()

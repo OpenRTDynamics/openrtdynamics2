@@ -226,12 +226,11 @@ class GenericSubsystem(BlockPrototype):
         Note: the number of outputs must be defined either by N_outputs or by a manifest
 
     """
-    def __init__(self, sim : Simulation = None, manifest=None, inputSignals=None, additionalInputs : List[ Signal ] = None, N_outputs = None, embedded_subsystem=None ):
+    def __init__(self, sim : Simulation = None, manifest=None, inputSignals=None, N_outputs = None, embedded_subsystem=None ):
 
         self.manifest = manifest
         self.inputSignals = inputSignals
         self.sim = sim
-        self.additionalInputs = additionalInputs
         self.Noutputs = N_outputs
         self._embedded_subsystem = embedded_subsystem
 
@@ -258,6 +257,14 @@ class GenericSubsystem(BlockPrototype):
         # (in case all requred information is available)
         if inputSignals is not None and manifest is not None:
             self.init()
+
+        # configure datatype inheritance for the outputs signals
+        for i in range(0, len( embedded_subsystem.primary_outputs )):
+
+            output_signal_of_embedding_block = self.outputs[i]
+            output_signal_of_subsystem = embedded_subsystem.primary_outputs[i]
+
+            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
 
 
@@ -357,13 +364,8 @@ class GenericSubsystem(BlockPrototype):
 
 
         # verify the number of outputs of the embedded system
-#        number_of_outputs_as_described_by_manifest = len( self.manifest.io_outputs['calculate_output']['names'] )
         number_of_outputs_as_described_by_manifest = self.manifest.number_of_default_ouputs
 
-        # if self.Noutputs is None:
-        #     self.Noutputs = number_of_outputs_as_described_by_manifest
-
-        # else:
         if not number_of_outputs_as_described_by_manifest == self.Noutputs:
             BaseException("missmatch in the number of outputs")
 
@@ -389,13 +391,8 @@ class GenericSubsystem(BlockPrototype):
             
 
         # combine all inputs to a list
-        if self.additionalInputs is not None:
-            self.allInputs = self.additionalInputs
+        self.allInputs = list()
 
-        else:
-            self.allInputs = list()
-
-        #
         self.allInputs.extend( self.inputsToCalculateOutputs )
         self.allInputs.extend( self.inputsToUpdateStates )
 
@@ -405,20 +402,6 @@ class GenericSubsystem(BlockPrototype):
 
         # define the inputs
         self.update_input_config( self.allInputs )
-
-        # get output datatypes of the embedded system TODO: Shall I kick this out because the outputs of the embedding block shall be derived by inheritance?
-        # if self.compileResult is not None:
-        #     output_datatypes = extract_datatypes_from_signals(self.compileResult.outputSignals)
-        #     self.update_output_datatypes( output_datatypes )
-
-
-        #if self.compileResult is None:
-        #    BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs)
-
-        #else:
-            # BlockPrototype.__init__(self, self.sim, self.allInputs, self.Noutputs, output_datatype_list=output_datatypes)
-
-            
 
         # connect the outputs signals
         if self.anonymous_output_signals is not None:
@@ -555,21 +538,12 @@ class MultiSubsystemEmbedder(BlockPrototype):
     """
         Include a switch including multiple sub-systems 
 
-        - 
         - additional_inputs       - inputs used to control the switching strategy
         - subsystem_prototypes    - a list of the prototypes of all subsystems (of type GenericSubsystem)
-        # - subsystem_input_signals : List [Signal] - input signals to be forwarded to each embedded subsystem
-        N_outputs                 - prepare a number of nOutputs (optional in case output_datatype_list is given)
-    """
-    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], N_outputs ):
+        - reference_outputs : List [Signal] - output signals of the reference subsystem from which the output datatypes are inherited
 
-        #
-        # TODO: build a common manifest from manifest_list:
-        #
-        # - union of all inputs
-        # - consider the outputs that are shared among the subsystems
-        # - consider the additional outputs
-        #
+    """
+    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
 
         self._subsystem_prototypes = subsystem_prototypes
         
@@ -578,7 +552,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
         reference_subsystem = self._subsystem_prototypes[0]
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
 
-        # self._number_of_outputs_of_all_nested_systems = N_outputs
 
         # assertion
         for subsystem_prototype in self._subsystem_prototypes:
@@ -602,6 +575,13 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         # a list of all inputs including self._list_of_all_subsystem_inputs and self._additional_inputs
         self._list_of_all_inputs = None
+
+        # inherit output datatypes of the reference subsystem
+        for i in range(0, len( self.outputs )):
+
+            output_signal_of_embedding_block = self.outputs[i]
+            output_signal_of_subsystem = reference_outputs[i]
+            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
 
     def compile_callback_all_subsystems_compiled(self):
@@ -689,7 +669,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         lines = 'if (' + condition_list[0] + ') ' + action_list[0]
 
         for i in range(1, N):
-            lines += ' else if (' + condition_list[i] + ') ' + action_list[i]
+            lines += 'else if (' + condition_list[i] + ') ' + action_list[i]
 
         if len(action_list) == N + 1:
             lines += 'else ' + action_list[0]

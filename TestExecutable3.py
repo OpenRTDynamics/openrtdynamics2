@@ -715,7 +715,7 @@ if testname == 'system_switch':
             # used for the main outputs of the function 
             # dy.sub_switch
 
-            # inputs are []
+            # inputs are [] (no inputs)
 
             x = dy.float64(0.0).setName('x_def')
             v = dy.float64(0.0).setName('v_def')

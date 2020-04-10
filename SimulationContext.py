@@ -76,5 +76,5 @@ def leave_system():
 
 
 def set_primary_outputs(output_signals):
-    get_simulation_context().setPrimaryOutputs( unwrap_list( output_signals ) )
+    get_simulation_context().set_primary_outputs( unwrap_list( output_signals ) )
 

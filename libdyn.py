@@ -86,11 +86,11 @@ class Simulation:
         self.BlocksArray.append(blk)
         # print("added block ", blk.getName() )
 
-    def setPrimaryOutputs(self, outputSignals):
+    def set_primary_outputs(self, outputSignals):
         self._output_signals = outputSignals
 
     @property
-    def primaryOutputs(self):
+    def primary_outputs(self):
         return self._output_signals
 
     def ShowBlocks(self):

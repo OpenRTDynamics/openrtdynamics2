@@ -68,7 +68,7 @@ class sub:
         print("leave subsystem " + self._subsystem_name )
 
         # set the outputs of the system
-        dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
+        dy.get_simulation_context().set_primary_outputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
 
         # Please note: in case it is really necessary to specify a system != None here, use the upper-level system
         # not the embedded one.
@@ -147,7 +147,7 @@ class sub_if:
         print("leave triggered subsystem " + self._subsystem_name )
 
         # set the outputs of the system
-        dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
+        dy.get_simulation_context().set_primary_outputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
 
         # Please note: in case it is really necessary to specify a system != None here, use the upper-level system
         # not the embedded one.
@@ -226,9 +226,11 @@ class switch_single_sub:
 
         if self._outputs_inside_subsystem is None:
             
-            self._outputs_inside_subsystem = []
-            for s in signals:
-                self._outputs_inside_subsystem.append( s )
+            # self._outputs_inside_subsystem = []
+            # for s in signals:
+            #     self._outputs_inside_subsystem.append( s )
+
+            self._outputs_inside_subsystem = signals.copy()
 
         else:
             raise BaseException("tried to overwrite previously set outputs")
@@ -244,33 +246,26 @@ class switch_single_sub:
 
 
     def __exit__(self, type, value, traceback):
+        embedded_subsystem = dy.get_simulation_context()
+
         #
         number_of_subsystem_ouputs = len(self._outputs_inside_subsystem)
 
         # set the outputs of the system
-        dy.get_simulation_context().setPrimaryOutputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
+        embedded_subsystem.set_primary_outputs( dy.unwrap_list( self._outputs_inside_subsystem ) )
 
-        # create generic subsystem prototype
-        self._embeddedingBlockPrototype = dy.GenericSubsystem( sim=dy.get_simulation_context().UpperLevelSim, 
+        # create generic subsystem block prototype
+        self._embeddedingBlockPrototype = dy.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
                                                     manifest=None, inputSignals=None, 
-                                                    additionalInputs=None, 
                                                     embedded_subsystem=dy.get_simulation_context(),
                                                     N_outputs=number_of_subsystem_ouputs )
 
-        for i in range(0, len( self._embeddedingBlockPrototype.outputs )):
-
-            output_signal_of_embedding_block = self._embeddedingBlockPrototype.outputs[i]
-            output_signal_of_subsystem = self._outputs_inside_subsystem[i].unwrap
-
-            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
-
-
+        # leave the context of the subsystem
         dy.leave_system()
 
     @property
     def subsystem_prototype(self):
         return self._embeddedingBlockPrototype
-
 
 
 
@@ -297,8 +292,6 @@ class sub_switch:
 
     def new_subsystem(self, subsystem_name = None):
 
-        # system = None # TODO
-
         system = switch_single_sub(subsystem_name=subsystem_name)
 
         self._subsystem_list.append(system)
@@ -311,14 +304,9 @@ class sub_switch:
         self._subsystem_list = []
         self._subsystem_prototypes = []
 
-        # self._switch_system = dy.enter_subsystem( self._switch_subsystem_name )
-
         return self
 
-
     def __exit__(self, type, value, traceback):
-
-        # 
 
         # collect all prototyes thet embedd the subsystems
         for system in self._subsystem_list:
@@ -327,8 +315,6 @@ class sub_switch:
         # analyze the default subsystem (the first) to get the output datatypes to use
         for subsystem in [ self._subsystem_list[0] ]:
 
-            # print("The reference outputs are: " + signalListHelper_names_string( subsystem.outputs ) )
-
             # get the outputs that will serve as reference points for datatype inheritance
             self._reference_outputs = subsystem.outputs
             self._number_of_outputs = len(subsystem.outputs)
@@ -336,13 +322,9 @@ class sub_switch:
 
         # create the  embeeder prototype
         embeddedingBlockPrototype = dy.MultiSubsystemEmbedder( sim=dy.get_simulation_context(), 
-                additional_inputs=[ self._select_signal.unwrap ], subsystem_prototypes=self._subsystem_prototypes, N_outputs=self._number_of_outputs )
-
-        for i in range(0, len( embeddedingBlockPrototype.outputs )):
-
-            output_signal_of_embedding_block = embeddedingBlockPrototype.outputs[i]
-            output_signal_of_subsystem = self._reference_outputs[i].unwrap
-            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+                additional_inputs=[ self._select_signal.unwrap ], 
+                subsystem_prototypes=self._subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         #
         self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
