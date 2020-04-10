@@ -668,23 +668,61 @@ class MultiSubsystemEmbedder(BlockPrototype):
             return GenericSubsystem.codeGen_localvar(self, language, signal)
 
 
-    def generate_cpp_code_switch( self, language, switch_ouput_signals : List [ Signal ] ):
+    def generate_subsystem_embedder(self, language, system_prototype, ouput_signals : List [ Signal ]):
+
+        lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
+
+        innerLines = system_prototype.codeGen_output_list(language, system_prototype.outputs)
+
+        for i in range( 0, len( ouput_signals ) ):
+            innerLines += cgh.asign( system_prototype.outputs[i], ouput_signals[i] )
+
+        lines += indent(innerLines, '  ')
+        lines += '}\n'
+
+        return lines
+
+    def generate_if_else(self, language, condition_list, action_list):
+
+        N = len(condition_list)
+
+        lines = 'if (' + condition_list[0] + ') ' + action_list[0]
+
+        for i in range(1, N):
+            lines += ' else if (' + condition_list[i] + ') ' + action_list[i]
+
+        if len(action_list) == N + 1:
+            lines += 'else ' + action_list[0]
+
+        elif len(action_list) > N + 1:
+            raise BaseException("too many actions given")
+
+        return lines
+
+    def generate_compare_equality_to_constant( self, language, signal : Signal, constant ):
+        return signal.name + ' == ' + str(constant)
+
+    
+    def generate_switch( self, language, switch_control_signal : Signal, switch_ouput_signals : List [ Signal ] ):
 
         lines = ''
 
-        # call each subsystem embedder to generate its code
+        action_list = []
+        condition_list = []
 
+        subsystem_counter = 0
         for system_prototype in self._subsystem_prototypes:
 
-            lines += '{ // multisubsystem: condition for system ' + system_prototype.embedded_subsystem.name + '\n'
+            # call each subsystem embedder to generate its code
+            action_list.append( self.generate_subsystem_embedder( language, system_prototype, switch_ouput_signals ) )
 
-            innerLines = system_prototype.codeGen_output_list(language, system_prototype.outputs)
+            # generate conditions when to execute the respective subsystem 
+            condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal , subsystem_counter ) )
 
-            for i in range( 0, len( switch_ouput_signals ) ):
-                innerLines += cgh.asign( system_prototype.outputs[i], switch_ouput_signals[i] )
+            subsystem_counter += 1
 
-            lines += indent(innerLines, '  ')
-            lines += '}\n'
+        # combine conditions and their repective actions
+        lines += self.generate_if_else(language, condition_list, action_list)
 
         return lines
 
@@ -695,7 +733,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         if language == 'c++':
             lines += cgh.defineVariables( signals ) + '\n'
 
-            lines += self.generate_cpp_code_switch( language, signals )
+            lines += self.generate_switch( language=language, switch_control_signal=self._additional_inputs[0], switch_ouput_signals=signals )
 
 
         return lines
