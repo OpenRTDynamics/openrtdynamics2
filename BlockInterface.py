@@ -79,6 +79,10 @@ class BlockPrototype(object):
     # The derived classes shall use these shortcuts to access the I/O signals
     #
 
+    @property
+    def name(self):
+        return self.block.name
+
     # TODO what's with this? remove this and replace with 'outputs'
     @property
     def outputSignals(self):

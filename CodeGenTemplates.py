@@ -15,7 +15,7 @@ class PutRuntimeCppHelper:
     """
 
     def __init__(self, compileResults : CompileResults ):
-        ExecutionCommand.__init__(self)
+        ExecutionCommand.__init__(self)  # TODO: what is this?
 
         self.compileResults = compileResults
         self.mainSimulation = compileResults.commandToExecute

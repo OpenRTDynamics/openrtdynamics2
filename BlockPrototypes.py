@@ -614,7 +614,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
     def returnInutsToUpdateStates(self, outputSignal):
  
         # NOTE: This is a simplified veriant so far..
-        #       Every output depends on every signal
+        #       The update depends on every signal
 
         return self._list_of_all_inputs
 
@@ -713,22 +713,25 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return lines
 
 
-    # def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def codeGen_defStates(self, language):
+        if language == 'c++':
 
-    #     lines = ''
-    #     lines += cgh.defineVariables( signals ) + '\n'
+            lines = ''
+            for system_prototype in self._subsystem_prototypes:
+                lines += system_prototype.codeGen_defStates(language)
 
-    #     # lines += self.generate_switch( language=language, switch_control_signal=self._additional_inputs[0], switch_ouput_signals=signals )
+            return lines
 
-    #     return lines
+    def codeGen_reset(self, language):
+        if language == 'c++':
 
-    # def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+            # TODO: somehow 
 
-    #     lines = ''
-    #     # lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+            lines = '// reset state of all subsystems in multisubsystem ' + self.name + '\n'
+            for system_prototype in self._subsystem_prototypes:
+                lines += system_prototype.codeGen_reset(language)
 
-    #     return lines
-        
+            return lines
 
 
 
@@ -748,7 +751,10 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
 
     def codeGen_defStates(self, language):
-        return ''
+        lines = MultiSubsystemEmbedder.codeGen_defStates(self, language)
+        lines += '' # add something
+        
+        return lines
 
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
@@ -1163,7 +1169,6 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    # def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
@@ -1198,7 +1203,6 @@ class Delay(Dynamic_1To1):
         if language == 'c++':
             return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
 
-    #def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'

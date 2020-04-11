@@ -248,7 +248,6 @@ class CommandUpdateStates(ExecutionCommand):
                     # TODO: rename 'defStates' to 'variables'
                     #
                     
-                    #lines += b.getBlockPrototype().codeGen('c++', 'defStates') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_defStates('c++')
 
             if flag == 'code':
@@ -256,7 +255,6 @@ class CommandUpdateStates(ExecutionCommand):
                 lines += ''
 
                 for b in self.blockList:
-                    #lines += b.getBlockPrototype().codeGen('c++', 'update') # TODO: remove
                     lines += b.getBlockPrototype().codeGen_update('c++')
 
             # if flag == 'codereset':

@@ -140,6 +140,7 @@ def compileSystem(sim):
         elForOutputS.printExecutionLine()
 
         # merge all lines into one
+        # TODO use sets inside 'appendExecutionLine' some block are present twiche
         executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
 
 
@@ -312,7 +313,7 @@ def compileSystem(sim):
 
 
 
-        # TODO: rework this loop
+        # TODO: rework this loop: use a set instead
         # blocksToUpdateStates Is already computed
 
         blocksWhoseStatesToUpdate = []
@@ -367,7 +368,7 @@ def compileSystem(sim):
 
     # code to reset add blocks in the simulation
     # TODO: only add blocksWhoseStatesToUpdate_All
-    commandsToExecuteForStateReset = CommandResetStates( blockList=sim.getBlocksArray() )
+    commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate) # changed on 11.4.2020, before: sim.getBlocksArray()
 
     # create an API-function resetStates()
     commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 
