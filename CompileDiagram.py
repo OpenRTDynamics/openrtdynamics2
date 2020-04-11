@@ -367,8 +367,7 @@ def compileSystem(sim):
                                             executionCommands=commandsToExecuteForStateUpdate )
 
     # code to reset add blocks in the simulation
-    # TODO: only add blocksWhoseStatesToUpdate_All
-    commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate) # changed on 11.4.2020, before: sim.getBlocksArray()
+    commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All) # changed on 11.4.2020, before: sim.getBlocksArray()
 
     # create an API-function resetStates()
     commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 

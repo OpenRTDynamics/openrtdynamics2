@@ -707,7 +707,7 @@ if testname == 'system_switch':
         # switch.add_output()
 
 
-        with switch.new_subsystem('default') as system:
+        with switch.new_subsystem('default_system') as system: # NOTE: do not put c++ keywords as system names
             # this is defined to be the default subsystem
             # the datatypes of the outputs defined here a
             # used for the main outputs of the function 
@@ -723,7 +723,7 @@ if testname == 'system_switch':
             
         
 
-        with switch.new_subsystem('running') as system:
+        with switch.new_subsystem('running_system') as system:
             # inputs are [U]
 
             x = dy.signal()

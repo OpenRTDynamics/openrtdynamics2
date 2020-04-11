@@ -761,7 +761,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
-            lines += cgh.defineVariables( signals ) + '\n'
+            # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal=self._control_input,
                                             switch_ouput_signals=signals )
