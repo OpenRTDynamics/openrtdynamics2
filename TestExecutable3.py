@@ -763,11 +763,13 @@ if testname == 'system_state_machine':
             v = dy.float64(0.0).setName('v_def')
 
 
-            next_state = dy.int32(1)
+            #next_state = dy.int32(1)
+            counter = dy.counter().setName('counter')
+            timeout = ( counter > dy.int32(100) ).setName('timeout')
+            next_state = dy.convert(timeout, dy.DataTypeInt32(1) ).setName('next_state')
 
-            system.set_switched_outputs([ x, v ], next_state)
+            system.set_switched_outputs([ x, v, counter ], next_state)
 
-            #next_state = ( dy.counter() > 10 ).setName('next_state')
 
             #system.set_next_state( next_state )
 
@@ -782,9 +784,11 @@ if testname == 'system_state_machine':
             v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
             x << eInt( v,   Ts=0.1, name="intX" )
 
-            next_state = dy.int32(0)
+            counter = dy.counter().setName('counter')
 
-            system.set_switched_outputs([ x, v ], next_state)
+            next_state = dy.int32(0).setName('next_state')
+
+            system.set_switched_outputs([ x, v, counter ], next_state)
 
             #next_state = ( x < 10 ).setName('next_state')
 
@@ -793,11 +797,12 @@ if testname == 'system_state_machine':
 
     output_x = switch.outputs[0].setName("ox")
     output_v = switch.outputs[1].setName("ov")
+    counter = switch.outputs[2].setName("counter")
 
-    state = switch.state.setName('state')
+    state = switch.state.setName('state_control')
 
     # main simulation ouput
-    outputSignals = [ output_x, output_v, state ]
+    outputSignals = [ output_x, output_v, state, counter ]
 
     inputSignalsMapping = {}
 
@@ -846,7 +851,7 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode, manifest = runtimeCodeTemplate.codeGen(iMax = 500)
+sourcecode, manifest = runtimeCodeTemplate.codeGen(iMax = 10)
 
 print(Style.DIM + sourcecode)
 

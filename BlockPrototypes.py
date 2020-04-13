@@ -844,11 +844,19 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         return self.additional_outputs[0]
 
 
+    def codeGen_reset(self, language):
+        if language == 'c++':
+
+            lines = self._state_memory + ' = 0;\n' # add something
+
+            return lines
+
+
     def codeGen_defStates(self, language):
         lines = MultiSubsystemEmbedder.codeGen_defStates(self, language)
 
         self._state_memory = self.getUniqueVarnamePrefix() + 'statemachine'
-        lines += 'int ' + self._state_memory + ' = 0;' # add something
+        lines += 'int ' + self._state_memory + ' {0};' # add something
         
         return lines
 
@@ -860,7 +868,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
             # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals_name=cgh.signalListHelper_names(signals) )
+                                            switch_ouput_signals_name=cgh.signalListHelper_names(self.outputs) )
 
         return lines
 
@@ -872,7 +880,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
                                                     switch_control_signal_name='state',
                                                     calculate_outputs=False, update_states=True )
 
-            lines += self._state_memory + ' = ' + self.state_output.name + ' >= 0 ? '+ self.state_output.name + ' : ' + self._state_memory + ';'
+            lines += self._state_memory + ' = (' + self.state_output.name + ' >= 0 ) ? ('+ self.state_output.name + ') : (' + self._state_memory + ');\n'
 
         return lines
 
