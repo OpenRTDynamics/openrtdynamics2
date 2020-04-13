@@ -67,8 +67,8 @@ def signalListHelper_CppVarDefStr(signals):
     return vardefStr
 
 
-def asign( from_signal, to_signal ):
-    return to_signal.name + ' = ' + from_signal.name + ';\n'
+def asign( from_signal_name, to_signal_name ):
+    return to_signal_name + ' = ' + from_signal_name + ';\n'
 
 def signalListHelper_CppVarDefStr_string(signals):
     return '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'

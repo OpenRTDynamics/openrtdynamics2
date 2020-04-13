@@ -187,9 +187,7 @@ class sub_if:
 
 
 
-
-
-class switch_single_sub:
+class SwitchedSubsystemPrototype:
     """
         A subsystem contained among others e.g. in a switch
     """
@@ -225,11 +223,6 @@ class switch_single_sub:
         """
 
         if self._outputs_inside_subsystem is None:
-            
-            # self._outputs_inside_subsystem = []
-            # for s in signals:
-            #     self._outputs_inside_subsystem.append( s )
-
             self._outputs_inside_subsystem = signals.copy()
 
         else:
@@ -269,15 +262,15 @@ class switch_single_sub:
 
 
 
-class sub_switch:
+
+class SwitchPrototype:
     """
         a switch for subsystems
     """
 
 
-    def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
+    def __init__(self, switch_subsystem_name):
 
-        self._select_signal = select_signal
         self._switch_subsystem_name = switch_subsystem_name
         self._number_of_outputs = None
         self._switch_output_links = None
@@ -291,12 +284,13 @@ class sub_switch:
 
 
     def new_subsystem(self, subsystem_name = None):
+        raise BaseException("to be implemented")
 
-        system = switch_single_sub(subsystem_name=subsystem_name)
+        # system = switch_single_sub(subsystem_name=subsystem_name)
 
-        self._subsystem_list.append(system)
+        # self._subsystem_list.append(system)
 
-        return system
+        # return system
 
 
     def __enter__(self):
@@ -306,8 +300,20 @@ class sub_switch:
 
         return self
 
-    def __exit__(self, type, value, traceback):
+    def on_exit(self):
+        raise BaseException("to be implemented")
 
+        # # create the  embeeder prototype
+        # embeddedingBlockPrototype = dy.SwichSubsystems( sim=dy.get_simulation_context(), 
+        #         control_input=self._select_signal.unwrap, 
+        #         subsystem_prototypes=self._subsystem_prototypes, 
+        #         reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # #
+        # self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+
+    def __exit__(self, type, value, traceback):
         # collect all prototyes thet embedd the subsystems
         for system in self._subsystem_list:
             self._subsystem_prototypes.append( system.subsystem_prototype )
@@ -320,6 +326,36 @@ class sub_switch:
             self._number_of_outputs = len(subsystem.outputs)
 
 
+        self.on_exit()
+
+    @property
+    def outputs(self):
+
+        if self._switch_output_links is None:
+            BaseException("Please close the switch subsystem before querying its outputs")
+        
+        return self._switch_output_links
+    
+
+
+
+
+class sub_switch(SwitchPrototype):
+    def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
+
+        self._select_signal = select_signal
+        SwitchPrototype.__init__(self, switch_subsystem_name)
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = SwitchedSubsystemPrototype(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+
+    def on_exit(self):
+
         # create the  embeeder prototype
         embeddedingBlockPrototype = dy.SwichSubsystems( sim=dy.get_simulation_context(), 
                 control_input=self._select_signal.unwrap, 
@@ -327,14 +363,76 @@ class sub_switch:
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         #
-        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+
+
+#
+# State machines
+#
+
+class state_sub(SwitchedSubsystemPrototype):
+    def __init__(self, subsystem_name = None ):
+        SwitchedSubsystemPrototype.__init__(self)
+
+        self._state_signal = None
+        self._output_signals = None
+
+#    def set_next_state(self, state_signal):
+
+
+    def set_switched_outputs(self, signals, state_signal):
+        self._state_signal = state_signal
+        self._output_signals = signals
+        SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
 
 
     @property
-    def outputs(self):
+    def state_control_output(self):
+         return self._state_signal
 
-        if self._switch_output_links is None:
-            BaseException("Please close the swicth subsystem before querying its outputs")
-        
-        return self._switch_output_links
-    
+    @property
+    def subsystem_outputs(self):
+        return self._output_signals
+
+
+    # @property
+    # def outputs(self):
+    #     if self._state_signal is None:
+    #         BaseException("Please do not forget to control the state set_next_state()")
+
+    #     # subsystem_outputs = SwitchedSubsystemPrototype.
+    #     return self._outputs_inside_subsystem # + self._state_signal
+
+
+
+class sub_statemachine(SwitchPrototype):
+    def __init__(self, switch_subsystem_name):
+
+        SwitchPrototype.__init__(self, switch_subsystem_name )
+
+        self._state_output = None
+
+    @property
+    def state(self):
+
+        return self._state_output
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = state_sub(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+    def on_exit(self):
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = dy.StatemachineSwichSubsystems( sim=dy.get_simulation_context(), 
+                subsystem_prototypes=self._subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        #
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+        self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+

@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'system_switch' # 
+testname = 'system_state_machine' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -696,16 +696,9 @@ if testname == 'system_switch':
     baseDatatype = dy.DataTypeFloat64(1) 
 
     active_system = dy.system_input( dy.DataTypeInt32(1) ).setName('active_system')
-
     U = dy.system_input( baseDatatype ).setName('osc_excitement')
 
-
-
     with dy.sub_switch( "switch1", active_system ) as switch:
-
-        # define outputs of the switch system
-        # switch.add_output()
-
 
         with switch.new_subsystem('default_system') as system: # NOTE: do not put c++ keywords as system names
             # this is defined to be the default subsystem
@@ -719,9 +712,7 @@ if testname == 'system_switch':
             v = dy.float64(0.0).setName('v_def')
 
             system.set_switched_outputs([ x, v ])
-            # the 
-            
-        
+                    
 
         with switch.new_subsystem('running_system') as system:
             # inputs are [U]
@@ -739,20 +730,74 @@ if testname == 'system_switch':
 
             #  python3 -m http.server
 
-    output_list = switch.outputs
-
-
-
-    output_x = output_list[0]
-    output_v = output_list[1]
-
-    output_x.setName("ox")
-    output_v.setName("ov")
-
-
+    output_x = switch.outputs[0].setName("ox")
+    output_v = switch.outputs[1].setName("ov")
 
     # main simulation ouput
     outputSignals = [ output_x, output_v ]
+
+    inputSignalsMapping = {}
+
+
+
+
+
+
+
+if testname == 'system_state_machine':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+#    active_system = dy.system_input( dy.DataTypeInt32(1) ).setName('active_system')
+
+    U = dy.system_input( baseDatatype ).setName('osc_excitement')
+
+
+
+    with dy.sub_statemachine( "statemachine1" ) as switch:
+
+
+        with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
+
+            x = dy.float64(0.0).setName('x_def')
+            v = dy.float64(0.0).setName('v_def')
+
+
+            next_state = dy.int32(1)
+
+            system.set_switched_outputs([ x, v ], next_state)
+
+            #next_state = ( dy.counter() > 10 ).setName('next_state')
+
+            #system.set_next_state( next_state )
+
+
+        with switch.new_subsystem('state_B') as system:
+
+            x = dy.signal()
+            v = dy.signal()
+
+            acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eInt( v,   Ts=0.1, name="intX" )
+
+            next_state = dy.int32(0)
+
+            system.set_switched_outputs([ x, v ], next_state)
+
+            #next_state = ( x < 10 ).setName('next_state')
+
+#            system.set_next_state( next_state )
+
+
+    output_x = switch.outputs[0].setName("ox")
+    output_v = switch.outputs[1].setName("ov")
+
+    state = switch.state.setName('state')
+
+    # main simulation ouput
+    outputSignals = [ output_x, output_v, state ]
 
     inputSignalsMapping = {}
 
