@@ -269,12 +269,14 @@ class SwitchPrototype:
     """
 
 
-    def __init__(self, switch_subsystem_name):
+    def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
 
         self._switch_subsystem_name = switch_subsystem_name
-        self._number_of_outputs = None
+        self._total_number_of_subsystem_outputs = None
         self._switch_output_links = None
         self._switch_system = None
+        self._number_of_additional_outputs = number_of_additional_outputs
+        self._number_of_switched_outputs = None
 
         # List [ dy.GenericSubsystem ]
         self._subsystem_prototypes = None
@@ -322,9 +324,10 @@ class SwitchPrototype:
         for subsystem in [ self._subsystem_list[0] ]:
 
             # get the outputs that will serve as reference points for datatype inheritance
-            self._reference_outputs = subsystem.outputs
-            self._number_of_outputs = len(subsystem.outputs)
+            self._reference_outputs = subsystem.outputs[0:-self._number_of_additional_outputs]
+            self._total_number_of_subsystem_outputs = len(subsystem.outputs)
 
+            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_additional_outputs
 
         self.on_exit()
 
@@ -344,7 +347,7 @@ class sub_switch(SwitchPrototype):
     def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
 
         self._select_signal = select_signal
-        SwitchPrototype.__init__(self, switch_subsystem_name)
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs=0)
 
     def new_subsystem(self, subsystem_name = None):
 
@@ -375,15 +378,14 @@ class state_sub(SwitchedSubsystemPrototype):
     def __init__(self, subsystem_name = None ):
         SwitchedSubsystemPrototype.__init__(self)
 
-        self._state_signal = None
         self._output_signals = None
-
-#    def set_next_state(self, state_signal):
+        self._state_signal = None
 
 
     def set_switched_outputs(self, signals, state_signal):
-        self._state_signal = state_signal
         self._output_signals = signals
+        self._state_signal = state_signal
+
         SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
 
 
@@ -409,7 +411,7 @@ class state_sub(SwitchedSubsystemPrototype):
 class sub_statemachine(SwitchPrototype):
     def __init__(self, switch_subsystem_name):
 
-        SwitchPrototype.__init__(self, switch_subsystem_name )
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs=1 )
 
         self._state_output = None
 

@@ -765,7 +765,7 @@ if testname == 'system_state_machine':
 
             #next_state = dy.int32(1)
             counter = dy.counter().setName('counter')
-            timeout = ( counter > dy.int32(100) ).setName('timeout')
+            timeout = ( counter > dy.int32(10) ).setName('timeout')
             next_state = dy.convert(timeout, dy.DataTypeInt32(1) ).setName('next_state')
 
             system.set_switched_outputs([ x, v, counter ], next_state)
@@ -829,6 +829,10 @@ compileResults = dy.compile_current_system()
 #
 
 runtimeCodeTemplate = dy.WasmRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
+
+#runtimeCodeTemplate = dy.PutBasicRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
+
+
 
 # add (pre-compiled) systems from the libraries
 runtimeCodeTemplate.include_systems( libraryEntries )

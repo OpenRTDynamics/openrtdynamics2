@@ -534,36 +534,68 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 
 
+
+
+
+def generate_if_else(language, condition_list, action_list):
+
+    N = len(condition_list)
+
+    lines = 'if (' + condition_list[0] + ') ' + action_list[0]
+
+    for i in range(1, N):
+        lines += 'else if (' + condition_list[i] + ') ' + action_list[i]
+
+    if len(action_list) == N + 1:
+        lines += 'else ' + action_list[0]
+
+    elif len(action_list) > N + 1:
+        raise BaseException("too many actions given")
+
+    return lines
+
+
 class MultiSubsystemEmbedder(BlockPrototype):
     """
         Include a switch including multiple sub-systems 
 
         - additional_inputs       - inputs used to control the switching strategy
         - subsystem_prototypes    - a list of the prototypes of all subsystems (of type GenericSubsystem)
-        - reference_outputs : List [Signal] - output signals of the reference subsystem from which the output datatypes are inherited
+        - switch_reference_outputs : List [Signal] - output signals of the reference subsystem from which the output datatypes are inherited
         - number_of_additional_outputs  - the number of outputs besides the subsystems outputs
 
     """
-    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal], number_of_additional_outputs = 0 ):
+    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_additional_outputs = 0 ):
 
         self._subsystem_prototypes = subsystem_prototypes
         
         # analyze the default subsystem (the first) to get the output datatypes to use
-        # NOTE: not possible, reference_subsystem.outputs does not exist so far
         reference_subsystem = self._subsystem_prototypes[0]
+
+        # the number of outputs besides the subsystems outputs
+        self._number_of_additional_outputs = number_of_additional_outputs
+
+        self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
+        self._number_of_switched_outputs = len(switch_reference_outputs)
+
+        if self._number_of_switched_outputs + number_of_additional_outputs != self._total_number_of_subsystem_outputs:
+            raise BaseException("given number of total subsystem outputs does not match")
+
+
+
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
+
+
 
 
         # assertion
         for subsystem_prototype in self._subsystem_prototypes:
-            if not len(subsystem_prototype.outputs) == self._number_of_outputs_of_all_nested_systems:
+            if not len(subsystem_prototype.outputs) == self._total_number_of_subsystem_outputs:
                 raise BaseException("all subsystems must have the same number of outputs")
 
 
-        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_outputs_of_all_nested_systems + number_of_additional_outputs )
+        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_switched_outputs + self._number_of_additional_outputs )
 
-        # the number of outputs besides the subsystems outputs
-        self._number_of_additional_outputs = number_of_additional_outputs
 
         # control inputs that are used to control how the subsystems are handled
         self._additional_inputs = additional_inputs 
@@ -578,21 +610,21 @@ class MultiSubsystemEmbedder(BlockPrototype):
         self._list_of_all_inputs = None
 
         # inherit output datatypes of the reference subsystem
-        for i in range(0, self._number_of_outputs_of_all_nested_systems ):
+        for i in range(0, self._number_of_switched_outputs ):
 
             output_signal_of_embedding_block = self.outputs[i]
-            output_signal_of_subsystem = reference_outputs[i]
+            output_signal_of_subsystem = switch_reference_outputs[i]
             output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
         # NOTE: datatypes for additional outputs are untouched
 
     @property
     def additional_outputs(self):
-        return self.outputs[ self._number_of_outputs_of_all_nested_systems: ]
+        return self.outputs[ self._number_of_switched_outputs: ]
 
     @property
     def subsystem_switch_outouts(self):
-        return self.outputs[ 0:self._number_of_outputs_of_all_nested_systems ]
+        return self.outputs[ 0:self._number_of_switched_outputs ]
 
 
     def compile_callback_all_subsystems_compiled(self):
@@ -633,7 +665,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return self._list_of_all_inputs
 
 
-    def generate_subsystem_embedder(self, language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
+    def generate_subsystem_embedder(self, language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
 
         lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
 
@@ -642,8 +674,16 @@ class MultiSubsystemEmbedder(BlockPrototype):
         if calculate_outputs:
             innerLines = system_prototype.codeGen_output_list(language, system_prototype.outputs)
 
+            #if self._number_of_switched_outputs != len( ouput_signals_name ):
+            #    raise BaseException(".")
+
             for i in range( 0, len( ouput_signals_name ) ):
                 innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
+
+            if additional_outputs_names is not None:                 
+
+                for i in range( 0, len( additional_outputs_names ) ):
+                    innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
 
 
         # generate code for updating the states
@@ -656,40 +696,12 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         return lines
 
-    # def generate_subsystem_embedder_update(self, language, system_prototype):
-
-    #     lines = '{ // update of subsystem ' + system_prototype.embedded_subsystem.name + '\n'
-
-    #     innerLines = system_prototype.codeGen_update(language)
-
-    #     lines += indent(innerLines, '  ')
-    #     lines += '}\n'
-
-    #     return lines
-
-
-    def generate_if_else(self, language, condition_list, action_list):
-
-        N = len(condition_list)
-
-        lines = 'if (' + condition_list[0] + ') ' + action_list[0]
-
-        for i in range(1, N):
-            lines += 'else if (' + condition_list[i] + ') ' + action_list[i]
-
-        if len(action_list) == N + 1:
-            lines += 'else ' + action_list[0]
-
-        elif len(action_list) > N + 1:
-            raise BaseException("too many actions given")
-
-        return lines
 
     def generate_compare_equality_to_constant( self, language, signal_name, constant ):
         return signal_name + ' == ' + str(constant)
 
     
-    def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals_name=None, calculate_outputs = True, update_states = False ):
+    def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
 
         lines = ''
 
@@ -701,14 +713,14 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
             if calculate_outputs:
                 # call each subsystem embedder to generate its code
-                code_calculate_outputs = self.generate_subsystem_embedder( language, system_prototype, ouput_signals_name=switch_ouput_signals_name )
+                code_calculate_outputs = self.generate_subsystem_embedder( language, system_prototype, ouput_signals_name=switch_ouput_signals_name, additional_outputs_names=additional_outputs_names )
             else:
                 code_calculate_outputs = ''
 
 
             if update_states:
                 # call each subsystem embedder to generate its update code
-                code_update_states = self.generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True)
+                code_update_states = self.generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True, additional_outputs_names=additional_outputs_names )
             else:
                 code_update_states = ''
 
@@ -722,34 +734,12 @@ class MultiSubsystemEmbedder(BlockPrototype):
             subsystem_counter += 1
 
         # combine conditions and their repective actions
-        lines += self.generate_if_else(language, condition_list, action_list)
+        lines += generate_if_else(language, condition_list, action_list)
 
         return lines
 
-    # def generate_switch_update( self, language, switch_control_signal_name ):
 
-    #     lines = ''
-
-    #     action_list = []
-    #     condition_list = []
-
-    #     subsystem_counter = 0
-    #     for system_prototype in self._subsystem_prototypes:
-
-    #         # call each subsystem embedder to generate its code
-    #         action_list.append( self.generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True) )
-
-    #         # generate conditions when to execute the respective subsystem 
-    #         condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
-
-    #         subsystem_counter += 1
-
-    #     # combine conditions and their repective actions
-    #     lines += self.generate_if_else(language, condition_list, action_list)
-
-    #     return lines
-
-
+    
     def codeGen_defStates(self, language):
         if language == 'c++':
 
@@ -758,6 +748,14 @@ class MultiSubsystemEmbedder(BlockPrototype):
                 lines += system_prototype.codeGen_defStates(language)
 
             return lines
+
+    def generate_reset(self, language, system_index):
+
+        system_to_reset = self._subsystem_prototypes[ system_index ]
+
+        lines = system_to_reset.codeGen_reset(language)
+
+        return lines
 
     def codeGen_reset(self, language):
         if language == 'c++':
@@ -784,7 +782,8 @@ class SwichSubsystems(MultiSubsystemEmbedder):
         MultiSubsystemEmbedder.__init__(self, sim, 
                                         additional_inputs=[control_input], 
                                         subsystem_prototypes=subsystem_prototypes, 
-                                        reference_outputs=reference_outputs )
+                                        switch_reference_outputs=reference_outputs,
+                                        number_of_additional_outputs=0 )
 
 
     def codeGen_defStates(self, language):
@@ -832,7 +831,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         MultiSubsystemEmbedder.__init__(self, sim, 
                                         additional_inputs=[], 
                                         subsystem_prototypes=subsystem_prototypes, 
-                                        reference_outputs=reference_outputs,
+                                        switch_reference_outputs=reference_outputs,
                                         number_of_additional_outputs = 1 )
 
         # how to add more outputs?
@@ -849,14 +848,16 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
             lines = self._state_memory + ' = 0;\n' # add something
 
+            lines += MultiSubsystemEmbedder.codeGen_reset(self, language)
+
             return lines
 
 
     def codeGen_defStates(self, language):
         lines = MultiSubsystemEmbedder.codeGen_defStates(self, language)
 
-        self._state_memory = self.getUniqueVarnamePrefix() + 'statemachine'
-        lines += 'int ' + self._state_memory + ' {0};' # add something
+        self._state_memory = self.getUniqueVarnamePrefix() + 'state'
+        lines += 'int ' + self._state_memory + ' {0};'
         
         return lines
 
@@ -868,19 +869,37 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
             # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals_name=cgh.signalListHelper_names(self.outputs) )
+                                            switch_ouput_signals_name=cgh.signalListHelper_names(self.subsystem_switch_outouts),
+                                            additional_outputs_names=[self.state_output.name] )
+
+            # lines += self.state_output.name + ' = ' + self._state_memory_delayed + ';\n'
 
         return lines
+
 
     def codeGen_update(self, language):
 
         lines = ''
         if language == 'c++':
             lines += self.generate_switch( language=language, 
-                                                    switch_control_signal_name='state',
-                                                    calculate_outputs=False, update_states=True )
+                                                    switch_control_signal_name=self._state_memory,
+                                                    calculate_outputs=False, 
+                                                    update_states=True )
 
-            lines += self._state_memory + ' = (' + self.state_output.name + ' >= 0 ) ? ('+ self.state_output.name + ') : (' + self._state_memory + ');\n'
+
+            state_control_signal_from_subsystems = self.state_output
+
+            lines += self._state_memory + ' = (' + state_control_signal_from_subsystems.name + ' >= 0 ) ? ('+ state_control_signal_from_subsystems.name + ') : (' + self._state_memory + ');\n'
+            
+            # lines_state_change = MultiSubsystemEmbedder.generate_reset( self, language, system_index=0 )
+            # lines_state_change +=  self._state_memory + ' = ('
+
+            # action_list = [
+
+            # ]
+            # generate_if_else(language, condition_list=[ state_control_signal_from_subsystems.name + ' >= 0 ' ], action_list=action_list)
+
+            
 
         return lines
 
