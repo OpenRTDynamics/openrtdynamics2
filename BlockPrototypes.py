@@ -7,7 +7,6 @@ from SignalInterface import *
 
 import CodeGenHelper as cgh
 
-from textwrap import *
 
 #
 # block templates for common use-cases
@@ -541,16 +540,28 @@ def generate_if_else(language, condition_list, action_list):
 
     N = len(condition_list)
 
-    lines = 'if (' + condition_list[0] + ') ' + action_list[0]
+    lines = 'if (' + condition_list[0] + ') {\n' + cgh.indent( action_list[0] )
 
-    for i in range(1, N):
-        lines += 'else if (' + condition_list[i] + ') ' + action_list[i]
+
+    if len(action_list) == 1:
+        lines += '\n}\n'
+
+        return lines
+
+    else:
+
+        for i in range(1, N):
+            lines += '\n} else if (' + condition_list[i] + ') {\n' + cgh.indent( action_list[i] )
+
 
     if len(action_list) == N + 1:
-        lines += 'else ' + action_list[0]
+        lines += '\n} else {\n' + cgh.indent( action_list[ N+1 ] ) + '\n}'
 
-    elif len(action_list) > N + 1:
-        raise BaseException("too many actions given")
+    elif len(action_list) == N:
+        lines += '\n}\n'
+
+    else:
+        raise BaseException("missmatch of the number of actions and conditions")
 
     return lines
 
@@ -691,7 +702,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
             innerLines = system_prototype.codeGen_update(language)
 
 
-        lines += indent(innerLines, '  ')
+        lines += cgh.indent(innerLines)
         lines += '}\n'
 
         return lines
@@ -877,6 +888,31 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         return lines
 
 
+
+    def generate_switch_to_reset_leaving_subsystem( self, language, switch_control_signal_name ):
+
+        lines = ''
+
+        action_list = []
+        condition_list = []
+
+        subsystem_counter = 0
+        for system_prototype in self._subsystem_prototypes:
+
+            code_reset_states = MultiSubsystemEmbedder.generate_reset( self, language, system_index=subsystem_counter ) 
+
+            action_list.append(  code_reset_states )
+
+            # generate conditions when to execute the respective subsystem 
+            condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
+
+            subsystem_counter += 1
+
+        # combine conditions and their repective actions
+        lines += generate_if_else(language, condition_list, action_list)
+
+        return lines
+
     def codeGen_update(self, language):
 
         lines = ''
@@ -887,20 +923,16 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
                                                     update_states=True )
 
 
+            # get the signal issued by the currently active subsystem that describes state chanhe requests
             state_control_signal_from_subsystems = self.state_output
 
+            # reset current subsystem in case a state transition is requested
+            lines_reset_subsystem = self.generate_switch_to_reset_leaving_subsystem(language, self._state_memory )
+            lines += generate_if_else(language, condition_list=[ state_control_signal_from_subsystems.name + ' >= 0 ' ], action_list=[lines_reset_subsystem])
+
+            # transition to the new state
             lines += self._state_memory + ' = (' + state_control_signal_from_subsystems.name + ' >= 0 ) ? ('+ state_control_signal_from_subsystems.name + ') : (' + self._state_memory + ');\n'
             
-            # lines_state_change = MultiSubsystemEmbedder.generate_reset( self, language, system_index=0 )
-            # lines_state_change +=  self._state_memory + ' = ('
-
-            # action_list = [
-
-            # ]
-            # generate_if_else(language, condition_list=[ state_control_signal_from_subsystems.name + ' >= 0 ' ], action_list=action_list)
-
-            
-
         return lines
 
 

@@ -2,6 +2,11 @@
 # Helper functions related to c++ code generation
 #
 
+
+import textwrap as tw
+
+
+
 def tabs(N):
     t = ''
     for i in range(0,N):
@@ -9,6 +14,10 @@ def tabs(N):
     
     return t
 
+
+def indent(lines):
+
+    return tw.indent(lines, '  ')
 
 
 
