@@ -752,6 +752,7 @@ if testname == 'system_state_machine':
 
     U = dy.system_input( baseDatatype ).setName('osc_excitement')
 
+    # U = dy.conditional_overwrite(signal=dy.int32(-1), condition = U > dy.float64(10) , new_value=1 ).setName('huhu')
 
 
     with dy.sub_statemachine( "statemachine1" ) as switch:
@@ -766,7 +767,10 @@ if testname == 'system_state_machine':
             #next_state = dy.int32(1)
             counter = dy.counter().setName('counter')
             timeout = ( counter > dy.int32(10) ).setName('timeout')
-            next_state = dy.convert(timeout, dy.DataTypeInt32(1) ).setName('next_state')
+#            next_state = dy.convert(timeout, dy.DataTypeInt32(1) ).setName('next_state')
+
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).setName('next_state')
+
 
             system.set_switched_outputs([ x, v, counter ], next_state)
 
@@ -786,7 +790,9 @@ if testname == 'system_state_machine':
 
             counter = dy.counter().setName('counter')
 
-            next_state = dy.int32(0).setName('next_state')
+            #next_state = dy.int32(0).setName('next_state')
+
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=counter > dy.int32(50), new_value=0 ).setName('next_state')
 
             system.set_switched_outputs([ x, v, counter ], next_state)
 

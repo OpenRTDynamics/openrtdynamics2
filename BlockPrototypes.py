@@ -70,6 +70,9 @@ class StaticFn_1To1(BlockPrototype):
     def configDefineOutputTypes(self, inputTypes):
 
         # just inherit the input type 
+
+        # TODO: 19.4.2020: kick out the uneeded None tests
+
         if inputTypes[0] is not None:
             self.outputType = inputTypes[0]
         else:
@@ -555,7 +558,7 @@ def generate_if_else(language, condition_list, action_list):
 
 
     if len(action_list) == N + 1:
-        lines += '\n} else {\n' + cgh.indent( action_list[ N+1 ] ) + '\n}'
+        lines += '\n} else {\n' + cgh.indent( action_list[ N ] ) + '\n}'
 
     elif len(action_list) == N:
         lines += '\n}\n'
@@ -564,6 +567,11 @@ def generate_if_else(language, condition_list, action_list):
         raise BaseException("missmatch of the number of actions and conditions")
 
     return lines
+
+def generate_compare_equality_to_constant( language, signal_name, constant ):
+    return signal_name + ' == ' + str(constant)
+
+
 
 
 class MultiSubsystemEmbedder(BlockPrototype):
@@ -708,8 +716,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return lines
 
 
-    def generate_compare_equality_to_constant( self, language, signal_name, constant ):
-        return signal_name + ' == ' + str(constant)
 
     
     def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
@@ -740,7 +746,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
             action_list.append( code_calculate_outputs + code_update_states )
 
             # generate conditions when to execute the respective subsystem 
-            condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
+            condition_list.append( generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
 
             subsystem_counter += 1
 
@@ -904,7 +910,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
             action_list.append(  code_reset_states )
 
             # generate conditions when to execute the respective subsystem 
-            condition_list.append( self.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
+            condition_list.append( generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
 
             subsystem_counter += 1
 
@@ -1313,6 +1319,76 @@ class SwitchNto1(StaticFn_NTo1):
 
 def switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate ):
     return wrap_signal( SwitchNto1(get_simulation_context(), state.unwrap, unwrap_list(inputs) ).outputSignals )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class ConditionalOverwrite(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, signal : Signal, condition : Signal, new_value ):
+
+        self.new_value = new_value
+
+        StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # just inherit the input type
+        return [ inputTypes[0] ]
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+
+        if language == 'c++':
+#            lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
+
+            action_overwrite = self.outputs[0].name + ' = ' + str( self.new_value ) + ';'
+            action_keep = self.outputs[0].name + ' = ' + self.inputs[0].name + ';'
+
+            lines = generate_if_else( language, condition_list=[ self.inputSignals[1].name ], action_list=[ action_overwrite, action_keep ] )
+            return lines
+
+
+def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
+    return wrap_signal( ConditionalOverwrite(get_simulation_context(), signal.unwrap, condition.unwrap, new_value).outputSignals )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

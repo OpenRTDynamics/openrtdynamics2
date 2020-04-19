@@ -302,17 +302,8 @@ class SwitchPrototype:
 
         return self
 
-    def on_exit(self):
+    def on_exit(self, subsystem_prototypes):
         raise BaseException("to be implemented")
-
-        # # create the  embeeder prototype
-        # embeddedingBlockPrototype = dy.SwichSubsystems( sim=dy.get_simulation_context(), 
-        #         control_input=self._select_signal.unwrap, 
-        #         subsystem_prototypes=self._subsystem_prototypes, 
-        #         reference_outputs=  si.unwrap_list( self._reference_outputs ) )
-
-        # #
-        # self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
 
 
     def __exit__(self, type, value, traceback):
@@ -329,7 +320,7 @@ class SwitchPrototype:
 
             self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_additional_outputs
 
-        self.on_exit()
+        self.on_exit( self._subsystem_prototypes )
 
     @property
     def outputs(self):
@@ -357,12 +348,12 @@ class sub_switch(SwitchPrototype):
         return system
 
 
-    def on_exit(self):
+    def on_exit(self, subsystem_prototypes):
 
         # create the  embeeder prototype
         embeddedingBlockPrototype = dy.SwichSubsystems( sim=dy.get_simulation_context(), 
                 control_input=self._select_signal.unwrap, 
-                subsystem_prototypes=self._subsystem_prototypes, 
+                subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         #
@@ -427,11 +418,11 @@ class sub_statemachine(SwitchPrototype):
 
         return system
 
-    def on_exit(self):
+    def on_exit(self, subsystem_prototypes):
 
         # create the embeeder prototype
         embeddedingBlockPrototype = dy.StatemachineSwichSubsystems( sim=dy.get_simulation_context(), 
-                subsystem_prototypes=self._subsystem_prototypes, 
+                subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         #
