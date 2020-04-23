@@ -54,13 +54,16 @@ class CommandCalculateOutputs(ExecutionCommand):
         execute an executionLine i.e. call the output-flags of all blocks given in executionLine
         in the correct order. This calculates the blocks outputs indicated by the signals given
         in executionLine.getSignalsToExecute()
+
+        system - the system of which to calculate the outputs
     """
 
-    def __init__(self, executionLine, targetSignals, defineVarsForOutputs : bool):
+    def __init__(self, system, executionLine, targetSignals, no_memory_for_output_variables : bool):
         ExecutionCommand.__init__(self)
 
+        self._system = system
         # targetSignals is optional
-        self.defineVarsForOutputs = defineVarsForOutputs
+        self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
         self.executionLine = executionLine
         self.targetSignals = targetSignals
@@ -103,10 +106,10 @@ class CommandCalculateOutputs(ExecutionCommand):
             if flag == 'localvar':
 
                 # 
-                SignalsWithoutOutputs = self.executionLine.getSignalsToExecute()
+                SignalsWithoutOutputs = self.executionLine.getSignalsToExecute().copy()
 
                 # remove the system-output signals if requested
-                if self.defineVarsForOutputs: # This is flipped by its name
+                if not self.define_variables_for_the_outputs: # This is flipped by its name
                     for s in self.targetSignals:
                         # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
 
@@ -121,7 +124,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                 # skip the input signals in this loop (as their variables are already defined by the function API)
                 for s in SignalsWithoutOutputs:
 
-                    if isinstance(s, BlockOutputSignal):
+                    #if isinstance(s, BlockOutputSignal):
+                    if not s.is_crossing_system_boundary(self._system):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
@@ -141,7 +145,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                 blocks_with_outputs_to_compute = {}
 
                 for s in self.executionLine.getSignalsToExecute():
-                    if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                    # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                    if not s.is_crossing_system_boundary(self._system):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 

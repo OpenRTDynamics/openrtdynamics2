@@ -363,7 +363,7 @@ class BuildExecutionPath:
         return signal.graphTraversionMarkerMarkIsVisited()
 
     # Start backward traversion starting from the given startSignal
-    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int):
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
         
         tabs = ''
         for i in range(0, depthCounter):
@@ -431,7 +431,10 @@ class BuildExecutionPath:
 
 
         # check if the signal is a system input signal
-        if isinstance(startSignal, SimulationInputSignal):
+        # is_simulation_input           = isinstance(startSignal, SimulationInputSignal)
+        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
+
+        if is_crossing_simulation_border:
             # signal is an input to the simulation
             # add to the list of dependent inputs
 
@@ -441,25 +444,28 @@ class BuildExecutionPath:
             # also note down that this is a (actually used) simulation input
             self.dependencySignalsSimulationInputs.append( startSignal )
 
+            if is_crossing_simulation_border:
+                print(Fore.YELLOW + tabs + "  --> crosses system bounds")
+
             return
 
 
-        # when the system the signal belongs to changes we reached a boundary to a upperl-level system
-        if startSignal.sim != self.system:
+        # # when the system the signal belongs to changes we reached a boundary to a upperl-level system
+        # if startSignal.sim != self.system:
 
-            print()
+        #     print()
 
-            # check whether startSignal is coming from an outer system
-            if self.system.UpperLevelSim is not None and startSignal.sim is self.system.UpperLevelSim:
+        #     # check whether startSignal is coming from an outer system
+        #     if self.system.UpperLevelSim is not None and startSignal.sim is self.system.UpperLevelSim:
 
-                print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
+        #         print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
 
-                self.dependencySignals.append( startSignal )
+        #         self.dependencySignals.append( startSignal )
 
-                # also note down that this is a (actually used) simulation input
-                self.dependencySignalsSimulationInputs.append( startSignal )
+        #         # also note down that this is a (actually used) simulation input
+        #         self.dependencySignalsSimulationInputs.append( startSignal )
 
-                return
+        #         return
 
 
 

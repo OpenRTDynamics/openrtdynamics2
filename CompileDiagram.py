@@ -177,7 +177,10 @@ def compileSystem(sim):
 
     simulationInputSignalsToCalculateOutputs = []
     for s in dependencySignals:
-        if isinstance(s, SimulationInputSignal):
+
+        # if isinstance(s, SimulationInputSignal):
+        if s.is_crossing_system_boundary(sim):
+            
             simulationInputSignalsToCalculateOutputs.append(s)
 
     # counter for the order (i.e. step through all delays present in the system)
@@ -185,7 +188,7 @@ def compileSystem(sim):
 
 
     # execution line per order
-    commandToCalcTheResultsToPublish = CommandCalculateOutputs(executionLineToCalculateOutputs, outputSignals, defineVarsForOutputs = True)
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(sim, executionLineToCalculateOutputs, outputSignals, no_memory_for_output_variables = True)
 
     #
     # cache all signals that are calculated so far
@@ -250,10 +253,14 @@ def compileSystem(sim):
         dependencySignals__ = []
         for s in dependencySignalsThroughStates + dependencySignals:
 
-            if isinstance(s, SimulationInputSignal):
+            # if isinstance(s, SimulationInputSignal):
+            if s.is_crossing_system_boundary(sim):
+        
                 simulationInputSignalsToUpdateStates.update([s])
 
-            elif not E.isSignalAlreadyComputable(s):   # TODO: if s is a simulation input no need to add to dependencySignals__ ?
+            elif not E.isSignalAlreadyComputable(s):
+                
+
                 dependencySignals__.append(s)
 
             else:
@@ -302,7 +309,7 @@ def compileSystem(sim):
         #       whose states are updated
         #
 
-        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(executionLineForCurrentOrder, dependencySignals__, defineVarsForOutputs = False) )
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(sim, executionLineForCurrentOrder, dependencySignals__, no_memory_for_output_variables = False) )
 
         #
         # find out which blocks need a call to update their states:

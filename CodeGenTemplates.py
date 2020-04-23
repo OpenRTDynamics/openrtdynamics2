@@ -362,7 +362,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
     def build(self):
 
-        buildCommand = "emcc --bind " + os.path.join(self.codeFolder + "main.cpp") + " -s -o " + os.path.join( self.codeFolder + "main.js" )
+        buildCommand = "emcc --bind " + os.path.join(self.codeFolder + "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder + "main.js" )
         print("Running compiler: " + buildCommand)
 
         returnCode = os.system(buildCommand)

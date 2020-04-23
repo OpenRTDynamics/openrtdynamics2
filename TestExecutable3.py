@@ -750,7 +750,10 @@ if testname == 'system_state_machine':
 
 #    active_system = dy.system_input( dy.DataTypeInt32(1) ).setName('active_system')
 
-    U = dy.system_input( baseDatatype ).setName('osc_excitement')
+    U2 = dy.system_input( baseDatatype ).setName('osc_excitement')
+
+    U = U2 * dy.float64(1.234)
+    U.setName("stachmachine_input_U")
 
     # U = dy.conditional_overwrite(signal=dy.int32(-1), condition = U > dy.float64(10) , new_value=1 ).setName('huhu')
 
