@@ -80,7 +80,7 @@ class TraverseGraph:
         for signal in startBlock.getOutputSignals():
             # for each output signal
 
-            print(tabs + "-> S " + signal.getName() )
+            print(tabs + "-> S " + signal.name )
 
             if len( signal.getDestinationBlocks() ) == 0:
                 print(tabs + '-- none --')
@@ -157,7 +157,7 @@ class TraverseGraph:
             # for each output signal
 
 
-            print(tabs + "-> S " + signal.getName() )
+            print(tabs + "-> S " + signal.name )
 
             if signal.getSourceBlock() is None:
                 print(tabs + '-- ERROR: no input signal defined for this block! --')
@@ -195,22 +195,22 @@ class ExecutionLine():
         print(Fore.RED + "dependent sources:")
 
         for s in self.dependencySignals:
-            print("  - " + s.getName() )
+            print("  - " + s.name )
 
         print(Fore.RED + "dependent sources (simulation inputs):")
                 
         for s in self.dependencySignalsSimulationInputs:
-            print("  - " + s.getName() )
+            print("  - " + s.name )
 
         print(Fore.RED + "dependent sources (through state-dependend blocks):")
         
         for s in self.dependencySignalsThroughStates:
-            print("  - " + s.getName() )
+            print("  - " + s.name )
 
         print(Fore.GREEN + "execution order:")
 
         for s in self.signalOrder:
-            print("  - " + s.getName() )
+            print("  - " + s.name )
 
         print(Fore.GREEN + "blocks whose states must be updated:")
 
@@ -373,7 +373,7 @@ class BuildExecutionPath:
         if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
             
             # this case must be an error..                  
-            raise BaseException('not implemented or internal error: unexpected type of signal' + startSignal.getName())
+            raise BaseException('not implemented or internal error: unexpected type of signal' + startSignal.name)
 
 
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
@@ -450,25 +450,6 @@ class BuildExecutionPath:
             return
 
 
-        # # when the system the signal belongs to changes we reached a boundary to a upperl-level system
-        # if startSignal.sim != self.system:
-
-        #     print()
-
-        #     # check whether startSignal is coming from an outer system
-        #     if self.system.UpperLevelSim is not None and startSignal.sim is self.system.UpperLevelSim:
-
-        #         print("detected a boundary to an upper-level system: " + startSignal.name + " is a signal from upper level.")
-
-        #         self.dependencySignals.append( startSignal )
-
-        #         # also note down that this is a (actually used) simulation input
-        #         self.dependencySignalsSimulationInputs.append( startSignal )
-
-        #         return
-
-
-
         # get the blocks prototype function to calculate startSignal
         block = startSignal.getSourceBlock()
         blocksPrototype = block.getBlockPrototype()
@@ -483,7 +464,7 @@ class BuildExecutionPath:
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
-        print(tabs + "--- signals needed for " + startSignal.getName() + " (" + ") --" )
+        print(tabs + "--- signals needed for " + startSignal.name + " (" + ") --" )
 
         dependingSignals = blocksPrototype.returnDependingInputs(startSignal)
 
@@ -503,7 +484,7 @@ class BuildExecutionPath:
         # go through all signals needed to calculate startSignal
         for signal in dependingSignals:
 
-            print(Fore.MAGENTA + tabs + "-> S " + signal.getName() )
+            print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
             self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
 

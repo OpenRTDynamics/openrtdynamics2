@@ -153,7 +153,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         # constant inputs
         inputConstAssignments = []
         for signal, value in self.inputSignalsMapping.items():
-            inputConstAssignments.append( signal.getName() + ' = ' + str(value) )
+            inputConstAssignments.append( signal.name + ' = ' + str(value) )
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 
@@ -189,8 +189,6 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
             data.append( [] )
 
         for line in p.stdout.readlines():
-            # print(line.decode("utf-8") )
-
             sample = line.decode("utf-8").split(' ')
 
             for o in outputs:
@@ -200,7 +198,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         dataStruct = { }
         o = 0
         for s in self.mainSimulation.outputCommand.outputSignals:
-            dataStruct[ s.getName() ] = data[o]
+            dataStruct[ s.name ] = data[o]
 
             o = o + 1
 
@@ -337,7 +335,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
         lines += 'value_object<' + mainSimulationName + '::' + structname + '>("' + mainSimulationName + '__' + structname + '")\n'
 
         for s in signals:
-            fieldName = s.getName()
+            fieldName = s.name
 
             lines += '.field("' + fieldName + '", &' + mainSimulationName + '::' + structname + '::' + fieldName + ')\n'
 

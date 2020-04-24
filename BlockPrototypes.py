@@ -124,8 +124,6 @@ class StaticFn_NTo1(BlockPrototype):
 
             self.outputType = computeResultingNumericType(inputTypes)
 
-            # print('StaticFn_NTo1 (' + self.block.toStr() + '): proposed outputtype of ' + self.outputSignal(0).getName() + ' is: ' + self.outputType.toStr() + '')
-
         else:
 
             # check of the given output type is a numeric datatype
@@ -153,11 +151,7 @@ class StaticFn_NTo1(BlockPrototype):
         return output
 
     def codeGen_localvar(self, language, signal):
-        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
-
         if language == 'c++':
-            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-            # return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
             return cgh.defineVariableLine( signal )
 
 
@@ -197,11 +191,7 @@ class Dynamic_1To1(BlockPrototype):
         return self.outputSignal(0)
 
     def codeGen_localvar(self, language, signal):
-        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
-
         if language == 'c++':
-            # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-            # return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
             return cgh.defineVariableLine( signal )
 
 
@@ -1098,17 +1088,10 @@ class Const(StaticSource_To1):
         # call super
         StaticSource_To1.__init__(self, sim, datatype)
 
-    # def codeGen_localvar(self, language):
-    #     if language == 'c++':
-    #         # return self.outputType.cppDataType + ' ' + self.outputSignal(0).getName() + ';\n'
-    #         return signal.datatype.cppDataType + ' ' + signal.name + ';\n'
-
-
     def codeGen_localvar(self, language, signal):
         if language == 'c++':
             return cgh.defineVariableLine( signal )
 
-    #def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + str( self.constant ) + ';\n'
@@ -1134,9 +1117,7 @@ class Gain(StaticFn_1To1):
         StaticFn_1To1.__init__(self, sim, u)
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
-    #def codeGen_output(self, language, signal : Signal):
         if language == 'c++':
-            # return self.outputSignal(0).getName() + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).getName() +  ';\n'
             return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
 
 def dyn_gain(sim : Simulation, u : Signal, gain : float ):
@@ -1185,14 +1166,13 @@ class Add(StaticFn_NTo1):
         self.factors = factors
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    #def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
             i = 0
             for s in self.inputSignals:
-                strs.append(  str(self.factors[i]) + ' * ' + s.getName() )
+                strs.append(  str(self.factors[i]) + ' * ' + s.name )
                 i = i + 1
 
             sumline = ' + '.join( strs )
@@ -1213,14 +1193,13 @@ class Operator1(StaticFn_NTo1):
         self.operator = operator
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    #def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
             i = 0
             for s in self.inputSignals:
-                strs.append(  str(  s.getName() ) )
+                strs.append(  str(  s.name ) )
                 i = i + 1
 
             sumline = (' ' + self.operator + ' ').join( strs )
@@ -1407,7 +1386,7 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).getName() +  ');\n'
+            return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).name +  ');\n'
 
 
 def dyn_sin(sim : Simulation, u : SignalUserTemplate ):
@@ -1445,7 +1424,7 @@ class Delay(Dynamic_1To1):
 
     def codeGen_update(self, language):
         if language == 'c++':
-            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).getName() + ';\n'
+            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).name + ';\n'
 
     def codeGen_reset(self, language):
         if language == 'c++':

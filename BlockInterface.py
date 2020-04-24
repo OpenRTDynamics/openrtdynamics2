@@ -45,12 +45,8 @@ class BlockPrototype(object):
             self._outputSignals.append( BlockOutputSignal(sim, datatype, self.block, sourcePort=i  ) )
 
 
-#        for output_signal in self._outputSignals:
-#            output_signal.update_source_config(self, sourceBlock = self.block, sourcePort = None)
-
         self.block.configOutputSignals( self._outputSignals )
 
-    #
     def update_input_config(self, input_signals):
         """
             The input signal might be unknown on construction. 

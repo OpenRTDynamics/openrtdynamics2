@@ -107,10 +107,6 @@ class Signal(object):
 
         return self
 
-    # TODO: remove this soon (just use anme)
-    def getName(self):
-        return self.lookupSource()._name
-
     @property
     def name(self):
         return self.lookupSource()._name
@@ -307,7 +303,7 @@ class UndeterminedSignal(Signal):
             raise BaseException("An anonymous signal can only be connected to a block output.")
 
         # build a link to the already existing signal 'to'
-        print("== Created a signal link " +  to.getName() + " == "+   self.getName() +  "")
+        print("== Created a signal link " +  to.name + " == "+   self.name +  "")
 
         # merge the list of detination blocks
         for b in self.destinationBlocks:

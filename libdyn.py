@@ -84,7 +84,6 @@ class Simulation:
 
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
-        # print("added block ", blk.getName() )
 
     def set_primary_outputs(self, outputSignals):
         self._output_signals = outputSignals
@@ -145,10 +144,10 @@ class Simulation:
 
         def createSimulationInputNode(nodes_array_index, inSig):
             # append a node that stands for a simulation input
-            idstr = 'insig_' + inSig.getName()
+            idstr = 'insig_' + inSig.name
 
             node = {}
-            node['name'] = 'in_' + inSig.getName()
+            node['name'] = 'in_' + inSig.name
             node['type'] = 'simulation_input'
 
             # node['tostr'] = block.toStr()
@@ -162,7 +161,7 @@ class Simulation:
 
             link = {}
             link['tostr'] = signal.toStr()
-            link['name'] = signal.getName()
+            link['name'] = signal.name
 
             link['source'] = ''
             link['target'] = ''
@@ -181,7 +180,7 @@ class Simulation:
 
             link = {}
             link['tostr'] = signal.toStr()
-            link['name'] = signal.getName()
+            link['name'] = signal.name
 
             link['source'] = ''
             link['target'] = ''

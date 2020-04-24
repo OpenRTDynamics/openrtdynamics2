@@ -62,29 +62,16 @@ class CommandCalculateOutputs(ExecutionCommand):
         ExecutionCommand.__init__(self)
 
         self._system = system
-        # targetSignals is optional
-        self.define_variables_for_the_outputs = not no_memory_for_output_variables
-
         self.executionLine = executionLine
         self.targetSignals = targetSignals
-        
-    def printExecution(self):
+        self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
-        # make a string from a list of signals --> move to a function
+    def printExecution(self):
         signalListStr = '['
 
         if self.targetSignals is not None:
+            signalListStr += signalListHelper_names_string(self.targetSignals)
 
-            i = 0
-            for s in self.targetSignals:
-                signalListStr += s.getName()
-                
-                if i == len(self.targetSignals) - 1:
-                    break
-
-                signalListStr += ", "
-                i += 1
-                
         signalListStr += ']'
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: follow output execution line to calculate " + signalListStr + " using:")
@@ -316,9 +303,9 @@ class CommandCacheOutputs(ExecutionCommand):
                 lines += "\n\n// cached output values\n"
                 for s in self.signals:
 
-                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
-                    lines +=  '\n// cache for ' + s.getName() + '\n'
+                    lines +=  '\n// cache for ' + s.name + '\n'
                     lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
 
             if flag == 'code':
@@ -329,8 +316,8 @@ class CommandCacheOutputs(ExecutionCommand):
 
                 for s in self.signals:
 
-                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines += cachevarName + ' = ' + s.getName() + ';\n'
+                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    lines += cachevarName + ' = ' + s.name + ';\n'
 
         return lines
 
@@ -376,8 +363,8 @@ class CommandRestoreCache(ExecutionCommand):
 
                 for s in self.signals:
 
-                    cachevarName = s.getName() + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines +=  s.getDatatype().cppDataType + ' ' + s.getName() + ' = ' + cachevarName + ";" + '\n' 
+                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                    lines +=  s.getDatatype().cppDataType + ' ' + s.name + ' = ' + cachevarName + ";" + '\n' 
 
                 lines += '\n'
 
@@ -420,7 +407,7 @@ class PutAPIFunction(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: API outputs are:")
         for s in self.outputSignals:
-            print(Style.DIM + '  - ' + s.getName())
+            print(Style.DIM + '  - ' + s.name)
 
         print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
         
@@ -458,7 +445,7 @@ class PutAPIFunction(ExecutionCommand):
                 # put the parameter list e.g. double & y1, double & y2, u1, u2
                 elements = []
                 for s in self.outputSignals:
-                    elements.append( s.getDatatype().cppDataType + ' & '  + s.getName() )
+                    elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
                     
                 elements.extend( signalListHelper_CppVarDefStr( self.inputSignals ) )
 

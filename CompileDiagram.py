@@ -94,10 +94,10 @@ class CompileDiagram:
 
 
 
-def compileSystem(sim):
+def compileSystem(system):
 
     # the primary output signals are the outputs of the compiled system
-    outputSignals = sim.primary_outputs
+    outputSignals = system.primary_outputs
 
 
     print()
@@ -108,7 +108,7 @@ def compileSystem(sim):
     resolveUndeterminedSignals(outputSignals)
 
     # remove all anonymous signal
-    sim.resolve_anonymous_signals()
+    system.resolve_anonymous_signals()
 
 
 
@@ -179,7 +179,7 @@ def compileSystem(sim):
     for s in dependencySignals:
 
         # if isinstance(s, SimulationInputSignal):
-        if s.is_crossing_system_boundary(sim):
+        if s.is_crossing_system_boundary(system):
             
             simulationInputSignalsToCalculateOutputs.append(s)
 
@@ -188,7 +188,7 @@ def compileSystem(sim):
 
 
     # execution line per order
-    commandToCalcTheResultsToPublish = CommandCalculateOutputs(sim, executionLineToCalculateOutputs, outputSignals, no_memory_for_output_variables = True)
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, executionLineToCalculateOutputs, outputSignals, no_memory_for_output_variables = True)
 
     #
     # cache all signals that are calculated so far
@@ -254,7 +254,7 @@ def compileSystem(sim):
         for s in dependencySignalsThroughStates + dependencySignals:
 
             # if isinstance(s, SimulationInputSignal):
-            if s.is_crossing_system_boundary(sim):
+            if s.is_crossing_system_boundary(system):
         
                 simulationInputSignalsToUpdateStates.update([s])
 
@@ -309,7 +309,7 @@ def compileSystem(sim):
         #       whose states are updated
         #
 
-        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(sim, executionLineForCurrentOrder, dependencySignals__, no_memory_for_output_variables = False) )
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, executionLineForCurrentOrder, dependencySignals__, no_memory_for_output_variables = False) )
 
         #
         # find out which blocks need a call to update their states:
@@ -384,7 +384,7 @@ def compileSystem(sim):
 
 
     # define the interfacing class
-    commandToExecute_simulation = PutSimulation(    simulation = sim,
+    commandToExecute_simulation = PutSimulation(    simulation = system,
                                                     resetCommand = commandToResetStates, 
                                                     updateCommand = commandToUpdateStates,
                                                     outputCommand = commandToPublishTheResults
