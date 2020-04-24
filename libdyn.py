@@ -66,6 +66,10 @@ class Simulation:
     def name(self):
         return self._name
 
+    @property
+    def parent_system(self):
+        return self.UpperLevelSim 
+
     def getNewBlockId(self):
         self.BlockIdCounter += 1
         return self.BlockIdCounter

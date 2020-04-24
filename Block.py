@@ -3,7 +3,7 @@ from typing import Dict, List
 from Signal import *
 from Datatypes import *
 
-
+import random as random
 
 
 
@@ -24,7 +24,8 @@ class Block:
         self.sim = sim
 
         # create a new unique block id 
-        self._id = sim.getNewBlockId()
+        self._id = random.randint(0,1000000) + sim.getNewBlockId()
+ #       self._id = sim.getNewBlockId()
 
         # default names
         if blockname is None:

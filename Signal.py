@@ -73,10 +73,26 @@ class Signal(object):
 
         """
             test if fot the given system this signals comes from an outer/higher level
-            system. TODO: 23.4.2020: Also handle system inputs this way?
+            system.
         """
 
-        return self.sim != system
+        if self.sim == system:
+            return False
+
+        # check if this signal is coming from an upper/outer system 
+        # (if not it comes from a parallel system that cannot be accessed: this is an error)
+
+        # go up in the system-nesting hirachy starting at system
+        system_iter = system
+
+        while system_iter.parent_system is not None:
+
+            if system_iter.parent_system == self.system:
+                return True
+
+            system_iter = system_iter.parent_system
+
+        raise BaseException("Bad access to signal " + Fore.YELLOW + self.name + Fore.RESET + ": did you access a signal from another subsystem that cannot be reached?")
 
     def lookupSource(self):
         return self

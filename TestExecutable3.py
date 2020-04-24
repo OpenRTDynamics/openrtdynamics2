@@ -87,7 +87,7 @@ def counter():
 
 
 
-testname = 'system_state_machine' # 
+testname = 'system_state_machine2' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -748,15 +748,10 @@ if testname == 'system_state_machine':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-#    active_system = dy.system_input( dy.DataTypeInt32(1) ).setName('active_system')
-
     U2 = dy.system_input( baseDatatype ).setName('osc_excitement')
 
     U = U2 * dy.float64(1.234)
     U.setName("stachmachine_input_U")
-
-    # U = dy.conditional_overwrite(signal=dy.int32(-1), condition = U > dy.float64(10) , new_value=1 ).setName('huhu')
-
 
     with dy.sub_statemachine( "statemachine1" ) as switch:
 
@@ -767,18 +762,11 @@ if testname == 'system_state_machine':
             v = dy.float64(0.0).setName('v_def')
 
 
-            #next_state = dy.int32(1)
             counter = dy.counter().setName('counter')
             timeout = ( counter > dy.int32(10) ).setName('timeout')
-#            next_state = dy.convert(timeout, dy.DataTypeInt32(1) ).setName('next_state')
-
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).setName('next_state')
 
-
             system.set_switched_outputs([ x, v, counter ], next_state)
-
-
-            #system.set_next_state( next_state )
 
 
         with switch.new_subsystem('state_B') as system:
@@ -792,16 +780,10 @@ if testname == 'system_state_machine':
             x << eInt( v,   Ts=0.1, name="intX" )
 
             counter = dy.counter().setName('counter')
-
-            #next_state = dy.int32(0).setName('next_state')
-
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=counter > dy.int32(50), new_value=0 ).setName('next_state')
 
             system.set_switched_outputs([ x, v, counter ], next_state)
 
-            #next_state = ( x < 10 ).setName('next_state')
-
-#            system.set_next_state( next_state )
 
 
     output_x = switch.outputs[0].setName("ox")
@@ -815,6 +797,69 @@ if testname == 'system_state_machine':
 
     inputSignalsMapping = {}
 
+
+
+
+
+
+
+if testname == 'system_state_machine2':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).setName('number_of_samples_to_stay_in_A')
+    threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).setName('threshold_for_x_to_leave_B')
+
+
+    U2 = dy.system_input( baseDatatype ).setName('osc_excitement')
+
+    U = U2 * dy.float64(1.234)
+    U.setName("stachmachine_input_U")
+
+    with dy.sub_statemachine( "statemachine1" ) as switch:
+
+
+        with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
+
+            x = dy.float64(0.0).setName('x_def')
+            v = dy.float64(0.0).setName('v_def')
+
+
+            counter = dy.counter().setName('counter')
+            timeout = ( counter > number_of_samples_to_stay_in_A ).setName('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).setName('next_state')
+
+            system.set_switched_outputs([ x, v, counter ], next_state)
+
+
+        with switch.new_subsystem('state_B') as system:
+
+            x = dy.signal()
+            v = dy.signal()
+
+            acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).setNameOfOrigin('acc').setName('acc')
+
+            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eInt( v,   Ts=0.1, name="intX" )
+
+            counter = dy.counter().setName('counter')
+            leave_this_state = (x > threshold_for_x_to_leave_B).setName("leave_this_state")
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).setName('next_state')
+
+            system.set_switched_outputs([ x, v, counter ], next_state)
+
+
+
+    output_x = switch.outputs[0].setName("ox")
+    output_v = switch.outputs[1].setName("ov")
+    counter = switch.outputs[2].setName("counter")
+
+    state = switch.state.setName('state_control')
+
+    # main simulation ouput
+    outputSignals = [ output_x, output_v, state, counter ]
+
+    inputSignalsMapping = {}
 
 
 #
