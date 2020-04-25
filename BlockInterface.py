@@ -24,7 +24,7 @@ class BlockPrototype(object):
 
     def __init__(self, sim, inputSignals = None, N_outputs = None, output_datatype_list = None  ):
 
-        self.block = Block(sim, self, inputSignals, blockname = '')
+        self.block = Block(sim, self, inputSignals, blockname = None)
 
         # detect the number of outputs
         if N_outputs is None:
@@ -68,7 +68,7 @@ class BlockPrototype(object):
     def getUniqueVarnamePrefix(self):
         # return a variable name prefix unique in the simulation
         # to be used for code generation 
-        return "" + self.block.getName() +  "_" + str(self.block.id)
+        return "block_" + self.block.name
 
 
     #

@@ -18,21 +18,19 @@ class Block:
         blockname      - A string name of the block (default '')
     """
 
-    def __init__(self, sim, blockPrototype, inputSignals : List[Signal] = None, blockname : str = ''):
-        # print("Creating new block " + blockname)
+    def __init__(self, sim, blockPrototype, inputSignals : List[Signal] = None, blockname : str = None):
 
         self.sim = sim
 
-        # create a new unique block id 
-        self._id = random.randint(0,1000000) + sim.getNewBlockId()
- #       self._id = sim.getNewBlockId()
+        # create a new unique block id (unique for the system the block is in)
+ #       self._id = random.randint(0,1000000) + sim.getNewBlockId()
+        self._id = sim.getNewBlockId()
 
         # default names
         if blockname is None:
-            blockname = ''
-
-        self.blocknameShort =  blockname + '_bid' + str( self._id )   # variable name
-        self.blockname = blockname + '_bid' + str( self._id )  # description
+            self.blockname = str( self._id )
+        else:
+            self.blockname = blockname
 
         # add myself to the given simulation
         self.sim.addBlock(self)
@@ -58,6 +56,7 @@ class Block:
 
         # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
+
 
     def update_input_config(self, input_signals):
         """
@@ -133,24 +132,21 @@ class Block:
 
 
     def getName(self):
-        return self.blocknameShort
+        return self.blockname
 
     @property
     def name(self):
-        return self.blocknameShort
+        return self.blockname
 
     def setName(self, name):
         self.blockname = name
         return self
 
     def toStr(self):
-        return self.blockname + ' (' + self.blocknameShort + ')'
+        return self.blockname
 
     def getBlockPrototype(self):
         return self.blockPrototype
-
-    def getBlockId(self):
-        return self._id # a unique id within the simulation the block is part of
 
     @property
     def id(self):

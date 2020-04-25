@@ -1424,7 +1424,8 @@ class Delay(Dynamic_1To1):
 
     def codeGen_update(self, language):
         if language == 'c++':
-            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).name + ';\n'
+            lines = self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).name + ';\n'
+            return lines
 
     def codeGen_reset(self, language):
         if language == 'c++':

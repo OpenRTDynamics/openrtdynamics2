@@ -63,7 +63,7 @@ class TraverseGraph:
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
+            print(tabs + "*** visited *** "  + startBlock.name + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
             return
 
         # store this block as it is reachable
@@ -72,7 +72,7 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print(tabs + "-- " + startBlock.getName() + " (" + str( startBlock.id ) + ") --" )
+        print(tabs + "-- " + startBlock.name + " (" + str( startBlock.id ) + ") --" )
 
 
 
@@ -88,10 +88,7 @@ class TraverseGraph:
             for destinationBlock in signal.getDestinationBlocks():
                 # destinationBlock is a link to a connected block
 
-                print( tabs + "*", destinationBlock.getName(), "(", destinationBlock.id, ")"  )
-
-            #for destinationBlock in signal.getDestinationBlocks():
-                # destinationBlock is a link to a connected block
+                print( tabs + "*", destinationBlock.name, "(", destinationBlock.id, ")"  )
 
                 # recursion
                 self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
@@ -136,7 +133,7 @@ class TraverseGraph:
 
         #
         if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.getName() + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
+            print(tabs + "*** visited *** "  + startBlock.name + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
             return
 
         # check of the block 'startBlock'
@@ -148,7 +145,7 @@ class TraverseGraph:
         # make the node as visited
         startBlock.graphTraversionMarkerMarkVisited()
 
-        print(tabs + "--- " + startBlock.getName() + " (" + str( startBlock.id ) + ") --" )
+        print(tabs + "--- " + startBlock.name + " (" + str( startBlock.id ) + ") --" )
 
 
 
@@ -164,7 +161,7 @@ class TraverseGraph:
                 
             else:
 
-                print( tabs + "*", signal.getSourceBlock().getName(), "(", signal.getSourceBlock().id, ")"  )
+                print( tabs + "*", signal.getSourceBlock().name, "(", signal.getSourceBlock().id, ")"  )
 
                 self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )
 
@@ -215,7 +212,7 @@ class ExecutionLine():
         print(Fore.GREEN + "blocks whose states must be updated:")
 
         for block in self.blocksToUpdateStates:
-            print("  - " + block.getName() )
+            print("  - " + block.name )
 
 
     def getSignalsToExecute(self):

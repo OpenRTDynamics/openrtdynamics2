@@ -15,7 +15,7 @@ init(autoreset=True)
 #
 sim = dy.enter_system('simulation')
 
-# list to collect systems importd from libraries
+# list to collect systems imported from libraries
 libraryEntries = []
 
 
@@ -24,8 +24,8 @@ def firstOrder( u : dy.Signal, z_inf, name : str):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
-    y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+    i = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setName(name + '_i')
+    y = dy.delay( i).setName(name + '_y')
 
     yFb << y
 
@@ -36,9 +36,9 @@ def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str):
 
     yFb = dy.signal()
 
-    s = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setNameOfOrigin(name + '_s (add)').setName('s'+name+'')
-    d = dy.delay( s).setNameOfOrigin(name + '_d (delay)').setName('d'+name+'')
-    y = dy.gain( d, gain).setNameOfOrigin(name + '_y (gain)').setName('y'+name+'')
+    s = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).setName('s'+name+'')
+    d = dy.delay( s).setName('d'+name+'')
+    y = dy.gain( d, gain).setName('y'+name+'')
 
     yFb << y
 
@@ -49,8 +49,8 @@ def dInt( u : dy.Signal, name : str):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ 1, 1 ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
-    y = dy.delay( i).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+    i = dy.add( [ yFb, u ], [ 1, 1 ] ).setName(name + '_i')
+    y = dy.delay( i).setName(name + '_y')
 
     yFb << y
 
@@ -60,8 +60,8 @@ def eInt( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
-    y = dy.delay( i, initial_state ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+    i = dy.add( [ yFb, u ], [ 1, Ts ] ).setName(name + '_i')
+    y = dy.delay( i, initial_state ).setName(name + '_y')
 
     yFb << y
 
@@ -69,20 +69,20 @@ def eInt( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
 def diff( u : dy.Signal, name : str):
 
-    i = dy.delay( u ).setNameOfOrigin(name + '_i (delay)').setName(name + '_i')
-    y = dy.add( [ i, u ], [ -1, 1 ] ).setNameOfOrigin(name + '_y (add)').setName(name + '_y')
+    i = dy.delay( u ).setName(name + '_i')
+    y = dy.add( [ i, u ], [ -1, 1 ] ).setName(name + '_y')
 
     return y
 
-def counter():
+# def counter():
 
-    increase = dy.const(1, dy.DataTypeInt32(1) )
+#     increase = dy.const(1, dy.DataTypeInt32(1) )
 
-    cnt = dy.signal()
+#     cnt = dy.signal()
     
-    cnt << dy.delay(cnt + increase)
+#     cnt << dy.delay(cnt + increase)
 
-    return cnt
+#     return cnt
 
 
 

@@ -102,7 +102,7 @@ class Simulation:
         print("-----------------------------")
 
         for blk in self.BlocksArray:
-            print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.getName() + "' (" + str(blk.id) + ")"  )
+            print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.name + "' (" + str(blk.id) + ")"  )
 
             # list input singals
             print(Fore.RED + "  input signals")
@@ -136,7 +136,7 @@ class Simulation:
             idstr = 'bid_' + str( block.id )
 
             node = {}
-            node['name'] = block.getName()
+            node['name'] = block.name
             node['type'] = 'block'
 
             node['tostr'] = block.toStr()

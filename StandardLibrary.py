@@ -12,17 +12,6 @@ def boolean(value : int):
     return dy.const(value, dy.DataTypeBoolean(1) )
 
 
-# def counter():
-#     # TODO: create only one counter per simulation? Needs to store some context info somewhere to do so.
-
-# TODO: This does not work as cnt (anonymous) will go into the graph traversion algs directly
-
-
-#     increase = dy.const(1, dy.DataTypeInt32(1) )
-#     cnt = dy.signal()
-#     cnt << dy.delay(cnt + increase)
-
-#     return cnt
 
 
 class Counter():
@@ -44,35 +33,35 @@ class Counter():
 
 
 
-# def counter():
-#     if not 'counter' in dy.get_simulation_context().components:
-#         # no counter has been defined in this system so far. Hence, create one.
-
-#         increase = dy.const(1, dy.DataTypeInt32(1) )
-#         cnt = dy.signal()
-#         tmp = dy.delay(cnt + increase)
-#         cnt << tmp 
-
-#         tmp.setName('main_couter')
-
-#         # store the output signal of the counter as it might be used again. 
-#         dy.get_simulation_context().components['counter'] = Counter(tmp)
-
-#     else:
-#         # use the output of an already created counter
-#         tmp = dy.get_simulation_context().components['counter'].output
-
-#     return tmp
-
-
 def counter():
+    if not 'counter' in dy.get_simulation_context().components:
+        # no counter has been defined in this system so far. Hence, create one.
 
-    increase = dy.const(1, dy.DataTypeInt32(1) )
-    cnt = dy.signal()
-    tmp = dy.delay(cnt + increase)
-    cnt << tmp 
+        increase = dy.const(1, dy.DataTypeInt32(1) )
+        cnt = dy.signal()
+        tmp = dy.delay(cnt + increase)
+        cnt << tmp 
+
+        tmp.setName('shared_couter')
+
+        # store the output signal of the counter as it might be used again. 
+        dy.get_simulation_context().components['counter'] = Counter(tmp)
+
+    else:
+        # use the output of an already created counter
+        tmp = dy.get_simulation_context().components['counter'].output
 
     return tmp
+
+
+# def counter():
+
+#     increase = dy.const(1, dy.DataTypeInt32(1) )
+#     cnt = dy.signal()
+#     tmp = dy.delay(cnt + increase)
+#     cnt << tmp 
+
+#     return tmp
 
 
 # def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
@@ -202,19 +191,10 @@ def step(k_step : int):
 def ramp(k_start : int):
     # TODO
     k = dy.counter()
-
-    # k.setName('k')
-
     active = dy.int32(k_start) <= k
 
-    # active.setName('active')
-
-    # y = dy.convert( (k - dy.int32(k_start)), dy.DataTypeFloat64(1) ) * dy.convert( active, dy.DataTypeFloat64(1) ) 
-
-    # return y
-
-    linearRise = dy.convert( (k - dy.int32(k_start) ), dy.DataTypeFloat64(1) )  # .setName('linearRise')
-    activation = dy.convert( active, dy.DataTypeFloat64(1) )  #.setName('activation')
+    linearRise = dy.convert( (k - dy.int32(k_start) ), dy.DataTypeFloat64(1) )
+    activation = dy.convert( active, dy.DataTypeFloat64(1) )
 
     return activation * linearRise
 
