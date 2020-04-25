@@ -3,13 +3,13 @@
 # from BlockPrototypes import Operator1
 from typing import Dict, List
 
-import dynamics as dy
-import BlockPrototypes as block_prototypes
+from . import lang as dy
+from . import BlockPrototypes as block_prototypes
 
-from CodeGenHelper import *
-import SignalInterface as si
+from .CodeGenHelper import *
+from . import SignalInterface as si
 
-from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 

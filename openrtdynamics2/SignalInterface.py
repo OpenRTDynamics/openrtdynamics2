@@ -2,10 +2,10 @@
 # from BlockPrototypes import Operator1
 from typing import Dict, List
 
-import dynamics as dy
-import BlockPrototypes as block_prototypes
+from . import lang as dy
+from . import BlockPrototypes as block_prototypes
 
-from Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 """

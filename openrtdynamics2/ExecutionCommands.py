@@ -1,9 +1,8 @@
-from libdyn import *
-from Signal import *
-from Block import *
-from irpar import *
-from TraverseGraph import *
-from CodeGenHelper import *
+from .libdyn import *
+from .Signal import *
+from .Block import *
+from .TraverseGraph import *
+from . import  CodeGenHelper as cgh
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
@@ -70,7 +69,7 @@ class CommandCalculateOutputs(ExecutionCommand):
         signalListStr = '['
 
         if self.targetSignals is not None:
-            signalListStr += signalListHelper_names_string(self.targetSignals)
+            signalListStr += cgh.signalListHelper_names_string(self.targetSignals)
 
         signalListStr += ']'
 
@@ -122,9 +121,9 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 
             if flag == 'code':
-                lines += '\n// calculating the block outputs in the following order ' + signalListHelper_names_string(self.executionLine.signalOrder ) + '\n'
-                lines += '// that depend on ' + signalListHelper_names_string(self.executionLine.dependencySignals) + '\n'
-                lines += '// dependencies that require a state update are ' + signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
+                lines += '\n// calculating the block outputs in the following order ' + cgh.signalListHelper_names_string(self.executionLine.signalOrder ) + '\n'
+                lines += '// that depend on ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignals) + '\n'
+                lines += '// dependencies that require a state update are ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
                 lines += '\n'
 
 
@@ -310,7 +309,7 @@ class CommandCacheOutputs(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n'
-                lines += '// saving the signals ' + signalListHelper_names_string(self.signals) + ' into the states \n'
+                lines += '// saving the signals ' + cgh.signalListHelper_names_string(self.signals) + ' into the states \n'
                 lines += '\n'
 
 
@@ -358,7 +357,7 @@ class CommandRestoreCache(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n'
-                lines += '// restoring the signals ' + signalListHelper_names_string(self.signals) + ' from the states \n'
+                lines += '// restoring the signals ' + cgh.signalListHelper_names_string(self.signals) + ' from the states \n'
                 lines += '\n'
 
                 for s in self.signals:
@@ -437,7 +436,7 @@ class PutAPIFunction(ExecutionCommand):
 
             if flag == 'code':
                 # define the API-function (start)
-                lines += '// calculate ' + ' '.join( signalListHelper_names( self.outputSignals ) )
+                lines += '// calculate ' + ' '.join( cgh.signalListHelper_names( self.outputSignals ) )
                 
                 lines += '\n'
                 lines += 'void ' + self._nameAPI + '('
@@ -447,7 +446,7 @@ class PutAPIFunction(ExecutionCommand):
                 for s in self.outputSignals:
                     elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
                     
-                elements.extend( signalListHelper_CppVarDefStr( self.inputSignals ) )
+                elements.extend( cgh.signalListHelper_CppVarDefStr( self.inputSignals ) )
 
                 lines += ', '.join(elements)
                 lines +=  ') {\n'
@@ -472,12 +471,12 @@ class PutAPIFunction(ExecutionCommand):
 
                 # put structs to hold I/O signals
                 lines += '// output data structure for ' + self._nameAPI + '\n'
-                tmp = defineVariables( self.outputSignals )
+                tmp = cgh.defineVariables( self.outputSignals )
                 tmp = indent(tmp, '  ')
                 lines += f'struct Outputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
                 lines += '// input data structure for ' + self._nameAPI + '\n'
-                tmp = defineVariables( self.inputSignals )
+                tmp = cgh.defineVariables( self.inputSignals )
                 tmp = indent(tmp, '  ')
                 lines += f'struct Inputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
@@ -492,8 +491,8 @@ class PutAPIFunction(ExecutionCommand):
 
                 if len(self.outputSignals) > 0 or len(self.inputSignals):
 
-                    outputArguments = getStructElements( 'outputs' , self.outputSignals )
-                    inputArguments = getStructElements( 'inputs' , self.inputSignals )
+                    outputArguments = cgh.getStructElements( 'outputs' , self.outputSignals )
+                    inputArguments = cgh.getStructElements( 'inputs' , self.inputSignals )
 
                     argumentsString = ''
                     if len(outputArguments) > 0:
@@ -513,7 +512,7 @@ class PutAPIFunction(ExecutionCommand):
                 lines += '{\n'
 
                 innerLines = ''
-                innerLines += defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+                innerLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
                 innerLines += '// call to wrapped function\n'
                 innerLines += self._nameAPI + '(' + argumentsString + ');\n'

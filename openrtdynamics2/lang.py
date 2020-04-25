@@ -1,28 +1,34 @@
-from libdyn import *
-from Signal import *
-from Block import *
-from BlockPrototypes import *
-from ExecutionCommands import *
-from CodeGenTemplates import *
-from CompileDiagram import *
-from SimulationContext import *
-from CompileDiagram import *
-from SignalInterface import *
-from SystemLibrary import *
+from . import libdyn
 
-from StandardLibrary import *
 
-from subsystems import *
+#from . import Signal
+#from . import Block
+#from Block import *
+#from . import ExecutionCommands
+
+# from . import SystemLibrary
+
+from . import CompileDiagram as cd
+from . import SignalInterface as si
+
+from .CodeGenTemplates import *
+from .system_context import *
+from .BlockPrototypes import *
+from .StandardLibrary import *
+from .subsystems import *
+
+import json
+import os
 
 print("-- RTDynamics II loaded --")
 
 def signal():
     # return an anonymous signal
-    return SignalUser(get_simulation_context())
+    return si.SignalUser(get_simulation_context())
 
 def system_input(datatype):
     # intoduce a system input 
-    return SimulationInputSignalUser(get_simulation_context(), datatype)
+    return si.SimulationInputSignalUser(get_simulation_context(), datatype)
     
 
 def compile_system(sim):
@@ -55,7 +61,7 @@ def compile_system(sim):
     # at runtime.
     #
 
-    compiler = CompileDiagram()
+    compiler = cd.CompileDiagram()
     comileResults = compiler.compile( sim )
 
     #

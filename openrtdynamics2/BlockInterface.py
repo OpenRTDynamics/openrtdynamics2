@@ -1,9 +1,9 @@
 from typing import Dict, List
 
-from Block import *
-from Signal import *
-from Datatypes import *
-from SignalInterface import *
+from .Block import Block
+from .Signal import Signal, BlockOutputSignal
+# from Datatypes import *
+# from SignalInterface import *
 
 class BlockPrototype(object):
     """

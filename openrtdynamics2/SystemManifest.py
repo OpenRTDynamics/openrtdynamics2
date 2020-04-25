@@ -1,16 +1,16 @@
 
-from CodeGenHelper import *
+from . import CodeGenHelper as cgh
 
 
     
 def makeSignalDescription(signals, json : bool):
     signalDescription = {}
-    signalDescription['names'] = signalListHelper_names(signals)
-    signalDescription['cpptypes'] = signalListHelper_typeNames(signals)
+    signalDescription['names'] = cgh.signalListHelper_names(signals)
+    signalDescription['cpptypes'] = cgh.signalListHelper_typeNames(signals)
 
     if not json:
         # types will not be available when exported to JSON
-        signalDescription['types'] = signalListHelper_types(signals)
+        signalDescription['types'] = cgh.signalListHelper_types(signals)
 
     return signalDescription
 

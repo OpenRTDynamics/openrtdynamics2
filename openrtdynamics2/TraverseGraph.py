@@ -1,5 +1,5 @@
-from Signal import *
-from Block import *
+from .Signal import *
+from .Block import *
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style

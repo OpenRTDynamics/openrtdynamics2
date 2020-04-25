@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from Signal import *
-from Datatypes import *
+from .Signal import *
+from .Datatypes import *
 
 import random as random
 

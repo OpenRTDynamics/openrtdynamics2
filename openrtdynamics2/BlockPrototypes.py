@@ -1,11 +1,11 @@
-from libdyn import *
-from Signal import *
-from Block import *
-from SimulationContext import *
-from BlockInterface import *
-from SignalInterface import *
+from .libdyn import *
+from .Signal import *
+from .Block import *
+from .system_context import *
+from .BlockInterface import *
+from .SignalInterface import *
 
-import CodeGenHelper as cgh
+from . import CodeGenHelper as cgh
 
 
 #

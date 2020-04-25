@@ -1,6 +1,7 @@
 from typing import Dict, List
 
-import Signal as sig
+from openrtdynamics2 import Signal as sig
+#import .Signal as sig
 
 ORTD_DATATYPE_UNCONFIGURED = 0
 ORTD_DATATYPE_FLOAT = (1 | (8 << 5))

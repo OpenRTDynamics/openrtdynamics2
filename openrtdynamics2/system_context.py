@@ -1,6 +1,6 @@
-from libdyn import *
-from Signal import *
-from SignalInterface import *
+from .libdyn import *
+#from Signal import *
+from . import SignalInterface as si
 
 
 current_simulation_context = None
@@ -76,5 +76,5 @@ def leave_system():
 
 
 def set_primary_outputs(output_signals):
-    get_simulation_context().set_primary_outputs( unwrap_list( output_signals ) )
+    get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 

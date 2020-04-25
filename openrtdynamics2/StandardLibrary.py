@@ -1,5 +1,5 @@
 from typing import Dict, List
-import dynamics as dy
+from . import lang as dy
 
 
 def int32(value : int):

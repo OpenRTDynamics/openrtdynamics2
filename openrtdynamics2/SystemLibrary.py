@@ -1,12 +1,10 @@
-from ExecutionCommands import *
-from SystemManifest import *
-from CompileDiagram import CompileResults
+from .ExecutionCommands import *
+from .SystemManifest import *
+from .CompileDiagram import * 
 
 import subprocess
 import os
 import json
-
-# compileResults.commandToExecute.mainSimulation.codeGen('c++', 'code')
 
 # rename to SystemLibraryEntry
 class SystemLibraryEntry(object):

@@ -2,11 +2,11 @@ from contextlib import contextmanager
 #import contextvars
 from typing import Dict, List
 
-from irpar import irparSet, irparElement, irparElement_container
-from Signal import *
-from Block import *
+from .irpar import irparSet, irparElement, irparElement_container
+from .Signal import *
+from .Block import *
 
-from DatatypePropagation import *
+from .DatatypePropagation import *
 
 
 # currentSimulation = 'none'

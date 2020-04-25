@@ -1,4 +1,4 @@
-import dynamics as dy
+import openrtdynamics2.lang as dy
 
 import os
 import json
@@ -73,16 +73,6 @@ def diff( u : dy.Signal, name : str):
     y = dy.add( [ i, u ], [ -1, 1 ] ).setName(name + '_y')
 
     return y
-
-# def counter():
-
-#     increase = dy.const(1, dy.DataTypeInt32(1) )
-
-#     cnt = dy.signal()
-    
-#     cnt << dy.delay(cnt + increase)
-
-#     return cnt
 
 
 
