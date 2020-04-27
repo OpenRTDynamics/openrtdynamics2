@@ -138,7 +138,7 @@ class Block:
     def name(self):
         return self.blockname
 
-    def setName(self, name):
+    def set_name(self, name):
         self.blockname = name
         return self
 

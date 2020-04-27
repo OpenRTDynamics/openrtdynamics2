@@ -115,7 +115,7 @@ class Signal(object):
         return self.lookupSource().graphTraversionMarker == onLevel
 
     # set the name of this signal
-    def setName(self, name):
+    def set_name(self, name):
         self.lookupSource()._name = name
 
         # indicate that this Signal has a specified name (not a default/auto-generated name)
@@ -228,9 +228,9 @@ class Signal(object):
         return self.lookupSource().sourceBlock
 
 
-    def setNameOfOrigin(self, name):
+    def set_blockname(self, name):
         if not self.lookupSource().getSourceBlock() is None:
-            self.lookupSource().getSourceBlock().setName(name)
+            self.lookupSource().getSourceBlock().set_name(name)
 
         return self
 
@@ -333,7 +333,7 @@ class UndeterminedSignal(Signal):
         if self.nameProposal is not None and not to.nameIsDefault:
             # TODO: check if to holds just the default name. If so update it with the proposal
 
-            to.setName(self.nameProposal)
+            to.set_name(self.nameProposal)
             
         # overwrite self
         self.linkedSignal = to
@@ -348,13 +348,13 @@ class UndeterminedSignal(Signal):
             return True
 
     # set the name of this signal
-    def setName(self, name):
+    def set_name(self, name):
         if not self.isConnectedToSth():
             # not connected
             self.nameProposal = name
 
         else:
-            self.linkedSignal.lookupSource().setName(name)
+            self.linkedSignal.lookupSource().set_name(name)
 
     def lookupSource(self):
 

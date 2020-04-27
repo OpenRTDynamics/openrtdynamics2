@@ -26,7 +26,7 @@ class PutRuntimeCppHelper:
     def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system
 
-    def codeGen(self):
+    def code_gen(self):
 
         simulationCode = ''
 
@@ -132,19 +132,19 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         generates code for the runtime evironment
     """
 
-    def __init__(self, compileResults : CompileResults, inputSignalsMapping ):
+    def __init__(self, compileResults : CompileResults, input_signals_mapping ):
 
         PutRuntimeCppHelper.__init__(self, compileResults)
 
-        self.inputSignalsMapping = inputSignalsMapping
+        self.input_signals_mapping = input_signals_mapping
 
         self.initCodeTemplate()
 
         
-    def codeGen(self, iMax : int):
+    def code_gen(self, iMax : int):
 
         # call helper to fill in some generic elements into the template
-        PutRuntimeCppHelper.codeGen(self)
+        PutRuntimeCppHelper.code_gen(self)
 
         #
         # make strings 
@@ -152,7 +152,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         # constant inputs
         inputConstAssignments = []
-        for signal, value in self.inputSignalsMapping.items():
+        for signal, value in self.input_signals_mapping.items():
             inputConstAssignments.append( signal.name + ' = ' + str(value) )
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
@@ -162,7 +162,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         return self.sourceCode, self.manifest
 
-    def writeCode(self, folder):
+    def write_code(self, folder):
         PutRuntimeCppHelper.writeFiles(self, folder)
 
         self.codeFolder = folder
@@ -273,16 +273,16 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
     """
 
-    def __init__(self, compileResults : CompileResults, inputSignalsMapping ):
+    def __init__(self, compileResults : CompileResults, input_signals_mapping ):
 
         PutRuntimeCppHelper.__init__(self, compileResults)
 
-        self.inputSignalsMapping = inputSignalsMapping
+        self.input_signals_mapping = input_signals_mapping
 
         self.initCodeTemplate()
 
         
-    def codeGen(self, iMax : int):
+    def code_gen(self):
 
 
         #
@@ -291,7 +291,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
         # constant inputs
         inputConstAssignments = []
-        for signal, value in self.inputSignalsMapping.items():
+        for signal, value in self.input_signals_mapping.items():
             inputConstAssignments.append( signal.name + ' = ' + str(value) )
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
@@ -303,12 +303,11 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
         ioExport += self.codeGen_writeIO(self.mainSimulation.resetCommand)
 
-        self.template = Template(self.template).safe_substitute( iMax=iMax,
-                                                                 ioExport=ioExport,
+        self.template = Template(self.template).safe_substitute( ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
         # call helper to fill in some generic elements into the template
-        PutRuntimeCppHelper.codeGen(self)
+        PutRuntimeCppHelper.code_gen(self)
 
         self.sourceCode = self.template
         return self.template, self.manifest
@@ -348,7 +347,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
         return self.codeGen_writeIO__(command_API, 1) + self.codeGen_writeIO__(command_API, 2)
 
 
-    def writeCode(self, folder):
+    def write_code(self, folder):
         PutRuntimeCppHelper.writeFiles(self, folder)
 
         self.codeFolder = folder

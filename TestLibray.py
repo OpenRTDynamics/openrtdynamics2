@@ -10,8 +10,8 @@ def eInt( u : dy.Signal, Ts : float, name : str):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ 1, Ts ] ).setNameOfOrigin(name + '_i (add)').setName(name + '_i')
-    y = dy.delay( i ).setNameOfOrigin(name + '_y (delay)').setName(name + '_y')
+    i = dy.add( [ yFb, u ], [ 1, Ts ] ).set_blockname(name + '_i (add)').set_name(name + '_i')
+    y = dy.delay( i ).set_blockname(name + '_y (delay)').set_name(name + '_y')
 
     yFb << y 
 
@@ -30,21 +30,21 @@ def define_system_oscillator():
     baseDatatype = dy.DataTypeFloat64(1) 
 
     # input to the system
-    damping = dy.system_input( baseDatatype ).setName('damping')
-    U = dy.system_input( baseDatatype ).setName('u')
+    damping = dy.system_input( baseDatatype ).set_name('damping')
+    U = dy.system_input( baseDatatype ).set_name('u')
 
     x = dy.signal()
     v = dy.signal()
 
-    acc = dy.add( [ U, v, x ], [ 1, -0.5, -0.1 ] ).setNameOfOrigin('acceleration model')
-    acc.setName('acc')
+    acc = dy.add( [ U, v, x ], [ 1, -0.5, -0.1 ] ).set_blockname('acceleration model')
+    acc.set_name('acc')
 
-    v << eInt( acc, Ts=0.1, name="intV").setName('x')
-    x << eInt( v, Ts=0.1, name="intX").setName('v')
+    v << eInt( acc, Ts=0.1, name="intV").set_name('x')
+    x << eInt( v, Ts=0.1, name="intX").set_name('v')
 
     # define the outputs of the simulation
-    x.setName('x')
-    v.setName('v')
+    x.set_name('x')
+    v.set_name('v')
 
     # define output variables
     outputSignals = [ x,v ]

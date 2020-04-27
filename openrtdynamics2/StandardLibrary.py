@@ -42,7 +42,7 @@ def counter():
         tmp = dy.delay(cnt + increase)
         cnt << tmp 
 
-        tmp.setName('shared_couter')
+        tmp.set_name('shared_couter')
 
         # store the output signal of the counter as it might be used again. 
         dy.get_simulation_context().components['counter'] = Counter(tmp)

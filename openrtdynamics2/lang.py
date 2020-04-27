@@ -1,13 +1,5 @@
 from . import libdyn
 
-
-#from . import Signal
-#from . import Block
-#from Block import *
-#from . import ExecutionCommands
-
-# from . import SystemLibrary
-
 from . import CompileDiagram as cd
 from . import SignalInterface as si
 
@@ -20,7 +12,6 @@ from .subsystems import *
 import json
 import os
 
-print("-- RTDynamics II loaded --")
 
 def signal():
     # return an anonymous signal
@@ -31,30 +22,46 @@ def system_input(datatype):
     return si.SimulationInputSignalUser(get_simulation_context(), datatype)
     
 
-def compile_system(sim):
+def export_graph(filename, system = None):
 
-    # sim.ShowBlocks()
+    if system is None:
+        system = get_simulation_context() 
 
-    print()
-    print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
-    print()
 
-    sim.propagate_datatypes()
-
-    print()
-    print(Style.BRIGHT + "-------- print datatypes --------")
-    print()
-
-    sim.ShowBlocks()
+    # filename = 'generated/graph.json'
 
     print()
     print(Style.BRIGHT + "-------- export graph --------")
     print()
 
-    graph = sim.exportGraph()
+    graph = system.exportGraph()
 
-    with open( os.path.join(  'generated/graph.json' ), 'w') as outfile:  
+    with open( os.path.join(  filename ), 'w') as outfile:  
         json.dump(graph, outfile)
+
+def show_blocks(system = None):
+
+    if system is None:
+        system = get_simulation_context() 
+
+    print()
+    print(Style.BRIGHT + "-------- list of blocks --------")
+    print()
+
+    system.ShowBlocks()
+
+def compile_system(system = None):
+
+    if system is None:
+        system = get_simulation_context() 
+
+    print()
+    print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
+    print()
+
+    system.propagate_datatypes()
+
+
 
     #
     # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
@@ -62,10 +69,19 @@ def compile_system(sim):
     #
 
     compiler = cd.CompileDiagram()
-    comileResults = compiler.compile( sim )
+    comileResults = compiler.compile( system )
 
     #
     return comileResults
 
 def compile_current_system():
     return compile_system( get_simulation_context() )
+
+
+def show_execution_lines(compile_results):
+
+    print()
+    print(Style.BRIGHT + "-------- List all execution lines and commands  --------")
+    print()
+
+    compile_results.commandToExecute.printExecution()

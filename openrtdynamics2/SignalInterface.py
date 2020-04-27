@@ -36,16 +36,16 @@ class SignalUserTemplate(object):
         return self.wrapped_signal_.name
 
 
-    def setName(self, name):
-        self.wrapped_signal_.setName(name)
+    def set_name(self, name):
+        self.wrapped_signal_.set_name(name)
         return self
 
     def extendName(self, name):
-        self.wrapped_signal_.setName( self.wrapped_signal_.name + name )
+        self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
         return self
 
-    def setNameOfOrigin(self, name):
-        self.wrapped_signal_.setNameOfOrigin(name)
+    def set_blockname(self, name):
+        self.wrapped_signal_.set_blockname(name)
         return self
 
     # ...
