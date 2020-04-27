@@ -6,7 +6,7 @@ import json
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
-def eInt( u : dy.Signal, Ts : float, name : str):
+def eueler_integrator( u : dy.Signal, Ts : float, name : str):
 
     yFb = dy.signal()
 
@@ -39,8 +39,8 @@ def define_system_oscillator():
     acc = dy.add( [ U, v, x ], [ 1, -0.5, -0.1 ] ).set_blockname('acceleration model')
     acc.set_name('acc')
 
-    v << eInt( acc, Ts=0.1, name="intV").set_name('x')
-    x << eInt( v, Ts=0.1, name="intX").set_name('v')
+    v << eueler_integrator( acc, Ts=0.1, name="intV").set_name('x')
+    x << eueler_integrator( v, Ts=0.1, name="intX").set_name('v')
 
     # define the outputs of the simulation
     x.set_name('x')

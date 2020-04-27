@@ -56,7 +56,7 @@ def dInt( u : dy.Signal, name : str):
 
     return y
 
-def eInt( u : dy.Signal, Ts : float, name : str, initial_state = None):
+def eueler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
     yFb = dy.signal()
 
@@ -86,7 +86,7 @@ test_modification_2 = False # shall raise an error once this is true
 if testname == 'test1':
 
     baseDatatype = dy.DataTypeFloat64(1) 
-    # baseDatatype = DataTypeInt32(1) 
+    # baseDatatype = DataTypeueler_integrator32(1) 
 
     U = dy.system_input( baseDatatype ).set_name('extU')
 
@@ -141,8 +141,8 @@ if testname == 'test_oscillator':
 
     acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-    v << eInt( acc, Ts=0.1, name="intV")
-    x << eInt( v, Ts=0.1, name="intX")
+    v << eueler_integrator( acc, Ts=0.1, name="intV")
+    x << eueler_integrator( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
     output_signals = [ x, v ]
@@ -164,8 +164,8 @@ if testname == 'test_oscillator_with_modulation':
 
     acc = U - damping * v - spring * x # TODO: make this work
 
-    v << eInt( acc, Ts=0.1, name="intV")
-    x << eInt( v, Ts=0.1, name="intX")
+    v << eueler_integrator( acc, Ts=0.1, name="intV")
+    x << eueler_integrator( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
     output_signals = [ x, v ]
@@ -239,8 +239,8 @@ if testname == 'test_oscillator_controlled':
 
     acc = dy.add( [ U, v, x ], [ 1, -1.1, -0.1 ] ).set_blockname('acceleration model')
 
-    v << eInt( acc, Ts=0.1, name="intV").set_name('x')
-    x << eInt( v, Ts=0.1, name="intX").set_name('v')
+    v << eueler_integrator( acc, Ts=0.1, name="intV").set_name('x')
+    x << eueler_integrator( v, Ts=0.1, name="intX").set_name('v')
 
     # x is the controlled variable
     controlledVariableFb << x
@@ -457,7 +457,7 @@ if testname == 'dtf_filter':
 
 
 if testname == 'switchNto1':
-    switch_state = dy.system_input( dy.DataTypeInt32(1) ).set_name('switch_state')
+    switch_state = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('switch_state')
 
     u1 = dy.float64(1.0)
     u2 = dy.float64(2.0)
@@ -508,7 +508,7 @@ if testname == 'test_triggered_subsystem_2':
 
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    i_activate = dy.system_input( dy.DataTypeInt32(1) ).set_name('i_activate')
+    i_activate = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('i_activate')
 
     i = dy.counter()
 
@@ -545,7 +545,7 @@ if testname == 'test_forloop_subsystem':
 
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    i_max = dy.system_input( dy.DataTypeInt32(1) ).set_name('i_max')
+    i_max = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('i_max')
 
 
     U = dy.system_input( baseDatatype ).set_name('input')
@@ -665,8 +665,8 @@ if testname == 'inline_ifsubsystem_oscillator':
 
         acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-        v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-        x << eInt( v, Ts=0.1, name="intX")
+        v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+        x << eueler_integrator( v, Ts=0.1, name="intX")
 
         output_x = system.add_output(x)
         output_v = system.add_output(v)
@@ -685,7 +685,7 @@ if testname == 'system_switch':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    active_system = dy.system_input( dy.DataTypeInt32(1) ).set_name('active_system')
+    active_system = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('active_system')
     U = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
     with dy.sub_switch( "switch1", active_system ) as switch:
@@ -712,8 +712,8 @@ if testname == 'system_switch':
 
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eInt( v,   Ts=0.1, name="intX" )
+            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eueler_integrator( v,   Ts=0.1, name="intX" )
 
             system.set_switched_outputs([ x, v ])
 
@@ -766,8 +766,8 @@ if testname == 'system_state_machine':
 
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eInt( v,   Ts=0.1, name="intX" )
+            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eueler_integrator( v,   Ts=0.1, name="intX" )
 
             counter = dy.counter().set_name('counter')
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=counter > dy.int32(50), new_value=0 ).set_name('next_state')
@@ -794,26 +794,25 @@ if testname == 'system_state_machine':
 
 
 if testname == 'system_state_machine2':
-    
+        
     baseDatatype = dy.DataTypeFloat64(1) 
 
+    # define system inputs
     number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
     threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
-
-
     U2 = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
+    # some modification of one input
     U = U2 * dy.float64(1.234)
     U.set_name("stachmachine_input_U")
 
     with dy.sub_statemachine( "statemachine1" ) as switch:
 
-
         with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
 
+            # implement a dummy system the produces zero values for x and v
             x = dy.float64(0.0).set_name('x_def')
             v = dy.float64(0.0).set_name('v_def')
-
 
             counter = dy.counter().set_name('counter')
             timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
@@ -824,30 +823,35 @@ if testname == 'system_state_machine2':
 
         with switch.new_subsystem('state_B') as system:
 
+            # implement a simple spring-mass oscillator: 
+            # x is the position, v is the velocity, acc is the acceleration
+
+            # create placeholder symbols for x and v (as they are used before being defined)
             x = dy.signal()
             v = dy.signal()
 
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-            v << eInt( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eInt( v,   Ts=0.1, name="intX" )
+            # close the feedback loops for x and v
+            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << eueler_integrator( v,   Ts=0.1, name="intX" )
 
-            counter = dy.counter().set_name('counter')
             leave_this_state = (x > threshold_for_x_to_leave_B).set_name("leave_this_state")
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).set_name('next_state')
+
+            counter = dy.counter().set_name('counter')
 
             system.set_switched_outputs([ x, v, counter ], next_state)
 
 
-
+    # define the outputs
     output_x = switch.outputs[0].set_name("ox")
     output_v = switch.outputs[1].set_name("ov")
     counter = switch.outputs[2].set_name("counter")
-
-    state = switch.state.set_name('state_control')
+    state_control = switch.state.set_name('state_control')
 
     # main simulation ouput
-    output_signals = [ output_x, output_v, state, counter ]
+    output_signals = [ output_x, output_v, state_control, counter ]
 
     input_signals_mapping = {}
 
@@ -868,17 +872,13 @@ dy.set_primary_outputs(output_signals)
 compile_results = dy.compile_current_system()
 
 
-#
 # Build an executable based on a template
-#
-
 runtime_template = dy.WasmRuntimeCpp(compile_results, input_signals_mapping=input_signals_mapping)
 
 #runtime_template = dy.PutBasicRuntimeCpp(compileResults, input_signals_mapping=input_signals_mapping)
 
 
-
-# add (pre-compiled) systems from the libraries
+# optional: add (pre-compiled) systems from the libraries
 runtime_template.include_systems( library_entries )
 
 #
