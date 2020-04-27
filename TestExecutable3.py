@@ -13,10 +13,10 @@ init(autoreset=True)
 #
 # Enter a new system (simulation)
 #
-sim = dy.enter_system('simulation')
+system = dy.enter_system('simulation')
 
 # list to collect systems imported from libraries
-libraryEntries = []
+library_entries = []
 
 
 
@@ -100,13 +100,13 @@ if testname == 'test1':
     y = dy.add( [ y3, E1, E2 ], [ 0.1, 0.2, 0.3] ).setNameOfOrigin('y (add)').setName('y')
 
     # define the outputs of the simulation
-    outputSignals = [ y, y2 ]
+    output_signals = [ y, y2 ]
 
     # specify what the input signals shall be in the runtime
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
-    inputSignalsMapping[ E1 ] = 2.0
-    inputSignalsMapping[ E2 ] = 3.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
+    input_signals_mapping[ E1 ] = 2.0
+    input_signals_mapping[ E2 ] = 3.0
 
 
 
@@ -124,11 +124,11 @@ if testname == 'test_integrator':
     y6 = dInt( y5, name="int6")
 
     # define the outputs of the simulation
-    outputSignals = [  y6 ]
+    output_signals = [  y6 ]
 
     # specify what the input signals shall be in the runtime
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 if testname == 'test_oscillator':
 
@@ -145,11 +145,11 @@ if testname == 'test_oscillator':
     x << eInt( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
     # specify what the input signals shall be in the runtime
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 if testname == 'test_oscillator_with_modulation':
 
@@ -168,11 +168,11 @@ if testname == 'test_oscillator_with_modulation':
     x << eInt( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
     # specify what the input signals shall be in the runtime
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 if testname == 'test_oscillator_controlled':
 
@@ -248,14 +248,14 @@ if testname == 'test_oscillator_controlled':
     # define the outputs of the simulation
     x.setName('x')
     v.setName('v')
-    outputSignals = [ x,v ]
+    output_signals = [ x,v ]
 
     # specify what the input signals shall be in the runtime
-    inputSignalsMapping = {}
-    inputSignalsMapping[ reference ] = 1.0
-    inputSignalsMapping[ Kp ] = 0.3
-    inputSignalsMapping[ Kd ] = 0.3
-    inputSignalsMapping[ Ki ] = 0.3
+    input_signals_mapping = {}
+    input_signals_mapping[ reference ] = 1.0
+    input_signals_mapping[ Kp ] = 0.3
+    input_signals_mapping[ Kd ] = 0.3
+    input_signals_mapping[ Ki ] = 0.3
 
 if testname == 'basic':
 
@@ -264,10 +264,10 @@ if testname == 'basic':
 
     x1 = dy.delay(U)
 
-    outputSignals = [ x1 ]
+    output_signals = [ x1 ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
     
 if testname == 'test_oscillator_from_lib':
     import TestLibray as TestLibray
@@ -276,20 +276,20 @@ if testname == 'test_oscillator_from_lib':
     baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = dy.delay( outputSignals[0] ).setName('x_delay')
-    v = dy.delay( outputSignals[1] ).setName('v_delay')
+    x = dy.delay( output_signals[0] ).setName('x_delay')
+    v = dy.delay( output_signals[1] ).setName('v_delay')
 
 
 
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
 if testname == 'test_oscillator_from_lib':
@@ -299,19 +299,19 @@ if testname == 'test_oscillator_from_lib':
     baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = outputSignals[0].setName('x')
-    v = outputSignals[1].setName('v')
+    x = output_signals[0].setName('x')
+    v = output_signals[1].setName('v')
 
     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
-    outputSignals = [ x ]
+    output_signals = [ x ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
 if testname == 'test_triggered_oscillator_from_lib':
@@ -321,19 +321,19 @@ if testname == 'test_triggered_oscillator_from_lib':
     baseDatatype = dy.DataTypeFloat64(1) 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = outputSignals[0].setName('x')
-    v = outputSignals[1].setName('v')
+    x = output_signals[0].setName('x')
+    v = output_signals[1].setName('v')
 
     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
-    outputSignals = [ x ]
+    output_signals = [ x ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
 
@@ -346,18 +346,18 @@ if testname == 'test_comparison':
     isGreater = dy.comparison(left = u1, right = u2, operator = '>' )
 
     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
-    outputSignals = [ isGreater ]
+    output_signals = [ isGreater ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ u1 ] = 1.0
-    inputSignalsMapping[ u2 ] = 1.1
+    input_signals_mapping = {}
+    input_signals_mapping[ u1 ] = 1.0
+    input_signals_mapping[ u2 ] = 1.1
 
 
 if testname == 'test_step':
     y = dy.float64(3) * dy.step(10) + dy.float64(-5) * dy.step(40) + dy.float64(2) * dy.step(70) 
 
-    outputSignals = [ y ]
-    inputSignalsMapping = {}
+    output_signals = [ y ]
+    input_signals_mapping = {}
 
 if testname == 'test_ramp':
     y1 = dy.float64(3) * dy.ramp(10) - dy.float64(2) * dy.ramp(70) 
@@ -365,8 +365,8 @@ if testname == 'test_ramp':
 
     y1.setName('y1')
 
-    outputSignals = [ y1, y2 ]
-    inputSignalsMapping = {}
+    output_signals = [ y1, y2 ]
+    input_signals_mapping = {}
 
 
 
@@ -375,8 +375,8 @@ if testname == 'test_datatype_convertion':
 
     y = dy.convert(y, dy.DataTypeFloat64(1) )
     
-    outputSignals = [ y ]
-    inputSignalsMapping = {}
+    output_signals = [ y ]
+    input_signals_mapping = {}
 
 
 if testname == 'dtf_lowpass_1_order':
@@ -385,8 +385,8 @@ if testname == 'dtf_lowpass_1_order':
 
     y = dy.dtf_lowpass_1_order(u, z_infinity=0.95 )
     
-    outputSignals = [ y ]
-    inputSignalsMapping = {}
+    output_signals = [ y ]
+    input_signals_mapping = {}
 
 
 if testname == 'dtf_lowpass_1_order_V2':
@@ -399,8 +399,8 @@ if testname == 'dtf_lowpass_1_order_V2':
     y4 = dy.dtf_lowpass_1_order(y3, z_infinity=0.97 ).setName('_4th_order')
     y5 = dy.dtf_lowpass_1_order(y4, z_infinity=0.97 ).setName('_5th_order')
     
-    outputSignals = [ y1, y2, y3, y4, y5 ]
-    inputSignalsMapping = {}
+    output_signals = [ y1, y2, y3, y4, y5 ]
+    input_signals_mapping = {}
 
 
 if testname == 'dtf_filter':
@@ -452,8 +452,8 @@ if testname == 'dtf_filter':
     y = dy.dtf_filter(u, num_coeff=b, den_coeff=a ).setName('y')
     
 
-    outputSignals = [ y ]
-    inputSignalsMapping = {}
+    output_signals = [ y ]
+    input_signals_mapping = {}
 
 
 if testname == 'switchNto1':
@@ -466,8 +466,8 @@ if testname == 'switchNto1':
 
     y = dy.switchNto1( state=switch_state, inputs=[u1,u2,u3,u4] )
     
-    outputSignals = [ y ]
-    inputSignalsMapping = {}
+    output_signals = [ y ]
+    input_signals_mapping = {}
 
 
 
@@ -485,21 +485,21 @@ if testname == 'test_triggered_subsystem':
 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
+    output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = outputSignals[0].setName('x')
-    v = outputSignals[1].setName('v')
+    x = output_signals[0].setName('x')
+    v = output_signals[1].setName('v')
 
-    x = dy.delay( outputSignals[0] ).setName('x_delay')
-    v = dy.delay( outputSignals[1] ).setName('v_delay')
+    x = dy.delay( output_signals[0] ).setName('x_delay')
+    v = dy.delay( output_signals[1] ).setName('v_delay')
 
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
 if testname == 'test_triggered_subsystem_2':
@@ -519,21 +519,21 @@ if testname == 'test_triggered_subsystem_2':
 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
+    output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = outputSignals[0].setName('x')
-    v = outputSignals[1].setName('v')
+    x = output_signals[0].setName('x')
+    v = output_signals[1].setName('v')
 
-    x = dy.delay( outputSignals[0] ).setName('x_delay')
-    v = dy.delay( outputSignals[1] ).setName('v_delay')
+    x = dy.delay( output_signals[0] ).setName('x_delay')
+    v = dy.delay( output_signals[1] ).setName('v_delay')
 
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
 
@@ -550,21 +550,21 @@ if testname == 'test_forloop_subsystem':
 
     U = dy.system_input( baseDatatype ).setName('input')
 
-    outputSignals = dy.for_loop_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, i_max=i_max )
+    output_signals = dy.for_loop_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, i_max=i_max )
 
-    outputSignals[0].setName('x')
-    outputSignals[1].setName('v')
+    output_signals[0].setName('x')
+    output_signals[1].setName('v')
 
-    x = outputSignals[0].setName('x')
-    v = outputSignals[1].setName('v')
+    x = output_signals[0].setName('x')
+    v = output_signals[1].setName('v')
 
-    x = dy.delay( outputSignals[0] ).setName('x_delay')
-    v = dy.delay( outputSignals[1] ).setName('v_delay')
+    x = dy.delay( output_signals[0] ).setName('x_delay')
+    v = dy.delay( output_signals[1] ).setName('v_delay')
 
-    outputSignals = [ x, v ]
+    output_signals = [ x, v ]
 
-    inputSignalsMapping = {}
-    inputSignalsMapping[ U ] = 1.0
+    input_signals_mapping = {}
+    input_signals_mapping[ U ] = 1.0
 
 
     
@@ -601,10 +601,10 @@ if testname == 'inline_subsystem':
 
 
     # main simulation ouput
-#    outputSignals = [ output ]
-    outputSignals = [ y ]
+#    output_signals = [ output ]
+    output_signals = [ y ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 
@@ -640,9 +640,9 @@ if testname == 'inline_ifsubsystem':
     y = dy.float64(10.0) * output
 
     # main simulation ouput
-    outputSignals = [ y, ramp ]
+    output_signals = [ y, ramp ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 
@@ -672,9 +672,9 @@ if testname == 'inline_ifsubsystem_oscillator':
         output_v = system.add_output(v)
 
     # main simulation ouput
-    outputSignals = [ output_x, output_v ]
+    output_signals = [ output_x, output_v ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 
@@ -724,9 +724,9 @@ if testname == 'system_switch':
     output_v = switch.outputs[1].setName("ov")
 
     # main simulation ouput
-    outputSignals = [ output_x, output_v ]
+    output_signals = [ output_x, output_v ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 
@@ -783,9 +783,9 @@ if testname == 'system_state_machine':
     state = switch.state.setName('state_control')
 
     # main simulation ouput
-    outputSignals = [ output_x, output_v, state, counter ]
+    output_signals = [ output_x, output_v, state, counter ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 
@@ -847,9 +847,9 @@ if testname == 'system_state_machine2':
     state = switch.state.setName('state_control')
 
     # main simulation ouput
-    outputSignals = [ output_x, output_v, state, counter ]
+    output_signals = [ output_x, output_v, state, counter ]
 
-    inputSignalsMapping = {}
+    input_signals_mapping = {}
 
 
 #
@@ -862,34 +862,30 @@ if testname == 'system_state_machine2':
 
 
 # set the outputs of the system
-dy.set_primary_outputs(outputSignals)
+dy.set_primary_outputs(output_signals)
 
 # Compile system (propagate datatypes)
-compileResults = dy.compile_current_system()
+compile_results = dy.compile_current_system()
 
 
 #
 # Build an executable based on a template
 #
 
-runtimeCodeTemplate = dy.WasmRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
+runtime_template = dy.WasmRuntimeCpp(compile_results, input_signals_mapping=input_signals_mapping)
 
-#runtimeCodeTemplate = dy.PutBasicRuntimeCpp(compileResults, inputSignalsMapping=inputSignalsMapping)
+#runtime_template = dy.PutBasicRuntimeCpp(compileResults, input_signals_mapping=input_signals_mapping)
 
 
 
 # add (pre-compiled) systems from the libraries
-runtimeCodeTemplate.include_systems( libraryEntries )
+runtime_template.include_systems( library_entries )
 
 #
 # list all execution lists
 #
 
-print()
-print(Style.BRIGHT + "-------- List all execution commands  --------")
-print()
-
-compileResults.commandToExecute.printExecution()
+dy.show_execution_lines(compile_results)
 
 #
 # generate c++ cpde
@@ -899,7 +895,7 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode, manifest = runtimeCodeTemplate.codeGen(iMax = 10)
+sourcecode, manifest = runtime_template.code_gen()
 
 print(Style.DIM + sourcecode)
 
@@ -910,10 +906,10 @@ print(json.dumps(manifest, indent=4, sort_keys=True))
 
 
 # write generated code into a folder and build
-runtimeCodeTemplate.writeCode("generated/")
-runtimeCodeTemplate.build()
+runtime_template.write_code("generated/")
+runtime_template.build()
 
 # run the code (in case the runtime template supports it)
-results = runtimeCodeTemplate.run()
+results = runtime_template.run()
 
 
