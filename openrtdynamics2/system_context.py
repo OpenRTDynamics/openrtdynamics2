@@ -14,7 +14,7 @@ def generate_subsystem_name():
     """
     global counter_of_created_systems
 
-    name = 'sub' + str(counter_of_created_systems)
+    name = 'Subsystem' + str(counter_of_created_systems)
     counter_of_created_systems += 1
 
     return name

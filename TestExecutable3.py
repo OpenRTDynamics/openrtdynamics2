@@ -56,7 +56,7 @@ def dInt( u : dy.Signal, name : str):
 
     return y
 
-def eueler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
+def euler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
     yFb = dy.signal()
 
@@ -77,7 +77,7 @@ def diff( u : dy.Signal, name : str):
 
 
 
-testname = 'system_state_machine2' # 
+testname = 'system_state_machine_pwm' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -86,7 +86,7 @@ test_modification_2 = False # shall raise an error once this is true
 if testname == 'test1':
 
     baseDatatype = dy.DataTypeFloat64(1) 
-    # baseDatatype = DataTypeueler_integrator32(1) 
+    # baseDatatype = DataTypeuler_integrator32(1) 
 
     U = dy.system_input( baseDatatype ).set_name('extU')
 
@@ -141,8 +141,8 @@ if testname == 'test_oscillator':
 
     acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-    v << eueler_integrator( acc, Ts=0.1, name="intV")
-    x << eueler_integrator( v, Ts=0.1, name="intX")
+    v << euler_integrator( acc, Ts=0.1, name="intV")
+    x << euler_integrator( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
     output_signals = [ x, v ]
@@ -164,8 +164,8 @@ if testname == 'test_oscillator_with_modulation':
 
     acc = U - damping * v - spring * x # TODO: make this work
 
-    v << eueler_integrator( acc, Ts=0.1, name="intV")
-    x << eueler_integrator( v, Ts=0.1, name="intX")
+    v << euler_integrator( acc, Ts=0.1, name="intV")
+    x << euler_integrator( v, Ts=0.1, name="intX")
 
     # define the outputs of the simulation
     output_signals = [ x, v ]
@@ -239,8 +239,8 @@ if testname == 'test_oscillator_controlled':
 
     acc = dy.add( [ U, v, x ], [ 1, -1.1, -0.1 ] ).set_blockname('acceleration model')
 
-    v << eueler_integrator( acc, Ts=0.1, name="intV").set_name('x')
-    x << eueler_integrator( v, Ts=0.1, name="intX").set_name('v')
+    v << euler_integrator( acc, Ts=0.1, name="intV").set_name('x')
+    x << euler_integrator( v, Ts=0.1, name="intX").set_name('v')
 
     # x is the controlled variable
     controlledVariableFb << x
@@ -457,7 +457,7 @@ if testname == 'dtf_filter':
 
 
 if testname == 'switchNto1':
-    switch_state = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('switch_state')
+    switch_state = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('switch_state')
 
     u1 = dy.float64(1.0)
     u2 = dy.float64(2.0)
@@ -508,7 +508,7 @@ if testname == 'test_triggered_subsystem_2':
 
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    i_activate = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('i_activate')
+    i_activate = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_activate')
 
     i = dy.counter()
 
@@ -545,7 +545,7 @@ if testname == 'test_forloop_subsystem':
 
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    i_max = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('i_max')
+    i_max = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_max')
 
 
     U = dy.system_input( baseDatatype ).set_name('input')
@@ -665,8 +665,8 @@ if testname == 'inline_ifsubsystem_oscillator':
 
         acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-        v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-        x << eueler_integrator( v, Ts=0.1, name="intX")
+        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+        x << euler_integrator( v, Ts=0.1, name="intX")
 
         output_x = system.add_output(x)
         output_v = system.add_output(v)
@@ -685,7 +685,7 @@ if testname == 'system_switch':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    active_system = dy.system_input( dy.DataTypeueler_integrator32(1) ).set_name('active_system')
+    active_system = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('active_system')
     U = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
     with dy.sub_switch( "switch1", active_system ) as switch:
@@ -712,8 +712,8 @@ if testname == 'system_switch':
 
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eueler_integrator( v,   Ts=0.1, name="intX" )
+            v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << euler_integrator( v,   Ts=0.1, name="intX" )
 
             system.set_switched_outputs([ x, v ])
 
@@ -766,8 +766,8 @@ if testname == 'system_state_machine':
 
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
-            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eueler_integrator( v,   Ts=0.1, name="intX" )
+            v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << euler_integrator( v,   Ts=0.1, name="intX" )
 
             counter = dy.counter().set_name('counter')
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=counter > dy.int32(50), new_value=0 ).set_name('next_state')
@@ -794,13 +794,15 @@ if testname == 'system_state_machine':
 
 
 if testname == 'system_state_machine2':
+
+
         
     baseDatatype = dy.DataTypeFloat64(1) 
 
     # define system inputs
     number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
-    threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
-    U2 = dy.system_input( baseDatatype ).set_name('osc_excitement')
+    threshold_for_x_to_leave_B     = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
+    U2                             = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
     # some modification of one input
     U = U2 * dy.float64(1.234)
@@ -808,7 +810,7 @@ if testname == 'system_state_machine2':
 
     with dy.sub_statemachine( "statemachine1" ) as switch:
 
-        with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
+        with switch.new_subsystem('state_A') as system:
 
             # implement a dummy system the produces zero values for x and v
             x = dy.float64(0.0).set_name('x_def')
@@ -833,8 +835,8 @@ if testname == 'system_state_machine2':
             acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
             # close the feedback loops for x and v
-            v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-            x << eueler_integrator( v,   Ts=0.1, name="intX" )
+            v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+            x << euler_integrator( v,   Ts=0.1, name="intX" )
 
             leave_this_state = (x > threshold_for_x_to_leave_B).set_name("leave_this_state")
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).set_name('next_state')
@@ -845,9 +847,9 @@ if testname == 'system_state_machine2':
 
 
     # define the outputs
-    output_x = switch.outputs[0].set_name("ox")
-    output_v = switch.outputs[1].set_name("ov")
-    counter = switch.outputs[2].set_name("counter")
+    output_x      = switch.outputs[0].set_name("ox")
+    output_v      = switch.outputs[1].set_name("ov")
+    counter       = switch.outputs[2].set_name("counter")
     state_control = switch.state.set_name('state_control')
 
     # main simulation ouput
@@ -855,6 +857,67 @@ if testname == 'system_state_machine2':
 
     input_signals_mapping = {}
 
+
+
+
+
+
+
+if testname == 'system_state_machine_pwm':
+
+
+    def generate_signal_PWM( period, modulator ):
+
+        number_of_samples_to_stay_in_A = period * modulator
+        number_of_samples_to_stay_in_B = period * ( dy.float64(1) - modulator )
+
+        number_of_samples_to_stay_in_A.set_name('number_of_samples_to_stay_in_A')
+        number_of_samples_to_stay_in_B.set_name('number_of_samples_to_stay_in_B')
+
+        with dy.sub_statemachine( "statemachine1" ) as switch:
+
+            with switch.new_subsystem('state_on') as system:
+
+                on = dy.float64(1.0).set_name('on')
+
+                counter = dy.counter().set_name('counter')
+                timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
+                next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
+
+                system.set_switched_outputs([ on ], next_state)
+
+
+            with switch.new_subsystem('state_off') as system:
+
+                off = dy.float64(0.0).set_name('off')
+
+                counter = dy.counter().set_name('counter')
+                timeout = ( counter > number_of_samples_to_stay_in_B ).set_name('timeout')
+                next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=0 ).set_name('next_state')
+
+                system.set_switched_outputs([ off ], next_state)
+
+
+        # define the outputs
+        pwm = switch.outputs[0].set_name("pwm")
+        state_control = switch.state.set_name('state_control')
+
+        return pwm, state_control
+
+
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    # define system inputs
+    period = dy.system_input( baseDatatype ).set_name('period')
+    modulator = dy.system_input( baseDatatype ).set_name('modulator')
+
+    # implement the generator
+    pwm, state_control = generate_signal_PWM( period, modulator )
+
+    # main simulation ouput
+    output_signals = [ pwm, state_control ]
+
+    input_signals_mapping = {}
 
 #
 #

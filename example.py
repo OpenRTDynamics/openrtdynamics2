@@ -2,7 +2,7 @@ import openrtdynamics2.lang as dy
 
 import os
 import json
-from colorama import init,  Fore, Back, Style
+from colorama import init, Fore, Back, Style
 init(autoreset=True)
 
 
@@ -14,7 +14,7 @@ system = dy.enter_system('simulation')
 
 
 # define a function that implements a discrete-time integrator
-def eueler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
+def euler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
 
     yFb = dy.signal()
 
@@ -33,8 +33,8 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 # define system inputs
 number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
-threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
-U2 = dy.system_input( baseDatatype ).set_name('osc_excitement')
+threshold_for_x_to_leave_B     = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
+U2                             = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
 # some modification of one input
 U = U2 * dy.float64(1.234)
@@ -67,8 +67,8 @@ with dy.sub_statemachine( "statemachine1" ) as switch:
         acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
 
         # close the feedback loops for x and v
-        v << eueler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-        x << eueler_integrator( v,   Ts=0.1, name="intX" )
+        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+        x << euler_integrator( v,   Ts=0.1, name="intX" )
 
         leave_this_state = (x > threshold_for_x_to_leave_B).set_name("leave_this_state")
         next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).set_name('next_state')
@@ -79,9 +79,9 @@ with dy.sub_statemachine( "statemachine1" ) as switch:
 
 
 # define the outputs
-output_x = switch.outputs[0].set_name("ox")
-output_v = switch.outputs[1].set_name("ov")
-counter = switch.outputs[2].set_name("counter")
+output_x      = switch.outputs[0].set_name("ox")
+output_v      = switch.outputs[1].set_name("ov")
+counter       = switch.outputs[2].set_name("counter")
 state_control = switch.state.set_name('state_control')
 
 # set the outputs of the system

@@ -266,7 +266,6 @@ class CommandCacheOutputs(ExecutionCommand):
         copy the value of each given signal to the space of global variables
         (only signals that are the output of a block are considered, i.e. no 
         simulation inputs)
-
     """
 
     def __init__(self, signals : List[Signal]):
@@ -299,7 +298,7 @@ class CommandCacheOutputs(ExecutionCommand):
 
             if flag == 'variables':
                 lines += ''
-                lines += "\n\n// cached output values\n"
+                lines += "\n\n//\n// cached output values\n//\n"
                 for s in self.signals:
 
                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()

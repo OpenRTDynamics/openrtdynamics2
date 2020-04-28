@@ -31,19 +31,32 @@ class Simulation:
         self.UpperLevelSim = upperLevelSim
         self._name = name
         self.BlocksArray = []
-        self.BlockIdCounter = 0
-        self.signalIdCounter = 0
+
 
         # counter for system input signals
         # This determines the order of teh arguments of the generated c++ functions
         self.simulationInputSignalCounter = 0
 
+        self._top_level_system = None
+
         if upperLevelSim is None:
+            self._top_level_system = self
+
+            self.BlockIdCounter = 0
+            self.signalIdCounter = 0
+
             # manager to determine datatypes as new blocks are added
             # only for the highest-level system -- subsystems use the 
             # dataatyüe propagation of the main system
             self.datatypePropagation = DatatypePropagation(self)
+
         else:
+            self._top_level_system = upperLevelSim._top_level_system
+
+            # # share the counter of the 
+            # self.BlockIdCounter = upperLevelSim.BlockIdCounter
+            # self.signalIdCounter = upperLevelSim.signalIdCounter
+
             # re-use the upper-level propagation
             self.datatypePropagation = upperLevelSim.datatypePropagation
 
@@ -71,13 +84,13 @@ class Simulation:
         return self.UpperLevelSim 
 
     def getNewBlockId(self):
-        self.BlockIdCounter += 1
-        return self.BlockIdCounter
+        self._top_level_system.BlockIdCounter += 1
+        return self._top_level_system.BlockIdCounter
 
     # get a new unique id for creating a signal
     def getNewSignalId(self):
-        self.signalIdCounter += 1
-        return self.signalIdCounter
+        self._top_level_system.signalIdCounter += 1
+        return self._top_level_system.signalIdCounter
 
     def appendNestedSystem(self, system):
         self._subsystems.append( system )

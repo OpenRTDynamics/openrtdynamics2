@@ -194,8 +194,8 @@ class SwitchedSubsystemPrototype:
     def __init__(self, subsystem_name = None ):
 
         if subsystem_name is not None:
-            self._subsystem_name = subsystem_name
-        else:
+            self._subsystem_name = dy.generate_subsystem_name() + '_' + subsystem_name
+        else:        
             self._subsystem_name = dy.generate_subsystem_name()
 
         self._outputs_inside_subsystem = None
@@ -367,7 +367,7 @@ class sub_switch(SwitchPrototype):
 
 class state_sub(SwitchedSubsystemPrototype):
     def __init__(self, subsystem_name = None ):
-        SwitchedSubsystemPrototype.__init__(self)
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
 
         self._output_signals = None
         self._state_signal = None
