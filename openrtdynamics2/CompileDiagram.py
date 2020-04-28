@@ -201,7 +201,7 @@ def compileSystem(system):
         if isinstance(s, UndeterminedSignal):
             raise BaseException("found anonymous signal during compilation")
 
-        if isinstance(s, BlockOutputSignal):
+        if isinstance(s, BlockOutputSignal) and not s.is_crossing_system_boundary(system):
 
             # only implement caching for intermediate computaion results.
             # I.e. exclude the simulation input signals
