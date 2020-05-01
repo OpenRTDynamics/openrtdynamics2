@@ -96,12 +96,6 @@ class StaticFn_1To1(BlockPrototype):
 
         return self.outputSignal(0)
 
-    def codeGen_localvar(self, language, signal):
-        # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
-
-        if language == 'c++':
-            return cgh.defineVariableLine( signal )
-
 
 
 
@@ -150,11 +144,6 @@ class StaticFn_NTo1(BlockPrototype):
 
         return output
 
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-            return cgh.defineVariableLine( signal )
-
-
 
 class Dynamic_1To1(BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal ):
@@ -189,10 +178,6 @@ class Dynamic_1To1(BlockPrototype):
         # return the output signals
 
         return self.outputSignal(0)
-
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-            return cgh.defineVariableLine( signal )
 
 
 
@@ -1098,10 +1083,6 @@ class Const(StaticSource_To1):
 
         # call super
         StaticSource_To1.__init__(self, sim, datatype)
-
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-            return cgh.defineVariableLine( signal )
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':

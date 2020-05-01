@@ -165,16 +165,10 @@ class BlockPrototype(object):
 
         return ''
 
-    # def codeGen_localvar(self, language, signal : Signal):
-    #     return ''
-
     def codeGen_localvar(self, language, signal):
-    # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
 
         if language == 'c++':
             return cgh.defineVariableLine( signal )
-
-
         
     def codeGen_constructor(self, language):
         return ''
@@ -182,10 +176,6 @@ class BlockPrototype(object):
     def codeGen_destructor(self, language):
         return ''
         
-    # # TODO: obsolet, remove
-    # def codeGen_output(self, language, signal : Signal):
-    #     return ''
-
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         return '// WARNING: * unimplemented output computation *'
         
