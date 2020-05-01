@@ -18,7 +18,7 @@ class PutRuntimeCppHelper:
         ExecutionCommand.__init__(self)  # TODO: what is this?
 
         self.compileResults = compileResults
-        self.mainSimulation = compileResults.commandToExecute
+        self.mainSimulation = compileResults.commandToExecute.command_to_put_main_system
 
         # list of inlcuded system
         self._includedSystems = []
@@ -90,7 +90,7 @@ class PutRuntimeCppHelper:
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  
-                                                    mainSimulationName = self.mainSimulation.getAPI_name(),
+                                                    mainSimulationName = self.mainSimulation.API_name,
                                                     simulationCode=simulationCode,
 
                                                     input1_NamesVarDef=input1_NamesVarDef,
@@ -324,7 +324,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
             structPrefix = 'Outputs_'
             signals = command_API.outputSignals
 
-        mainSimulationName = self.mainSimulation.getAPI_name()
+        mainSimulationName = self.mainSimulation.API_name
 
         lines = ''
 

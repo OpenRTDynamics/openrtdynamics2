@@ -27,15 +27,18 @@ class CompileResults(object):
 
     @property
     def commandToExecute(self):
-        return self._commandToExecute 
+        return self._commandToExecute
+
+    def set_command_to_execute(self, command_to_execute):
+        self._commandToExecute = command_to_execute 
 
 
 
-class CompileDiagram:
+class CompileDiagram: # TODO: does this need to be a class? so far no.
 
     def __init__(self):
 
-        self._manifest = None
+        # self._manifest = None
         self._compleResults = None
 
     @property
@@ -46,11 +49,15 @@ class CompileDiagram:
 
         is_top_level_system = system.UpperLevelSim is None
 
-        # go deper and compile subsystems first
-        for subSystem in system.subsystems:
-            self.traverseSubSystems(subSystem, level=level+1)
+        # go deeper and compile subsystems first
+        command_list_for_all_subsystems = []
 
-        # notify each block abour the compilation of all subsystems in the system
+        for subSystem in system.subsystems:
+            compileResult = self.traverseSubSystems(subSystem, level=level+1)
+
+            command_list_for_all_subsystems.append( compileResult.commandToExecute )
+
+        # notify each block about the compilation of all subsystems in the system
         for block in system.blocks:
             block.blockPrototype.compile_callback_all_subsystems_compiled()
 
@@ -65,13 +72,26 @@ class CompileDiagram:
 
 
 
-        compileResult = compileSystem( system, reduce_uneeded_code = not is_top_level_system )
+        compile_result = compile_single_system( system, reduce_uneeded_code = not is_top_level_system )
 
-        # store the compilation result in the system's structure
-        system.compilationResult = compileResult
+
+        # # produre commands for building/executing
+        # command_list_for_all_subsystems = []
+        # for subsystem in system.subsystems:
+        #     command_list_for_all_subsystems.append( subsystem.commandToExecute )
+
+
+        # replace the execution command by one that wraps all subsystems along with the main system
+        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.commandToExecute, commands_to_put_subsystems=command_list_for_all_subsystems )
+        compile_result.set_command_to_execute( execution_command )
+
+        # store the compilation result in the system's structure (TODO: is this needed?)
+        system.compilationResult = compile_result
 
         if is_top_level_system:
-            self._compleResults = compileResult
+            self._compleResults = compile_result
+
+        return compile_result
 
 
 
@@ -84,19 +104,18 @@ class CompileDiagram:
             # compilation can only start at top level subsystems
             raise BaseException("given system is not a top-level system (but instead a sub-system of sth.)")
 
-        self.traverseSubSystems(system, level = 0)
+        main_compile_result = self.traverseSubSystems(system, level = 0)
 
-        if self._compleResults is None:
+        if main_compile_result is None:
             raise BaseException("failed to obtain the compilation results")
 
-        
-        # self._compleResults = compileSystem(system)
+        self._compleResults = main_compile_result
 
-        return self._compleResults
-
+        return main_compile_result
 
 
-def compileSystem(system, reduce_uneeded_code = False):
+
+def compile_single_system(system, reduce_uneeded_code = False):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -389,7 +408,7 @@ def compileSystem(system, reduce_uneeded_code = False):
 
 
     # define the interfacing class
-    commandToExecute_simulation = PutSystem(    system = system,
+    commandToExecute_system = PutSystem(    system = system,
                                                     resetCommand = commandToResetStates, 
                                                     updateCommand = commandToUpdateStates,
                                                     outputCommand = commandToPublishTheResults
@@ -403,9 +422,9 @@ def compileSystem(system, reduce_uneeded_code = False):
 
 
     # build the manifest for the compiled system
-    manifest = SystemManifest( commandToExecute_simulation )
+    manifest = SystemManifest( commandToExecute_system )
 
-    compleResults = CompileResults( manifest, commandToExecute_simulation)
+    compleResults = CompileResults( manifest, commandToExecute_system)
 
     compleResults.inputSignals = allinputs
     compleResults.simulationInputSignalsToUpdateStates = simulationInputSignalsToUpdateStates

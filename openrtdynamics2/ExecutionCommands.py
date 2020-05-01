@@ -554,8 +554,9 @@ class PutSystem(ExecutionCommand):
         Represents a system that is represented by a class in c++
     """
 
-    def __init__(self, system : Simulation, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
+    def __init__(self, system : Simulation, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
         ExecutionCommand.__init__(self)
+        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
         self.resetCommand = resetCommand
         self.updateCommand = updateCommand
@@ -569,7 +570,6 @@ class PutSystem(ExecutionCommand):
                          'state_update' : self.updateCommand,
                          'reset' : self.resetCommand }
 
-        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
         self.system = system
         self.nameAPI = system.getName()
@@ -579,7 +579,11 @@ class PutSystem(ExecutionCommand):
 
 
 
-    def getAPI_name(self):
+    # def getAPI_name(self):
+    #     return self.nameAPI
+
+    @property
+    def API_name(self):
         return self.nameAPI
 
     @property
@@ -649,7 +653,7 @@ class PutSystem(ExecutionCommand):
                 for c in self.executionCommands:
                     innerLines += c.codeGen(language, 'code')
 
-                lines += indent(innerLines, '  ')
+                lines += cgh.indent(innerLines)
 
                 # define the API-function (finish)
                 lines += '};\n\n'
@@ -661,4 +665,74 @@ class PutSystem(ExecutionCommand):
 
 
 
+
+class PutSystemAndSubsystems(ExecutionCommand):
+    """
+        Represents a system and its subsystem togehter that is represented by multiple classes in c++.
+        Addiitionally, they are packed into a namespace.
+    """
+
+    def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):
+
+        ExecutionCommand.__init__(self)
+        self.executionCommands = [ command_to_put_main_system ]  +  commands_to_put_subsystems 
+
+        self._command_to_put_main_system = command_to_put_main_system
+        self._commands_to_put_subsystems = commands_to_put_subsystems
+
+    @property
+    def command_to_put_main_system(self):
+        return self._command_to_put_main_system
+
+    def printExecution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: System with the API (" + self._command_to_put_main_system.API_name + " along with subsystems):")
+        
+        for c in self.executionCommands:
+            c.printExecution()
+
+        print(Style.BRIGHT + Fore.YELLOW + "}")
+        
+    def codeGen_init(self, language):
+        for c in self.executionCommands:
+            c.codeGen_init(language)        
+
+    def codeGen_destruct(self, language):
+        for c in self.executionCommands:
+            c.codeGen_destruct(language)            
+
+    def codeGen(self, language, flag):
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'variables':
+                pass
+
+            if flag == 'code':
+                #
+        
+
+                lines += '// namespace for ' + self._command_to_put_main_system.API_name + ' {\n'
+
+                # put the global variables
+                innerLines = '// global variables\n'
+
+                for c in self.executionCommands:
+                    innerLines += c.codeGen(language, 'variables')
+
+                innerLines += '\n'
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.codeGen(language, 'code')
+
+                lines += cgh.indent(innerLines)
+
+                # end namespace (finish)
+                lines += '// end of namespace for ' + self._command_to_put_main_system.API_name + '\n\n'
+
+
+        return lines
 

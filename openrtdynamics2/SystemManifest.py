@@ -54,7 +54,7 @@ class SystemManifest(object):
 
     @property
     def API_name(self):
-        return self.mainSimulation.getAPI_name()
+        return self.mainSimulation.API_name
 
     @property
     def number_of_default_ouputs(self):
@@ -72,7 +72,7 @@ class SystemManifest(object):
 
     def export_json(self):
         self.manifest = {}
-        self.manifest['api_name'] = self.mainSimulation.getAPI_name()
+        self.manifest['api_name'] = self.mainSimulation.API_name
         self.manifest['api_functions'] = self.API_functionNames
 
         # I/O
