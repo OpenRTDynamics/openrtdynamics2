@@ -34,6 +34,8 @@ def signalListHelper_names(signals):
 
     return names
 
+
+# TODO: rename to comma_separated_names_string
 def signalListHelper_names_string(signals):
     return ', '.join( signalListHelper_names(signals)  )
 

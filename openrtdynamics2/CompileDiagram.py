@@ -44,6 +44,8 @@ class CompileDiagram:
     
     def traverseSubSystems(self, system : Simulation, level):
 
+        is_top_level_system = system.UpperLevelSim is None
+
         # go deper and compile subsystems first
         for subSystem in system.subsystems:
             self.traverseSubSystems(subSystem, level=level+1)
@@ -62,13 +64,13 @@ class CompileDiagram:
         #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
 
 
-        compileResult = compileSystem( system )
+
+        compileResult = compileSystem( system, reduce_uneeded_code = not is_top_level_system )
 
         # store the compilation result in the system's structure
         system.compilationResult = compileResult
 
-        if system.UpperLevelSim is None:
-            # this system is the top-level system
+        if is_top_level_system:
             self._compleResults = compileResult
 
 
@@ -94,7 +96,7 @@ class CompileDiagram:
 
 
 
-def compileSystem(system):
+def compileSystem(system, reduce_uneeded_code = False):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -215,7 +217,8 @@ def compileSystem(system):
     commandToPublishTheResults = PutAPIFunction("calcResults_1", 
                                                 inputSignals=simulationInputSignalsToCalculateOutputs,
                                                 outputSignals=outputSignals, 
-                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ] )
+                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
+                                                generate_wrappper_functions = not reduce_uneeded_code )
 
     # Initialize the list of commands to execute to update the states
     commandsToExecuteForStateUpdate = []
@@ -371,7 +374,8 @@ def compileSystem(system):
     commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
                                             inputSignals=list(simulationInputSignalsToUpdateStates), 
                                             outputSignals=[], 
-                                            executionCommands=commandsToExecuteForStateUpdate )
+                                            executionCommands=commandsToExecuteForStateUpdate,
+                                            generate_wrappper_functions = not reduce_uneeded_code )
 
     # code to reset add blocks in the simulation
     commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All) # changed on 11.4.2020, before: sim.getBlocksArray()
@@ -380,11 +384,12 @@ def compileSystem(system):
     commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 
                                             inputSignals=[], 
                                             outputSignals=[], 
-                                            executionCommands=[commandsToExecuteForStateReset] )
+                                            executionCommands=[commandsToExecuteForStateReset],
+                                            generate_wrappper_functions = not reduce_uneeded_code )
 
 
     # define the interfacing class
-    commandToExecute_simulation = PutSimulation(    simulation = system,
+    commandToExecute_simulation = PutSystem(    system = system,
                                                     resetCommand = commandToResetStates, 
                                                     updateCommand = commandToUpdateStates,
                                                     outputCommand = commandToPublishTheResults

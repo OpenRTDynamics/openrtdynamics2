@@ -478,6 +478,10 @@ class GenericSubsystem(BlockPrototype):
         for s in self.outputSignals:
             self.isSignalVariableDefined[ s ] = False
 
+
+
+        # self._already_defined_memory_for_output_signals = set()
+
     def codeGen_destruct(self, language):
         pass
 
@@ -491,6 +495,14 @@ class GenericSubsystem(BlockPrototype):
 
         if language == 'c++':
             lines = ''
+
+#             for already_defined_signal in list(self._already_defined_memory_for_output_signals):
+#                 print(already_defined_signal.name)
+
+
+
+# XXXXXXX
+
             
             for signal, isDefined in self.isSignalVariableDefined.items():
                 # if the signal is not a simulation output
@@ -500,9 +512,9 @@ class GenericSubsystem(BlockPrototype):
                     lines += cgh.defineVariable( signal ) 
 
                     if signal not in signals:
-                        lines += ' // NOTE: unused output signal\n'
+                        lines += '// NOTE: unused output signal' + signal.name + '\n'
                     else:
-                        lines += '\n'
+                        lines += ''
 
                     self.isSignalVariableDefined[ signal ] = True
 

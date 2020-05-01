@@ -92,14 +92,14 @@ class CommandCalculateOutputs(ExecutionCommand):
             if flag == 'localvar':
 
                 # 
-                SignalsWithoutOutputs = self.executionLine.getSignalsToExecute().copy()
+                SignalsExceptOutputs = self.executionLine.getSignalsToExecute().copy()
 
                 # remove the system-output signals if requested
                 if not self.define_variables_for_the_outputs: # This is flipped by its name
                     for s in self.targetSignals:
                         # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
 
-                        SignalsWithoutOutputs.remove( s )
+                        SignalsExceptOutputs.remove( s )
 
                         # notify the block prototype that the signal s will be a system output
                         # and, hence, no memory shall be allocated for s (because the memory is already
@@ -108,9 +108,8 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 
                 # skip the input signals in this loop (as their variables are already defined by the function API)
-                for s in SignalsWithoutOutputs:
+                for s in SignalsExceptOutputs:
 
-                    #if isinstance(s, BlockOutputSignal):
                     if not s.is_crossing_system_boundary(self._system):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
@@ -144,6 +143,8 @@ class CommandCalculateOutputs(ExecutionCommand):
                             blocks_with_outputs_to_compute[ block ].append( s )
 
 
+                # for each blocks that provides outputs that are needed to compute,
+                # generate the code to calculate these outputs.
                 for block in blocks_with_outputs_to_compute:
                     lines += block.getBlockPrototype().codeGen_output_list('c++', blocks_with_outputs_to_compute[ block ] )
                     
@@ -384,13 +385,14 @@ class PutAPIFunction(ExecutionCommand):
     # Creates an API-function to return the calculated values that might depend on input values
     # 
 
-    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands):
+    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands, generate_wrappper_functions = True):
         ExecutionCommand.__init__(self)
 
         self.outputSignals = outputSignals
         self.inputSignals = inputSignals
         self.executionCommands = executionCommands
         self._nameAPI = nameAPI
+        self._generate_wrappper_functions = generate_wrappper_functions
 
         for e in executionCommands:
             e.setContext(self)
@@ -420,7 +422,7 @@ class PutAPIFunction(ExecutionCommand):
 
     def codeGen_destruct(self, language):
         for c in self.executionCommands:
-            c.codeGen_init(language)
+            c.codeGen_destruct(language)
 
     def codeGen(self, language, flag):
 
@@ -434,9 +436,14 @@ class PutAPIFunction(ExecutionCommand):
 
 
             if flag == 'code':
-                # define the API-function (start)
-                lines += '// calculate ' + ' '.join( cgh.signalListHelper_names( self.outputSignals ) )
-                
+                #
+                # ------ define the API-function ------
+                #
+                if len(self.outputSignals) > 0:
+                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signalListHelper_names_string( self.outputSignals )  #  ' '.join( cgh.signalListHelper_names( self.outputSignals ) )
+                else:
+                    lines += '// API-function' + self._nameAPI
+
                 lines += '\n'
                 lines += 'void ' + self._nameAPI + '('
 
@@ -468,62 +475,70 @@ class PutAPIFunction(ExecutionCommand):
                 # define the API-function (finish)
                 lines += '}\n\n'
 
-                # put structs to hold I/O signals
-                lines += '// output data structure for ' + self._nameAPI + '\n'
-                tmp = cgh.defineVariables( self.outputSignals )
-                tmp = indent(tmp, '  ')
-                lines += f'struct Outputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
-
-                lines += '// input data structure for ' + self._nameAPI + '\n'
-                tmp = cgh.defineVariables( self.inputSignals )
-                tmp = indent(tmp, '  ')
-                lines += f'struct Inputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
-
-
                 #
-                # put a wrapper function that offers an API using structs for in- and output signals
+                # ------ end of 'define the API-function' ------
                 #
 
-                # put function header
-                lines += '// wrapper function for ' + self._nameAPI + '\n'
-                lines += 'Outputs_' + self._nameAPI + ' ' + self._nameAPI + '__ (Inputs_' + self._nameAPI + ' inputs)\n'
+                if self._generate_wrappper_functions:
 
-                if len(self.outputSignals) > 0 or len(self.inputSignals):
+                    # put structs to hold I/O signals
+                    lines += '// output data structure for ' + self._nameAPI + '\n'
+                    tmp = cgh.defineVariables( self.outputSignals )
+                    tmp = indent(tmp, '  ')
+                    lines += f'struct Outputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
-                    outputArguments = cgh.getStructElements( 'outputs' , self.outputSignals )
-                    inputArguments = cgh.getStructElements( 'inputs' , self.inputSignals )
+                    lines += '// input data structure for ' + self._nameAPI + '\n'
+                    tmp = cgh.defineVariables( self.inputSignals )
+                    tmp = indent(tmp, '  ')
+                    lines += f'struct Inputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
 
-                    argumentsString = ''
-                    if len(outputArguments) > 0:
-                        argumentsString += ', '.join( outputArguments )
 
-                    if len(outputArguments) > 0 and len(inputArguments) > 0:
-                        argumentsString += '   ,   '                    
+                    #
+                    # put a wrapper function that offers a 'nicer' API using structs for in- and output signals
+                    #
 
-                    if len(inputArguments) > 0:
-                        argumentsString += ', '.join( inputArguments )
+                    # put function header
+                    lines += '// wrapper function for ' + self._nameAPI + '\n'
+                    lines += 'Outputs_' + self._nameAPI + ' ' + self._nameAPI + '__ (Inputs_' + self._nameAPI + ' inputs)\n'
 
-                    print( 'args are: ' + argumentsString )
+                    if len(self.outputSignals) > 0 or len(self.inputSignals):
 
+                        outputArguments = cgh.getStructElements( 'outputs' , self.outputSignals )
+                        inputArguments = cgh.getStructElements( 'inputs' , self.inputSignals )
+
+                        argumentsString = ''
+                        if len(outputArguments) > 0:
+                            argumentsString += ', '.join( outputArguments )
+
+                        if len(outputArguments) > 0 and len(inputArguments) > 0:
+                            argumentsString += '   ,   '                    
+
+                        if len(inputArguments) > 0:
+                            argumentsString += ', '.join( inputArguments )
+
+                        print( 'args are: ' + argumentsString )
+
+                    else:
+                        argumentsString = ''
+
+                    lines += '{\n'
+
+                    innerLines = ''
+                    innerLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+
+                    innerLines += '// call to wrapped function\n'
+                    innerLines += self._nameAPI + '(' + argumentsString + ');\n'
+
+
+                    innerLines += '\n'
+                    innerLines += '// return the signals in a struct\n'
+                    innerLines += 'return outputs;\n'
+
+                    lines += indent(innerLines, '  ')
+                    
+                    lines += '}\n\n'
                 else:
-                    argumentsString = ''
-
-                lines += '{\n'
-
-                innerLines = ''
-                innerLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
-
-                innerLines += '// call to wrapped function\n'
-                innerLines += self._nameAPI + '(' + argumentsString + ');\n'
-
-
-                innerLines += '\n'
-                innerLines += '// return the signals in a struct\n'
-                innerLines += 'return outputs;\n'
-
-                lines += indent(innerLines, '  ')
-                
-                lines += '}\n\n'
+                    print()
 
 
         return lines
@@ -534,12 +549,12 @@ class PutAPIFunction(ExecutionCommand):
 
 
 
-class PutSimulation(ExecutionCommand):
+class PutSystem(ExecutionCommand):
     """
         Represents a system that is represented by a class in c++
     """
 
-    def __init__(self, simulation : Simulation, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
+    def __init__(self, system : Simulation, resetCommand : ExecutionCommand, updateCommand : ExecutionCommand, outputCommand : ExecutionCommand ):
         ExecutionCommand.__init__(self)
 
         self.resetCommand = resetCommand
@@ -556,8 +571,8 @@ class PutSimulation(ExecutionCommand):
 
         self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
-        self.simulation = simulation
-        self.nameAPI = simulation.getName()
+        self.system = system
+        self.nameAPI = system.getName()
 
         for e in self.executionCommands:
             e.setContext(self)
@@ -577,7 +592,7 @@ class PutSimulation(ExecutionCommand):
 
     def printExecution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API:")
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API (" + self.nameAPI + "):")
         
         for c in self.executionCommands:
             c.printExecution()
@@ -589,12 +604,17 @@ class PutSimulation(ExecutionCommand):
             c.codeGen_init(language)
 
         # call init codegen for each block in the simulation
-        for block in self.simulation.blocks:
+        for block in self.system.blocks:
             block.getBlockPrototype().codeGen_init(language)
+
+        # go through all subsystems and call init codeGen
+        # for subsystem in self.system.subsystems:
+        #     subsystem.codeGen_init(language)
+
 
     def codeGen_destruct(self, language):
         for c in self.executionCommands:
-            c.codeGen_init(language)
+            c.codeGen_destruct(language)
 
     def codeGen(self, language, flag):
 
@@ -610,7 +630,7 @@ class PutSimulation(ExecutionCommand):
         
                 # Add code within the same namespace this simulation sits in.
                 # E.g. to add helper functions, classes, ...
-                for b in self.simulation.blocks:
+                for b in self.system.blocks:
                     lines += b.getBlockPrototype().codegen_addToNamespace(language)
 
                 # define the API-function (start)
