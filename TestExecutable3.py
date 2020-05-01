@@ -76,8 +76,49 @@ def diff( u : dy.Signal, name : str):
 
 
 
+def generate_signal_PWM( period, modulator ):
 
-testname = 'system_state_machine_pwm' # 
+    number_of_samples_to_stay_in_A = period * modulator
+    number_of_samples_to_stay_in_B = period * ( dy.float64(1) - modulator )
+
+    number_of_samples_to_stay_in_A.set_name('number_of_samples_to_stay_in_A')
+    number_of_samples_to_stay_in_B.set_name('number_of_samples_to_stay_in_B')
+
+    with dy.sub_statemachine( "statemachine1" ) as switch:
+
+        with switch.new_subsystem('state_on') as system:
+
+            on = dy.float64(1.0).set_name('on')
+
+            counter = dy.counter().set_name('counter')
+            timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
+
+            system.set_switched_outputs([ on ], next_state)
+
+
+        with switch.new_subsystem('state_off') as system:
+
+            off = dy.float64(0.0).set_name('off')
+
+            counter = dy.counter().set_name('counter')
+            timeout = ( counter > number_of_samples_to_stay_in_B ).set_name('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=0 ).set_name('next_state')
+
+            system.set_switched_outputs([ off ], next_state)
+
+
+    # define the outputs
+    pwm = switch.outputs[0].set_name("pwm")
+    state_control = switch.state.set_name('state_control')
+
+    return pwm, state_control
+
+
+
+
+
+testname = 'nested_state_machine' # 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -795,8 +836,6 @@ if testname == 'system_state_machine':
 
 if testname == 'system_state_machine2':
 
-
-        
     baseDatatype = dy.DataTypeFloat64(1) 
 
     # define system inputs
@@ -861,49 +900,7 @@ if testname == 'system_state_machine2':
 
 
 
-
-
 if testname == 'system_state_machine_pwm':
-
-
-    def generate_signal_PWM( period, modulator ):
-
-        number_of_samples_to_stay_in_A = period * modulator
-        number_of_samples_to_stay_in_B = period * ( dy.float64(1) - modulator )
-
-        number_of_samples_to_stay_in_A.set_name('number_of_samples_to_stay_in_A')
-        number_of_samples_to_stay_in_B.set_name('number_of_samples_to_stay_in_B')
-
-        with dy.sub_statemachine( "statemachine1" ) as switch:
-
-            with switch.new_subsystem('state_on') as system:
-
-                on = dy.float64(1.0).set_name('on')
-
-                counter = dy.counter().set_name('counter')
-                timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
-                next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
-
-                system.set_switched_outputs([ on ], next_state)
-
-
-            with switch.new_subsystem('state_off') as system:
-
-                off = dy.float64(0.0).set_name('off')
-
-                counter = dy.counter().set_name('counter')
-                timeout = ( counter > number_of_samples_to_stay_in_B ).set_name('timeout')
-                next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=0 ).set_name('next_state')
-
-                system.set_switched_outputs([ off ], next_state)
-
-
-        # define the outputs
-        pwm = switch.outputs[0].set_name("pwm")
-        state_control = switch.state.set_name('state_control')
-
-        return pwm, state_control
-
 
     baseDatatype = dy.DataTypeFloat64(1) 
 
@@ -918,6 +915,58 @@ if testname == 'system_state_machine_pwm':
     output_signals = [ pwm, state_control ]
 
     input_signals_mapping = {}
+
+
+
+
+
+
+if testname == 'nested_state_machine':
+
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    # define system inputs
+    number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
+    threshold_for_x_to_leave_B     = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
+
+    period    = dy.system_input( baseDatatype ).set_name('period')
+    modulator = dy.system_input( baseDatatype ).set_name('modulator')
+
+    with dy.sub_statemachine( "outer_statemachine" ) as switch:
+
+        with switch.new_subsystem('state_A') as system:
+
+            # implement a dummy system the produces zero values for x and v
+            output = dy.float64(0.0).set_name('output')
+
+            counter = dy.counter().set_name('counter')
+            timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
+
+            system.set_switched_outputs([ output ], next_state)
+
+
+        with switch.new_subsystem('state_B') as system:
+
+            # nested state machine
+            output, state_control = generate_signal_PWM( period, modulator )
+
+            counter = dy.counter().set_name('counter')
+            leave_this_state = (counter > threshold_for_x_to_leave_B).set_name("leave_this_state")
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).set_name('next_state')
+
+            system.set_switched_outputs([ output ], next_state)
+
+
+    # define the outputs
+    output        = switch.outputs[0].set_name("output")
+    state_control = switch.state.set_name('state_control')
+
+    # main simulation ouput
+    output_signals = [ output, state_control ]
+
+    input_signals_mapping = {}
+
 
 #
 #
