@@ -69,6 +69,9 @@ class Simulation:
         # primary outputs
         self._output_signals = []
 
+        # signals that must be computed 
+        self._signals_mandatory_to_compute = []
+
         # the results of the compilation of this system
         self.compilationResult = None
 
@@ -104,10 +107,19 @@ class Simulation:
 
     def set_primary_outputs(self, outputSignals):
         self._output_signals = outputSignals
-
+    
     @property
     def primary_outputs(self):
         return self._output_signals
+
+
+    def add_signal_mandatory_to_compute(self, signal):
+        self._signals_mandatory_to_compute = self._signals_mandatory_to_compute + [ signal ]
+
+    @property
+    def signals_mandatory_to_compute(self):
+        return self._signals_mandatory_to_compute
+
 
     def ShowBlocks(self):
         print("-----------------------------")

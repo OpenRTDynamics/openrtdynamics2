@@ -156,7 +156,13 @@ def compile_single_system(system, reduce_uneeded_code = False):
     executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
 
     # for all requested output singals
-    for s in outputSignals:
+
+    signals_to_compute = set()
+    signals_to_compute.update( set(outputSignals) )
+    signals_to_compute.update( set(system.signals_mandatory_to_compute) )
+
+    for s in list(signals_to_compute):
+
         elForOutputS = E.getExecutionLine( s )
         elForOutputS.printExecutionLine()
 
@@ -184,18 +190,7 @@ def compile_single_system(system, reduce_uneeded_code = False):
     blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
     dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
 
-
-
-
     # get the simulation-input signals in dependencySignals
-    # NOTE: these are only the simulation inputs that are needed to calculate the output y
-
-
-    # TODO: stopped here: investigate missmatch between those two
-    simulationInputSignalsToCalculateOutputs = dependencySignalsSimulationInputs
-
-
-
     simulationInputSignalsToCalculateOutputs = []
     for s in dependencySignals:
 
@@ -209,7 +204,11 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
 
     # execution line per order
-    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, executionLineToCalculateOutputs, outputSignals, no_memory_for_output_variables = True)
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, 
+                                                                executionLineToCalculateOutputs, 
+                                                                signals_to_compute,
+                                                                no_memory_for_output_variables = True, 
+                                                                output_signals=outputSignals )
 
     #
     # cache all signals that are calculated so far
@@ -228,8 +227,6 @@ def compile_single_system(system, reduce_uneeded_code = False):
             # I.e. exclude the simulation input signals
 
             signalsToCache.append( s )
-
-    # add signals required for the state update (TODO)
 
     commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
 

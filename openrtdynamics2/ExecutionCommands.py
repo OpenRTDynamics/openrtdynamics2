@@ -48,6 +48,7 @@ class ExecutionCommand(object):
         return lines
 
 
+# rename to CommandCalculateSignalValues
 class CommandCalculateOutputs(ExecutionCommand):
     """
         execute an executionLine i.e. call the output-flags of all blocks given in executionLine
@@ -55,14 +56,17 @@ class CommandCalculateOutputs(ExecutionCommand):
         in executionLine.getSignalsToExecute()
 
         system - the system of which to calculate the outputs
+        target_signals - the signals to evaluate
+        output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
     """
 
-    def __init__(self, system, executionLine, targetSignals, no_memory_for_output_variables : bool):
+    def __init__(self, system, executionLine, targetSignals, no_memory_for_output_variables : bool, output_signals = []):
         ExecutionCommand.__init__(self)
 
         self._system = system
         self.executionLine = executionLine
         self.targetSignals = targetSignals
+        self._output_signals = output_signals
         self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
     def printExecution(self):
@@ -97,14 +101,18 @@ class CommandCalculateOutputs(ExecutionCommand):
                 # remove the system-output signals if requested
                 if not self.define_variables_for_the_outputs: # This is flipped by its name
                     for s in self.targetSignals:
-                        # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
 
-                        SignalsExceptOutputs.remove( s )
+                        # if s is output signal of system 
+                        if s in self._output_signals:
 
-                        # notify the block prototype that the signal s will be a system output
-                        # and, hence, no memory shall be allocated for s (because the memory is already
-                        # available)
-                        s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
+                            # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
+
+                            SignalsExceptOutputs.remove( s )
+
+                            # notify the block prototype that the signal s will be a system output
+                            # and, hence, no memory shall be allocated for s (because the memory is already
+                            # available)
+                            s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
 
 
                 # skip the input signals in this loop (as their variables are already defined by the function API)

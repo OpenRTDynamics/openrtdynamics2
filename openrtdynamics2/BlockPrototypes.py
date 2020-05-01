@@ -431,14 +431,6 @@ class GenericSubsystem(BlockPrototype):
 
         # putting code for subsystems is performed using execution commands
 
-
-        # if self.compileResult is not None:
-        #     # add the code of the subsystem
-        #     lines = self.compileResult.commandToExecute.codeGen(language, 'code')
-
-        #     if lines is None:
-        #         raise BaseException("lines is None")
-
         return lines
 
     def codeGen_defStates(self, language):
@@ -835,6 +827,10 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
         # how to add more outputs?
         self.state_output.setDatatype( DataTypeInt32(1) )
+
+        # this output signals must be compted in any way
+        # also in case it is not used by other blocks
+        sim.add_signal_mandatory_to_compute( self.state_output )
 
 
     @property
