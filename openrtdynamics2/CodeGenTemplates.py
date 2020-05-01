@@ -18,7 +18,7 @@ class PutRuntimeCppHelper:
         ExecutionCommand.__init__(self)  # TODO: what is this?
 
         self.compileResults = compileResults
-        self.mainSimulation = compileResults.commandToExecute.command_to_put_main_system
+        self.mainSimulation = compileResults.commandToExecute
 
         # list of inlcuded system
         self._includedSystems = []
@@ -47,7 +47,7 @@ class PutRuntimeCppHelper:
         # TODO: iterate over all functions present in the API of the system
         # NOTE: Currently only the main functions are used: output, update, and reset
         #
-        API_functions = self.mainSimulation.API_functions
+        API_functions = self.mainSimulation.command_to_put_main_system.API_functions
 
         #
         # make strings 
@@ -63,19 +63,19 @@ class PutRuntimeCppHelper:
 
         # for the output signals
         # input1_NamesCSVList; list of output signals. e.g. 'y1, y2, y3' 
-        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.mainSimulation.outputCommand.outputSignals )
+        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals )
 
         # the inputs to the output command
         # input1_NamesCSVList: list of output signals. e.g. 'y1, y2, y3' 
-        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.mainSimulation.outputCommand.inputSignals )
+        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
 
         # the inputs to the update command
         # input2_NamesCSVList list of output signals. e.g. 'u1, u2, u3' 
-        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.mainSimulation.updateCommand.inputSignals )
+        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.updateCommand.inputSignals )
 
         # all inputs
         # merge the list of inputs for the calcoutput and stateupdate function
-        allInputs = list(set(self.mainSimulation.outputCommand.inputSignals + self.mainSimulation.updateCommand.inputSignals))
+        allInputs = list(set(self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals + self.mainSimulation.command_to_put_main_system.updateCommand.inputSignals))
         inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
 
         # the names of input and output signals of the outputCommand combined
@@ -86,11 +86,11 @@ class PutRuntimeCppHelper:
         # calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
         # calcOutputsArgs = ', '.join( calcOutputsArgsList )
 
-        calcOutputsArgs = cgh.signalListHelper_names( self.mainSimulation.outputCommand.outputSignals + self.mainSimulation.outputCommand.inputSignals )
+        calcOutputsArgs = cgh.signalListHelper_names( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals + self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  
-                                                    mainSimulationName = self.mainSimulation.API_name,
+                                                    mainSimulationName = self.mainSimulation.command_to_put_main_system.API_name,
                                                     simulationCode=simulationCode,
 
                                                     input1_NamesVarDef=input1_NamesVarDef,
@@ -183,7 +183,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         # parse csv data
         data = [ ]
-        outputs = range(0, len(self.mainSimulation.outputCommand.outputSignals) )
+        outputs = range(0, len(self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals) )
 
         for o in outputs:
             data.append( [] )
@@ -197,7 +197,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         # put data into a key-array
         dataStruct = { }
         o = 0
-        for s in self.mainSimulation.outputCommand.outputSignals:
+        for s in self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals:
             dataStruct[ s.name ] = data[o]
 
             o = o + 1
@@ -298,10 +298,10 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
 
         # build I/O structs
-        ioExport = self.codeGen_writeIO(self.mainSimulation.outputCommand)
-        ioExport += self.codeGen_writeIO(self.mainSimulation.updateCommand)
+        ioExport = self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.outputCommand)
+        ioExport += self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.updateCommand)
 
-        ioExport += self.codeGen_writeIO(self.mainSimulation.resetCommand)
+        ioExport += self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.resetCommand)
 
         self.template = Template(self.template).safe_substitute( ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
@@ -324,7 +324,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
             structPrefix = 'Outputs_'
             signals = command_API.outputSignals
 
-        mainSimulationName = self.mainSimulation.API_name
+        mainSimulationName = self.mainSimulation.command_to_put_main_system.API_name
 
         lines = ''
 

@@ -444,12 +444,15 @@ class GenericSubsystem(BlockPrototype):
     def codegen_addToNamespace(self, language):
         lines = ''
 
-        if self.compileResult is not None:
-            # add the code of the subsystem
-            lines = self.compileResult.commandToExecute.codeGen(language, 'code')
+        # putting code for subsystems is performed using execution commands
+        
 
-            if lines is None:
-                raise BaseException("lines is None")
+        # if self.compileResult is not None:
+        #     # add the code of the subsystem
+        #     lines = self.compileResult.commandToExecute.codeGen(language, 'code')
+
+        #     if lines is None:
+        #         raise BaseException("lines is None")
 
         return lines
 

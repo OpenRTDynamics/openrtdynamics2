@@ -604,6 +604,8 @@ class PutSystem(ExecutionCommand):
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
     def codeGen_init(self, language):
+        print()
+
         for c in self.executionCommands:
             c.codeGen_init(language)
 
@@ -675,7 +677,7 @@ class PutSystemAndSubsystems(ExecutionCommand):
     def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):
 
         ExecutionCommand.__init__(self)
-        self.executionCommands = [ command_to_put_main_system ]  +  commands_to_put_subsystems 
+        self.executionCommands = commands_to_put_subsystems + [ command_to_put_main_system ] 
 
         self._command_to_put_main_system = command_to_put_main_system
         self._commands_to_put_subsystems = commands_to_put_subsystems
@@ -694,6 +696,8 @@ class PutSystemAndSubsystems(ExecutionCommand):
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
     def codeGen_init(self, language):
+        print()
+
         for c in self.executionCommands:
             c.codeGen_init(language)        
 
