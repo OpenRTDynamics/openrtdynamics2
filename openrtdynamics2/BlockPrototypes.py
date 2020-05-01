@@ -445,7 +445,7 @@ class GenericSubsystem(BlockPrototype):
         lines = ''
 
         # putting code for subsystems is performed using execution commands
-        
+
 
         # if self.compileResult is not None:
         #     # add the code of the subsystem
@@ -498,14 +498,6 @@ class GenericSubsystem(BlockPrototype):
 
         if language == 'c++':
             lines = ''
-
-#             for already_defined_signal in list(self._already_defined_memory_for_output_signals):
-#                 print(already_defined_signal.name)
-
-
-
-# XXXXXXX
-
             
             for signal, isDefined in self.isSignalVariableDefined.items():
                 # if the signal is not a simulation output
@@ -863,6 +855,10 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
     @property
     def state_output(self):
         return self.additional_outputs[0]
+
+    # def returnInutsToUpdateStates(self, outputSignal):
+ 
+    #     return MultiSubsystemEmbedder.returnInutsToUpdateStates(self, outputSignal) + [ self.state_output ]
 
 
     def codeGen_reset(self, language):

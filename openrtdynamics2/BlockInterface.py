@@ -2,8 +2,8 @@ from typing import Dict, List
 
 from .Block import Block
 from .Signal import Signal, BlockOutputSignal
-# from Datatypes import *
-# from SignalInterface import *
+from . import CodeGenHelper as cgh
+
 
 class BlockPrototype(object):
     """
@@ -165,8 +165,16 @@ class BlockPrototype(object):
 
         return ''
 
-    def codeGen_localvar(self, language, signal : Signal):
-        return ''
+    # def codeGen_localvar(self, language, signal : Signal):
+    #     return ''
+
+    def codeGen_localvar(self, language, signal):
+    # TODO: every block prototype shall befine its variables like this.. move this to BlockPrototype and remove all individual implementations
+
+        if language == 'c++':
+            return cgh.defineVariableLine( signal )
+
+
         
     def codeGen_constructor(self, language):
         return ''

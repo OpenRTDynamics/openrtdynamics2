@@ -229,6 +229,8 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
             signalsToCache.append( s )
 
+    # add signals required for the state update (TODO)
+
     commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
 
     # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
@@ -286,7 +288,7 @@ def compile_single_system(system, reduce_uneeded_code = False):
                 dependencySignals__.append(s)
 
             else:
-                print(Style.DIM + "    This signal is already computable (no futher execution line is calculated to this signal)")
+                print(Style.DIM + "    This signal (" + s.name + ") is already computable (no futher execution line is calculated to this signal)")
 
 
 
