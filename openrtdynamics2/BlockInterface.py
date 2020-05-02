@@ -165,11 +165,6 @@ class BlockPrototype(object):
 
         return ''
 
-    def codeGen_localvar(self, language, signal):
-
-        if language == 'c++':
-            return cgh.defineVariableLine( signal )
-        
     def codeGen_constructor(self, language):
         return ''
         

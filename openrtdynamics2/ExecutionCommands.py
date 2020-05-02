@@ -253,26 +253,6 @@ class CommandUpdateStates(ExecutionCommand):
                     
                     lines += b.getBlockPrototype().codeGen_defStates('c++')
 
-
-#             if flag == 'localvar':
-
-#                 # 
-#                 SignalsExceptOutputs = self.executionLine.getSignalsToExecute().copy()
-
-
-#                 # skip the input signals in this loop (as their variables are already defined by the function API)
-#                 for s in SignalsExceptOutputs:
-
-#                     if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
-#                         # only implement caching for intermediate computaion results.
-#                         # I.e. exclude the simulation input signals
-
-# #                        print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
-
-#                         lines += cgh.defineVariableLine( s )
-
-
-
             if flag == 'code':
                 lines += '\n'
                 lines += ''
@@ -280,10 +260,6 @@ class CommandUpdateStates(ExecutionCommand):
                 for b in self.blockList:
                     lines += b.getBlockPrototype().codeGen_update('c++')
 
-            # if flag == 'codereset':
-            #     lines += ''
-            #     for b in self.blockList:
-            #         lines += b.getBlockPrototype().codeGen('c++', 'reset')
 
         return lines
 

@@ -444,30 +444,20 @@ class GenericSubsystem(BlockPrototype):
         if language == 'c++':
             return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('reset') +  '();\n'
 
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-            self.isSignalVariableDefined[ signal ] = True
-
-            return cgh.defineVariableLine( signal )
 
     def codeGen_init(self, language):
+        pass
 
-        # isSignalVariableDefined contains for each output signal a flag that indicates wheter veriables 
-        # for these output signals shall be defined (i.e., memory reserved)
-        self.isSignalVariableDefined = {}
-        for s in self.outputSignals:
-            self.isSignalVariableDefined[ s ] = False
-
-
-
-        # self._already_defined_memory_for_output_signals = set()
 
     def codeGen_destruct(self, language):
         pass
 
+
+    # helper fn to build code
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
 
+    # helper fn to build code
     def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
 
@@ -476,41 +466,19 @@ class GenericSubsystem(BlockPrototype):
         if language == 'c++':
             lines = ''
             
-            for signal, isDefined in self.isSignalVariableDefined.items():
-                # if the signal is not a simulation output
+            #
+            # TODO: 2.5.2020: concept: how to compute only the nescessary signals?
+            #
 
-                if not isDefined:
+            for s in self.outputSignals:
+                lines += cgh.defineVariable( s ) 
 
-                    lines += cgh.defineVariable( signal ) 
-
-                    if signal not in signals:
-                        lines += '// NOTE: unused output signal' + signal.name + '\n'
-                    else:
-                        lines += ''
-
-                    # TODO: concept: how to compute only the nescessary signals?
-                    # self.isSignalVariableDefined[ signal ] = True
+                if s not in signals:
+                    lines += '// NOTE: unused output signal' + s.name + '\n'
+                else:
+                    lines += ''                
 
             lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
-
-
-
-
-# 
-# 
-# 
-# 
-# 
-# 
-#   STOPPED HERE
-# 
-# 
-# 
-# 
-
-
-
-
 
         return lines
 
@@ -687,13 +655,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         # generate code for calculating the outputs 
         if calculate_outputs:
 
-            if 'Subsystem1000_state_on' == system_prototype.embedded_subsystem.name:
-                print()
-
             innerLines += system_prototype.codeGen_output_list(language, system_prototype.outputs)
-
-            #if self._number_of_switched_outputs != len( ouput_signals_name ):
-            #    raise BaseException(".")
 
             for i in range( 0, len( ouput_signals_name ) ):
                 innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
@@ -1004,13 +966,6 @@ class TruggeredSubsystem(GenericSubsystem):
         return dependingInputsOuter
         
 
-
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-
-            return GenericSubsystem.codeGen_localvar(self, language, signal)
-
-
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
 
         if self.prevent_output_computation:
@@ -1067,13 +1022,6 @@ class ForLoopSubsystem(GenericSubsystem):
 
         return dependingInputsOuter
         
-
-
-    def codeGen_localvar(self, language, signal):
-        if language == 'c++':
-
-            return GenericSubsystem.codeGen_localvar(self, language, signal)
-
 
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
         lines = 'for (int i = 0; i < '  +  self.i_max_signal.name + '; ++i) {\n'
