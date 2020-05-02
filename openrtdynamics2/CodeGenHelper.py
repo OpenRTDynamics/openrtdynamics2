@@ -103,7 +103,7 @@ def defineVariable( signal ):
     """
     element = signalListHelper_CppVarDefStr([signal])
 
-    return element[0] + ';'
+    return element[0] + ';\n'
 
 def defineVariableLine( signal ):
     """

@@ -118,12 +118,15 @@ class CommandCalculateOutputs(ExecutionCommand):
                 # skip the input signals in this loop (as their variables are already defined by the function API)
                 for s in SignalsExceptOutputs:
 
-                    if not s.is_crossing_system_boundary(self._system):
+                    if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
                         print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
-                        lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
+
+                        #lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
+
+                        lines += cgh.defineVariableLine( s )
 
 
 
@@ -249,6 +252,26 @@ class CommandUpdateStates(ExecutionCommand):
                     #
                     
                     lines += b.getBlockPrototype().codeGen_defStates('c++')
+
+
+#             if flag == 'localvar':
+
+#                 # 
+#                 SignalsExceptOutputs = self.executionLine.getSignalsToExecute().copy()
+
+
+#                 # skip the input signals in this loop (as their variables are already defined by the function API)
+#                 for s in SignalsExceptOutputs:
+
+#                     if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+#                         # only implement caching for intermediate computaion results.
+#                         # I.e. exclude the simulation input signals
+
+# #                        print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
+
+#                         lines += cgh.defineVariableLine( s )
+
+
 
             if flag == 'code':
                 lines += '\n'
@@ -612,7 +635,6 @@ class PutSystem(ExecutionCommand):
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
     def codeGen_init(self, language):
-        print()
 
         for c in self.executionCommands:
             c.codeGen_init(language)
@@ -620,10 +642,6 @@ class PutSystem(ExecutionCommand):
         # call init codegen for each block in the simulation
         for block in self.system.blocks:
             block.getBlockPrototype().codeGen_init(language)
-
-        # go through all subsystems and call init codeGen
-        # for subsystem in self.system.subsystems:
-        #     subsystem.codeGen_init(language)
 
 
     def codeGen_destruct(self, language):
@@ -704,7 +722,6 @@ class PutSystemAndSubsystems(ExecutionCommand):
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
     def codeGen_init(self, language):
-        print()
 
         for c in self.executionCommands:
             c.codeGen_init(language)        

@@ -488,9 +488,29 @@ class GenericSubsystem(BlockPrototype):
                     else:
                         lines += ''
 
-                    self.isSignalVariableDefined[ signal ] = True
+                    # TODO: concept: how to compute only the nescessary signals?
+                    # self.isSignalVariableDefined[ signal ] = True
 
             lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
+
+
+
+
+# 
+# 
+# 
+# 
+# 
+# 
+#   STOPPED HERE
+# 
+# 
+# 
+# 
+
+
+
+
 
         return lines
 
@@ -662,10 +682,15 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
 
+        innerLines = ''
 
         # generate code for calculating the outputs 
         if calculate_outputs:
-            innerLines = system_prototype.codeGen_output_list(language, system_prototype.outputs)
+
+            if 'Subsystem1000_state_on' == system_prototype.embedded_subsystem.name:
+                print()
+
+            innerLines += system_prototype.codeGen_output_list(language, system_prototype.outputs)
 
             #if self._number_of_switched_outputs != len( ouput_signals_name ):
             #    raise BaseException(".")
@@ -681,7 +706,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         # generate code for updating the states
         if update_states:
-            innerLines = system_prototype.codeGen_update(language)
+            innerLines += system_prototype.codeGen_update(language)
 
 
         lines += cgh.indent(innerLines)
@@ -865,10 +890,18 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
+
+            # do not compute all swich outputs, just the ones requested by 'signals' 
+            outputs_to_compute = []
+            for s in signals:
+                if s in self.subsystem_switch_outouts:
+                    outputs_to_compute.append( s )
+
+
             # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals_name=cgh.signalListHelper_names(self.subsystem_switch_outouts),
+                                            switch_ouput_signals_name=cgh.signalListHelper_names(outputs_to_compute),
                                             additional_outputs_names=[self.state_output.name] )
 
             # lines += self.state_output.name + ' = ' + self._state_memory_delayed + ';\n'
