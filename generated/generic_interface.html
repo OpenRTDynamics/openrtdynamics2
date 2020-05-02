@@ -84,7 +84,11 @@
 
         var properties = {}
         for (i = 0; i < i1.length; ++i) {
-            properties[i1[i]] = { "type": "number" }
+            properties[i1[i]] = { "type": "number", "format": "range", "propertyOrder": i,
+                "options": {
+                     "infoText": "Your full name"
+                }
+            }
         }
 
         // Initialize the editor
@@ -166,6 +170,12 @@
             });
         });
 
+
+
+//         var Module = {
+//                         readBinary : function readBinary(filename) {
+//                             return new Uint8Array(rawWebAssembly);
+// }}
 
     var Module = {
         onRuntimeInitialized: function () {
