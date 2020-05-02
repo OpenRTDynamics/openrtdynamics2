@@ -20,11 +20,11 @@ library_entries = []
 
 
 
-def firstOrder( u : dy.Signal, z_inf, name : str):
+def firstOrder( u : dy.Signal, z_inf, name : str = ''):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).set_name(name + '_i')
+    i = dy.add( [ yFb, u ], [ z_inf, 1 ] ).set_name(name + '_i')
     y = dy.delay( i).set_name(name + '_y')
 
     yFb << y
@@ -32,20 +32,21 @@ def firstOrder( u : dy.Signal, z_inf, name : str):
     return y
 
 
-def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str):
+def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str = ''):
 
-    yFb = dy.signal()
+    dFb = dy.signal()
 
-    s = dy.add( [ yFb, u ], [ -z_inf, 1 ] ).set_name('s'+name+'')
+    s = dy.add( [ dFb, u ], [ z_inf, 1 ] ).set_name('s'+name+'')
     d = dy.delay( s).set_name('d'+name+'')
-    y = dy.gain( d, gain).set_name('y'+name+'')
 
-    yFb << y
+    dFb << d
+
+    y = dy.gain( d, gain).set_name('y'+name+'')
 
     return y
 
 
-def dInt( u : dy.Signal, name : str):
+def dInt( u : dy.Signal, name : str = ''):
 
     yFb = dy.signal()
 
@@ -56,7 +57,7 @@ def dInt( u : dy.Signal, name : str):
 
     return y
 
-def euler_integrator( u : dy.Signal, Ts : float, name : str, initial_state = None):
+def euler_integrator( u : dy.Signal, Ts : float, name : str = '', initial_state = None):
 
     yFb = dy.signal()
 
@@ -91,7 +92,7 @@ def generate_signal_PWM( period, modulator ):
             on = dy.float64(1.0).set_name('on')
 
             counter = dy.counter().set_name('counter')
-            timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
+            timeout = ( counter >= number_of_samples_to_stay_in_A ).set_name('timeout')
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
 
             system.set_switched_outputs([ on ], next_state)
@@ -102,7 +103,7 @@ def generate_signal_PWM( period, modulator ):
             off = dy.float64(0.0).set_name('off')
 
             counter = dy.counter().set_name('counter')
-            timeout = ( counter > number_of_samples_to_stay_in_B ).set_name('timeout')
+            timeout = ( counter >= number_of_samples_to_stay_in_B ).set_name('timeout')
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=0 ).set_name('next_state')
 
             system.set_switched_outputs([ off ], next_state)
@@ -911,8 +912,11 @@ if testname == 'system_state_machine_pwm':
     # implement the generator
     pwm, state_control = generate_signal_PWM( period, modulator )
 
+    # lowpass
+    output = firstOrderAndGain( pwm, z_inf=0.9, gain=0.1)
+
     # main simulation ouput
-    output_signals = [ pwm, state_control ]
+    output_signals = [ output, state_control ]
 
     input_signals_mapping = {}
 
@@ -927,10 +931,10 @@ if testname == 'nested_state_machine':
 
     # define system inputs
     number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
-    threshold_for_x_to_leave_B     = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
+    number_of_samples_to_stay_in_B = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_B')
 
-    period    = dy.system_input( baseDatatype ).set_name('period')
-    modulator = dy.system_input( baseDatatype ).set_name('modulator')
+    period    = dy.system_input( baseDatatype ).set_name('pwm_period')
+    modulator = dy.system_input( baseDatatype ).set_name('pwm_modulator') * dy.float64(1.0/100)
 
     with dy.sub_statemachine( "outer_statemachine" ) as switch:
 
@@ -940,7 +944,7 @@ if testname == 'nested_state_machine':
             output = dy.float64(0.0).set_name('output')
 
             counter = dy.counter().set_name('counter')
-            timeout = ( counter > number_of_samples_to_stay_in_A ).set_name('timeout')
+            timeout = ( counter >= number_of_samples_to_stay_in_A ).set_name('timeout')
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
 
             system.set_switched_outputs([ output ], next_state)
@@ -952,18 +956,24 @@ if testname == 'nested_state_machine':
             output, state_control = generate_signal_PWM( period, modulator )
 
             counter = dy.counter().set_name('counter')
-            leave_this_state = (counter > threshold_for_x_to_leave_B).set_name("leave_this_state")
+            leave_this_state = (counter >= number_of_samples_to_stay_in_B).set_name("leave_this_state")
             next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=leave_this_state, new_value=0 ).set_name('next_state')
 
             system.set_switched_outputs([ output ], next_state)
 
 
     # define the outputs
-    output        = switch.outputs[0].set_name("output")
+    signal        = switch.outputs[0].set_name("signal")
     state_control = switch.state.set_name('state_control')
 
+    # lowpass
+    #output = firstOrderAndGain( signal, z_inf=0.9, gain=0.1)
+
+    output_1 = dy.dtf_lowpass_1_order(signal,  z_infinity=0.9 )
+    output = dy.dtf_lowpass_1_order(output_1,  z_infinity=0.9 )
+
     # main simulation ouput
-    output_signals = [ output, state_control ]
+    output_signals = [ signal, output, state_control ]
 
     input_signals_mapping = {}
 
