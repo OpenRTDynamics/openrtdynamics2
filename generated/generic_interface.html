@@ -172,12 +172,49 @@
 
 
 
-//         var Module = {
-//                         readBinary : function readBinary(filename) {
-//                             return new Uint8Array(rawWebAssembly);
-// }}
+    // load wasm file
+    var rawWebAssembly = new Promise(
+        function (resolve, reject) {
 
+            console.log('loading wasm data')
+
+            fetch('main.wasm').then(response => {
+            
+                console.log(response)
+
+                resolve( response['arrayBuffer']() );
+
+            }).then(data => { 
+                console.log(data);
+            });
+
+        }
+    );
+
+    // create instance fo the simulator
     var Module = {
+
+        instantiateWasm: function (imports, successCallback) {
+            console.log('creating wasm');
+
+            return rawWebAssembly.then(function(binary) {
+
+                    console.log('starting WebAssembly.instantiate')
+                    console.log(binary);
+
+                    var wasmInstantiate = WebAssembly.instantiate(new Uint8Array(binary), imports).then( function(output) {
+
+                        console.log('wasm instantiation succeeded');
+                        Module.testWasmInstantiationSucceeded = 1;
+                        successCallback(output.instance);
+
+                    }).catch(function(e) {
+                        console.log('wasm instantiation failed! ' + e);
+                    });
+
+                });
+        },
+
         onRuntimeInitialized: function () {
 
             p_manifest.then(
