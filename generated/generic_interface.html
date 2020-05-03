@@ -6,17 +6,29 @@
 
 <html>
 
-<div id='editor_holder'>
-    -parameters-
-</div>
+    <div id='simulator_gui_container'>
 
-<canvas id="plot" width="400" height="200"></canvas>
+        <!-- <div id='editor_holder'>
+            -parameters-
+        </div>
+        <canvas id="plot" width="400" height="200"></canvas>
+        <div id='results'>
+        </div> -->
 
-<div id='results'>
-    --
-</div>
-
+    </div>
 <script>
+
+    function init_simulator_gui_container(divElement) {
+
+        divElement.innerHTML = `
+            <div id='editor_holder'>
+                -parameters-
+            </div>
+            <canvas id="plot" width="400" height="200"></canvas>
+            <div id='results'>
+            </div>
+        `;
+    }
 
 
     function simulate(instance, manifest, dataList, Nsamples, inputValues) {
@@ -192,65 +204,83 @@
     );
 
     // create instance fo the simulator
-    var Module = {
+    function createInstance( rawWebAssembly ) {
+        var Module = {
 
-        instantiateWasm: function (imports, successCallback) {
-            console.log('creating wasm');
+            instantiateWasm: function (imports, successCallback) {
+                console.log('creating wasm');
 
-            return rawWebAssembly.then(function(binary) {
+                return rawWebAssembly.then(function(binary) {
 
-                    console.log('starting WebAssembly.instantiate')
-                    console.log(binary);
+                        console.log('starting WebAssembly.instantiate')
+                        console.log(binary);
 
-                    var wasmInstantiate = WebAssembly.instantiate(new Uint8Array(binary), imports).then( function(output) {
+                        var wasmInstantiate = WebAssembly.instantiate(new Uint8Array(binary), imports).then( function(output) {
 
-                        console.log('wasm instantiation succeeded');
-                        Module.testWasmInstantiationSucceeded = 1;
-                        successCallback(output.instance);
+                            console.log('wasm instantiation succeeded');
+                            Module.testWasmInstantiationSucceeded = 1;
+                            successCallback(output.instance);
 
-                    }).catch(function(e) {
-                        console.log('wasm instantiation failed! ' + e);
+                        }).catch(function(e) {
+                            console.log('wasm instantiation failed! ' + e);
+                        });
+
                     });
+            },
 
-                });
-        },
+            onRuntimeInitialized: function () {
 
-        onRuntimeInitialized: function () {
+                p_manifest.then(
+                    function (manifest) {
+                        console.log('loaded the following manifest')
+                        console.log(manifest)
 
-            p_manifest.then(
-                function (manifest) {
-                    console.log('loaded the following manifest')
-                    console.log(manifest)
+                        // init simulator
+                        var instance = new Module.simulation();
+                        var Nsamples = 200;
 
-                    // init simulator
-                    var instance = new Module.simulation();
-                    var Nsamples = 200;
+                        // init the plots
+                        var [myLineChart, dataList] = preparePlots(manifest, Nsamples);
 
-                    // init the plots
-                    var [myLineChart, dataList] = preparePlots(manifest, Nsamples);
+                        // parameter
+                        var initvals = genrateParameterInitValues(manifest);
 
-                    // parameter
-                    var initvals = genrateParameterInitValues(manifest);
+                        initParameterEditor(manifest, initvals, function (inputValues) {
+                            // on parameter change simulate and plot
+                            simulate(instance, manifest, dataList, Nsamples, inputValues);
+                            myLineChart.update();
+                        });
 
-                    initParameterEditor(manifest, initvals, function (inputValues) {
-                        // on parameter change simulate and plot
-                        simulate(instance, manifest, dataList, Nsamples, inputValues);
+                        outputView = document.getElementById('results');
+
+                        simulate(instance, manifest, dataList, Nsamples, initvals);
                         myLineChart.update();
                     });
 
-                    outputView = document.getElementById('results');
+                //instance.delete();
+            }
+        };
 
-                    simulate(instance, manifest, dataList, Nsamples, initvals);
-                    myLineChart.update();
-                });
+        return Module;
+    }
 
-            //instance.delete();
-        }
-    };
+
+
+    // setup
+    var Module;
+
+    function setup(rawWebAssembly) {
+
+        init_simulator_gui_container( document.getElementById('simulator_gui_container') )
+        Module = createInstance( rawWebAssembly ) 
+        $.getScript('main.js')
+    }
+
+    setup(rawWebAssembly);
 
 </script>
 
-<script src="main.js"></script>
+<!-- <script src="main.js"></script> -->
 <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
 <script src="node_modules/@json-editor/json-editor/dist/jsoneditor.js"></script>
 
