@@ -2,9 +2,14 @@
 
 <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> -->
 <script src="js/jquery-3.4.1.min.js"></script>
+<!-- <script src="main.js"></script> -->
 
 
 <html>
+
+    <div id="reload_trigger">
+        Click here to reload
+      </div>
 
     <div id='simulator_gui_container'>
 
@@ -17,6 +22,8 @@
 
     </div>
 <script>
+
+
 
     function init_simulator_gui_container(divElement) {
 
@@ -174,37 +181,83 @@
 
 
 
-    // load manifest from json file
-    var p_manifest = new Promise(
-        function (resolve, reject) {
-            $.getJSON("simulation_manifest.json", function (json) {
-                resolve(json)
-            });
-        });
+
 
 
 
     // load wasm file
-    var rawWebAssembly = new Promise(
-        function (resolve, reject) {
+    function loadCompiledSimulator() {
 
-            console.log('loading wasm data')
+        // load manifest from json file
+        // var p_manifest = new Promise(
+        //     function (resolve, reject) {
+        //         $.getJSON("simulation_manifest.json", function (json) {
+        //             resolve(json)
+        //         });
+        //     });
 
-            fetch('main.wasm').then(response => {
-            
-                console.log(response)
+        
+        var p_manifest = new Promise(
+            function (resolve, reject) {
 
-                resolve( response['arrayBuffer']() );
+                console.log('loading manifest')
 
-            }).then(data => { 
-                console.log(data);
-            });
+                fetch('simulation_manifest.json', {cache: "no-cache"})
+                    .then(response => response.json())
+                    .then(response => {
+                
+                    resolve( response );                    
 
-        }
-    );
+                }).then(data => { 
+                    console.log(data);
+                });
+
+            }
+        );
+
+        var rawWebAssembly = new Promise(
+            function (resolve, reject) {
+
+                console.log('loading wasm data')
+
+                fetch('main.wasm', {cache: "no-cache"} ).then(response => {
+                
+                    resolve( response['arrayBuffer']() );
+
+                }).then(data => { 
+                    console.log(data);
+                });
+
+            }
+        );
+
+        var jscode = new Promise(
+            function (resolve, reject) {
+
+                console.log('loading js part of wasm data')
+
+                fetch('main.js', {cache: "no-cache"})
+                    .then(response => response.text())
+                    .then(response => {
+                
+                    resolve( response );                    
+
+                }).then(data => { 
+                    console.log(data);
+                });
+
+            }
+        );
+
+
+        return {p_manifest : p_manifest, rawWebAssembly : rawWebAssembly, jscode : jscode};
+    }
+
+
+
 
     // create instance fo the simulator
-    function createInstance( rawWebAssembly ) {
+    function createInstance( p_manifest, rawWebAssembly ) {
         var Module = {
 
             instantiateWasm: function (imports, successCallback) {
@@ -267,20 +320,46 @@
 
 
     // setup
-    var Module;
+    //var Module;
 
-    function setup(rawWebAssembly) {
+    function setup(jscode, p_manifest, rawWebAssembly) {
 
         init_simulator_gui_container( document.getElementById('simulator_gui_container') )
-        Module = createInstance( rawWebAssembly ) 
-        $.getScript('main.js')
+        Module = createInstance( p_manifest, rawWebAssembly ) 
+        
+        var gvar = this;
+        
+        eval( jscode )
+
+        ORTD_simulator( Module )
     }
 
-    setup(rawWebAssembly);
+
+    //rawWebAssembly = loadCompiledSimulator();
+    //setup(rawWebAssembly);
+
+
+    //  $.getScript('main.js')
+    
+    $( "#reload_trigger" ).click(function() {
+
+
+
+        var ret = loadCompiledSimulator();
+
+        ret.jscode.then( function(jscode) { 
+
+            console.log( jscode )
+
+            setup( jscode, ret.p_manifest, ret.rawWebAssembly);
+
+        });
+
+
+    });
 
 </script>
 
-<!-- <script src="main.js"></script> -->
 <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
 <script src="node_modules/@json-editor/json-editor/dist/jsoneditor.js"></script>
 
