@@ -8,8 +8,13 @@
 <html>
 
     <div id="reload_trigger">
-        Click here to reload
-      </div>
+        Click here to (re)load from a fixed folder
+    </div>
+
+    <div id="remote_compile_trigger">
+        Click here to compile souece on remote
+    </div>
+
 
     <div id='simulator_gui_container'>
 
@@ -181,7 +186,66 @@
 
 
 
+    function compileSimulator(source_code) {
 
+        var compile_request = new Promise(
+            function (resolve, reject) {
+
+                var myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                var raw = JSON.stringify({"main_cpp" : source_code , "password" : "1234" });
+
+                var requestOptions = {
+                    method: 'POST',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+
+                fetch("http://localhost:3000/upload/", requestOptions)
+                    .then(response => response.text())
+                    .then(result => {
+
+                        console.log(result)
+
+                        resolve( JSON.parse( result ) )
+
+                    })
+                    .catch(error => console.log('error', error));
+
+        });
+
+
+        var p_manifest = new Promise(
+            function (resolve, reject) {
+
+                compile_request.then(function (result) {
+                    resolve(result.manifest)
+
+                    console.log("resolved manifest ")
+                    console.log(result.manifest)
+                })
+
+            });
+
+        var rawWebAssembly = new Promise(
+            function (resolve, reject) {
+                compile_request.then(function (result) {
+                    resolve(result.rawWebAssembly)
+                })
+            });
+
+        var jscode = new Promise(
+            function (resolve, reject) {
+                compile_request.then(function (result) {
+                    resolve(result.jscode)
+                })
+            });
+
+        return {p_manifest : p_manifest, rawWebAssembly : rawWebAssembly, jscode : jscode};
+
+    }
 
 
 
@@ -195,6 +259,7 @@
         //             resolve(json)
         //         });
         //     });
+
 
         
         var p_manifest = new Promise(
@@ -343,19 +408,32 @@
     
     $( "#reload_trigger" ).click(function() {
 
-
-
         var ret = loadCompiledSimulator();
 
         ret.jscode.then( function(jscode) { 
 
             console.log( jscode )
-
             setup( jscode, ret.p_manifest, ret.rawWebAssembly);
 
         });
+    });
 
 
+    $( "#remote_compile_trigger" ).click(function() {
+
+
+        code = 'main() {}'
+
+        source_code = {main_cpp : code}
+
+        var ret = compileSimulator(source_code);
+
+        ret.jscode.then( function(jscode) { 
+
+            console.log( jscode )
+            setup( jscode, ret.p_manifest, ret.rawWebAssembly);
+
+        });
     });
 
 </script>
