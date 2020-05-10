@@ -15,26 +15,27 @@
         Click here to compile souece on remote
     </div>
 
+    <textarea id="compile_service_url" name="compile_service_url">
+http://localhost:3000/upload/
+    </textarea>
 
+    <textarea id="secret_token" name="secret_token">
+12345
+    </textarea>
+            
+    
     <div id='simulator_gui_container'>
-
-        <!-- <div id='editor_holder'>
-            -parameters-
-        </div>
-        <canvas id="plot" width="400" height="200"></canvas>
-        <div id='results'>
-        </div> -->
-
+No simulation loaded
     </div>
 
     manifest
     <textarea id="manifest" name="manifest">
-        man
+
     </textarea>
 
     source code
     <textarea id="source_code" name="source_code">
-        sou
+
     </textarea>
 
 <script>
@@ -45,7 +46,6 @@
 
         divElement.innerHTML = `
             <div id='editor_holder'>
-                -parameters-
             </div>
             <canvas id="plot" width="400" height="200"></canvas>
             <div id='results'>
@@ -200,7 +200,7 @@
 
 
 
-    function compileSimulator(source_code) {
+    function compileSimulator(source_code, compile_service_url, secret_token) {
 
         var compile_request = new Promise(
             function (resolve, reject) {
@@ -208,7 +208,7 @@
                 var myHeaders = new Headers();
                 myHeaders.append("Content-Type", "application/json");
 
-                var raw = JSON.stringify({"source_code" : source_code , "password" : "1234" });
+                var raw = JSON.stringify({"source_code" : source_code , "secret_token" : secret_token });
 
                 var requestOptions = {
                     method: 'POST',
@@ -217,7 +217,7 @@
                     redirect: 'follow'
                 };
 
-                fetch("http://localhost:3000/upload/", requestOptions)
+                fetch(compile_service_url, requestOptions)
                     .then(response => response.text())
                     .then(result => {
 
@@ -229,20 +229,6 @@
                     .catch(error => console.log('error', error));
 
         });
-
-
-        // var p_manifest = new Promise(
-        //     function (resolve, reject) {
-
-        //         compile_request.then(function (result) {
-        //             resolve(result.manifest)
-
-        //             console.log("resolved manifest ")
-        //             console.log(result.manifest)
-        //         })
-
-        //     });
-
 
         function _base64ToArrayBuffer(base64) {
             // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
@@ -278,16 +264,6 @@
     // load wasm file
     function loadCompiledSimulator() {
 
-        // load manifest from json file
-        // var p_manifest = new Promise(
-        //     function (resolve, reject) {
-        //         $.getJSON("simulation_manifest.json", function (json) {
-        //             resolve(json)
-        //         });
-        //     });
-
-
-        
         var p_manifest = new Promise(
             function (resolve, reject) {
 
@@ -339,7 +315,6 @@
 
             }
         );
-
 
         return {p_manifest : p_manifest, p_rawWebAssembly : rawWebAssembly, p_jscode : jscode};
     }
@@ -401,7 +376,6 @@
                         myLineChart.update();
                     });
 
-                //instance.delete();
             }
         };
 
@@ -410,10 +384,7 @@
 
 
 
-    // setup
-    //var Module;
-
-    function setup(simulator_gui_container, p_jscode, p_manifest, rawWebAssembly) {
+    function setup_simulation_gui_from_promises(simulator_gui_container, p_jscode, p_manifest, rawWebAssembly) {
 
         clear_simulator_gui_container( simulator_gui_container )
 
@@ -433,48 +404,52 @@
     }
 
 
-    //rawWebAssembly = loadCompiledSimulator();
-    //setup(rawWebAssembly);
-
-
-    //  $.getScript('main.js')
     
+
+    function setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code ) {
+
+
+        source_code = {main_cpp : window.btoa( code )  }
+        var ret = compileSimulator(source_code, compile_service_url, secret_token);
+
+        var p_manifest = new Promise(
+            function (resolve, reject) {
+
+                resolve( JSON.parse( manifest ) )
+
+            })
+
+        ret.p_manifest = p_manifest
+
+
+        ///
+        setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+
+    }
+
+
+
+
+    simulator_gui_container = document.getElementById('simulator_gui_container')
+
     $( "#reload_trigger" ).click(function() {
 
         var ret = loadCompiledSimulator();
 
-        simulator_gui_container = document.getElementById('simulator_gui_container')
-        setup( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+        setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
     });
 
 
     $( "#remote_compile_trigger" ).click(function() {
 
-
-        // code = 'main() {}'
-
         code = document.getElementById("source_code").value
+        manifest = document.getElementById("manifest").value
+        compile_service_url = document.getElementById("compile_service_url").value
+        secret_token = document.getElementById("secret_token").value
 
+        setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code )
         
 
-        source_code = {main_cpp : window.btoa( code )  }
-        var ret = compileSimulator(source_code);
-
-
-        var manifest = new Promise(
-            function (resolve, reject) {
-
-                manifest = document.getElementById("manifest").value
-                resolve( JSON.parse( manifest ) )
-
-            })
-
-        ret.p_manifest = manifest
-
-
-        ///
-        simulator_gui_container = document.getElementById('simulator_gui_container')
-        setup( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
     });
 
 </script>
