@@ -52,7 +52,10 @@
             </div>
         `;
     }
+    function clear_simulator_gui_container(divElement) {
 
+        divElement.innerHTML = '<b>Loading ...</b>';
+    }
 
     function simulate(instance, manifest, dataList, Nsamples, inputValues) {
 
@@ -228,17 +231,17 @@
         });
 
 
-        var p_manifest = new Promise(
-            function (resolve, reject) {
+        // var p_manifest = new Promise(
+        //     function (resolve, reject) {
 
-                compile_request.then(function (result) {
-                    resolve(result.manifest)
+        //         compile_request.then(function (result) {
+        //             resolve(result.manifest)
 
-                    console.log("resolved manifest ")
-                    console.log(result.manifest)
-                })
+        //             console.log("resolved manifest ")
+        //             console.log(result.manifest)
+        //         })
 
-            });
+        //     });
 
 
         function _base64ToArrayBuffer(base64) {
@@ -266,7 +269,7 @@
                 })
             });
 
-        return {p_manifest : p_manifest, rawWebAssembly : rawWebAssembly, jscode : jscode};
+        return {p_rawWebAssembly : rawWebAssembly, p_jscode : jscode};
 
     }
 
@@ -338,7 +341,7 @@
         );
 
 
-        return {p_manifest : p_manifest, rawWebAssembly : rawWebAssembly, jscode : jscode};
+        return {p_manifest : p_manifest, p_rawWebAssembly : rawWebAssembly, p_jscode : jscode};
     }
 
 
@@ -410,16 +413,23 @@
     // setup
     //var Module;
 
-    function setup(jscode, p_manifest, rawWebAssembly) {
+    function setup(simulator_gui_container, p_jscode, p_manifest, rawWebAssembly) {
 
-        init_simulator_gui_container( document.getElementById('simulator_gui_container') )
-        Module = createInstance( p_manifest, rawWebAssembly ) 
-        
-        var gvar = this;
-        
-        eval( jscode )
+        clear_simulator_gui_container( simulator_gui_container )
 
-        ORTD_simulator( Module )
+        p_jscode.then( function (jscode) {
+
+            console.log( jscode )
+
+            init_simulator_gui_container( simulator_gui_container )
+            Module = createInstance( p_manifest, rawWebAssembly ) 
+            
+            var gvar = this;
+            
+            eval( jscode )
+
+            ORTD_simulator( Module )
+        })
     }
 
 
@@ -433,12 +443,8 @@
 
         var ret = loadCompiledSimulator();
 
-        ret.jscode.then( function(jscode) { 
-
-            console.log( jscode )
-            setup( jscode, ret.p_manifest, ret.rawWebAssembly);
-
-        });
+        simulator_gui_container = document.getElementById('simulator_gui_container')
+        setup( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
     });
 
 
@@ -448,6 +454,8 @@
         // code = 'main() {}'
 
         code = document.getElementById("source_code").value
+
+        
 
         source_code = {main_cpp : window.btoa( code )  }
         var ret = compileSimulator(source_code);
@@ -465,13 +473,8 @@
 
 
         ///
-
-        ret.jscode.then( function(jscode) { 
-
-            console.log( jscode )
-            setup( jscode, ret.p_manifest, ret.rawWebAssembly);
-
-        });
+        simulator_gui_container = document.getElementById('simulator_gui_container')
+        setup( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
     });
 
 </script>
