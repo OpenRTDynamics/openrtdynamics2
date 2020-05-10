@@ -18,9 +18,8 @@ const { exec } = require("child_process");
 const fs = require('fs')
 
 
-function compile(source_code) {
+function compile(tmp_dir, source_code) {
 
-  tmp_dir = './uploads'
 
   command = '' + emcc_binary + '  --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" main.cpp -g4 -s -o main.js'
 
@@ -99,52 +98,67 @@ function compile(source_code) {
 }
 
 
-compile('blub')
+//compile('blub')
 
 
 app.use(bodyParser.json(  limit='5000kb' ) );
 
 // let parserJSON = bodyParser.json(type='*/*', limit='5000kb')
 
-app.post('/upload', function(req,res){
+app.post('/upload', function(req,res) {
 
     res.header("Access-Control-Allow-Origin", "*");
 
     console.log( req.body )
 
-    var source_code = req.body.main_cpp;
+    var source_code = req.body.source_code;
     var password = req.body.password;
 
     console.log(source_code)
 
-
-    ret = compile(source_code)
-
-
-//    rawWebAssembly = await p_wasm
-//    jscode = await p_jsfile
+    tmp_dir = './uploads'
 
 
-ret.p_wasm.then( function(result) {
+    fs.writeFile(tmp_dir + "/main.cpp",  new Buffer(source_code.main_cpp, 'base64'), function(err) {
+      if (err) {
+        console.log("error in putting main.cpp")
 
-    rawWebAssembly = result
+        return
+      }
 
-    ret.p_jsfile.then( function(result) {
+      console.log('placed main.cpp')
 
-      jscode = result
+      ret = compile(tmp_dir, source_code)
 
 
-      return_vals = { manifest : "blub", rawWebAssembly : rawWebAssembly.toString('base64'), jscode : jscode.toString('base64') }
-      raw_return_data = JSON.stringify(return_vals)
+
+      // wait compiler
+      ret.p_wasm.then( function(result) {
+
+        rawWebAssembly = result
     
-      res.setHeader('Content-Type', 'application/json')
-      res.end( raw_return_data )
+        ret.p_jsfile.then( function(result) {
     
+          jscode = result
+    
+    
+          return_vals = { manifest : "blub", rawWebAssembly : rawWebAssembly.toString('base64'), jscode : jscode.toString('base64') }
+          raw_return_data = JSON.stringify(return_vals)
+        
+          res.setHeader('Content-Type', 'application/json')
+          res.end( raw_return_data )
+        
+    
+    
+        })
+    
+      })
 
 
     })
 
-  })
+
+
 
   // return_vals = { manifest : "blub", rawWebAssembly : "xxxxx", jscode : "x=1" }
   // raw_return_data = JSON.stringify(return_vals)

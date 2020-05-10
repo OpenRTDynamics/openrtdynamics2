@@ -26,6 +26,17 @@
         </div> -->
 
     </div>
+
+    manifest
+    <textarea id="manifest" name="manifest">
+        man
+    </textarea>
+
+    source code
+    <textarea id="source_code" name="source_code">
+        sou
+    </textarea>
+
 <script>
 
 
@@ -194,7 +205,7 @@
                 var myHeaders = new Headers();
                 myHeaders.append("Content-Type", "application/json");
 
-                var raw = JSON.stringify({"main_cpp" : source_code , "password" : "1234" });
+                var raw = JSON.stringify({"source_code" : source_code , "password" : "1234" });
 
                 var requestOptions = {
                     method: 'POST',
@@ -251,7 +262,7 @@
         var jscode = new Promise(
             function (resolve, reject) {
                 compile_request.then(function (result) {
-                    resolve( _base64ToArrayBuffer(result.jscode) )
+                    resolve( window.atob(result.jscode) )
                 })
             });
 
@@ -434,11 +445,26 @@
     $( "#remote_compile_trigger" ).click(function() {
 
 
-        code = 'main() {}'
+        // code = 'main() {}'
 
-        source_code = {main_cpp : code}
+        code = document.getElementById("source_code").value
 
+        source_code = {main_cpp : window.btoa( code )  }
         var ret = compileSimulator(source_code);
+
+
+        var manifest = new Promise(
+            function (resolve, reject) {
+
+                manifest = document.getElementById("manifest").value
+                resolve( JSON.parse( manifest ) )
+
+            })
+
+        ret.p_manifest = manifest
+
+
+        ///
 
         ret.jscode.then( function(jscode) { 
 
