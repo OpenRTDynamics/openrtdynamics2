@@ -11,6 +11,97 @@ app.use(cors())
 // app.use(bodyParser.urlencoded({ extended: false }));
 
 
+
+var emcc_binary = '/Users/chr/git/emsdk/fastcomp/emscripten/emcc'
+
+const { exec } = require("child_process");
+const fs = require('fs')
+
+
+function compile(source_code) {
+
+  tmp_dir = './uploads'
+
+  command = '' + emcc_binary + '  --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" main.cpp -g4 -s -o main.js'
+
+  var p_compile = new Promise(
+    function (resolve, reject) {
+
+      exec(command, { cwd : tmp_dir }, (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+
+            reject( error.message )
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+
+        resolve( stdout.message )
+      });
+
+    })
+
+
+    var p_wasm = new Promise(
+      function (resolve, reject) {
+  
+        p_compile.then( function(result) {
+
+          fs.readFile(tmp_dir + '/main.wasm', (err, data) => {
+            if (err) {
+
+              console.error(err)
+              reject(err)
+
+              return
+            }
+            //console.log(data)
+
+            resolve(data)
+        
+          })
+        })
+
+    })
+
+
+
+
+    var p_jsfile = new Promise(
+      function (resolve, reject) {
+  
+        p_compile.then( function(result) {
+
+          fs.readFile(tmp_dir + '/main.js', (err, data) => {
+            if (err) {
+              
+              console.error(err)
+              reject(err)
+
+              return
+            }
+            //console.log(data)
+
+            resolve(data)
+        
+          })
+        })
+
+    })
+
+
+    return {p_wasm : p_wasm, p_jsfile : p_jsfile}
+
+}
+
+
+compile('blub')
+
+
 app.use(bodyParser.json(  limit='5000kb' ) );
 
 // let parserJSON = bodyParser.json(type='*/*', limit='5000kb')
@@ -27,15 +118,41 @@ app.post('/upload', function(req,res){
     console.log(source_code)
 
 
-  return_vals = { manifest : "blub", rawWebAssembly : "xxxxx", jscode : "x=1" }
-
-  raw_return_data = JSON.stringify(return_vals)
+    ret = compile(source_code)
 
 
-  res.setHeader('Content-Type', 'application/json')
-  res.end( raw_return_data )
+//    rawWebAssembly = await p_wasm
+//    jscode = await p_jsfile
 
-  // res.end(    '{ "manifest" : "ok" }'  );
+
+ret.p_wasm.then( function(result) {
+
+    rawWebAssembly = result
+
+    ret.p_jsfile.then( function(result) {
+
+      jscode = result
+
+
+      return_vals = { manifest : "blub", rawWebAssembly : rawWebAssembly.toString('base64'), jscode : jscode.toString('base64') }
+      raw_return_data = JSON.stringify(return_vals)
+    
+      res.setHeader('Content-Type', 'application/json')
+      res.end( raw_return_data )
+    
+
+
+    })
+
+  })
+
+  // return_vals = { manifest : "blub", rawWebAssembly : "xxxxx", jscode : "x=1" }
+  // raw_return_data = JSON.stringify(return_vals)
+
+  // res.setHeader('Content-Type', 'application/json')
+  // res.end( raw_return_data )
+
+  
 });
 
 
