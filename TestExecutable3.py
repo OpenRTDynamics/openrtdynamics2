@@ -119,7 +119,9 @@ def generate_signal_PWM( period, modulator ):
 
 
 
+#testname = 'system_state_machine_pwm' # 
 testname = 'nested_state_machine' # 
+
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
 
@@ -907,7 +909,7 @@ if testname == 'system_state_machine_pwm':
 
     # define system inputs
     period = dy.system_input( baseDatatype ).set_name('period')
-    modulator = dy.system_input( baseDatatype ).set_name('modulator')
+    modulator = dy.system_input( baseDatatype ).set_name('modulator') * dy.float64(1.0/100)
 
     # implement the generator
     pwm, state_control = generate_signal_PWM( period, modulator )
@@ -995,9 +997,10 @@ compile_results = dy.compile_current_system()
 
 
 # Build an executable based on a template
-runtime_template = dy.WasmRuntimeCpp(compile_results, input_signals_mapping=input_signals_mapping)
+runtime_template = dy.WasmRuntime(input_signals_mapping=input_signals_mapping)
+runtime_template.set_compile_results(compile_results)
 
-#runtime_template = dy.PutBasicRuntimeCpp(compileResults, input_signals_mapping=input_signals_mapping)
+#runtime_template = dy.PutBasicRuntimeCpp(input_signals_mapping=input_signals_mapping)
 
 
 # optional: add (pre-compiled) systems from the libraries

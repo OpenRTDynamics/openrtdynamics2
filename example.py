@@ -87,16 +87,8 @@ state_control = switch.state.set_name('state_control')
 # set the outputs of the system
 dy.set_primary_outputs([ output_x, output_v, state_control, counter ])
 
-# Compile system (propagate datatypes)
-compile_results = dy.compile_current_system()
 
-# Build an executable based on a template
-runtime_template = dy.WasmRuntimeCpp(compile_results, input_signals_mapping={})
-sourcecode, manifest = runtime_template.code_gen()
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
 
 # print the sourcecode (main.cpp)
 print(Style.DIM + sourcecode)
-
-# write generated code into a folder and build
-runtime_template.write_code("generated/")
-runtime_template.build()

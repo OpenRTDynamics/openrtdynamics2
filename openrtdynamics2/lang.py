@@ -85,3 +85,26 @@ def show_execution_lines(compile_results):
     print()
 
     compile_results.commandToExecute.printExecution()
+
+
+
+
+
+def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
+
+    # Compile system (propagate datatypes)
+    compile_results = dy.compile_current_system()
+
+    # Build an executable based on a template
+    template.set_compile_results( compile_results )
+    sourcecode, manifest = template.code_gen()
+
+    if folder is not None:
+        # write generated code into a folder and build
+        template.write_code("generated/")
+
+        if build:
+            template.build()
+
+
+    return sourcecode, manifest

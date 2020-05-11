@@ -14,14 +14,23 @@ class PutRuntimeCppHelper:
         generates code for the runtime evironment
     """
 
-    def __init__(self, compileResults : CompileResults ):
+    def __init__(self, compile_results : CompileResults = None ):
         ExecutionCommand.__init__(self)  # TODO: what is this?
 
-        self.compileResults = compileResults
-        self.mainSimulation = compileResults.commandToExecute
+        if compile_results is not None:
+            self.compileResults = compile_results
+            self.mainSimulation = compile_results.commandToExecute
+
+        else:
+            self.compileResults = None
+            self.mainSimulation = None
 
         # list of inlcuded system
         self._includedSystems = []
+
+    def set_compile_results(self, compile_results : CompileResults ):
+        self.compileResults = compile_results
+        self.mainSimulation = compile_results.commandToExecute
 
     def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system
@@ -113,8 +122,6 @@ class PutRuntimeCppHelper:
 
     def writeFiles(self, folder):
 
-        print(folder)
-
         with open( os.path.join( folder + '//simulation_manifest.json' ), 'w') as outfile:  
             json.dump(self.manifest, outfile)
 
@@ -132,12 +139,11 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         generates code for the runtime evironment
     """
 
-    def __init__(self, compileResults : CompileResults, input_signals_mapping ):
+    def __init__(self, input_signals_mapping = {} ):
 
-        PutRuntimeCppHelper.__init__(self, compileResults)
+        PutRuntimeCppHelper.__init__(self)
 
         self.input_signals_mapping = input_signals_mapping
-
         self.initCodeTemplate()
 
         
@@ -265,20 +271,19 @@ int main () {
 
 
 
-class WasmRuntimeCpp(PutRuntimeCppHelper):
+class WasmRuntime(PutRuntimeCppHelper):
     """
-        generates code for the runtime evironment
+        generates code for the Webassemble runtime evironment
 
         https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 
     """
 
-    def __init__(self, compileResults : CompileResults, input_signals_mapping ):
+    def __init__(self, input_signals_mapping = {} ):
 
-        PutRuntimeCppHelper.__init__(self, compileResults)
+        PutRuntimeCppHelper.__init__(self)
 
         self.input_signals_mapping = input_signals_mapping
-
         self.initCodeTemplate()
 
         
@@ -359,7 +364,7 @@ class WasmRuntimeCpp(PutRuntimeCppHelper):
 
     def build(self):
 
-        buildCommand = "emcc --bind " + os.path.join(self.codeFolder + "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder + "main.js" )
+        buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder + "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder + "main.js" )
         print("Running compiler: " + buildCommand)
 
         returnCode = os.system(buildCommand)

@@ -122,9 +122,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # only implement caching for intermediate computaion results.
                         # I.e. exclude the simulation input signals
 
-                        print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
-
-                        #lines += s.getSourceBlock().getBlockPrototype().codeGen_localvar('c++', s)
+                        # print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
 
                         lines += cgh.defineVariableLine( s )
 
@@ -522,8 +520,6 @@ class PutAPIFunction(ExecutionCommand):
 
                         if len(inputArguments) > 0:
                             argumentsString += ', '.join( inputArguments )
-
-                        print( 'args are: ' + argumentsString )
 
                     else:
                         argumentsString = ''
