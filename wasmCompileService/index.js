@@ -170,8 +170,8 @@ app.post('/upload', function(req,res) {
 });
 
 
-
-
+//app.use(express.static('js'));
+app.use('/js', express.static('js'))
 
 
 // app.post('/upload', parserJSON, function(req,res){
