@@ -2,11 +2,8 @@
 function init_simulator_gui_container(divElement) {
 
     divElement.innerHTML = `
-        <div id='editor_holder'>
-        </div>
-        <canvas id="plot" width="400" height="200"></canvas>
-        <div id='results'>
-        </div>
+        <div class='editor_holder'></div>
+        <canvas class="plot" width="400" height="200"></canvas>
     `;
 }
 function clear_simulator_gui_container(divElement) {
@@ -68,7 +65,7 @@ function genrateParameterInitValues(manifest) {
     return initvals;
 }
 
-function initParameterEditor(manifest, initvals, fn) {
+function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
     // Set default options
     // JSONEditor.defaults.options.theme = 'bootstrap2';
@@ -87,7 +84,7 @@ function initParameterEditor(manifest, initvals, fn) {
     }
 
     // Initialize the editor
-    var editor = new JSONEditor(document.getElementById("editor_holder"), {
+    var editor = new JSONEditor(  simulator_gui_container.getElementsByClassName("editor_holder" )[0], {
         schema: {
             type: "object",
             properties: properties
@@ -105,7 +102,7 @@ function initParameterEditor(manifest, initvals, fn) {
     return editor;
 }
 
-function preparePlots(manifest, Nsamples) {
+function preparePlots(simulator_gui_container, manifest, Nsamples) {
 
     // default colors
     var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
@@ -136,7 +133,7 @@ function preparePlots(manifest, Nsamples) {
     });
 
     // plot
-    var ctx = document.getElementById('plot');
+    var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
 
     var myLineChart = new Chart(ctx, {
         type: "scatter",
@@ -280,7 +277,7 @@ function loadCompiledSimulator() {
 
 
 // create instance fo the simulator
-function createInstance( p_manifest, rawWebAssembly ) {
+function createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) {
     var Module = {
 
         instantiateWasm: function (imports, successCallback) {
@@ -316,18 +313,18 @@ function createInstance( p_manifest, rawWebAssembly ) {
                     var Nsamples = 200;
 
                     // init the plots
-                    var [myLineChart, dataList] = preparePlots(manifest, Nsamples);
+                    var [myLineChart, dataList] = preparePlots(simulator_gui_container, manifest, Nsamples);
 
                     // parameter
                     var initvals = genrateParameterInitValues(manifest);
 
-                    initParameterEditor(manifest, initvals, function (inputValues) {
+                    initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
                         // on parameter change simulate and plot
                         simulate(instance, manifest, dataList, Nsamples, inputValues);
                         myLineChart.update();
                     });
 
-                    outputView = document.getElementById('results');
+                    // outputView = document.getElementById('results');
 
                     simulate(instance, manifest, dataList, Nsamples, initvals);
                     myLineChart.update();
@@ -350,7 +347,7 @@ function setup_simulation_gui_from_promises(simulator_gui_container, p_jscode, p
         console.log( jscode )
 
         init_simulator_gui_container( simulator_gui_container )
-        Module = createInstance( p_manifest, rawWebAssembly ) 
+        Module = createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) 
         
         var gvar = this;
         

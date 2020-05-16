@@ -11,9 +11,16 @@
         Click here to (re)load from a fixed folder
     </div>
 
-    <div id="remote_compile_trigger">
-        Click here to compile souece on remote
+    <div id="reload_trigger2">
+        Click here to (re)load from a fixed folder 2
     </div>
+
+
+    <div id="remote_compile_trigger2">
+        Click here to compile souece on remote 2
+    </div>
+
+
 
     <textarea id="compile_service_url" name="compile_service_url">
 http://localhost:3000/upload/
@@ -27,6 +34,17 @@ http://localhost:3000/upload/
     <div id='simulator_gui_container'>
 No simulation loaded
     </div>
+
+
+    <div id='simulator_gui_container2'>
+No simulation loaded
+    </div>
+        
+    <div id='simulator_gui_container3'>
+No simulation loaded
+    </div>
+                
+                     
 
     manifest
     <textarea id="manifest" name="manifest">
@@ -43,25 +61,38 @@ No simulation loaded
 
 
 
+    simulator_gui_container2 = document.getElementById('simulator_gui_container2')
+
+    $( "#reload_trigger2" ).click(function() {
+
+        var ret = loadCompiledSimulator();
+        setup_simulation_gui_from_promises( simulator_gui_container2, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+    });
+
+
+
+
 
     simulator_gui_container = document.getElementById('simulator_gui_container')
 
     $( "#reload_trigger" ).click(function() {
 
         var ret = loadCompiledSimulator();
-
         setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
     });
 
 
+
     $( "#remote_compile_trigger" ).click(function() {
+
+        simulator_gui_container3 = document.getElementById('simulator_gui_container3')
 
         code = document.getElementById("source_code").value
         manifest = document.getElementById("manifest").value
         compile_service_url = document.getElementById("compile_service_url").value
         secret_token = document.getElementById("secret_token").value
 
-        setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code )
+        setup_simulation_gui( simulator_gui_container3, compile_service_url, secret_token, manifest, code )
         
 
     });
