@@ -2,11 +2,8 @@
 function init_simulator_gui_container(divElement) {
 
     divElement.innerHTML = `
-        <div class='editor_holder'>
-        </div>
+        <div class='editor_holder'></div>
         <canvas class="plot" width="400" height="200"></canvas>
-        <div class='results'>
-        </div>
     `;
 }
 function clear_simulator_gui_container(divElement) {
@@ -137,10 +134,6 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
 
     // plot
     var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
-
-    console.log('###############')
-    console.log( ctx )
-
 
     var myLineChart = new Chart(ctx, {
         type: "scatter",
