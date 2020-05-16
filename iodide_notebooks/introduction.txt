@@ -1,0 +1,120 @@
+%% py
+
+import micropip
+micropip.install('openrtdynamics2')
+micropip.install('colorama')
+
+from colorama import init,  Fore, Back, Style
+import openrtdynamics2.lang as dy
+
+%% fetch
+
+js: http://localhost:3000/js/ORTD_js_simulator.js
+js: https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js
+js: https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
+js: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js
+css: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/default.min.css
+
+%% js
+var compile_service_url = "http://localhost:3000/upload"
+var secret_token = "1234"
+
+%% py
+#
+# Enter a new system
+#
+system = dy.enter_system('simulation')
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define system inputs
+input_signal    = dy.system_input( baseDatatype ).set_name('input')
+
+# define a chain of discrete-time low pass filters (poles are specified in z-domain)
+chain_output1 = dy.dtf_lowpass_1_order(input_signal,   z_infinity=0.9 )
+chain_output2 = dy.dtf_lowpass_1_order(chain_output1,  z_infinity=0.9 )
+chain_output3 = dy.dtf_lowpass_1_order(chain_output2,  z_infinity=0.9 )
+
+# main simulation ouput
+dy.set_primary_outputs([ chain_output1, chain_output2, chain_output3 ])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.leave_system()
+
+%% md
+
+<div id='simulator_gui_container'>
+No simulation loaded
+</div>
+
+Sourcecode:
+<pre><code class="c++ code" id="sourcecode">...</code></pre>
+
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_gui_container'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode )
+
+// source_code_block = document.getElementById('sourcecode')
+// source_code_block.innerText = sourcecode
+
+
+
+
+
+
+
+
+%% py
+#
+# Enter a new system
+#
+system = dy.enter_system('simulation')
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define system inputs
+reference       = dy.system_input( baseDatatype ).set_name('reference')
+k_p             = dy.system_input( baseDatatype ).set_name('k_p')       * dy.float64(0.05)
+
+# create placeholder for the plant output signal
+controlled_variable = dy.signal()
+
+# P-controller
+control_error = reference - controlled_variable
+control_variable = k_p * control_error
+
+# plant
+plant_output = dy.dtf_lowpass_1_order(control_variable, z_infinity=0.98 )
+plant_output = dy.delay(plant_output, 0.0)
+
+# close feedback loop
+controlled_variable << plant_output
+
+# main simulation ouput
+dy.set_primary_outputs([ plant_output, control_error, control_variable ])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.leave_system()
+
+
+
+%% md
+
+Simulation
+<div id='simulator_gui_container2'>
+No simulation loaded
+</div>
+
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_gui_container2'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode )

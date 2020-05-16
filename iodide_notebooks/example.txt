@@ -37,8 +37,8 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 # define system inputs
 number_of_samples_to_stay_in_A = dy.system_input( baseDatatype ).set_name('number_of_samples_to_stay_in_A')
-threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B')
-U2 = dy.system_input( baseDatatype ).set_name('osc_excitement')
+threshold_for_x_to_leave_B = dy.system_input( baseDatatype ).set_name('threshold_for_x_to_leave_B') * dy.float64(0.1)
+U2 = dy.system_input( baseDatatype ).set_name('osc_excitement') * dy.float64(0.1)
 
 # some modification of one input
 U = U2 * dy.float64(1.234)
@@ -46,7 +46,7 @@ U.set_name("stachmachine_input_U")
 
 with dy.sub_statemachine( "statemachine1" ) as switch:
 
-    with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
+    with switch.new_subsystem('state_A') as system:
 
         # implement a dummy system the produces zero values for x and v
         x = dy.float64(0.0).set_name('x_def')
@@ -91,19 +91,7 @@ state_control = switch.state.set_name('state_control')
 # set the outputs of the system
 dy.set_primary_outputs([ output_x, output_v, state_control, counter ])
 
-# Compile system (propagate datatypes)
-compile_results = dy.compile_current_system()
-
-# Build an executable based on a template
-runtime_template = dy.WasmRuntime(compile_results, input_signals_mapping={})
-sourcecode, manifest = runtime_template.code_gen()
-
-# print the sourcecode (main.cpp)
-# print(Style.DIM + sourcecode)
-
-# write generated code into a folder and build
-#runtime_template.write_code("generated/")
-#runtime_template.build()
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
 
 %% md
 
@@ -114,32 +102,31 @@ No simulation loaded
 
 Sourcecode:
 
-<div id="sourcecode"></div>
+<pre><code class="c++ code" id="sourcecode">...</code></pre>
 
 %% fetch
 
 js: http://localhost:3000/js/ORTD_js_simulator.js
 js: https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js
 js: https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
-
+js: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js
+css: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/default.min.css
 
 %% js
-
 var manifest = pyodide.pyimport("manifest")
 var sourcecode = pyodide.pyimport("sourcecode")
 
-
 simulator_gui_container = document.getElementById('simulator_gui_container')
-document.getElementById('sourcecode').innerHTML = sourcecode
-
 compile_service_url = "http://localhost:3000/upload"
 secret_token = "1234"
 
 setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, JSON.stringify( manifest), sourcecode )
 
+%% js
+source_code_block = document.getElementById('sourcecode')
 
+source_code_block.innerText = sourcecode
 
-%% py
-from js import document
-elt = document.getElementById("sourcecode")
-elt.innerText = sourcecode
+%% js
+hljs.initHighlightingOnLoad();
+hljs.highlightBlock(source_code_block);  
