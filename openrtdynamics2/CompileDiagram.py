@@ -280,7 +280,6 @@ def compile_single_system(system, reduce_uneeded_code = False):
                 simulationInputSignalsToUpdateStates.update([s])
 
             elif not E.isSignalAlreadyComputable(s):
-                
 
                 dependencySignals__.append(s)
 

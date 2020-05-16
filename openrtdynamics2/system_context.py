@@ -1,12 +1,20 @@
 from .libdyn import *
-#from Signal import *
 from . import SignalInterface as si
 
 
 current_simulation_context = None
 simulation_stack = []
-
 counter_of_created_systems = 1000
+
+def init_simulation_context():
+    global simulation_stack
+    global current_simulation_context
+    global counter_of_created_systems
+
+    current_simulation_context = None
+    simulation_stack = []
+    counter_of_created_systems = 1000
+
 
 def generate_subsystem_name():
     """
@@ -18,8 +26,6 @@ def generate_subsystem_name():
     counter_of_created_systems += 1
 
     return name
-
-
 
 def push_simulation_context(sim):
     global simulation_stack
@@ -48,7 +54,7 @@ def get_simulation_context():
     global current_simulation_context
     return current_simulation_context
 
-def enter_system(name : str, upper_level_system = None):
+def enter_system(name : str = 'simulation', upper_level_system = None):
     """
         create a new system
     """
@@ -58,8 +64,6 @@ def enter_system(name : str, upper_level_system = None):
     # register this subsystem to the parent system
     if get_simulation_context() is not None:
         get_simulation_context().appendNestedSystem( system )
-
-    print("enter_system: created " + str(system) )
 
     push_simulation_context(system)
 
@@ -74,6 +78,8 @@ def enter_subsystem(name : str):
 def leave_system():
     return pop_simulation_context()
 
+def clear():
+    init_simulation_context()
 
 def set_primary_outputs(output_signals):
     get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )

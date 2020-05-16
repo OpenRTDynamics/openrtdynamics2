@@ -1,5 +1,4 @@
 from . import libdyn
-
 from . import CompileDiagram as cd
 from . import SignalInterface as si
 
@@ -26,9 +25,6 @@ def export_graph(filename, system = None):
 
     if system is None:
         system = get_simulation_context() 
-
-
-    # filename = 'generated/graph.json'
 
     print()
     print(Style.BRIGHT + "-------- export graph --------")

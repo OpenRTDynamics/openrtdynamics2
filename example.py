@@ -42,7 +42,7 @@ U.set_name("stachmachine_input_U")
 
 with dy.sub_statemachine( "statemachine1" ) as switch:
 
-    with switch.new_subsystem('state_A') as system: # NOTE: do not put c++ keywords as system names
+    with switch.new_subsystem('state_A') as system:
 
         # implement a dummy system the produces zero values for x and v
         x = dy.float64(0.0).set_name('x_def')

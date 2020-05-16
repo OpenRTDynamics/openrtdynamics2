@@ -370,7 +370,7 @@ class BuildExecutionPath:
         if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
             
             # this case must be an error..                  
-            raise BaseException('not implemented or internal error: unexpected type of signal' + startSignal.name)
+            raise BaseException('not implemented or internal error: unexpected type of signal ' + startSignal.name)
 
 
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevel(self.level):
@@ -452,18 +452,25 @@ class BuildExecutionPath:
         blocksPrototype = block.getBlockPrototype()
 
         # check if the block that yields startSignal uses internal-states to compute startSignal
-        if blocksPrototype.returnInutsToUpdateStates( startSignal ) is not None:
+        inputsToUpdateStatesTmp = blocksPrototype.returnInutsToUpdateStates( startSignal )
+        if inputsToUpdateStatesTmp is not None:
             # 
             self.blocksToUpdateStates.append( block )
 
+            # please note: blocksPrototype.returnInutsToUpdateStates might return some undetermined signals that are resolved here
+            resolveUndeterminedSignals( inputsToUpdateStatesTmp )
+
             # add the signals that are required to perform the state update
-            self.dependencySignalsThroughStates.extend( blocksPrototype.returnInutsToUpdateStates( startSignal ) )
+            self.dependencySignalsThroughStates.extend( inputsToUpdateStatesTmp )
 
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
         print(tabs + "--- signals needed for " + startSignal.name + " (" + ") --" )
 
         dependingSignals = blocksPrototype.returnDependingInputs(startSignal)
+
+        # please note: blocksPrototype.returnDependingInputs might return some undetermined signals that are resolved here
+        resolveUndeterminedSignals( dependingSignals )
 
         if len(dependingSignals) == 0:
             # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
