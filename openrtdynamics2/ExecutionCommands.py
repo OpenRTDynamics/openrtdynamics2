@@ -60,13 +60,14 @@ class CommandCalculateOutputs(ExecutionCommand):
         output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
     """
 
-    def __init__(self, system, executionLine, targetSignals, no_memory_for_output_variables : bool, output_signals = []):
+    def __init__(self, system, executionLine, targetSignals, signals_from_system_states = [], no_memory_for_output_variables : bool = False, output_signals = []):
         ExecutionCommand.__init__(self)
 
-        self._system = system
-        self.executionLine = executionLine
-        self.targetSignals = targetSignals
-        self._output_signals = output_signals
+        self._system                          = system
+        self.executionLine                    = executionLine
+        self.targetSignals                    = targetSignals
+        self._output_signals                  = output_signals
+        self._signals_from_system_states      = signals_from_system_states
         self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
     def printExecution(self):
@@ -96,7 +97,7 @@ class CommandCalculateOutputs(ExecutionCommand):
             if flag == 'localvar':
 
                 # 
-                SignalsExceptOutputs = self.executionLine.getSignalsToExecute().copy()
+                signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
 
                 # remove the system-output signals if requested
                 if not self.define_variables_for_the_outputs: # This is flipped by its name
@@ -107,24 +108,30 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                             # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
 
-                            SignalsExceptOutputs.remove( s )
+                            signals_reduced_set.remove( s )
 
                             # notify the block prototype that the signal s will be a system output
                             # and, hence, no memory shall be allocated for s (because the memory is already
                             # available)
                             s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
+                            
+                            
+                            
 
 
                 # skip the input signals in this loop (as their variables are already defined by the function API)
-                for s in SignalsExceptOutputs:
+                for s in signals_reduced_set:
 
-                    if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
+                    # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
+                    if not s in self._signals_from_system_states:
 
-                        # print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
+                        if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+                            # only implement caching for intermediate computaion results.
+                            # I.e. exclude the simulation input signals
 
-                        lines += cgh.defineVariableLine( s )
+                            # print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
+
+                            lines += cgh.defineVariableLine( s )
 
 
 

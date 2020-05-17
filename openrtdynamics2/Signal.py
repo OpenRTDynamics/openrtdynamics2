@@ -126,6 +126,10 @@ class Signal(object):
         # check of this node was marked on level or a level below
         return self.lookupSource().graphTraversionMarker == onLevel
 
+    def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
+        # check of this node was marked on level or a level below
+        return self.lookupSource().graphTraversionMarker == onLevel
+
     # set the name of this signal
     def set_name(self, name):
         self.lookupSource()._name = name

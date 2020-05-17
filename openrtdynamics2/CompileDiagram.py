@@ -329,7 +329,13 @@ def compile_single_system(system, reduce_uneeded_code = False):
         #       whose states are updated
         #
 
-        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, executionLineForCurrentOrder, dependencySignals__, no_memory_for_output_variables = False) )
+        signals_from_system_states = signalsToCache
+
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, 
+                                                                        executionLineForCurrentOrder, 
+                                                                        dependencySignals__, 
+                                                                        signals_from_system_states=signals_from_system_states, 
+                                                                        no_memory_for_output_variables = False) )
 
         #
         # find out which blocks need a call to update their states:
