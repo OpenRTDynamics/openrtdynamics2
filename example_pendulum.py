@@ -5,6 +5,8 @@ import json
 from colorama import init, Fore, Back, Style
 init(autoreset=True)
 
+import math
+
 
 #
 # Enter a new system (simulation)
@@ -25,24 +27,29 @@ def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0)
     return y
 
 
-# define system inputs
-friction       = dy.system_input( baseDatatype ).set_name('friction')   * dy.float64(0.05)
-mass           = dy.system_input( baseDatatype ).set_name('mass')       * dy.float64(0.05)
+ofs = dy.float64(0.1).set_name('ofs')
 
-J = dy.float64(1.0)
-l = dy.float64(1.0)
+# define system inputs
+friction       = dy.system_input( baseDatatype ).set_name('friction')   * dy.float64(0.05) + ofs
+mass           = dy.system_input( baseDatatype ).set_name('mass')       * dy.float64(0.05) + ofs
+length         = dy.system_input( baseDatatype ).set_name('length')     * dy.float64(0.05) + ofs
+
+
+# length = dy.float64(0.3)
+g = dy.float64(9.81).set_name('g')
 
 # create placeholder for the plant output signal
 angle = dy.signal()
 angular_velocity = dy.signal()
 
 
-angular_acceleration =  dy.float64(9.81) * mass/l * dy.sin(angle).set_blockname('sinus') - friction * angular_velocity
+angular_acceleration =  dy.float64(0) - g / length * dy.sin(angle) - (friction / mass * length ) * angular_velocity
 
+angular_acceleration.set_name('angular_acceleration')
 
 sampling_rate = 0.01
-angular_velocity_ = euler_integrator(angular_acceleration, sampling_rate, 0.0)
-angle_            = euler_integrator(angular_velocity_,    sampling_rate, 0.0)
+angular_velocity_ = euler_integrator(angular_acceleration, sampling_rate, 0.0).set_name('ang_vel')
+angle_            = euler_integrator(angular_velocity_,    sampling_rate, 30.0 / 180.0 * math.pi).set_name('ang')
 
 angle             << angle_
 angular_velocity  << angular_velocity_
