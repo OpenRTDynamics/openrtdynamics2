@@ -137,7 +137,7 @@ class CommandCalculateOutputs(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n// calculating the block outputs in the following order ' + cgh.signalListHelper_names_string(self.executionLine.signalOrder ) + '\n'
-                lines += '// that depend on ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignals) + '\n'
+                lines += '// that depend on ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignalsSimulationInputs) + '\n'
                 lines += '// dependencies that require a state update are ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
                 lines += '\n'
 

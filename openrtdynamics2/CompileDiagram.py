@@ -185,19 +185,19 @@ def compile_single_system(system, reduce_uneeded_code = False):
     # 
 
     # start with following signals to be computed
-    dependencySignals = executionLineToCalculateOutputs.dependencySignals
+    #dependencySignals = executionLineToCalculateOutputs.dependencySignals
     dependencySignalsSimulationInputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
     blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
     dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
 
-    # get the simulation-input signals in dependencySignals
+    # get the simulation-input signals in dependencySignals TODO: collapse this
     simulationInputSignalsToCalculateOutputs = []
-    for s in dependencySignals:
+    for s in dependencySignalsSimulationInputs:
 
-        # if isinstance(s, SimulationInputSignal):
-        if s.is_crossing_system_boundary(system):
+        # # if isinstance(s, SimulationInputSignal):
+        # if s.is_crossing_system_boundary(system):
             
-            simulationInputSignalsToCalculateOutputs.append(s)
+        simulationInputSignalsToCalculateOutputs.append(s)
 
     # counter for the order (i.e. step through all delays present in the system)
     order = 0
@@ -251,60 +251,30 @@ def compile_single_system(system, reduce_uneeded_code = False):
     # double uodates.
     blocksWhoseStatesToUpdate_All = []
 
+    # find out which singnals must be further computed to allow a state-update of the blocks
+    dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+
+    dependency_signals_through_states_that_are_already_computed = set()
+    
+
     while True:
 
         print("--------- Computing order "+ str(order) + " --------")
-        print("dependent sources:")
-            
-        for s in dependencySignals:
-            print(Fore.YELLOW + "  - " + s.toStr() )
-
-
-        # collect all executions lines build in this order in:
-        executionLinesForCurrentOrder = []
-
+        
         # backwards jump over the blocks that compute dependencySignals through their states.
         # The result is dependencySignals__ which are the inputs to these blocks
         print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
 
-
-
-
-        # find out which singnals must be further computed to allow a state-update of the blocks
-        dependencySignals__ = []
-        for s in dependencySignalsThroughStates + dependencySignals:
-
-            # if isinstance(s, SimulationInputSignal):
-            if s.is_crossing_system_boundary(system):
-        
-                simulationInputSignalsToUpdateStates.update([s])
-
-            elif not E.isSignalAlreadyComputable(s):
-
-                dependencySignals__.append(s)
-
-            else:
-                print(Style.DIM + "    This signal (" + s.name + ") is already computable (no futher execution line is calculated to this signal)")
-
-
-
-
-        # TODO: check whether to abort in case of len(dependencySignals__) == 0
-
-
-
-
-
-
         # print the list of signals
-        print("-- dependency signals __ --")
-        for s in dependencySignals__:
+        print("-- dependencySignalsThroughStates signals __ --")
+        for s in dependencySignalsThroughStates:
             print("  - " + s.name)
 
-
+        # collect all executions lines build in this order in:
+        executionLinesForCurrentOrder = []
 
         # iterate over all needed input signals and find out how to compute each signal
-        for s in dependencySignals__:
+        for s in dependencySignalsThroughStates:
 
             # get execution line to calculate s
             executionLineForS = E.getExecutionLine(s)
@@ -319,6 +289,9 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
             # append execution line
             executionLineForCurrentOrder.appendExecutionLine( e )
+
+        # update the list
+        dependency_signals_through_states_that_are_already_computed.update( dependencySignalsThroughStates )
 
 
         # create a command to calcurate executionLineForCurrentOrder and append to the
@@ -375,9 +348,16 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
         # get the dependendy singals of the current order
         # TODO important: remove the signals that are already computable from this list
-        dependencySignals = executionLineForCurrentOrder.dependencySignals
+        #dependencySignals = executionLineForCurrentOrder.dependencySignals
+        dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
         blocksToUpdateStates = executionLineForCurrentOrder.blocksToUpdateStates
         dependencySignalsThroughStates = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+        # find out which singnals must be further computed to allow a state-update of the blocks
+        dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+
+        # add the system inputs needed to update the states
+        simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
 
         # iterate
         order = order + 1

@@ -181,7 +181,7 @@ class ExecutionLine():
 
     def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
         self.signalOrder = signalOrder
-        self.dependencySignals = dependencySignals
+        # self.dependencySignals = dependencySignals
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
         self.blocksToUpdateStates = blocksToUpdateStates
         self.dependencySignalsThroughStates = dependencySignalsThroughStates
@@ -191,8 +191,8 @@ class ExecutionLine():
 
         print(Fore.RED + "dependent sources:")
 
-        for s in self.dependencySignals:
-            print("  - " + s.name )
+        # for s in self.dependencySignals:
+        #     print("  - " + s.name )
 
         print(Fore.RED + "dependent sources (simulation inputs):")
                 
@@ -231,9 +231,9 @@ class ExecutionLine():
 
         # TODO: use sets to merge..
 
-        for s in executionLineToAppend.dependencySignals:
-            if not s in self.dependencySignals and not s in self.signalOrder:
-                self.dependencySignals.append(s)
+        # for s in executionLineToAppend.dependencySignals:
+        #     if not s in self.dependencySignals and not s in self.signalOrder:
+        #         self.dependencySignals.append(s)
 
 
         for s in executionLineToAppend.dependencySignalsSimulationInputs:
@@ -260,6 +260,9 @@ class ExecutionLine():
             if not s in original_list_tmp:
                 self.signalOrder.append( s )
 
+            else:
+                print("appendExecutionLine: skipped to add " + s.name)
+
 
 
 
@@ -277,7 +280,7 @@ class ExecutionLine():
 
 
 
-
+# NOTE: Simulation inputs might come twiche!
 
 
 
@@ -407,6 +410,11 @@ class BuildExecutionPath:
 
             return
 
+        if startSignal.graphTraversionMarkerMarkIsVisited():
+
+            print(Style.DIM + tabs + "has already been calculated in this traversion") 
+            return
+
 
 
         # check if the signal is a system input signal
@@ -425,7 +433,7 @@ class BuildExecutionPath:
             # also note down that this is a (actually used) simulation input
             self.dependencySignalsSimulationInputs.append( startSignal )
 
-            print(Style.DIM + tabs + "added dependency " + startSignal.toStr())
+            print(Style.DIM + tabs + "added input dependency " + startSignal.toStr())
 
             # mark the node/signal as being visited (meaning computed)
             self.place_marker_for_current_level(startSignal)
@@ -457,6 +465,9 @@ class BuildExecutionPath:
             for signal in inputsToUpdateStatesTmp:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
+            # mark the node/signal as being visited (meaning computed) ?????????????
+            # self.place_marker_for_current_level(startSignal)
+
         #
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
@@ -478,6 +489,7 @@ class BuildExecutionPath:
             self.dependencySignals.append( startSignal )
 
             #
+            print(Style.DIM + tabs + "added " + startSignal.toStr())
             self.execution_order.append( startSignal )
 
             # mark the node/signal as being visited (meaning computed)
