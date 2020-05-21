@@ -31,7 +31,6 @@ function compile(tmp_dir, source_code) {
         }
         if (stderr) {
             console.log(`stderr: ${stderr}`);
-            return;
         }
         console.log(`stdout: ${stdout}`);
 
@@ -96,7 +95,17 @@ app.post('/compile', function(req,res) {
     res.header("Access-Control-Allow-Origin", "*");
 
     var source_code = req.body.source_code;
-    var password = req.body.password;
+    var secret_token = req.body.secret_token;
+
+    if (secret_token != config.secret_token) {
+      res.end( 'access denied' )
+      console.log('access denied')
+      return
+    }
+
+    console.log(' -- new request --')
+    console.log( req.headers )
+
 
     // create a tmp file
     tmp_file_generator.dir(function _tempDirCreated(err, path, cleanupCallback) {
@@ -112,6 +121,7 @@ app.post('/compile', function(req,res) {
         }
 
         ret = compile(tmp_dir, source_code)
+        console.log('compiler started')
 
         // wait for the compiler
         ret.p_wasm.then( function(result) {
@@ -119,10 +129,14 @@ app.post('/compile', function(req,res) {
       
           ret.p_jsfile.then( function(result) {
             jscode = result
+
+            console.log('compilation finished')
       
             return_vals = { rawWebAssembly : rawWebAssembly.toString('base64'), jscode : jscode.toString('base64') }
             raw_return_data = JSON.stringify(return_vals)
-          
+
+            // console.log(raw_return_data)
+
             res.setHeader('Content-Type', 'application/json')
             res.end( raw_return_data )
 
