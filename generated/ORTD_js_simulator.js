@@ -3,6 +3,7 @@ function init_simulator_gui_container(divElement) {
 
     divElement.innerHTML = `
         <div class='editor_holder'></div>
+        <div class="plotly" width="400" height="200"></div>
         <canvas class="plot" width="400" height="200"></canvas>
     `;
 }
@@ -11,7 +12,13 @@ function clear_simulator_gui_container(divElement) {
     divElement.innerHTML = '<b>Loading ...</b>';
 }
 
-function simulate(instance, manifest, dataList, Nsamples, inputValues) {
+
+
+
+
+
+
+function simulate(instance, manifest, arrays_for_output_signals_array, arrays_for_output_signals_xy, Nsamples, inputValues) {
 
     // sort inputValues into the inupts for state update and output calculation
     var inputs_updateStates = {}
@@ -31,20 +38,27 @@ function simulate(instance, manifest, dataList, Nsamples, inputValues) {
 
     instance.resetStates(inputs_resetStates);
 
+    var t = 0.0
+
     for (i = 0; i < Nsamples; ++i) {
         outputs = instance.calcResults_1(inputs_calcOutputs);
         instance.updateStates(inputs_updateStates);
 
-        t = i * 0.01;
+        t = t + 0.01;
+        arrays_for_output_signals_array["time"][i] = t
 
         manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-            dataList[outputName][i].x = t;
-            dataList[outputName][i].y = outputs[outputName];
+            arrays_for_output_signals_array[outputName][i] = outputs[outputName];
+
+            arrays_for_output_signals_xy[outputName][i].x = t;
+            arrays_for_output_signals_xy[outputName][i].y = outputs[outputName];
         });
     }
+
+    console.log( arrays_for_output_signals_xy )
 }
 
-function allocateOutputMemory(Nsamples) {
+function allocateOutputMemoryXY(Nsamples) {
     var dataset_plot = [];
     for (i = 0; i < Nsamples; ++i) {
         dataset_plot.push({ x: 0.0, y: 0.0 });
@@ -52,6 +66,16 @@ function allocateOutputMemory(Nsamples) {
 
     return dataset_plot;
 }
+function allocateOutputMemoryArray(Nsamples) {
+    var dataset_plot = [];
+    for (i = 0; i < Nsamples; ++i) {
+        dataset_plot.push(0.0);
+    }
+
+    return dataset_plot;
+}
+
+
 
 function genrateParameterInitValues(manifest) {
     // generate list of properties
@@ -64,6 +88,14 @@ function genrateParameterInitValues(manifest) {
 
     return initvals;
 }
+
+
+
+
+
+
+
+
 
 function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
@@ -78,7 +110,7 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     for (i = 0; i < i1.length; ++i) {
         properties[i1[i]] = { "type": "number", "format": "range", "propertyOrder": i,
             "options": {
-                    "infoText": "Your full name"
+                    "infoText": "..."
             }
         }
     }
@@ -102,7 +134,96 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     return editor;
 }
 
-function preparePlots(simulator_gui_container, manifest, Nsamples) {
+
+
+function allocate_arrays_for_output_signals_xy(manifest, Nsamples) {
+
+    // prepare datasets and pre alloc memory for each to fill in data
+    var arrays_for_output_signals_xy = {}
+    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        var data = allocateOutputMemoryXY(Nsamples);
+
+        arrays_for_output_signals_xy[outputName] = data;
+    });
+
+    return arrays_for_output_signals_xy
+}
+
+
+function allocate_arrays_for_output_signals_array(manifest, Nsamples) {
+
+    // prepare datasets and pre alloc memory for each to fill in data
+    var arrays_for_output_signals_array = {}
+    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        var data = allocateOutputMemoryArray(Nsamples);
+
+        arrays_for_output_signals_array[outputName] = data;
+    });
+
+    var data = allocateOutputMemoryArray(Nsamples);
+    arrays_for_output_signals_array['time'] = data
+
+    return arrays_for_output_signals_array
+}
+
+
+
+
+function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array) {
+
+    var graphDiv = simulator_gui_container.getElementsByClassName('plotly')[0];
+
+    var data = []
+
+
+    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        var trace = {
+            x: arrays_for_output_signals_array['time'],
+            y: arrays_for_output_signals_array[outputName],
+            type: 'scatter',
+            name: outputName
+        };
+        
+        data.push(trace)
+
+    });
+
+    console.log("plotly")
+    console.log(data)
+
+    var layout = {
+      title: 'signals',
+      xaxis: {
+        title: 'time',
+        showgrid: true,
+        zeroline: true
+      },
+      yaxis: {
+        title: 'value',
+        showline: true
+      }
+    };
+    Plotly.newPlot(graphDiv, data, layout);
+
+    return data
+}
+
+
+function updatePlotsPlotly(simulator_gui_container) {
+
+    var graphDiv = simulator_gui_container.getElementsByClassName('plotly')[0];
+    Plotly.redraw(graphDiv)
+}
+
+
+
+
+
+
+function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_output_signals_xy) {
 
 
     // default colors
@@ -110,14 +231,14 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
 
     // prepare datasets and pre alloc memory for each to fill in data
     var datasets = []
-    var dataList = {}
     var i = 0
     manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
 
         console.log('added output ')
         console.log(outputName)
 
-        var data = allocateOutputMemory(Nsamples);
+        // var data = allocateOutputMemory(Nsamples);
+        data = arrays_for_output_signals_xy[outputName]
 
         var color;
         if (i < colorList.length) {
@@ -133,7 +254,7 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
         };
 
         datasets.push(dataset);
-        dataList[outputName] = data;
+        // dataList[outputName] = data;
         i = i + 1;
     });
 
@@ -141,9 +262,6 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
     // plot
     var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
 
-    console.log(simulator_gui_container)
-    console.log(ctx)
-    console.log(datasets)
 
     var myLineChart = new Chart(ctx, {
         type: "scatter",
@@ -159,7 +277,7 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
         }
     });
 
-    return [myLineChart, dataList];
+    return myLineChart;
 }
 
 
@@ -373,30 +491,50 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
 
         promises.p_manifest.then(
             function (manifest) {
-                        
+
+                // set-up the GUI                        
                 console.log('simulation ready')
 
 
                 var Nsamples = 200;
 
+                arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, Nsamples)
+                arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, Nsamples)
 
-                // init the plots
+                // init the gui
                 init_simulator_gui_container(simulator_gui_container)
-                var [myLineChart, dataList] = preparePlots(simulator_gui_container, manifest, Nsamples);
 
                 // parameter
                 var initvals = genrateParameterInitValues(manifest);
 
+                // var myLineChart
+
                 initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
+
                     // on parameter change simulate and plot
-                    simulate(instance, manifest, dataList, Nsamples, inputValues);
-                    myLineChart.update();
+                    simulate(instance, manifest, arrays_for_output_signals_array, 
+                             arrays_for_output_signals_xy, Nsamples, inputValues);
+
+                    // myLineChart.update();
+
+                    updatePlotsPlotly(simulator_gui_container) 
                 });
 
-                // outputView = document.getElementById('results');
 
-                simulate(instance, manifest, dataList, Nsamples, initvals);
-                myLineChart.update();
+                simulate(instance, manifest, arrays_for_output_signals_array, 
+                          arrays_for_output_signals_xy, Nsamples, initvals);
+
+
+
+                // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
+                // arrays_for_output_signals_array, arrays_for_output_signals_xy);
+
+                plotly_data = preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
+
+
+
+
+                // myLineChart.update();
 
             })
 
@@ -408,7 +546,6 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
 
 
 function setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code ) {
-
 
     source_code = {main_cpp : window.btoa( code )  }
     var promises = compileSimulator(source_code, compile_service_url, secret_token);
@@ -424,13 +561,6 @@ function setup_simulation_gui( simulator_gui_container, compile_service_url, sec
 
     promises.p_manifest = p_manifest
 
-
     setup_simulation_gui_from_promises( simulator_gui_container, promises)
-
-    ///
-//    setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
-
-
-
 }
 
