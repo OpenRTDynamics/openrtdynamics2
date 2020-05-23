@@ -104,6 +104,7 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
 function preparePlots(simulator_gui_container, manifest, Nsamples) {
 
+
     // default colors
     var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
 
@@ -112,6 +113,10 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
     var dataList = {}
     var i = 0
     manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        console.log('added output ')
+        console.log(outputName)
+
         var data = allocateOutputMemory(Nsamples);
 
         var color;
@@ -132,8 +137,13 @@ function preparePlots(simulator_gui_container, manifest, Nsamples) {
         i = i + 1;
     });
 
+
     // plot
     var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
+
+    console.log(simulator_gui_container)
+    console.log(ctx)
+    console.log(datasets)
 
     var myLineChart = new Chart(ctx, {
         type: "scatter",
@@ -195,7 +205,7 @@ function compileSimulator(source_code, compile_service_url, secret_token) {
         return bytes.buffer;
     }
 
-    var rawWebAssembly = new Promise(
+    var p_rawWebAssembly = new Promise(
         function (resolve, reject) {
             compile_request.then(function (result) {
                 resolve(  _base64ToArrayBuffer(result.rawWebAssembly) )
@@ -209,7 +219,7 @@ function compileSimulator(source_code, compile_service_url, secret_token) {
             })
         });
 
-    return {p_rawWebAssembly : rawWebAssembly, p_jscode : jscode};
+    return {p_rawWebAssembly : p_rawWebAssembly, p_jscode : jscode};
 
 }
 
@@ -261,23 +271,28 @@ function loadCompiledSimulator() {
                 .then(response => response.text())
                 .then(response => {
             
-                resolve( response );                    
+                    resolve( response );                    
 
-            }).then(data => { 
-                console.log(data);
-            });
+                }).then(data => { 
+                    console.log(data);
+                });
 
         }
     );
 
-    return {p_manifest : p_manifest, p_rawWebAssembly : rawWebAssembly, p_jscode : jscode};
+    promises = {p_manifest : p_manifest, p_rawWebAssembly : rawWebAssembly, p_jscode : jscode}
+
+    console.log(promises)
+
+
+    return promises;
 }
 
 
 
 
 // create instance fo the simulator
-function createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) {
+function createInstance( p_manifest, rawWebAssembly, init_fn ) {
     var Module = {
 
         instantiateWasm: function (imports, successCallback) {
@@ -310,24 +325,8 @@ function createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) {
 
                     // init simulator
                     var instance = new Module.simulation();
-                    var Nsamples = 200;
 
-                    // init the plots
-                    var [myLineChart, dataList] = preparePlots(simulator_gui_container, manifest, Nsamples);
-
-                    // parameter
-                    var initvals = genrateParameterInitValues(manifest);
-
-                    initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
-                        // on parameter change simulate and plot
-                        simulate(instance, manifest, dataList, Nsamples, inputValues);
-                        myLineChart.update();
-                    });
-
-                    // outputView = document.getElementById('results');
-
-                    simulate(instance, manifest, dataList, Nsamples, initvals);
-                    myLineChart.update();
+                    init_fn(instance)
                 });
 
         }
@@ -338,16 +337,21 @@ function createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) {
 
 
 
-function setup_simulation_gui_from_promises(simulator_gui_container, p_jscode, p_manifest, rawWebAssembly) {
 
-    clear_simulator_gui_container( simulator_gui_container )
+function setup_simulation_from_promises(promises, init_fn) {
+
+
+    console.log(promises)
+
+    p_manifest = promises.p_manifest
+    p_jscode   = promises.p_jscode
+
 
     p_jscode.then( function (jscode) {
 
         console.log( jscode )
 
-        init_simulator_gui_container( simulator_gui_container )
-        Module = createInstance( simulator_gui_container, p_manifest, rawWebAssembly ) 
+        Module = createInstance( p_manifest, promises.p_rawWebAssembly, init_fn ) 
         
         var gvar = this;
         
@@ -357,6 +361,49 @@ function setup_simulation_gui_from_promises(simulator_gui_container, p_jscode, p
     })
 }
 
+function setup_simulation_gui_from_promises( simulator_gui_container, promises) {
+
+    console.log(promises)
+
+    clear_simulator_gui_container( simulator_gui_container )
+
+    setup_simulation_from_promises(promises, function(instance) {
+
+
+
+        promises.p_manifest.then(
+            function (manifest) {
+                        
+                console.log('simulation ready')
+
+
+                var Nsamples = 200;
+
+
+                // init the plots
+                init_simulator_gui_container(simulator_gui_container)
+                var [myLineChart, dataList] = preparePlots(simulator_gui_container, manifest, Nsamples);
+
+                // parameter
+                var initvals = genrateParameterInitValues(manifest);
+
+                initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
+                    // on parameter change simulate and plot
+                    simulate(instance, manifest, dataList, Nsamples, inputValues);
+                    myLineChart.update();
+                });
+
+                // outputView = document.getElementById('results');
+
+                simulate(instance, manifest, dataList, Nsamples, initvals);
+                myLineChart.update();
+
+            })
+
+    
+    });
+
+}
 
 
 
@@ -364,7 +411,7 @@ function setup_simulation_gui( simulator_gui_container, compile_service_url, sec
 
 
     source_code = {main_cpp : window.btoa( code )  }
-    var ret = compileSimulator(source_code, compile_service_url, secret_token);
+    var promises = compileSimulator(source_code, compile_service_url, secret_token);
 
     var p_manifest = new Promise(
         function (resolve, reject) {
@@ -375,11 +422,15 @@ function setup_simulation_gui( simulator_gui_container, compile_service_url, sec
 
         })
 
-    ret.p_manifest = p_manifest
+    promises.p_manifest = p_manifest
 
+
+    setup_simulation_gui_from_promises( simulator_gui_container, promises)
 
     ///
-    setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+//    setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+
+
 
 }
 

@@ -23,11 +23,11 @@
 
 
     <textarea id="compile_service_url" name="compile_service_url">
-http://localhost:3000/upload/
+http://localhost:3000/compile/
     </textarea>
 
     <textarea id="secret_token" name="secret_token">
-12345
+openrtdynamics
     </textarea>
             
     
@@ -66,7 +66,7 @@ No simulation loaded
     $( "#reload_trigger2" ).click(function() {
 
         var ret = loadCompiledSimulator();
-        setup_simulation_gui_from_promises( simulator_gui_container2, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+        setup_simulation_gui_from_promises( simulator_gui_container2, ret);
     });
 
 
@@ -78,7 +78,10 @@ No simulation loaded
     $( "#reload_trigger" ).click(function() {
 
         var ret = loadCompiledSimulator();
-        setup_simulation_gui_from_promises( simulator_gui_container, ret.p_jscode, ret.p_manifest, ret.p_rawWebAssembly);
+
+        console.log(ret)
+
+        setup_simulation_gui_from_promises( simulator_gui_container, ret);
     });
 
 
