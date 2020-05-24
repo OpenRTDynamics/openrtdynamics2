@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="openrtdynamics2",
-    version="0.0.5",
+    version="0.0.6",
     author="Christian Klauer",
     author_email="chr@gmail.com",
     description="OpenRTDynamics 2",
