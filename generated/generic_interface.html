@@ -17,7 +17,7 @@
 
 
     <div id="remote_compile_trigger2">
-        Click here to compile souece on remote 2
+        Click here to compile source on remote 2
     </div>
 
 
@@ -32,7 +32,10 @@ openrtdynamics
             
     
     <div id='simulator_gui_container'>
-No simulation loaded
+            <div class='parameter_editor'></div>
+
+            <div class="plot_plotly" x="x"    y="y" title="x/y"           xlabel="x"         ylabel="y"     width="400" height="200"></div>
+            <div class="plot_plotly" x="time" y="x y" title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
     </div>
 
 
@@ -61,28 +64,28 @@ No simulation loaded
 
 
 
-    simulator_gui_container2 = document.getElementById('simulator_gui_container2')
+
+
+    $( "#reload_trigger" ).click(function() {
+
+        var ret = loadCompiledSimulator();
+        simulator_gui_container = document.getElementById('simulator_gui_container')
+        setup_simulation_gui_from_promises( simulator_gui_container, ret);
+    });
+
+
+
 
     $( "#reload_trigger2" ).click(function() {
 
         var ret = loadCompiledSimulator();
+        simulator_gui_container2 = document.getElementById('simulator_gui_container2')
         setup_simulation_gui_from_promises( simulator_gui_container2, ret);
     });
 
 
 
 
-
-    simulator_gui_container = document.getElementById('simulator_gui_container')
-
-    $( "#reload_trigger" ).click(function() {
-
-        var ret = loadCompiledSimulator();
-
-        console.log(ret)
-
-        setup_simulation_gui_from_promises( simulator_gui_container, ret);
-    });
 
 
 

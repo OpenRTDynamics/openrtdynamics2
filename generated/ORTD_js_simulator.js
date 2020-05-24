@@ -1,16 +1,36 @@
 
 function init_simulator_gui_container(divElement) {
 
-    divElement.innerHTML = `
-        <div class='editor_holder'></div>
-        <div class="plotly" width="400" height="200"></div>
-        <canvas class="plot" width="400" height="200"></canvas>
-    `;
+    if ( divElement.getElementsByClassName("parameter_editor").length == 0
+         && divElement.getElementsByClassName("plot_plotly").length == 0 ) {
+
+            divElement.innerHTML = `
+            <div class='parameter_editor'></div>
+            <div class="plot_plotly" width="400" height="200"></div>
+         `;
+    
+         // <div class="plot_plotly" x="time" y="s53_x" width="400" height="200"></div>
+         //         <canvas class="plot" width="400" height="200"></canvas>
+         
+         }
+
+    // divElement.innerHTML = `
+    //     <div class='parameter_editor'></div>
+
+    //     <div class="plot_plotly" x="s53_x" y="s55_y" width="400" height="200"></div>
+    //     <div class="plot_plotly" x="time" y="s53_x" width="400" height="200"></div>
+
+    //     <canvas class="plot" width="400" height="200"></canvas>
+    // `;
 }
 function clear_simulator_gui_container(divElement) {
 
-    divElement.innerHTML = '<b>Loading ...</b>';
+    // divElement.innerHTML = '<b>Loading ...</b>';
+
+
 }
+
+
 
 
 
@@ -55,7 +75,7 @@ function simulate(instance, manifest, arrays_for_output_signals_array, arrays_fo
         });
     }
 
-    console.log( arrays_for_output_signals_xy )
+    console.log( arrays_for_output_signals_array )
 }
 
 function allocateOutputMemoryXY(Nsamples) {
@@ -106,9 +126,11 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
     t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
 
+    console.log('parameters: ', i1)
+
     var properties = {}
     for (i = 0; i < i1.length; ++i) {
-        properties[i1[i]] = { "type": "number", "format": "range", "propertyOrder": i,
+        properties[i1[i]] = { "type": "number", "format": "range", "propertyOrder": i.toString(),
             "options": {
                     "infoText": "..."
             }
@@ -116,7 +138,7 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     }
 
     // Initialize the editor
-    var editor = new JSONEditor(  simulator_gui_container.getElementsByClassName("editor_holder" )[0], {
+    var editor = new JSONEditor(  simulator_gui_container.getElementsByClassName("parameter_editor" )[0], {
         schema: {
             type: "object",
             properties: properties
@@ -173,49 +195,118 @@ function allocate_arrays_for_output_signals_array(manifest, Nsamples) {
 
 function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array) {
 
-    var graphDiv = simulator_gui_container.getElementsByClassName('plotly')[0];
-
-    var data = []
+    var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
 
 
-    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+    console.log("plotly init...", plotDivs, arrays_for_output_signals_array)
 
+
+    function prepare_trace(arrays_for_output_signals_array, x_name, y_name) {
         var trace = {
-            x: arrays_for_output_signals_array['time'],
-            y: arrays_for_output_signals_array[outputName],
+            x: arrays_for_output_signals_array[x_name],
+            y: arrays_for_output_signals_array[y_name],
             type: 'scatter',
-            name: outputName
+            name: y_name
         };
-        
-        data.push(trace)
 
-    });
+        return trace
+    }
 
-    console.log("plotly")
-    console.log(data)
+   // var graphDiv = plotDivs[0]
 
-    var layout = {
-      title: 'signals',
-      xaxis: {
-        title: 'time',
-        showgrid: true,
-        zeroline: true
-      },
-      yaxis: {
-        title: 'value',
-        showline: true
-      }
-    };
-    Plotly.newPlot(graphDiv, data, layout);
+   var N = plotDivs.length
 
-    return data
+   console.log('building ', N)
+
+   for (var i = 0; i < N; i++) {
+    // for (let graphDiv of plotDivs) {
+
+        graphDiv = plotDivs[i]
+        var data = []
+
+        console.log('new plot', i, graphDiv)
+
+        if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
+
+
+            x_name = graphDiv.getAttribute('x')
+            y_names = graphDiv.getAttribute('y').split(" ")
+
+            console.log('atrributes found', x_name, y_names)
+
+            y_names.forEach(function (y_name) {
+                trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name)
+                data.push(trace)    
+            })
+    
+        } else {
+    
+    
+            console.log('no special atrributes found')
+    
+            // put all output signal into one plot
+            manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+    
+                trace = prepare_trace(arrays_for_output_signals_array, "time", outputName)
+                data.push(trace)
+    
+            });
+            
+        }
+    
+        // get some comming plot labels
+        var title, xlabel, ylabel
+        if (graphDiv.hasAttribute('title')) {
+            title = graphDiv.getAttribute('title')
+        } else {
+            title = ''
+        }
+        if (graphDiv.hasAttribute('xlabel')) {
+            xlabel = graphDiv.getAttribute('xlabel')
+        } else {
+            xlabel = ''
+        }
+        if (graphDiv.hasAttribute('ylabel')) {
+            ylabel = graphDiv.getAttribute('ylabel')
+        } else {
+            ylabel = ''
+        }
+
+        console.log('labels ', title, xlabel, ylabel)
+
+
+        console.log('datset to plot ', data)
+
+        var layout = {
+          title: title,
+          xaxis: {
+            title: xlabel,
+            showgrid: true,
+            zeroline: true
+          },
+          yaxis: {
+            title: ylabel,
+            showline: true
+          }
+        };
+        Plotly.newPlot(graphDiv, data, layout);
+
+    }
+
+
 }
 
 
 function updatePlotsPlotly(simulator_gui_container) {
 
-    var graphDiv = simulator_gui_container.getElementsByClassName('plotly')[0];
-    Plotly.redraw(graphDiv)
+    var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
+    var N = plotDivs.length
+ 
+    for (var i = 0; i < N; i++) {
+        graphDiv = plotDivs[i]
+        console.log('updating ', graphDiv)
+        Plotly.redraw(graphDiv)
+    }
 }
 
 
@@ -367,7 +458,7 @@ function loadCompiledSimulator() {
     var rawWebAssembly = new Promise(
         function (resolve, reject) {
 
-            console.log('loading wasm data')
+            console.log('loading wasm data...')
 
             fetch('main.wasm', {cache: "no-cache"} ).then(response => {
             
@@ -529,7 +620,7 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
                 // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
                 // arrays_for_output_signals_array, arrays_for_output_signals_xy);
 
-                plotly_data = preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
+                preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
 
 
 
