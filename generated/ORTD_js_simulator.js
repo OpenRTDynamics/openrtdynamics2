@@ -9,9 +9,6 @@ function init_simulator_gui_container(divElement) {
             <div class="plot_plotly" width="400" height="200"></div>
          `;
     
-         // <div class="plot_plotly" x="time" y="s53_x" width="400" height="200"></div>
-         //         <canvas class="plot" width="400" height="200"></canvas>
-         
          }
 
     // divElement.innerHTML = `
@@ -27,6 +24,7 @@ function clear_simulator_gui_container(divElement) {
 
     // divElement.innerHTML = '<b>Loading ...</b>';
 
+    divElement.innerHTML = divElement.innerHTML
 
 }
 
@@ -229,15 +227,32 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
         if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
 
 
-            x_name = graphDiv.getAttribute('x')
+            x_names = graphDiv.getAttribute('x').split(" ")
             y_names = graphDiv.getAttribute('y').split(" ")
 
-            console.log('atrributes found', x_name, y_names)
+            console.log('atrributes found', x_names, y_names)
 
-            y_names.forEach(function (y_name) {
-                trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name)
-                data.push(trace)    
-            })
+            // TODO: handle unknown names
+
+            if (x_names.length == 1) {
+                x_name = x_names[0]
+
+                y_names.forEach(function (y_name) {
+                    trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name)
+                    data.push(trace)    
+                })
+    
+            } else if ( x_names.length == y_names.length ) {
+
+                for (var j=0; j < x_names.length; ++j) {
+                    trace = prepare_trace(arrays_for_output_signals_array, x_names[i], y_names[i])
+                    data.push(trace)    
+                }
+
+            } else {
+                console.log('error in setting-up plot: number of x vs. y signals is not matching')
+            }
+
     
         } else {
     
