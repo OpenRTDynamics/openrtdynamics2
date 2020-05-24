@@ -24,7 +24,7 @@ function clear_simulator_gui_container(divElement) {
 
     // divElement.innerHTML = '<b>Loading ...</b>';
 
-    divElement.innerHTML = divElement.innerHTML
+    // divElement.innerHTML = divElement.innerHTML
 
 }
 
@@ -36,8 +36,11 @@ function clear_simulator_gui_container(divElement) {
 
 
 
-function simulate(instance, manifest, arrays_for_output_signals_array, arrays_for_output_signals_xy, Nsamples, inputValues) {
+function simulate(instance, manifest, arrays_for_output_signals_array, arrays_for_output_signals_xy, settings, inputValues) {
 
+    var Nsamples = settings.number_of_samples;
+    var sampling_time = settings.sampling_time
+    
     // sort inputValues into the inupts for state update and output calculation
     var inputs_updateStates = {}
     var inputs_calcOutputs = {};
@@ -62,7 +65,7 @@ function simulate(instance, manifest, arrays_for_output_signals_array, arrays_fo
         outputs = instance.calcResults_1(inputs_calcOutputs);
         instance.updateStates(inputs_updateStates);
 
-        t = t + 0.01;
+        t = t + sampling_time;
         arrays_for_output_signals_array["time"][i] = t
 
         manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
@@ -585,7 +588,7 @@ function setup_simulation_from_promises(promises, init_fn) {
     })
 }
 
-function setup_simulation_gui_from_promises( simulator_gui_container, promises) {
+function setup_simulation_gui_from_promises( simulator_gui_container, promises, settings) {
 
     console.log(promises)
 
@@ -602,10 +605,9 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
                 console.log('simulation ready')
 
 
-                var Nsamples = 200;
 
-                arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, Nsamples)
-                arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, Nsamples)
+                arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
+                arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
 
                 // init the gui
                 init_simulator_gui_container(simulator_gui_container)
@@ -619,7 +621,7 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
 
                     // on parameter change simulate and plot
                     simulate(instance, manifest, arrays_for_output_signals_array, 
-                             arrays_for_output_signals_xy, Nsamples, inputValues);
+                             arrays_for_output_signals_xy, settings, inputValues);
 
                     // myLineChart.update();
 
@@ -628,7 +630,7 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
 
 
                 simulate(instance, manifest, arrays_for_output_signals_array, 
-                          arrays_for_output_signals_xy, Nsamples, initvals);
+                          arrays_for_output_signals_xy, settings, initvals);
 
 
 
@@ -651,7 +653,7 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises) 
 
 
 
-function setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code ) {
+function setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code, settings ) {
 
     source_code = {main_cpp : window.btoa( code )  }
     var promises = compileSimulator(source_code, compile_service_url, secret_token);
@@ -667,6 +669,6 @@ function setup_simulation_gui( simulator_gui_container, compile_service_url, sec
 
     promises.p_manifest = p_manifest
 
-    setup_simulation_gui_from_promises( simulator_gui_container, promises)
+    setup_simulation_gui_from_promises( simulator_gui_container, promises, settings)
 }
 

@@ -70,7 +70,7 @@ No simulation loaded
 
         var ret = loadCompiledSimulator();
         simulator_gui_container = document.getElementById('simulator_gui_container')
-        setup_simulation_gui_from_promises( simulator_gui_container, ret);
+        setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 300, sampling_time : 0.01});
     });
 
 
@@ -80,7 +80,7 @@ No simulation loaded
 
         var ret = loadCompiledSimulator();
         simulator_gui_container2 = document.getElementById('simulator_gui_container2')
-        setup_simulation_gui_from_promises( simulator_gui_container2, ret);
+        setup_simulation_gui_from_promises( simulator_gui_container2, ret, {number_of_samples : 300, sampling_time : 0.01} );
     });
 
 
@@ -98,7 +98,7 @@ No simulation loaded
         compile_service_url = document.getElementById("compile_service_url").value
         secret_token = document.getElementById("secret_token").value
 
-        setup_simulation_gui( simulator_gui_container3, compile_service_url, secret_token, manifest, code )
+        setup_simulation_gui( simulator_gui_container3, compile_service_url, secret_token, manifest, code, {number_of_samples : 300, sampling_time : 0.01} )
         
 
     });
