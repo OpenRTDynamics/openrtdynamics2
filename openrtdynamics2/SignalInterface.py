@@ -40,6 +40,11 @@ class SignalUserTemplate(object):
         self.wrapped_signal_.set_name(name)
         return self
 
+    def set_name_raw(self, name):
+        self.wrapped_signal_.set_name_raw(name)
+        return self
+
+
     def extendName(self, name):
         self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
         return self

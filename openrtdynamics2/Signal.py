@@ -135,6 +135,18 @@ class Signal(object):
 
         return self
 
+    # set the name of this signal (this method shall not get overwritten)
+    def set_name_raw(self, name):
+        self.lookupSource()._name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
+
+        return self
+
+        
+
+
     @property
     def name(self):
         return self.lookupSource()._name
@@ -309,7 +321,6 @@ class UndeterminedSignal(Signal):
         # this fake-signal
 
         # name undefined. Once connected to a block output the name is defined
-        #self._name = 'anonymous'
         self.linkedSignal = self
         self.nameProposal = None
 

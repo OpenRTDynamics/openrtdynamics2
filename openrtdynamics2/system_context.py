@@ -81,6 +81,11 @@ def leave_system():
 def clear():
     init_simulation_context()
 
-def set_primary_outputs(output_signals):
+def set_primary_outputs(output_signals, names = None):
+
+    if names is not None:
+        for i in range(0,len(names)):
+            output_signals[i].set_name_raw( names[i] )
+
     get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
