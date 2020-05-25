@@ -11,20 +11,20 @@ function init_simulator_gui_container(divElement) {
     
          }
 
-    // divElement.innerHTML = `
-    //     <div class='parameter_editor'></div>
-
-    //     <div class="plot_plotly" x="s53_x" y="s55_y" width="400" height="200"></div>
-    //     <div class="plot_plotly" x="time" y="s53_x" width="400" height="200"></div>
-
-    //     <canvas class="plot" width="400" height="200"></canvas>
-    // `;
 }
-function clear_simulator_gui_container(divElement) {
 
-    // divElement.innerHTML = '<b>Loading ...</b>';
+function clear_simulator_gui_container(simulator_gui_container) {
 
-    // divElement.innerHTML = divElement.innerHTML
+    var parameterEditorDivs = simulator_gui_container.getElementsByClassName("parameter_editor" ) 
+    var plotDivs            = simulator_gui_container.getElementsByClassName('plot_plotly')
+
+    for (var i = 0; i < parameterEditorDivs.length; i++) {
+        parameterEditorDivs[i].innerHTML = ''
+    }
+
+    for (var i = 0; i < plotDivs.length; i++) {
+        plotDivs[i].innerHTML = ''
+    }
 
 }
 
@@ -213,14 +213,12 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
         return trace
     }
 
-   // var graphDiv = plotDivs[0]
 
    var N = plotDivs.length
 
    console.log('building ', N)
 
    for (var i = 0; i < N; i++) {
-    // for (let graphDiv of plotDivs) {
 
         graphDiv = plotDivs[i]
         var data = []
@@ -229,14 +227,10 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
         if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
 
-
             x_names = graphDiv.getAttribute('x').split(" ")
             y_names = graphDiv.getAttribute('y').split(" ")
 
-            console.log('atrributes found', x_names, y_names)
-
             // TODO: handle unknown names
-
             if (x_names.length == 1) {
                 x_name = x_names[0]
 
@@ -346,7 +340,6 @@ function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_outpu
         console.log('added output ')
         console.log(outputName)
 
-        // var data = allocateOutputMemory(Nsamples);
         data = arrays_for_output_signals_xy[outputName]
 
         var color;
@@ -363,7 +356,7 @@ function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_outpu
         };
 
         datasets.push(dataset);
-        // dataList[outputName] = data;
+
         i = i + 1;
     });
 
@@ -590,61 +583,54 @@ function setup_simulation_from_promises(promises, init_fn) {
 
 function setup_simulation_gui_from_promises( simulator_gui_container, promises, settings) {
 
-    console.log(promises)
-
     clear_simulator_gui_container( simulator_gui_container )
-
     setup_simulation_from_promises(promises, function(instance) {
 
+    promises.p_manifest.then(
+        function (manifest) {
 
+            // set-up the GUI                        
+            console.log('simulation ready')
 
-        promises.p_manifest.then(
-            function (manifest) {
+            var arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
+            var arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
 
-                // set-up the GUI                        
-                console.log('simulation ready')
+            // init the gui
+            init_simulator_gui_container(simulator_gui_container)
 
+            // parameter
+            var initvals = genrateParameterInitValues(manifest);
 
+            // var myLineChart
 
-                arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
-                arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
+            initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
 
-                // init the gui
-                init_simulator_gui_container(simulator_gui_container)
-
-                // parameter
-                var initvals = genrateParameterInitValues(manifest);
-
-                // var myLineChart
-
-                initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
-
-                    // on parameter change simulate and plot
-                    simulate(instance, manifest, arrays_for_output_signals_array, 
-                             arrays_for_output_signals_xy, settings, inputValues);
-
-                    // myLineChart.update();
-
-                    updatePlotsPlotly(simulator_gui_container) 
-                });
-
-
+                // on parameter change simulate and plot
                 simulate(instance, manifest, arrays_for_output_signals_array, 
-                          arrays_for_output_signals_xy, settings, initvals);
-
-
-
-                // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
-                // arrays_for_output_signals_array, arrays_for_output_signals_xy);
-
-                preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
-
-
-
+                            arrays_for_output_signals_xy, settings, inputValues);
 
                 // myLineChart.update();
 
-            })
+                updatePlotsPlotly(simulator_gui_container) 
+            });
+
+
+            simulate(instance, manifest, arrays_for_output_signals_array, 
+                        arrays_for_output_signals_xy, settings, initvals);
+
+
+
+            // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
+            // arrays_for_output_signals_array, arrays_for_output_signals_xy);
+
+            preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
+
+
+
+
+            // myLineChart.update();
+
+        })
 
     
     });
