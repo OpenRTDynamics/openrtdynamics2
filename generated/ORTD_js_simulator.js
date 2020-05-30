@@ -23,7 +23,7 @@ function clear_simulator_gui_container(simulator_gui_container) {
     }
 
     for (var i = 0; i < plotDivs.length; i++) {
-        plotDivs[i].innerHTML = ''
+        plotDivs[i].innerHTML = 'Loading..'
     }
 
 }
@@ -138,8 +138,12 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
         }
     }
 
+
+    var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
+    editorDiv.innerHTML = ''
+
     // Initialize the editor
-    var editor = new JSONEditor(  simulator_gui_container.getElementsByClassName("parameter_editor" )[0], {
+    var editor = new JSONEditor(  editorDiv, {
         schema: {
             type: "object",
             properties: properties
@@ -198,10 +202,7 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
     var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
 
-
-    console.log("plotly init...", plotDivs, arrays_for_output_signals_array)
-
-
+    
     function prepare_trace(arrays_for_output_signals_array, x_name, y_name) {
         var trace = {
             x: arrays_for_output_signals_array[x_name],
@@ -221,6 +222,7 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
    for (var i = 0; i < N; i++) {
 
         graphDiv = plotDivs[i]
+        graphDiv.innerHTML = ''
         var data = []
 
         console.log('new plot', i, graphDiv)
@@ -284,11 +286,6 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
             ylabel = ''
         }
 
-        console.log('labels ', title, xlabel, ylabel)
-
-
-        console.log('datset to plot ', data)
-
         var layout = {
           title: title,
           xaxis: {
@@ -316,7 +313,6 @@ function updatePlotsPlotly(simulator_gui_container) {
  
     for (var i = 0; i < N; i++) {
         graphDiv = plotDivs[i]
-        console.log('updating ', graphDiv)
         Plotly.redraw(graphDiv)
     }
 }
@@ -363,6 +359,7 @@ function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_outpu
 
     // plot
     var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
+    ctx.innerHTML = ''
 
 
     var myLineChart = new Chart(ctx, {
@@ -583,7 +580,10 @@ function setup_simulation_from_promises(promises, init_fn) {
 
 function setup_simulation_gui_from_promises( simulator_gui_container, promises, settings) {
 
-    clear_simulator_gui_container( simulator_gui_container )
+    // init the gui
+    init_simulator_gui_container(simulator_gui_container)
+    clear_simulator_gui_container(simulator_gui_container)
+
     setup_simulation_from_promises(promises, function(instance) {
 
     promises.p_manifest.then(
@@ -594,9 +594,6 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
 
             var arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
             var arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
-
-            // init the gui
-            init_simulator_gui_container(simulator_gui_container)
 
             // parameter
             var initvals = genrateParameterInitValues(manifest);
