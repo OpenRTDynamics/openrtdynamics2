@@ -120,7 +120,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'memory' # 
+testname = 'memory_machine' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -999,6 +999,21 @@ if testname == 'memory':
     output_signals = [ looked_up_element, looked_up_element_delayed ]
 
     input_signals_mapping = {}
+
+
+if testname == 'memory_machine':
+
+    vector = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 3 ]
+    data = dy.memory(datatype=dy.DataTypeInt32(1), constant_array=vector ).set_name('data')
+
+    position_index = dy.signal()
+    next_position = dy.memory_read( memory=data, index=position_index )
+    position_index << dy.delay( next_position )
+
+    output_signals = [ position_index, next_position ]
+    input_signals_mapping = {}
+
+
 
 #
 #
