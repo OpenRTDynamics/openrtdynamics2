@@ -41,6 +41,8 @@ def signalListHelper_names_string(signals):
 
 
 
+
+
 #
 #
 #
@@ -53,6 +55,7 @@ def signalListHelper_typeNames(signals):
         typeNames.append( s.getDatatype().cppDataType )
 
     return typeNames
+
 
 def signalListHelper_types(signals):
     types = []
@@ -68,32 +71,6 @@ def signalListHelper_types(signals):
 #
 #
 
-def signalListHelper_CppVarDefStr(signals, make_a_reference = False):
-    vardefStr = []  # e.g. double y
-
-    for s in signals:
-        # e.g.: double y;
-        vardefStr.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference ) )
-
-    return vardefStr
-
-
-def asign( from_signal_name, to_signal_name ):
-    return to_signal_name + ' = ' + from_signal_name + ';\n'
-
-def signalListHelper_CppVarDefStr_string(signals, make_a_reference = False):
-    return '; '.join( signalListHelper_CppVarDefStr(signals, make_a_reference)  ) + ';'
-
-def defineVariables( signals, make_a_reference = False ):
-    """
-        create a sting containing e.g.
-
-        'double signalName1;\n
-         double signalName2;\n'
-    """
-    elements = signalListHelper_CppVarDefStr(signals, make_a_reference )
-
-    return ';\n'.join( elements ) + ';\n'
 
 def defineVariable( signal, make_a_reference = False ):
     """
@@ -101,9 +78,45 @@ def defineVariable( signal, make_a_reference = False ):
 
         'double signalName'
     """
-    element = signalListHelper_CppVarDefStr([signal], make_a_reference )
 
-    return element[0]
+    return signal.getDatatype().cpp_define_variable( signal.name, make_a_reference )
+
+# rename to signalListHelper_CppVarDefStr --> define_variable_list
+def define_variable_list(signals, make_a_reference = False):
+    vardefStr = []  # e.g. double y
+
+    for s in signals:
+        # e.g.: double y;
+        vardefStr.append( defineVariable(s, make_a_reference)  )
+
+    return vardefStr
+
+
+
+
+def asign( from_signal_name, to_signal_name ):
+    return to_signal_name + ' = ' + from_signal_name + ';\n'
+
+def define_variable_list_string(signals, make_a_reference = False):
+    return '; '.join( define_variable_list(signals, make_a_reference)  ) + ';'
+
+def defineVariables( signals, make_a_reference = False ):
+    """
+        create a string containing e.g.
+
+        'double signalName1;\n
+         double signalName2;\n'
+    """
+    elements = define_variable_list(signals, make_a_reference )
+
+    return ';\n'.join( elements ) + ';\n'
+
+
+
+
+
+
+
 
 def defineVariableLine( signal, make_a_reference = False ):
     """
@@ -111,7 +124,7 @@ def defineVariableLine( signal, make_a_reference = False ):
 
         'double signalName;\n'
     """
-    element = signalListHelper_CppVarDefStr([signal], make_a_reference )
+    element = define_variable_list([signal], make_a_reference )
 
     return element[0] + ';\n'
 

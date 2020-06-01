@@ -64,7 +64,7 @@ class PutRuntimeCppHelper:
 
         def makeStrings(signals):
             namesCSVList = cgh.signalListHelper_names_string(signals)
-            namesVarDef = cgh.signalListHelper_CppVarDefStr_string(signals)
+            namesVarDef = cgh.define_variable_list_string(signals)
             prinfPattern = cgh.signalListHelper_printfPattern_string(signals)
 
             return namesCSVList, namesVarDef, prinfPattern

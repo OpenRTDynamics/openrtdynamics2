@@ -480,7 +480,7 @@ class PutAPIFunction(ExecutionCommand):
 #                    elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
                     elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
                     
-                elements.extend( cgh.signalListHelper_CppVarDefStr( self.inputSignals ) )
+                elements.extend( cgh.define_variable_list( self.inputSignals ) )
 
                 lines += ', '.join(elements)
                 lines +=  ') {\n'
