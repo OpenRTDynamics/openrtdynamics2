@@ -312,24 +312,33 @@ class CommandCacheOutputs(ExecutionCommand):
 
             if flag == 'variables':
                 lines += ''
-                lines += "\n\n//\n// cached output values\n//\n"
+                lines += "\n\n//\n// cached output values\n//\n\n"
                 for s in self.signals:
 
                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
-                    lines +=  '\n// cache for ' + s.name + '\n'
-                    lines +=  s.getDatatype().cpp_define_variable(cachevarName) + "; // put NAN!" + '\n' 
+                    if not s.is_referencing_memory:
+                        # lines +=  '\n// cache for ' + s.name + '\n'
+                        lines +=  s.getDatatype().cpp_define_variable(cachevarName) + ";" + '\n' 
+
+                    else:
+                        comment = ' // cache for ' + s.name + ' (stores a pointer to a memory location)'
+                        lines +=  s.getDatatype().cpp_define_variable('(*' + cachevarName + ')') + ";" + comment + '\n' 
+
 
             if flag == 'code':
                 lines += '\n'
                 lines += '// saving the signals ' + cgh.signalListHelper_names_string(self.signals) + ' into the states \n'
-                lines += '\n'
 
 
                 for s in self.signals:
+                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
                     if not s.is_referencing_memory:
-                        cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
                         lines += cachevarName + ' = ' + s.name + ';\n'
+                    else:
+                        # get the raw-pointer for the reference
+                        lines += cachevarName + ' = &(' + s.name + '); // just copy a pointer to the memory location\n'
 
         return lines
 
@@ -371,12 +380,17 @@ class CommandRestoreCache(ExecutionCommand):
             if flag == 'code':
                 lines += '\n'
                 lines += '// restoring the signals ' + cgh.signalListHelper_names_string(self.signals) + ' from the states \n'
-                lines += '\n'
 
                 for s in self.signals:
 
                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = ' + cachevarName + ";" + '\n' 
+
+                    if not s.is_referencing_memory:
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = ' + cachevarName + ";" + '\n' 
+                    else:
+                        # set the reference to the memory the pointer 'cachevarName' is pointing to
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = *' + cachevarName + ";" + ' // use a pointer to the memory location\n' 
+
 
                 lines += '\n'
 

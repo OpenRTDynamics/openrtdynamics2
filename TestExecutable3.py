@@ -993,8 +993,10 @@ if testname == 'memory':
 
 
     looked_up_element = dy.memory_read( memory=data, index=dy.counter() ).set_name('looked_up_element')
+    
+    looked_up_element_delayed = dy.delay( dy.memory_read( memory=data, index=dy.counter() ) ).set_name('looked_up_element_delayed')
 
-    output_signals = [ looked_up_element ]
+    output_signals = [ looked_up_element, looked_up_element_delayed ]
 
     input_signals_mapping = {}
 
