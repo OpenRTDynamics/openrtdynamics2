@@ -465,8 +465,6 @@ class BuildExecutionPath:
             for signal in inputsToUpdateStatesTmp:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
-            # mark the node/signal as being visited (meaning computed) ?????????????
-            # self.place_marker_for_current_level(startSignal)
 
         #
         # find out the links to other signals but only these ones that are 

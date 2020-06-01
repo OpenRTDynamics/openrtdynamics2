@@ -68,12 +68,12 @@ def signalListHelper_types(signals):
 #
 #
 
-def signalListHelper_CppVarDefStr(signals):
+def signalListHelper_CppVarDefStr(signals, make_a_reference = False):
     vardefStr = []  # e.g. double y
 
     for s in signals:
         # e.g.: double y;
-        vardefStr.append( s.getDatatype().cppDataType + ' ' + s.name )
+        vardefStr.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference ) )
 
     return vardefStr
 
@@ -81,37 +81,37 @@ def signalListHelper_CppVarDefStr(signals):
 def asign( from_signal_name, to_signal_name ):
     return to_signal_name + ' = ' + from_signal_name + ';\n'
 
-def signalListHelper_CppVarDefStr_string(signals):
-    return '; '.join( signalListHelper_CppVarDefStr(signals)  ) + ';'
+def signalListHelper_CppVarDefStr_string(signals, make_a_reference = False):
+    return '; '.join( signalListHelper_CppVarDefStr(signals, make_a_reference)  ) + ';'
 
-def defineVariables( signals ):
+def defineVariables( signals, make_a_reference = False ):
     """
         create a sting containing e.g.
 
         'double signalName1;\n
          double signalName2;\n'
     """
-    elements = signalListHelper_CppVarDefStr(signals)
+    elements = signalListHelper_CppVarDefStr(signals, make_a_reference )
 
     return ';\n'.join( elements ) + ';\n'
 
-def defineVariable( signal ):
+def defineVariable( signal, make_a_reference = False ):
     """
         create a sting containing e.g.
 
-        'double signalName;'
+        'double signalName'
     """
-    element = signalListHelper_CppVarDefStr([signal])
+    element = signalListHelper_CppVarDefStr([signal], make_a_reference )
 
-    return element[0] + ';\n'
+    return element[0]
 
-def defineVariableLine( signal ):
+def defineVariableLine( signal, make_a_reference = False ):
     """
         create a sting containing e.g.
 
         'double signalName;\n'
     """
-    element = signalListHelper_CppVarDefStr([signal])
+    element = signalListHelper_CppVarDefStr([signal], make_a_reference )
 
     return element[0] + ';\n'
 

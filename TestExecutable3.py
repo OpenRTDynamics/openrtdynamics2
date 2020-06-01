@@ -120,7 +120,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'nested_state_machine' # 
+testname = 'memory' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -979,6 +979,24 @@ if testname == 'nested_state_machine':
 
     input_signals_mapping = {}
 
+if testname == 'memory':
+
+    import numpy as np
+    import math
+
+    #vector = np.linspace(-1.11, 2.22, 400)
+
+    it = np.linspace(0,1, 400)
+    vector = np.sin( 10 * it * math.pi ) + it
+
+    data = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=vector ).set_name('data')
+
+
+    looked_up_element = dy.memory_read( memory=data, index=dy.counter() ).set_name('looked_up_element')
+
+    output_signals = [ looked_up_element ]
+
+    input_signals_mapping = {}
 
 #
 #

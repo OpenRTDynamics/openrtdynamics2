@@ -80,6 +80,13 @@ class DataType(object):
     def cppDataType(self):
         return 'UNDEF (prototype)'
 
+    def cpp_define_variable(self, variable_name, make_a_reference = False):
+        if make_a_reference:
+            variable_name_ = ' &' + variable_name + ''
+        else:
+            variable_name_ = variable_name
+
+        return self.cppDataType + ' ' + variable_name_
 
     @property
     def cppPrintfPattern(self):
@@ -88,6 +95,35 @@ class DataType(object):
     @property
     def cpp_zero_element(self):
         return 'UNDEF'
+
+
+
+class DataTypeArray(DataType):
+
+    def __init__(self, length : int, datatype : DataType ):
+        DataType.__init__(self, type=None, size=1)
+
+        self._array_element_datatype = datatype
+        self._length    = length
+
+    @property
+    def cppDataType(self):
+        return self._array_element_datatype.cppDataType + ' [' + str(self._length) + ']'
+    
+    @property
+    def datatype_of_elements(self):
+        return self._array_element_datatype
+
+    def cpp_define_variable(self, variable_name, make_a_reference = False):
+
+        if make_a_reference:
+            variable_name_ = ' (&' + variable_name + ')'
+        else:
+            variable_name_ = variable_name
+
+        return self._array_element_datatype.cppDataType + ' ' + variable_name_ + '[' + str(self._length) + ']'
+
+
 
 
 class DataTypeBoolean(DataType):

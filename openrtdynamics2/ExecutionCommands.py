@@ -131,7 +131,8 @@ class CommandCalculateOutputs(ExecutionCommand):
 
                             # print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
 
-                            lines += cgh.defineVariableLine( s )
+                            if not s.is_referencing_memory:
+                                lines += cgh.defineVariableLine( s )
 
 
 
@@ -317,7 +318,7 @@ class CommandCacheOutputs(ExecutionCommand):
                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
                     lines +=  '\n// cache for ' + s.name + '\n'
-                    lines +=  s.getDatatype().cppDataType + ' ' + cachevarName + "; // put NAN!" + '\n' 
+                    lines +=  s.getDatatype().cpp_define_variable(cachevarName) + "; // put NAN!" + '\n' 
 
             if flag == 'code':
                 lines += '\n'
@@ -326,9 +327,9 @@ class CommandCacheOutputs(ExecutionCommand):
 
 
                 for s in self.signals:
-
-                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines += cachevarName + ' = ' + s.name + ';\n'
+                    if not s.is_referencing_memory:
+                        cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+                        lines += cachevarName + ' = ' + s.name + ';\n'
 
         return lines
 
@@ -375,7 +376,7 @@ class CommandRestoreCache(ExecutionCommand):
                 for s in self.signals:
 
                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-                    lines +=  s.getDatatype().cppDataType + ' ' + s.name + ' = ' + cachevarName + ";" + '\n' 
+                    lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = ' + cachevarName + ";" + '\n' 
 
                 lines += '\n'
 
@@ -462,7 +463,8 @@ class PutAPIFunction(ExecutionCommand):
                 # put the parameter list e.g. double & y1, double & y2, u1, u2
                 elements = []
                 for s in self.outputSignals:
-                    elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
+#                    elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
+                    elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
                     
                 elements.extend( cgh.signalListHelper_CppVarDefStr( self.inputSignals ) )
 

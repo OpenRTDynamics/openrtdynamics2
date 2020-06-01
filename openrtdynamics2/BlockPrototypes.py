@@ -471,7 +471,7 @@ class GenericSubsystem(BlockPrototype):
             #
 
             for s in self.outputSignals:
-                lines += cgh.defineVariable( s ) 
+                lines += cgh.defineVariableLine( s ) 
 
                 if s not in signals:
                     lines += '// NOTE: unused output signal' + s.name + '\n'
@@ -823,10 +823,6 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
     @property
     def state_output(self):
         return self.additional_outputs[0]
-
-    # def returnInutsToUpdateStates(self, outputSignal):
- 
-    #     return MultiSubsystemEmbedder.returnInutsToUpdateStates(self, outputSignal) + [ self.state_output ]
 
 
     def codeGen_reset(self, language):
@@ -1372,6 +1368,13 @@ def cos(u : SignalUserTemplate ):
 
 
 
+
+
+
+
+
+
+
 #
 # Blocks that have an internal memory
 #
@@ -1415,4 +1418,56 @@ def delay(u : SignalUserTemplate, initial_state = None):
     return wrap_signal( Delay(get_simulation_context(), u.unwrap, initial_state ).outputSignals )
 
 
+
+
+#
+# A memory
+#
+
+class Memory(StaticSource_To1):
+    def __init__(self, sim : Simulation, datatype, constant_array):
+
+        self._constant_array = constant_array
+        self._length         = len(constant_array)
+        self._array_datatype = DataTypeArray( self._length, datatype )
+
+        # call super
+        StaticSource_To1.__init__(self, sim, self._array_datatype)
+
+        self.outputs[0].set_is_referencing_memory(True)
+
+    def codeGen_defStates(self, language):
+        if language == 'c++':
+            csv_array = ','.join([str(x) for x in self._constant_array])
+            return self._array_datatype.cpp_define_variable(  self.getUniqueVarnamePrefix() + '_array' ) + ' {' + csv_array + '};\n'
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return []  # no inputs but update states
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            # place a reference
+            return cgh.defineVariable( signals[0], make_a_reference=True ) + ' = ' + self.getUniqueVarnamePrefix() + '_array' + ';\n'
+
+def memory(datatype, constant_array):
+    return wrap_signal( Memory(get_simulation_context(), datatype, constant_array).outputSignals )
+
+
+
+
+class MemoryRead(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, memory : Signal, index : Signal ):
+        StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
+
+    def configDefineOutputTypes(self, inputTypes):
+        # returt the datatype of the array elements
+        return [ self.inputs[0].getDatatype().datatype_of_elements ]  
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            return signals[0].name + ' = ' + self.inputs[0].name + '[' + self.inputs[1].name + '];\n'
+
+def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
+    return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputSignals )
 

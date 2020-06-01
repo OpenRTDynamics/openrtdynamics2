@@ -151,9 +151,6 @@ class DatatypePropagation:
     def update_types_iterate(self):
         print("DatatypePropagation: update types " )
 
-
-        print( self.signalsWithUpdatedDeterminedTypes[2].inherit_datatype_to_list )
-
         while True:
 
             # 5.4.2020 DEBUG: look for 'ox' and why they did not get a datatype
