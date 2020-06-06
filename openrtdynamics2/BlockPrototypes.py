@@ -1145,8 +1145,8 @@ class Add(StaticFn_NTo1):
 
             return lines
 
-def dyn_add(sim : Simulation, inputSignals : List[SignalUserTemplate], factors : List[float]):
-    return wrap_signal( Add(sim, unwrap_list( inputSignals ), factors).outputSignals )
+# def dyn_add(sim : Simulation, inputSignals : List[SignalUserTemplate], factors : List[float]):
+#     return wrap_signal( Add(sim, unwrap_list( inputSignals ), factors).outputSignals )
 
 def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
     return wrap_signal( Add(get_simulation_context(), unwrap_list( inputSignals ), factors).outputSignals )
@@ -1354,17 +1354,74 @@ class StaticFnByName_1To1(StaticFn_1To1):
             return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).name +  ');\n'
 
 
-def dyn_sin(sim : Simulation, u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(sim, u.unwrap, 'sin').outputSignals )
 
-def dyn_cos(sim : Simulation, u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(sim, u.unwrap, 'cos').outputSignals )
+def sqrt(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sqrt').outputSignals )
 
 def sin(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sin').outputSignals )
 
 def cos(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'cos').outputSignals )
+
+def tan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'tan').outputSignals )
+
+def atan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'atan').outputSignals )
+
+def asin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'asin').outputSignals )
+
+def acos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputSignals )
+
+
+
+#
+# static functinos that map 2 --> 1
+#
+
+class StaticFnByName_2To1(StaticFn_NTo1):
+    def __init__(self, sim : Simulation, left : Signal, right : Signal, function_name : str ):
+
+        self._function_name = function_name
+
+        StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+
+        if language == 'c++':
+            lines = signals[0].name + ' = ' + self._function_name + '(' + self.inputSignals[0].name +  ', ' + self.inputSignals[1].name + ')' + ';\n'
+            return lines
+
+
+def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), y.unwrap, x.unwrap, 'atan2').outputSignals )
+
+def pow(base : SignalUserTemplate, power : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), base.unwrap, power.unwrap, 'pow').outputSignals )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
