@@ -203,12 +203,12 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
     var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
 
     
-    function prepare_trace(arrays_for_output_signals_array, x_name, y_name) {
+    function prepare_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
         var trace = {
             x: arrays_for_output_signals_array[x_name],
             y: arrays_for_output_signals_array[y_name],
             type: 'scatter',
-            name: y_name
+            name: tracke_name
         };
 
         return trace
@@ -237,14 +237,14 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
                 x_name = x_names[0]
 
                 y_names.forEach(function (y_name) {
-                    trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name)
+                    trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name, y_name)
                     data.push(trace)    
                 })
     
             } else if ( x_names.length == y_names.length ) {
 
                 for (var j=0; j < x_names.length; ++j) {
-                    trace = prepare_trace(arrays_for_output_signals_array, x_names[i], y_names[i])
+                    trace = prepare_trace(arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
                     data.push(trace)    
                 }
 

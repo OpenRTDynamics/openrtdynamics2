@@ -43,7 +43,7 @@ angle = dy.signal()
 angular_velocity = dy.signal()
 
 
-angular_acceleration =  dy.float64(0) - g / length * dy.sin(angle) - (friction / mass * length ) * angular_velocity
+angular_acceleration =  dy.float64(0) - g / length * dy.sin(angle) - (friction / (mass * length) ) * angular_velocity
 
 angular_acceleration.set_name('angular_acceleration')
 
