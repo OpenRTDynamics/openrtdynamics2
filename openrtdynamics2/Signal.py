@@ -229,7 +229,8 @@ class Signal(object):
                 self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
 
         else:
-            raise BaseException("setProposedDatatype: only possible for signals which datatype are not already fixed!")
+            if not self.lookupSource()._datatype.isEqualTo( proposedDatatype ):
+                raise BaseException("setProposedDatatype: only possible for signals the datatypes of which is not already fixed!")
 
     @property
     def proposed_datatype(self):

@@ -118,12 +118,6 @@ class StaticFn_NTo1(BlockPrototype):
 
             self.outputType = computeResultingNumericType(inputTypes)
 
-        else:
-
-            # check of the given output type is a numeric datatype
-            if not isinstance( self.outputSignal(0).getDatatype(), DataTypeNumeric ):
-                raise BaseException("Padd: only DataTypeNumeric can be the result/output of an addition")
-        
         # return a proposal for an output type. 
         return [self.outputType]
 
@@ -1408,13 +1402,76 @@ def pow(base : SignalUserTemplate, power : SignalUserTemplate ):
 
 
 
+def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : List [str], input_types, output_types, output_names, cpp_source_code : str ):
+    return wrap_signal_list( GenericCppStatic(get_simulation_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
 
 
+class GenericCppStatic(BlockPrototype):
+    def __init__(self, sim : Simulation, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
 
+        Ninputs = len(input_names)
 
+        if not Ninputs == len(input_types):
+            raise BaseException('not Ninputs == len(input_types)')
 
+        if not Ninputs == len(input_signals):
+            raise BaseException('not Ninputs == len)(input_signals)')
 
+        if not len(output_names) == len(output_types):
+            raise BaseException('not len(output_names) == len(output_types)')
 
+        self._input_signals = input_signals
+        self._input_names = input_names
+        self._input_types = input_types
+        self._output_names = output_names
+        self._output_types = output_types
+        self._cpp_source_code = cpp_source_code
+
+        BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        for i in range(0, len(inputTypes)):
+            if inputTypes[i] is not None and not inputTypes[i].isEqualTo( self._input_types[i] ):
+                raise BaseException('GenericCppStatic: datatype missmatch for input # ' + str(i) )
+
+        # return a proposal for an output type. 
+        return self._output_types
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on all inputs
+        return self.inputs 
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return None  # no states
+
+    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+
+        if language == 'c++':
+
+            ilines = ''
+
+            for i in range(0, len(self._input_names)):
+                ilines += self._input_types[i].cpp_define_variable(variable_name=self._input_names[i], make_a_reference=True)
+                ilines += ' = ' + self.inputs[i].name + ';\n'
+
+            for i in range(0, len(self._output_names)):
+                ilines += self._output_types[i].cpp_define_variable(variable_name=self._output_names[i]) + ';\n'
+
+            ilines += '// generic_cpp_static: begin of user defined code\n'
+            ilines += self._cpp_source_code
+            ilines += '\n// generic_cpp_static: end of user defined code\n'
+
+            for i in range(0, len(self._output_names)):
+
+                # only set the needed outputs (for the others no memory might be defined)
+                if self.outputs[i] in signals:
+                    ilines += self.outputs[i].name + ' = ' + self._output_names[i] + ';\n'
+
+            return '{\n' + cgh.indent(ilines) + '}\n'
 
 
 

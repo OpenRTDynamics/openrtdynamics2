@@ -120,7 +120,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'memory_machine' # 
+testname = 'generic_cpp_static' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -989,6 +989,7 @@ if testname == 'memory':
     it = np.linspace(0,1, 400)
     vector = np.sin( 10 * it * math.pi ) + it
 
+
     data = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=vector ).set_name('data')
 
 
@@ -1012,6 +1013,34 @@ if testname == 'memory_machine':
 
     output_signals = [ position_index, next_position ]
     input_signals_mapping = {}
+
+if testname == 'generic_cpp_static':
+    x_r = dy.float64(1.0)
+    y_r = dy.float64(2.0)
+
+
+    #
+    source_code = """
+
+        output1 = x_r - y_r;
+        output2 = 1;
+        output3 = 2;
+
+    """
+
+    outputs = dy.generic_cpp_static(input_signals=[ x_r, y_r ], input_names=[ 'x_r', 'y_r' ], 
+                        input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+                        output_names=['output1', 'output2', 'output3'],
+                        output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+                        cpp_source_code = source_code )
+
+    output_signals = [ outputs[0], outputs[1], outputs[2] ]
+    input_signals_mapping = {}
+
+if testname == 'vanderpol':
+    # https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
+
+    pass
 
 
 
