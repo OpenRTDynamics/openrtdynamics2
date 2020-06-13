@@ -34,8 +34,17 @@ openrtdynamics
     <div id='simulator_gui_container'>
             <div class='parameter_editor'></div>
 
-            <div class="plot_plotly" x="x"    y="refrence y" title="x/y"           xlabel="x"         ylabel="y"     width="400" height="200"></div>
-            <div class="plot_plotly" x="time" y="x y" title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
+            <div class="plot_plotly" x="x x_r" y="y y_r"              title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></div>
+            <div class="plot_plotly" x="time"  y="psi_r steering Delta_l__"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
+            <div class="plot_plotly" x="time"  y="lookup_index"       title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
+    </div>
+
+    <div class="realtime_simulator" id='realtime_simulator_gui_container'>
+        <div class='parameter_editor'></div>
+
+        <div class="plotxy"  title="x/y"           xlabel="x"         ylabel="y"     width="400" height="200">
+            <span class="line" x="x1 x2"  ></span>
+        </div>
     </div>
 
 
