@@ -165,22 +165,24 @@ def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage,
 
 
 
-        index_start = interval_start;
-        Delta_l = min_distance_to_path;
+        index_start   = interval_start;
+        index_closest = min_index;
+        Delta_l       = min_distance_to_path;
 
     """
     array_type = dy.DataTypeArray( 360, datatype=dy.DataTypeFloat64(1) )
     outputs = dy.generic_cpp_static(input_signals=[ path_distance_storage, path_x_storage, path_y_storage, x, y ], 
                                     input_names=[ 'path_distance_storage', 'path_x_storage', 'path_y_storage', 'x_', 'y_' ], 
                                     input_types=[ array_type, array_type, array_type, dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
-                                    output_names=['index_start', 'Delta_l'],
-                                    output_types=[ dy.DataTypeInt32(1), dy.DataTypeFloat64(1) ],
+                                    output_names=[ 'index_closest', 'index_start', 'Delta_l'],
+                                    output_types=[ dy.DataTypeInt32(1), dy.DataTypeInt32(1), dy.DataTypeFloat64(1) ],
                                     cpp_source_code = source_code )
 
     index_start = outputs[0]
-    Delta_l     = outputs[1]
+    index_closest = outputs[1]
+    Delta_l     = outputs[2]
 
-    return index_start, Delta_l
+    return index_closest, Delta_l, index_start
 
 
 
@@ -212,24 +214,32 @@ path_y_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_y
 path_distance_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_distance )
 
 #
-y1 = dy.memory_read( memory=path_y_storage, index=dy.counter() ) 
-y2 = dy.memory_read( memory=path_y_storage, index=dy.counter() + dy.int32(1) )
+def sample_path(path_distance_storage, path_x_storage, path_y_storage, index):
 
-x1 = dy.memory_read( memory=path_x_storage, index=dy.counter() ) 
-x2 = dy.memory_read( memory=path_x_storage, index=dy.counter() + dy.int32(1) )
+    y1 = dy.memory_read( memory=path_y_storage, index=index ) 
+    y2 = dy.memory_read( memory=path_y_storage, index=index + dy.int32(1) )
 
-Delta_x = x2 - x1
-Delta_y = y2 - y1
+    x1 = dy.memory_read( memory=path_x_storage, index=index ) 
+    x2 = dy.memory_read( memory=path_x_storage, index=index + dy.int32(1) )
 
-psi_r = dy.atan2(Delta_y, Delta_x)
-x_r = x1
-y_r = y1
+    Delta_x = x2 - x1
+    Delta_y = y2 - y1
 
+    psi_r = dy.atan2(Delta_y, Delta_x)
+    x_r = x1
+    y_r = y1
+
+    return x_r, y_r, psi_r
+
+#
+#x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=dy.counter() )
 
 
 distance = dy.ramp(k_start=0) * dy.float64(0.02)
 # distance.set_datatype( dy.DataTypeFloat64(1) )
 index = lookup_distance_index( path_distance_storage, path_x_storage, path_y_storage, distance )
+
+
 
 #
 reference = dy.memory_read( memory=path_y_storage, index=dy.counter() )
@@ -240,13 +250,25 @@ y   = dy.signal()
 psi = dy.signal()
 
 # lookup lateral distance to path
-index_start, Delta_l = lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage, x, y )
+index_closest, Delta_l, index_start = lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage, x, y )
+
+x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
+
+# add sign information to the distance
+psi_tmp = dy.atan2(y - y_r, x - x_r)
+delta_angle = psi_r - psi_tmp # attention!
+sign = dy.conditional_overwrite(dy.float64(1.0), delta_angle > dy.float64(0) ,  -1.0  )
+Delta_l = Delta_l * sign
+
+
+
+
 
 # controller error
-error = reference - y
+error = reference - Delta_l
 
 # steering = dy.float64(0.0) + k_p * error - psi
-steering = dy.float64(0.0) + psi_r - psi
+steering = psi_r - psi - k_p * Delta_l
 
 
 
