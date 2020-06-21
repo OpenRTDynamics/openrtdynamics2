@@ -190,14 +190,15 @@ def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage,
 
 # define system inputs
 velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.2)
-k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.0005)
+k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.01)
+k_i            = dy.system_input( baseDatatype ).set_name('k_i')        * dy.float64(0.01)
+k_d            = dy.system_input( baseDatatype ).set_name('k_d')        * dy.float64(0.001)
+
+#sample_disturbance    = dy.convert(dy.system_input( baseDatatype ).set_name('time_disturbance'), target_type=dy.DataTypeInt32(1) )    * dy.float64(100)
+sample_disturbance    = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance'), target_type=dy.DataTypeInt32(1) )
+disturbance_amplitude            = dy.system_input( baseDatatype ).set_name('disturbance_amplitude')     * dy.float64(0.1 * math.pi / 180.0)
 
 wheelbase = 3.0
-
-# generate a step-wise reference signal
-# pwm_signal, state_control = generate_signal_PWM( period=dy.float64(200), modulator=dy.float64(0.5) )
-# reference = (pwm_signal - dy.float64(0.5)) * dy.float64(1.0)
-
 
 path_x = np.concatenate(( ra(360, 0, 80),  )) 
 path_y = np.concatenate(( co(50, 0), cosra(100, 0, 1), co(50, 1), cosra(100, 1, 0), co(60,0) ))
@@ -262,14 +263,35 @@ Delta_l = Delta_l * sign
 
 
 
+def PID_controller(r, y, Ts, kp, ki = None, kd = None):
+    Ts = dy.float64(Ts)
+
+    # control error
+    e = r - y
+
+    # P
+    u = kp * e
+
+    # D
+    if kd is not None:
+        u = u + dy.diff(e) * kd / Ts
+
+    # I
+    if ki is not None:
+        # xi = dy.signal()
+        # xi << dy.delay(e + xi)
+        u = u + dy.sum(e) * ki * Ts
+
+    return u
+
 
 
 # controller error
 error = reference - Delta_l
 
-# steering = dy.float64(0.0) + k_p * error - psi
-steering = psi_r - psi - k_p * Delta_l
-
+#steering = psi_r - psi - k_p * Delta_l
+Delta_u = PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = k_i, kd = k_d) # 
+steering = psi_r - psi + Delta_u
 
 #
 # The model of the vehicle
@@ -281,34 +303,14 @@ steering = psi_r - psi - k_p * Delta_l
 #
 
 
-def play( sequence_array, reset ):
-    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
-
-    subsampling = dy.int32(1)
-    playback_index = dy.signal()
-    reached_end = playback_index == dy.int32(np.size(sequence_array))
-
-    # increase the index counter until the end is reached
-    new_index = playback_index + dy.conditional_overwrite(subsampling, reached_end , 0)
-
-    # reset
-    new_index = dy.conditional_overwrite(new_index, reset, 0)
-
-    # introduce a state variable for the counter
-    playback_index << dy.delay( new_index, initial_state=np.size(sequence_array) )
-
-    # sample the given data
-    output = dy.memory_read(sequence_array_storage, playback_index)
-
-    return output, playback_index
 
 
 
 #
-amplitude = np.deg2rad( 0.6 )
-steering_disturbance = np.concatenate(( cosra(50, 0, amplitude), co(10, amplitude), cosra(50, amplitude, 0) ))
-steering_disturbance, i = play(steering_disturbance, reset=dy.counter() == dy.int32(50))
+disturbance_transient = np.concatenate(( cosra(50, 0, 1.0), co(10, 1.0), cosra(50, 1.0, 0) ))
+steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == sample_disturbance)
 
+steering_disturbance = disturbance_amplitude * steering_disturbance
 
 #steering_disturbance = ( dy.step(k_step=int(1.5*100)) - dy.step(k_step=int(2.0*100)) ) * dy.float64( np.deg2rad( -0.6 ) )
 

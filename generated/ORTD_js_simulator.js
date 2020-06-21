@@ -204,6 +204,11 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
     
     function prepare_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
+
+        //
+        // TODO: no checking of x_name, y_name is performed
+        //
+
         var trace = {
             x: arrays_for_output_signals_array[x_name],
             y: arrays_for_output_signals_array[y_name],

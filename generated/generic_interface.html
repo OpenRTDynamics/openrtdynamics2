@@ -7,17 +7,17 @@
 
 <html>
 
-    <div id="reload_trigger">
-        Click here to (re)load from a fixed folder
+    <div id="reload_trigger_vehicle">
+        Click here to (re)load from a fixed folder (vehicle config)
     </div>
 
     <div id="reload_trigger2">
-        Click here to (re)load from a fixed folder 2
+        Click here to (re)load from a fixed folder (generic)
     </div>
 
 
     <div id="remote_compile_trigger2">
-        Click here to compile source on remote 2
+        Click here to compile source on remote (generic)
     </div>
 
 
@@ -31,11 +31,11 @@ openrtdynamics
     </textarea>
             
     
-    <div id='simulator_gui_container'>
+    <div id='simulator_gui_container_vehicle'>
             <div class='parameter_editor'></div>
 
             <div class="plot_plotly" x="x x_r" y="y y_r"              title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></div>
-            <div class="plot_plotly" x="time"  y="psi_r steering Delta_l__"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
+            <div class="plot_plotly" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
             <div class="plot_plotly" x="time"  y="lookup_index"       title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
     </div>
 
@@ -48,7 +48,7 @@ openrtdynamics
     </div>
 
 
-    <div id='simulator_gui_container2'>
+    <div id='simulator_gui_container'>
 No simulation loaded
     </div>
         
@@ -75,11 +75,11 @@ No simulation loaded
 
 
 
-    $( "#reload_trigger" ).click(function() {
+    $( "#reload_trigger_vehicle" ).click(function() {
 
         var ret = loadCompiledSimulator();
-        simulator_gui_container = document.getElementById('simulator_gui_container')
-        setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 300, sampling_time : 0.01});
+        simulator_gui_container = document.getElementById('simulator_gui_container_vehicle')
+        setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});
     });
 
 
@@ -88,7 +88,7 @@ No simulation loaded
     $( "#reload_trigger2" ).click(function() {
 
         var ret = loadCompiledSimulator();
-        simulator_gui_container2 = document.getElementById('simulator_gui_container2')
+        simulator_gui_container = document.getElementById('simulator_gui_container')
         setup_simulation_gui_from_promises( simulator_gui_container2, ret, {number_of_samples : 300, sampling_time : 0.01} );
     });
 
