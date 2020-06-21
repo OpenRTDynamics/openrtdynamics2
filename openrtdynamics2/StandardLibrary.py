@@ -1,6 +1,6 @@
 from typing import Dict, List
 from . import lang as dy
-
+import numpy as np
 
 def int32(value : int):
     return dy.const(value, dy.DataTypeInt32(1) )
@@ -176,6 +176,11 @@ def diff(u : dy.Signal):
     return y
 
 def sum(u : dy.Signal):
+    """
+        Accumulative sum
+
+        y(k+1) = y(k) + u
+    """
 
     y = dy.signal()    
     y << dy.delay(y + u)
@@ -199,4 +204,24 @@ def ramp(k_start : int):
     return activation * linearRise
 
 
+def play( sequence_array, reset ):
+    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
+
+    subsampling = dy.int32(1)
+    playback_index = dy.signal()
+    reached_end = playback_index == dy.int32(np.size(sequence_array))
+
+    # increase the index counter until the end is reached
+    new_index = playback_index + dy.conditional_overwrite(subsampling, reached_end , 0)
+
+    # reset
+    new_index = dy.conditional_overwrite(new_index, reset, 0)
+
+    # introduce a state variable for the counter
+    playback_index << dy.delay( new_index, initial_state=np.size(sequence_array) )
+
+    # sample the given data
+    output = dy.memory_read(sequence_array_storage, playback_index)
+
+    return output, playback_index
 
