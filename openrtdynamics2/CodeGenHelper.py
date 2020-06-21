@@ -176,3 +176,43 @@ def getStructElements( structVarname, signals ):
 
     return structElements
 
+
+
+
+#
+# control flow
+#
+def generate_if_else(language, condition_list, action_list):
+
+    N = len(condition_list)
+
+    lines = 'if (' + condition_list[0] + ') {\n' + indent( action_list[0] )
+
+
+    if len(action_list) == 1:
+        lines += '\n}\n'
+
+        return lines
+
+    else:
+
+        for i in range(1, N):
+            lines += '\n} else if (' + condition_list[i] + ') {\n' + indent( action_list[i] )
+
+
+    if len(action_list) == N + 1:
+        lines += '\n} else {\n' + indent( action_list[ N ] ) + '\n}'
+
+    elif len(action_list) == N:
+        lines += '\n}\n'
+
+    else:
+        raise BaseException("missmatch of the number of actions and conditions")
+
+    return lines
+
+def generate_compare_equality_to_constant( language, signal_name, constant ):
+    return signal_name + ' == ' + str(constant)
+
+
+

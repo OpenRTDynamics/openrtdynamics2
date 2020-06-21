@@ -9,174 +9,6 @@ from . import CodeGenHelper as cgh
 
 
 #
-# block templates for common use-cases
-#
-
-class StaticSource_To1(BlockPrototype):
-    """
-        This defines a static source
-    """
-    def __init__(self, sim : Simulation, datatype ):
-
-        self.outputType = datatype
-
-        BlockPrototype.__init__(self, sim, [], 1)
-
-        # output datatype is fixed
-        self.outputSignal(0).setDatatype(datatype)
-
-    def configDefineOutputTypes(self, inputTypes):
-
-        # define the output type 
-        return [ self.outputType ]
-
-    def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
-
-        # the output depends on nothing
-        return []
-
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return None  # no states
-
-    @property
-    def outputSignals(self):
-        # return the output signals
-        output = self.outputSignal(0)
-
-        return output
-
-
-
-class DynamicSource_To1(StaticSource_To1):
-    """
-        This defines a dynamic source
-    """
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return [] # indicates state dependency but these states do not depend on external signals
-
-
-
-class StaticFn_1To1(BlockPrototype):
-    def __init__(self, sim : Simulation, u : Signal ):
-
-        self.u = u
-        self.outputType = None
-
-        BlockPrototype.__init__(self, sim, [ u ], 1)
-
-    def configDefineOutputTypes(self, inputTypes):
-
-        # just inherit the input type 
-
-        # TODO: 19.4.2020: kick out the uneeded None tests
-
-        if inputTypes[0] is not None:
-            self.outputType = inputTypes[0]
-        else:
-            self.outputType = None
-
-        return [ self.outputType ]        
-
-    def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
-
-        # the output depends on the only one input signals
-        return [ self.u ]
-
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return None  # no states
-
-    @property
-    def outputSignals(self):
-        # return the output signals
-
-        return self.outputSignal(0)
-
-
-
-
-
-class StaticFn_NTo1(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
-
-        self.inputSignals = inputSignals
-
-        BlockPrototype.__init__(self, sim, inputSignals, 1)
-
-    def configDefineOutputTypes(self, inputTypes):
-
-        # check if the output signal type is already defined (e.g. by the user)
-        if self.outputSignal(0).getDatatype() is None:
-            #
-            # no output type defined so far..
-            # look for an already defined input type and inherit that type.
-            #
-
-            self.outputType = computeResultingNumericType(inputTypes)
-
-        # return a proposal for an output type. 
-        return [self.outputType]
-
-    def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
-
-        # the output (there is only one) depends on all inputs
-        return self.inputSignals 
-
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return None  # no states
-
-    @property
-    def outputSignals(self):
-        # return the output signals
-        output = self.outputSignal(0)
-
-        return output
-
-
-class Dynamic_1To1(BlockPrototype):
-    def __init__(self, sim : Simulation, u : Signal ):
-
-        self.u = u
-        self.outputType = None
-
-        BlockPrototype.__init__(self, sim, [ u ], 1)
-
-    def configDefineOutputTypes(self, inputTypes):
-
-        # just inherit the input type 
-        if inputTypes[0] is not None:
-            self.outputType = inputTypes[0]
-        else:
-            self.outputType = None
-
-        return [ self.outputType ]        
-
-    def returnDependingInputs(self, outputSignal):
-        # return a list of input signals on which the given output signal depends on
-
-        # no (direct feedtrough) dependence on any input - only state dependent
-        return [  ]
-
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return [self.u]  # all inputs
-
-    @property
-    def outputSignals(self):
-        # return the output signals
-
-        return self.outputSignal(0)
-
-
-
-
-#
 # Subsystem prototypes
 #
 
@@ -264,8 +96,6 @@ class GenericSubsystem(BlockPrototype):
         #
         self.init(embedded_system.compilationResult.manifest, embedded_system.compilationResult, embedded_system.compilationResult.inputSignals)
 
-        
-        pass
         
 
     # post_compile_callback (called after the subsystem to embedd was compiled)
@@ -495,39 +325,6 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 
 
-def generate_if_else(language, condition_list, action_list):
-
-    N = len(condition_list)
-
-    lines = 'if (' + condition_list[0] + ') {\n' + cgh.indent( action_list[0] )
-
-
-    if len(action_list) == 1:
-        lines += '\n}\n'
-
-        return lines
-
-    else:
-
-        for i in range(1, N):
-            lines += '\n} else if (' + condition_list[i] + ') {\n' + cgh.indent( action_list[i] )
-
-
-    if len(action_list) == N + 1:
-        lines += '\n} else {\n' + cgh.indent( action_list[ N ] ) + '\n}'
-
-    elif len(action_list) == N:
-        lines += '\n}\n'
-
-    else:
-        raise BaseException("missmatch of the number of actions and conditions")
-
-    return lines
-
-def generate_compare_equality_to_constant( language, signal_name, constant ):
-    return signal_name + ' == ' + str(constant)
-
-
 
 
 class MultiSubsystemEmbedder(BlockPrototype):
@@ -701,12 +498,12 @@ class MultiSubsystemEmbedder(BlockPrototype):
             action_list.append( code_calculate_outputs + code_update_states )
 
             # generate conditions when to execute the respective subsystem 
-            condition_list.append( generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
+            condition_list.append( cgh.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
 
             subsystem_counter += 1
 
         # combine conditions and their repective actions
-        lines += generate_if_else(language, condition_list, action_list)
+        lines += cgh.generate_if_else(language, condition_list, action_list)
 
         return lines
 
@@ -877,12 +674,12 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
             action_list.append(  code_reset_states )
 
             # generate conditions when to execute the respective subsystem 
-            condition_list.append( generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
+            condition_list.append( cgh.generate_compare_equality_to_constant( language, switch_control_signal_name , subsystem_counter ) )
 
             subsystem_counter += 1
 
         # combine conditions and their repective actions
-        lines += generate_if_else(language, condition_list, action_list)
+        lines += cgh.generate_if_else(language, condition_list, action_list)
 
         return lines
 
@@ -901,7 +698,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
             # reset current subsystem in case a state transition is requested
             lines_reset_subsystem = self.generate_switch_to_reset_leaving_subsystem(language, self._state_memory )
-            lines += generate_if_else(language, condition_list=[ state_control_signal_from_subsystems.name + ' >= 0 ' ], action_list=[lines_reset_subsystem])
+            lines += cgh.generate_if_else(language, condition_list=[ state_control_signal_from_subsystems.name + ' >= 0 ' ], action_list=[lines_reset_subsystem])
 
             # transition to the new state
             lines += self._state_memory + ' = (' + state_control_signal_from_subsystems.name + ' >= 0 ) ? ('+ state_control_signal_from_subsystems.name + ') : (' + self._state_memory + ');\n'
@@ -1055,11 +852,8 @@ class Const(StaticSource_To1):
         if language == 'c++':
             return signals[0].name + ' = ' + str( self.constant ) + ';\n'
 
-def dyn_const(sim : Simulation, constant, datatype ):
-    return wrap_signal( Const(sim, constant, datatype).outputSignals )
-
 def const(constant, datatype ):
-    return wrap_signal( Const(get_simulation_context(), constant, datatype).outputSignals )
+    return wrap_signal( Const(get_simulation_context(), constant, datatype).outputs[0] )
 
 
 
@@ -1079,11 +873,8 @@ class Gain(StaticFn_1To1):
         if language == 'c++':
             return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
 
-def dyn_gain(sim : Simulation, u : Signal, gain : float ):
-    return wrap_signal( Gain(sim, u.unwrap, gain).outputSignals )
-
 def gain(u : SignalUserTemplate, gain : float ):
-    return wrap_signal( Gain(get_simulation_context(), u.unwrap, gain).outputSignals )
+    return wrap_signal( Gain(get_simulation_context(), u.unwrap, gain).outputs[0] )
 
 
 #
@@ -1100,14 +891,13 @@ class ConvertDatatype(StaticFn_1To1):
     def configDefineOutputTypes(self, inputTypes):
         return [ self._target_type ]  
 
-    #def codeGen_output(self, language, signal : Signal):
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             # TODO: only = is used and the c++ compiler decides how to convert...
             return signals[0].name + ' = ' + self.inputSignal(0).name + ';\n'
 
 def convert(u : SignalUserTemplate, target_type : DataType ):
-    return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputSignals )
+    return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputs[0] )
 
 
 
@@ -1139,11 +929,9 @@ class Add(StaticFn_NTo1):
 
             return lines
 
-# def dyn_add(sim : Simulation, inputSignals : List[SignalUserTemplate], factors : List[float]):
-#     return wrap_signal( Add(sim, unwrap_list( inputSignals ), factors).outputSignals )
 
 def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
-    return wrap_signal( Add(get_simulation_context(), unwrap_list( inputSignals ), factors).outputSignals )
+    return wrap_signal( Add(get_simulation_context(), unwrap_list( inputSignals ), factors).outputs[0] )
 
 
 class Operator1(StaticFn_NTo1):
@@ -1167,11 +955,8 @@ class Operator1(StaticFn_NTo1):
             return lines
 
 
-def dyn_operator1(sim : Simulation, inputSignals : List[SignalUserTemplate], operator : str ):
-    return wrap_signal( Operator1(sim, unwrap_list( inputSignals ), operator).outputSignals )
-
 def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
-    return wrap_signal( Operator1(get_simulation_context(), unwrap_list( inputSignals ), operator).outputSignals )
+    return wrap_signal( Operator1(get_simulation_context(), unwrap_list( inputSignals ), operator).outputs[0] )
 
 
 
@@ -1199,7 +984,7 @@ class ComparisionOperator(StaticFn_NTo1):
 
 
 def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
-    return wrap_signal( ComparisionOperator(get_simulation_context(), left.unwrap, right.unwrap, operator).outputSignals )
+    return wrap_signal( ComparisionOperator(get_simulation_context(), left.unwrap, right.unwrap, operator).outputs[0] )
 
 
 
@@ -1256,7 +1041,7 @@ class SwitchNto1(StaticFn_NTo1):
 
 
 def switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate ):
-    return wrap_signal( SwitchNto1(get_simulation_context(), state.unwrap, unwrap_list(inputs) ).outputSignals )
+    return wrap_signal( SwitchNto1(get_simulation_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
 
 
 
@@ -1305,12 +1090,12 @@ class ConditionalOverwrite(StaticFn_NTo1):
             action_overwrite = self.outputs[0].name + ' = ' + str( self.new_value ) + ';'
             action_keep = self.outputs[0].name + ' = ' + self.inputs[0].name + ';'
 
-            lines = generate_if_else( language, condition_list=[ self.inputSignals[1].name ], action_list=[ action_overwrite, action_keep ] )
+            lines = cgh.generate_if_else( language, condition_list=[ self.inputSignals[1].name ], action_list=[ action_overwrite, action_keep ] )
             return lines
 
 
 def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
-    return wrap_signal( ConditionalOverwrite(get_simulation_context(), signal.unwrap, condition.unwrap, new_value).outputSignals )
+    return wrap_signal( ConditionalOverwrite(get_simulation_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
 
 
 
@@ -1350,25 +1135,25 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
 
 def sqrt(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sqrt').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sqrt').outputs[0] )
 
 def sin(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sin').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'sin').outputs[0] )
 
 def cos(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'cos').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'cos').outputs[0] )
 
 def tan(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'tan').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'tan').outputs[0] )
 
 def atan(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'atan').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'atan').outputs[0] )
 
 def asin(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'asin').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'asin').outputs[0] )
 
 def acos(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputSignals )
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputs[0] )
 
 
 
@@ -1391,10 +1176,10 @@ class StaticFnByName_2To1(StaticFn_NTo1):
 
 
 def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), y.unwrap, x.unwrap, 'atan2').outputSignals )
+    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), y.unwrap, x.unwrap, 'atan2').outputs[0] )
 
 def pow(base : SignalUserTemplate, power : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), base.unwrap, power.unwrap, 'pow').outputSignals )
+    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), base.unwrap, power.unwrap, 'pow').outputs[0] )
 
 
 
@@ -1482,35 +1267,47 @@ class GenericCppStatic(BlockPrototype):
 
 
 
-
-
-
-
-
-
-
 #
 # Blocks that have an internal memory
 #
 
-class Delay(Dynamic_1To1):
+
+
+class Delay(BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal, initial_state = None ):
 
         self._initial_state = initial_state
+        BlockPrototype.__init__(self, sim, [ u ], 1)
 
-        StaticFn_1To1.__init__(self, sim, u)
+    def configDefineOutputTypes(self, inputTypes):
+
+        # just inherit the input type 
+        output_type = inputTypes[0]
+
+        return [ output_type ]        
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # no (direct feedtrough) dependence on any input - only state dependent
+        return [  ]
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return self.inputs  # all inputs
 
     def codeGen_defStates(self, language):
         if language == 'c++':
-            return self.outputType.cppDataType + ' ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
+            return self.outputs[0].datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_mem' )  + ';\n'
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_delayed' + ';\n'
+            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_mem' + ';\n'
 
     def codeGen_update(self, language):
         if language == 'c++':
-            lines = self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + self.inputSignal(0).name + ';\n'
+
+            lines = self.getUniqueVarnamePrefix() + '_mem' + ' = ' + self.inputSignal(0).name + ';\n'
             return lines
 
     def codeGen_reset(self, language):
@@ -1518,18 +1315,25 @@ class Delay(Dynamic_1To1):
 
             if self._initial_state is None:
                 # get the zero element for the given datatype
-                initial_state_str = str(self.outputType.cpp_zero_element)
+                initial_state_str = str(self.outputs[0].datatype.cpp_zero_element)
             else:
                 initial_state_str = str(self._initial_state)
 
-            return self.getUniqueVarnamePrefix() + '_delayed' + ' = ' + initial_state_str + ';\n'
+            return self.getUniqueVarnamePrefix() + '_mem' + ' = ' + initial_state_str + ';\n'
 
-
-def dyn_delay(sim : Simulation, u : SignalUserTemplate, initial_state = None ):
-    return wrap_signal( Delay(sim, u.unwrap, initial_state ).outputSignals )
 
 def delay(u : SignalUserTemplate, initial_state = None):
-    return wrap_signal( Delay(get_simulation_context(), u.unwrap, initial_state ).outputSignals )
+    return wrap_signal( Delay(get_simulation_context(), u.unwrap, initial_state ).outputs[0] )
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1565,7 +1369,7 @@ class Memory(StaticSource_To1):
             return cgh.defineVariable( signals[0], make_a_reference=True ) + ' = ' + self.getUniqueVarnamePrefix() + '_array' + ';\n'
 
 def memory(datatype, constant_array):
-    return wrap_signal( Memory(get_simulation_context(), datatype, constant_array).outputSignals )
+    return wrap_signal( Memory(get_simulation_context(), datatype, constant_array).outputs[0] )
 
 
 
@@ -1583,5 +1387,5 @@ class MemoryRead(StaticFn_NTo1):
             return signals[0].name + ' = ' + self.inputs[0].name + '[' + self.inputs[1].name + '];\n'
 
 def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
-    return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputSignals )
+    return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputs[0] )
 

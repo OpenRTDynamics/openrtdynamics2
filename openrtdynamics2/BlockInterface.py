@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from .libdyn import *
 from .Block import Block
 from .Signal import Signal, BlockOutputSignal
 from . import CodeGenHelper as cgh
@@ -181,4 +182,116 @@ class BlockPrototype(object):
         return ''
         
         
+
+
+#
+# block templates for common use-cases
+#
+
+class StaticSource_To1(BlockPrototype):
+    """
+        This defines a static source
+    """
+    def __init__(self, sim : Simulation, datatype ):
+
+        self.outputType = datatype
+
+        BlockPrototype.__init__(self, sim, [], 1)
+
+        # output datatype is fixed
+        self.outputSignal(0).setDatatype(datatype)
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # define the output type 
+        return [ self.outputType ]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on nothing
+        return []
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return None  # no states
+
+
+
+class DynamicSource_To1(StaticSource_To1):
+    """
+        This defines a dynamic source
+    """
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return [] # indicates state dependency but these states do not depend on external signals
+
+
+
+class StaticFn_1To1(BlockPrototype):
+    def __init__(self, sim : Simulation, u : Signal ):
+
+        self.u = u
+        self.outputType = None
+
+        BlockPrototype.__init__(self, sim, [ u ], 1)
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # just inherit the input type 
+
+        # TODO: 19.4.2020: kick out the uneeded None tests
+
+        if inputTypes[0] is not None:
+            self.outputType = inputTypes[0]
+        else:
+            self.outputType = None
+
+        return [ self.outputType ]        
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on the only one input signals
+        return [ self.u ]
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return None  # no states
+
+
+
+
+class StaticFn_NTo1(BlockPrototype):
+    def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
+
+        self.inputSignals = inputSignals
+
+        BlockPrototype.__init__(self, sim, inputSignals, 1)
+
+    def configDefineOutputTypes(self, inputTypes):
+
+        # check if the output signal type is already defined (e.g. by the user)
+        if self.outputSignal(0).getDatatype() is None:
+            #
+            # no output type defined so far..
+            # look for an already defined input type and inherit that type.
+            #
+
+            self.outputType = computeResultingNumericType(inputTypes)
+
+        # return a proposal for an output type. 
+        return [self.outputType]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output (there is only one) depends on all inputs
+        return self.inputSignals 
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return None  # no states
+
+
 

@@ -125,8 +125,9 @@ class Block:
         # update all signals accordingly
         for i in range(0, len(self.OutputSignals)):
 
-            signal = self.OutputSignals[i]
-            signal.setProposedDatatype(  proposedOutputSingalTypes[i]  )
+            if proposedOutputSingalTypes[i] is not None:
+                signal = self.OutputSignals[i]
+                signal.setProposedDatatype(  proposedOutputSingalTypes[i]  )
 
         return
 
