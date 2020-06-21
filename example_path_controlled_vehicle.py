@@ -190,7 +190,7 @@ def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage,
 
 # define system inputs
 velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.2)
-k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.005)
+k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.0005)
 
 wheelbase = 3.0
 
@@ -200,7 +200,7 @@ wheelbase = 3.0
 
 
 path_x = np.concatenate(( ra(360, 0, 80),  )) 
-path_y = np.concatenate(( co(50, 0), cosra(100, 0, 1), co(50, 1), cosra(100, 1, 0), co(60,0) )) 
+path_y = np.concatenate(( co(50, 0), cosra(100, 0, 1), co(50, 1), cosra(100, 1, 0), co(60,0) ))
 path_distance = np.concatenate((np.zeros(1), np.cumsum( np.sqrt( np.square( np.diff(path_x) ) + np.square( np.diff(path_y) ) ) ) ))
 
 # distance[0] = 0.0
@@ -271,11 +271,52 @@ error = reference - Delta_l
 steering = psi_r - psi - k_p * Delta_l
 
 
+#
+# The model of the vehicle
+#
 
-x_dot   = velocity * dy.cos( steering + psi )
-y_dot   = velocity * dy.sin( steering + psi )
-psi_dot = velocity / dy.float64(wheelbase) * dy.sin( steering )
+# def triggered_ramp():
+#    switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate )
 
+#
+
+
+def play( sequence_array, reset ):
+    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
+
+    subsampling = dy.int32(1)
+    playback_index = dy.signal()
+    reached_end = playback_index == dy.int32(np.size(sequence_array))
+
+    # increase the index counter until the end is reached
+    new_index = playback_index + dy.conditional_overwrite(subsampling, reached_end , 0)
+
+    # reset
+    new_index = dy.conditional_overwrite(new_index, reset, 0)
+
+    # introduce a state variable for the counter
+    playback_index << dy.delay( new_index, initial_state=np.size(sequence_array) )
+
+    # sample the given data
+    output = dy.memory_read(sequence_array_storage, playback_index)
+
+    return output, playback_index
+
+
+
+#
+amplitude = np.deg2rad( 0.6 )
+steering_disturbance = np.concatenate(( cosra(50, 0, amplitude), co(10, amplitude), cosra(50, amplitude, 0) ))
+steering_disturbance, i = play(steering_disturbance, reset=dy.counter() == dy.int32(50))
+
+
+#steering_disturbance = ( dy.step(k_step=int(1.5*100)) - dy.step(k_step=int(2.0*100)) ) * dy.float64( np.deg2rad( -0.6 ) )
+
+disturbes_steering = steering + steering_disturbance
+
+x_dot   = velocity * dy.cos( disturbes_steering + psi )
+y_dot   = velocity * dy.sin( disturbes_steering + psi )
+psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbes_steering )
 
 
 # integrators
@@ -285,8 +326,8 @@ y    << euler_integrator(y_dot,   sampling_rate, 0.0)
 psi  << euler_integrator(psi_dot, sampling_rate, 0.0)
 
 # main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, reference, psi_r, steering, error, Delta_l, index_start ], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'reference', 'psi_r', 'steering', 'error', 'Delta_l__', 'lookup_index'])
+dy.set_primary_outputs([ x, y, x_r, y_r, psi, reference, psi_r, steering, error, Delta_l, index_start, steering_disturbance ], 
+        ['x', 'y', 'x_r', 'y_r', 'psi', 'reference', 'psi_r', 'steering', 'error', 'Delta_l__', 'lookup_index', 'steering_disturbance'])
 
 # dy.set_primary_outputs([ reference, psi_r, Delta_x, Delta_y ], [ 'reference', 'psi_r', 'Delta_x', 'Delta_y'])
 
