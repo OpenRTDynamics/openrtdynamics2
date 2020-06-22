@@ -117,7 +117,7 @@ def lookup_distance_index( path_distance_storage, path_x_storage, path_y_storage
     return index
 
 
-def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage, x, y ):
+def lookup_closest_point( N, path_distance_storage, path_x_storage, path_y_storage, x, y ):
     #
     source_code = """
         // int N = 360;
@@ -170,7 +170,7 @@ def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage,
         Delta_l       = min_distance_to_path;
 
     """
-    array_type = dy.DataTypeArray( 360, datatype=dy.DataTypeFloat64(1) )
+    array_type = dy.DataTypeArray( N, datatype=dy.DataTypeFloat64(1) )
     outputs = dy.generic_cpp_static(input_signals=[ path_distance_storage, path_x_storage, path_y_storage, x, y ], 
                                     input_names=[ 'path_distance_storage', 'path_x_storage', 'path_y_storage', 'x_', 'y_' ], 
                                     input_types=[ array_type, array_type, array_type, dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
@@ -190,8 +190,8 @@ def lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage,
 
 # define system inputs
 velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.2)
-k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.01)
-k_i            = dy.system_input( baseDatatype ).set_name('k_i')        * dy.float64(0.01)
+k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.03)
+k_i            = dy.system_input( baseDatatype ).set_name('k_i')        * dy.float64(0.03)
 k_d            = dy.system_input( baseDatatype ).set_name('k_d')        * dy.float64(0.001)
 
 #sample_disturbance    = dy.convert(dy.system_input( baseDatatype ).set_name('time_disturbance'), target_type=dy.DataTypeInt32(1) )    * dy.float64(100)
@@ -200,9 +200,13 @@ disturbance_amplitude            = dy.system_input( baseDatatype ).set_name('dis
 
 wheelbase = 3.0
 
-path_x = np.concatenate(( ra(360, 0, 80),  )) 
-path_y = np.concatenate(( co(50, 0), cosra(100, 0, 1), co(50, 1), cosra(100, 1, 0), co(60,0) ))
+Td = 0.1
+
+path_x = np.concatenate(( ra(360, 0, 80, Ts=Td),  )) 
+path_y = np.concatenate(( co(50, 0, Ts=Td), cosra(100, 0, 1, Ts=Td), co(50, 1, Ts=Td), cosra(100, 1, 0, Ts=Td), co(60,0, Ts=Td) ))
 path_distance = np.concatenate((np.zeros(1), np.cumsum( np.sqrt( np.square( np.diff(path_x) ) + np.square( np.diff(path_y) ) ) ) ))
+
+N = np.size(path_x)
 
 # distance[0] = 0.0
 # for i in range(1, len(path_x)):
@@ -251,7 +255,7 @@ y   = dy.signal()
 psi = dy.signal()
 
 # lookup lateral distance to path
-index_closest, Delta_l, index_start = lookup_closest_point( path_distance_storage, path_x_storage, path_y_storage, x, y )
+index_closest, Delta_l, index_start = lookup_closest_point( N, path_distance_storage, path_x_storage, path_y_storage, x, y )
 
 x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
 
