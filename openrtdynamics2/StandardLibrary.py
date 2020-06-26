@@ -187,6 +187,17 @@ def sum(u : dy.Signal):
 
     return y
 
+def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+
+    yFb = dy.signal()
+
+    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    y = dy.delay( i, initial_state )
+
+    yFb << y
+
+    return y
+    
 def step(k_step : int):
     k = dy.counter()
     y = dy.int32(k_step) <= k
@@ -225,3 +236,22 @@ def play( sequence_array, reset ):
 
     return output, playback_index
 
+
+def PID_controller(r, y, Ts, kp, ki = None, kd = None):
+    Ts = dy.float64(Ts)
+
+    # control error
+    e = r - y
+
+    # P
+    u = kp * e
+
+    # D
+    if kd is not None:
+        u = u + dy.diff(e) * kd / Ts
+
+    # I
+    if ki is not None:
+        u = u + dy.sum(e) * ki * Ts
+
+    return u

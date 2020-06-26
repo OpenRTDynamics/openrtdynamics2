@@ -101,10 +101,18 @@ function allocateOutputMemoryArray(Nsamples) {
 function genrateParameterInitValues(manifest) {
     // generate list of properties
     i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
+    p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
 
     var initvals = {}
     for (i = 0; i < i1.length; ++i) {
-        initvals[i1[i]] = 0.1
+
+        if ( !(p1[i] === null) && 'default_value' in p1[i]) {
+            initvals[i1[i]] = i2[i].default_value
+
+            console.log('found a default value ', p1[i].default_value)
+        } else {
+            initvals[i1[i]] = 0.1
+        }
     }
 
     return initvals;
@@ -126,6 +134,7 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     // generate list of properties
     i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
     t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
+    p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
 
     console.log('parameters: ', i1)
 

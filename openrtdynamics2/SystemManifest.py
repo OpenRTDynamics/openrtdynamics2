@@ -8,14 +8,15 @@ def makeSignalDescription(signals, json : bool):
     signalDescription['names'] = cgh.signalListHelper_names(signals)
     signalDescription['cpptypes'] = cgh.signalListHelper_typeNames(signals)
 
+    signalDescription['properties'] = []
+    for s in signals:
+        signalDescription['properties'].append( s.properties )
+
     if not json:
         # types will not be available when exported to JSON
         signalDescription['types'] = cgh.signalListHelper_types(signals)
 
     return signalDescription
-
-
-
 
 
 class SystemManifest(object):

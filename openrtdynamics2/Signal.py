@@ -44,6 +44,15 @@ class Signal(object):
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
 
+        # properties
+        self._properties = None
+
+    @property
+    def properties(self):
+        return self.lookupSource()._properties
+
+    def set_properties(self, p):
+        self.lookupSource()._properties = p
 
     # TODO: remove
     def getDatatype(self):

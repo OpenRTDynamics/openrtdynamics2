@@ -25,16 +25,21 @@ class SignalUserTemplate(object):
     def __hash__(self):
         return id(self)
 
-
     @property
     def unwrap(self):
         return self.wrapped_signal_
-
 
     @property
     def name(self):
         return self.wrapped_signal_.name
 
+    @property
+    def properties(self):
+        return self.wrapped_signal_.properties
+
+    def set_properties(self, p):
+        self.wrapped_signal_.set_properties(p)
+        return self
 
     def set_name(self, name):
         self.wrapped_signal_.set_name(name)
