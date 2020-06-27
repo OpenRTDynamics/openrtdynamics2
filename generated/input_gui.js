@@ -3,6 +3,71 @@
 
 const e = React.createElement;
 
+class Slider extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { val: props.default_value };
+  }
+
+  update = (val) => {
+    console.log(val)
+    this.props.onChange(val)
+    this.setState( {val: val } )
+  }
+
+  render() {
+    return [
+
+      e('button', { key : "button",
+                    onClick: () => this.update( this.props.default_value ) 
+                  },
+                  'reset' ),
+
+      e('input', {  type:'range', 
+                    max : this.props.max_val, 
+                    min : this.props.min_val, 
+                    value : this.state.val,
+                    className : "slider",
+                    key : "slider",
+                    onChange: (e) => this.update( e.target.value ) 
+
+                }),
+
+      'val = ' + this.state.val
+
+    ];
+  }
+
+
+  // render() {
+  //   return [
+
+  //     e('button', { key : "button",
+  //                   onClick: () => { this.setState((state) => { 
+  //                     return { val : this.props.default_value } 
+  //                   } )  }
+  //                 },
+  //                 'reset' ),
+
+  //     e('input', {  type:'range', 
+  //                   max : this.props.max_val, 
+  //                   min : this.props.min_val, 
+  //                   value : this.state.val,
+  //                   className : "slider",
+  //                   key : "slider",
+  //                   onChange: (e) => this.setState( {val: e.target.value } ) 
+
+  //               }),
+
+  //     'val = ' + this.state.val
+
+  //   ];
+  // }
+
+
+
+}
+
 class InputBox extends React.Component {
   constructor(props) {
     super(props);
@@ -10,53 +75,28 @@ class InputBox extends React.Component {
     this.state = { values: [] };
   }
 
+  onChange = (e) => {
+    console.log(e)
+    this.props.onChange(e)
+  }
+
   render() {
 
-
-    // return e(
-    //   'button',
-    //   { onClick: () => this.setState({ liked: true }) },
-    //   'Like'
-    // );
 
     console.log(this.props)
 
     
 
-    // var element_list = this.props.names.map(name => 
-    //   e('button', { key : name }, name )
-    // );
-
-    // var element_list = this.props.names.map(name => 
-    //   e( 'li', { key : name },
-    //     [
-    //       name, 
-    //       e('button', { key : "button" }, name ),
-    //       e('input', { type:'range', key : "slider" } )
-    //     ]
-    //   )
-    // );
-
-
-    // var element_list = this.props.names.map(name => 
-    //   e( 'li', { key : name },
-    //     [
-    //       name, 
-    //       e('button', { key : "button" }, name ),
-    //       e('input', { type:'range', key : "slider" } )
-    //     ]
-    //   )
-    // );
 
     var element_list = []
     for (var i = 0; i < names.length; ++i) {
 
-      var min_val, max_val, default_val;
+      var min_val, max_val, default_value;
 
       if (!(properties[i].default_value === null)) {
-        default_val = properties[i].default_value
+        default_value = properties[i].default_value
       } else {
-        default_val = 0
+        default_value = 0
       }
 
       if (!(properties[i].range === null)) {
@@ -68,9 +108,9 @@ class InputBox extends React.Component {
         min_val = 0.0
       }
 
-      this.state.values.push(default_val)
+      // this.state.values.push(default_value)
 
-      console.log(min_val, max_val, default_val)
+      console.log(min_val, max_val, default_value)
 
       // function reset() {
       //   this.setState((state) => {  return { values : v} } )  }
@@ -78,14 +118,12 @@ class InputBox extends React.Component {
 
       var list_element = e( 'li', { key : names[i] },
         [
-          name, 
-          e('button', { key : "button",
-                        onClick: () => { this.setState((state) => { 
-                          var v = state.values; v[i] = 0; return { values : v } 
-                        } )  }
-                      },
-           'reset' ),
-          e('input', { type:'range', max : max_val , min : min_val, value : default_val, key : "slider" } )
+          name,
+
+          e( Slider, { key:name, max_val : max_val, min_val : min_val, default_value : default_value, onChange:this.onChange } )
+
+
+
         ]
       )
 
@@ -95,20 +133,6 @@ class InputBox extends React.Component {
 
     return e('ul', {}, element_list)
 
-    // return [
-    //   e(
-    //   'button',
-    //   { onClick: () => this.setState({ liked: true }), key : 1 },
-    //   'Like'
-    //   ), 
-    //   e(
-    //     'button',
-    //     { onClick: () => this.setState({ liked: true }), key : 2 },
-    //     'Like'
-    //     )    
-    // ];
-
-
   }
 
 }
@@ -117,8 +141,12 @@ class inputGUI {
 
   constructor(div, names, properties) {
 
-    ReactDOM.render(e(InputBox, {names : names, properties : properties}, ), div)
+    ReactDOM.render(e(InputBox, {names : names, properties : properties, onChange : this.onChange }, ), div)
 
+  }
+
+  onChange = (e) => {
+    console.log(e)
   }
 
 }
