@@ -10,8 +10,7 @@ class Slider extends React.Component {
   }
 
   update = (val) => {
-    console.log(val)
-    this.props.onChange(val)
+    this.props.onChange({ index:this.props.index, name: this.props.name, val:val })
     this.setState( {val: val } )
   }
 
@@ -26,10 +25,11 @@ class Slider extends React.Component {
       e('input', {  type:'range', 
                     max : this.props.max_val, 
                     min : this.props.min_val, 
+                    step : (this.props.max_val - this.props.min_val) / this.props.steps,
                     value : this.state.val,
                     className : "slider",
                     key : "slider",
-                    onChange: (e) => this.update( e.target.value ) 
+                    onChange: (e) => this.update( parseFloat(e.target.value) ) 
 
                 }),
 
@@ -37,33 +37,6 @@ class Slider extends React.Component {
 
     ];
   }
-
-
-  // render() {
-  //   return [
-
-  //     e('button', { key : "button",
-  //                   onClick: () => { this.setState((state) => { 
-  //                     return { val : this.props.default_value } 
-  //                   } )  }
-  //                 },
-  //                 'reset' ),
-
-  //     e('input', {  type:'range', 
-  //                   max : this.props.max_val, 
-  //                   min : this.props.min_val, 
-  //                   value : this.state.val,
-  //                   className : "slider",
-  //                   key : "slider",
-  //                   onChange: (e) => this.setState( {val: e.target.value } ) 
-
-  //               }),
-
-  //     'val = ' + this.state.val
-
-  //   ];
-  // }
-
 
 
 }
@@ -76,53 +49,66 @@ class InputBox extends React.Component {
   }
 
   onChange = (e) => {
-    console.log(e)
     this.props.onChange(e)
   }
 
   render() {
 
-
-    console.log(this.props)
-
-    
-
-
     var element_list = []
-    for (var i = 0; i < names.length; ++i) {
+    for (var i = 0; i < this.props.names.length; ++i) {
 
-      var min_val, max_val, default_value;
+      var index = i
+      console.log(this.props.properties)
 
-      if (!(properties[i].default_value === null)) {
-        default_value = properties[i].default_value
+      
+      var name = this.props.names[i]
+      var properties = this.props.properties[i]
+      if (properties === null) {
+        properties = {}
+      }
+
+
+      var min_val, max_val, default_value, steps;
+
+      if ('default_value' in properties && !(properties.default_value === null)) {
+        default_value = properties.default_value
       } else {
         default_value = 0
       }
 
-      if (!(properties[i].range === null)) {
-        min_val = properties[i].range[0]
-        max_val = properties[i].range[1]
+      if ('range' in properties && !(properties.range === null)) {
+        min_val = properties.range[0]
+        max_val = properties.range[1]
 
       } else {
         max_val = 1.0
         min_val = 0.0
       }
 
-      // this.state.values.push(default_value)
+      if ('steps' in properties && !(properties.steps === null)) {
+        steps = properties.steps
+      } else {
+        steps = 1000
+      }
+
+      
 
       console.log(min_val, max_val, default_value)
 
-      // function reset() {
-      //   this.setState((state) => {  return { values : v} } )  }
-      // }
-
-      var list_element = e( 'li', { key : names[i] },
+      var list_element = e( 'div', { key : name },
         [
           name,
 
-          e( Slider, { key:name, max_val : max_val, min_val : min_val, default_value : default_value, onChange:this.onChange } )
-
-
+          e( Slider, {  
+                        key:'slider', 
+                        index:index, 
+                        name : name,
+                        max_val : max_val, 
+                        min_val : min_val, 
+                        steps : steps,
+                        default_value : default_value, 
+                        onChange: (e) => this.onChange(e) 
+                      })
 
         ]
       )
@@ -131,7 +117,7 @@ class InputBox extends React.Component {
     }
 
 
-    return e('ul', {}, element_list)
+    return e('div', {}, element_list)
 
   }
 
@@ -139,14 +125,13 @@ class InputBox extends React.Component {
 
 class inputGUI {
 
-  constructor(div, names, properties) {
-
-    ReactDOM.render(e(InputBox, {names : names, properties : properties, onChange : this.onChange }, ), div)
-
+  constructor(div1, names, properties, change_callback) {
+    this.change_callback = change_callback
+    ReactDOM.render(e(InputBox, {names : names, properties : properties, onChange : this.onChange }, ), div1)
   }
 
   onChange = (e) => {
-    console.log(e)
+    this.change_callback(e)
   }
 
 }
@@ -154,11 +139,11 @@ class inputGUI {
 
 var names = ['a', 'b', 'c']
 var properties = [ 
-  {  range : [0,2.2], default_value : 1.11 },
-  {  range : [-2, 2], default_value : -0.1 },
-  {  range : [0,200], default_value : 111 }
+  {  range : [0,2.2], steps : 1000, default_value : 1.11 },
+  {  range : [-2, 2], steps : 1000, default_value : -0.1 },
+  {  range : [0,200], steps : 100,  default_value : 111 }
 ]  
 
 const div = document.querySelector('#input_container');
-var input_gui = new inputGUI(div, names, properties)
+var input_gui = new inputGUI(div, names, properties, (e) => console.log(e) )
 
