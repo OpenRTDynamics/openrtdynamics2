@@ -68,6 +68,9 @@ No simulation loaded
 
     </textarea>
 
+
+    <div id="input_container"></div>
+
 <script>
 
 
@@ -114,9 +117,17 @@ No simulation loaded
 
 </script>
 
-<script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
+
+  <!-- Load React. -->
+  <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- Load our React component. -->
+  <script src="input_gui.js"></script>
+
+  <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
 <script src="node_modules/@json-editor/json-editor/dist/jsoneditor.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js"></script>
-
 
 </html>

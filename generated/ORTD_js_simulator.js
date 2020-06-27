@@ -107,7 +107,7 @@ function genrateParameterInitValues(manifest) {
     for (i = 0; i < i1.length; ++i) {
 
         if ( !(p1[i] === null) && 'default_value' in p1[i]) {
-            initvals[i1[i]] = i2[i].default_value
+            initvals[i1[i]] = p1[i].default_value
 
             console.log('found a default value ', p1[i].default_value)
         } else {
@@ -132,42 +132,26 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     // JSONEditor.defaults.options.theme = 'bootstrap2';
 
     // generate list of properties
-    i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
-    t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
-    p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
+    var i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
+    var t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
+    var p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
 
-    console.log('parameters: ', i1)
+    var value_storage = {}
+    for (var i=0; i<i1.length; ++i) {
 
-    var properties = {}
-    for (i = 0; i < i1.length; ++i) {
-        properties[i1[i]] = { "type": "number", "format": "range", "propertyOrder": i.toString(),
-            "options": {
-                    "infoText": "..."
-            }
+        if ( !(p1[i] === null) && 'default_value' in p1[i] ) {
+            value_storage[ i1[i] ] = p1[i].default_value
+        } else {
+            value_storage[ i1[i] ] = 0.0
         }
-    }
 
+    }
 
     var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
     editorDiv.innerHTML = ''
 
-    // Initialize the editor
-    var editor = new JSONEditor(  editorDiv, {
-        schema: {
-            type: "object",
-            properties: properties
-        }
-    });
-
-    // Set the initial inputValues
-    editor.setValue(initvals);
-
-    // Listen for changes
-    editor.on("change", function () {
-        fn(editor.getValue());
-    });
-
-    return editor;
+    var input_gui = new inputGUI(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
+    return input_gui
 }
 
 
