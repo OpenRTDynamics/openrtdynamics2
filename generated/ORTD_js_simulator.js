@@ -128,29 +128,25 @@ function genrateParameterInitValues(manifest) {
 
 function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
-    // Set default options
-    // JSONEditor.defaults.options.theme = 'bootstrap2';
-
     // generate list of properties
     var i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
     var t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
     var p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
 
-    var value_storage = {}
-    for (var i=0; i<i1.length; ++i) {
+    var value_storage = {} // will be filled in by the input gui on creation
 
-        if ( !(p1[i] === null) && 'default_value' in p1[i] ) {
-            value_storage[ i1[i] ] = p1[i].default_value
-        } else {
-            value_storage[ i1[i] ] = 0.0
-        }
-
-    }
+    // for (var i=0; i<i1.length; ++i) {
+    //     if ( !(p1[i] === null) && 'default_value' in p1[i] ) {
+    //         value_storage[ i1[i] ] = p1[i].default_value
+    //     } else {
+    //         value_storage[ i1[i] ] = 0.0
+    //     }
+    // }
 
     var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
     editorDiv.innerHTML = ''
+    var input_gui = new inputGUI2(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
 
-    var input_gui = new inputGUI(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
     return input_gui
 }
 
@@ -598,15 +594,19 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
 
             // var myLineChart
 
+            var plots_initialized = false
+
             initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
 
-                // on parameter change simulate and plot
-                simulate(instance, manifest, arrays_for_output_signals_array, 
-                            arrays_for_output_signals_xy, settings, inputValues);
+                if (plots_initialized) {
+                    // on parameter change simulate and plot
+                    simulate(instance, manifest, arrays_for_output_signals_array, 
+                                arrays_for_output_signals_xy, settings, inputValues);
 
-                // myLineChart.update();
+                    // myLineChart.update();
 
-                updatePlotsPlotly(simulator_gui_container) 
+                    updatePlotsPlotly(simulator_gui_container) 
+                }
             });
 
 
@@ -619,6 +619,8 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
             // arrays_for_output_signals_array, arrays_for_output_signals_xy);
 
             preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
+
+            plots_initialized = true
 
 
 
