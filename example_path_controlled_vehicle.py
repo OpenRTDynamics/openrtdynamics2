@@ -32,7 +32,7 @@ k_i            = dy.system_input( baseDatatype ).set_name('k_i').set_properties(
 k_d            = dy.system_input( baseDatatype ).set_name('k_d').set_properties({ "range" : [0, 0.05], "default_value" : 0 })
 
 sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50 }), target_type=dy.DataTypeInt32(1) )
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [0, 45], "unit" : "degrees", "default_value" : 5 })     * dy.float64(math.pi / 180.0)
+disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 5 })     * dy.float64(math.pi / 180.0)
 
 wheelbase = 3.0
 
