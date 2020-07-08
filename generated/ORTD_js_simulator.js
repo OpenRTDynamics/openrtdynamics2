@@ -36,66 +36,6 @@ function clear_simulator_gui_container(simulator_gui_container) {
 
 
 
-function simulate(instance, manifest, arrays_for_output_signals_array, arrays_for_output_signals_xy, settings, inputValues) {
-
-    var Nsamples = settings.number_of_samples;
-    var sampling_time = settings.sampling_time
-    
-    // sort inputValues into the inupts for state update and output calculation
-    var inputs_updateStates = {}
-    var inputs_calcOutputs = {};
-    var inputs_resetStates = {};  // normally empty
-
-    for (var key in inputValues) {
-        if (manifest.io.inputs.state_update.names.includes(key)) {
-            // input 'key' is an input to the function 'updateStates'
-            inputs_updateStates[key] = inputValues[key]
-        }
-        if (manifest.io.inputs.calculate_output.names.includes(key)) {
-            // input 'key' is an input to the function 'calcOutputs'
-            inputs_calcOutputs[key] = inputValues[key]
-        }
-    }
-
-    instance.resetStates(inputs_resetStates);
-
-    var t = 0.0
-
-    for (i = 0; i < Nsamples; ++i) {
-        outputs = instance.calcResults_1(inputs_calcOutputs);
-        instance.updateStates(inputs_updateStates);
-
-        t = t + sampling_time;
-        arrays_for_output_signals_array["time"][i] = t
-
-        manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-            arrays_for_output_signals_array[outputName][i] = outputs[outputName];
-
-            arrays_for_output_signals_xy[outputName][i].x = t;
-            arrays_for_output_signals_xy[outputName][i].y = outputs[outputName];
-        });
-    }
-
-    console.log( arrays_for_output_signals_array )
-}
-
-function allocateOutputMemoryXY(Nsamples) {
-    var dataset_plot = [];
-    for (i = 0; i < Nsamples; ++i) {
-        dataset_plot.push({ x: 0.0, y: 0.0 });
-    }
-
-    return dataset_plot;
-}
-function allocateOutputMemoryArray(Nsamples) {
-    var dataset_plot = [];
-    for (i = 0; i < Nsamples; ++i) {
-        dataset_plot.push(0.0);
-    }
-
-    return dataset_plot;
-}
-
 
 
 function genrateParameterInitValues(manifest) {
@@ -135,14 +75,6 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
     var value_storage = {} // will be filled in by the input gui on creation
 
-    // for (var i=0; i<i1.length; ++i) {
-    //     if ( !(p1[i] === null) && 'default_value' in p1[i] ) {
-    //         value_storage[ i1[i] ] = p1[i].default_value
-    //     } else {
-    //         value_storage[ i1[i] ] = 0.0
-    //     }
-    // }
-
     var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
     editorDiv.innerHTML = ''
     var input_gui = new inputGUI2(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
@@ -151,38 +83,6 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 }
 
 
-
-function allocate_arrays_for_output_signals_xy(manifest, Nsamples) {
-
-    // prepare datasets and pre alloc memory for each to fill in data
-    var arrays_for_output_signals_xy = {}
-    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-
-        var data = allocateOutputMemoryXY(Nsamples);
-
-        arrays_for_output_signals_xy[outputName] = data;
-    });
-
-    return arrays_for_output_signals_xy
-}
-
-
-function allocate_arrays_for_output_signals_array(manifest, Nsamples) {
-
-    // prepare datasets and pre alloc memory for each to fill in data
-    var arrays_for_output_signals_array = {}
-    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-
-        var data = allocateOutputMemoryArray(Nsamples);
-
-        arrays_for_output_signals_array[outputName] = data;
-    });
-
-    var data = allocateOutputMemoryArray(Nsamples);
-    arrays_for_output_signals_array['time'] = data
-
-    return arrays_for_output_signals_array
-}
 
 
 
@@ -572,6 +472,122 @@ function setup_simulation_from_promises(promises, init_fn) {
     })
 }
 
+
+
+// 
+// Simulator
+// 
+
+function allocate_arrays_for_output_signals_xy(manifest, Nsamples) {
+
+    // prepare datasets and pre alloc memory for each to fill in data
+    var arrays_for_output_signals_xy = {}
+    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        var data = allocateOutputMemoryXY(Nsamples);
+
+        arrays_for_output_signals_xy[outputName] = data;
+    });
+
+    return arrays_for_output_signals_xy
+}
+
+
+
+function allocateOutputMemoryXY(Nsamples) {
+    var dataset_plot = [];
+    for (i = 0; i < Nsamples; ++i) {
+        dataset_plot.push({ x: 0.0, y: 0.0 });
+    }
+
+    return dataset_plot;
+}
+function allocateOutputMemoryArray(Nsamples) {
+    var dataset_plot = [];
+    for (i = 0; i < Nsamples; ++i) {
+        dataset_plot.push(0.0);
+    }
+
+    return dataset_plot;
+}
+
+
+class simulationInstance {
+
+    constructor(manifest, wasm_instance, number_of_samples) {
+        this.manifest = manifest
+        this.instance = wasm_instance
+        this.number_of_samples = number_of_samples
+
+        // this.arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, number_of_samples)
+        this.arrays_for_output_signals_array = this.allocate_arrays_for_output_signals_array()
+
+    }
+
+    allocate_arrays_for_output_signals_array() {
+        var N = this.number_of_samples
+
+        // prepare datasets and pre alloc memory for each to fill in data
+        var arrays_for_output_signals_array = {}
+        this.manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+    
+            var data = allocateOutputMemoryArray(N);
+    
+            arrays_for_output_signals_array[outputName] = data;
+        });
+    
+        var data = allocateOutputMemoryArray(N);
+        arrays_for_output_signals_array['time'] = data
+    
+        return arrays_for_output_signals_array
+    }
+
+    simulate(inputValues) {
+
+        var Nsamples = this.number_of_samples;
+        var sampling_time = this.manifest.sampling_time
+        
+        // sort inputValues into the inupts for state update and output calculation
+        var inputs_updateStates = {}
+        var inputs_calcOutputs = {};
+        var inputs_resetStates = {};  // normally empty
+    
+        for (var key in inputValues) {
+            if (this.manifest.io.inputs.state_update.names.includes(key)) {
+                // input 'key' is an input to the function 'updateStates'
+                inputs_updateStates[key] = inputValues[key]
+            }
+            if (this.manifest.io.inputs.calculate_output.names.includes(key)) {
+                // input 'key' is an input to the function 'calcOutputs'
+                inputs_calcOutputs[key] = inputValues[key]
+            }
+        }
+    
+        this.instance.resetStates(inputs_resetStates);
+    
+        var t = 0.0
+    
+        for (i = 0; i < Nsamples; ++i) {
+            var outputs = this.instance.calcResults_1(inputs_calcOutputs);
+            this.instance.updateStates(inputs_updateStates);
+    
+            t = t + sampling_time;
+            this.arrays_for_output_signals_array["time"][i] = t
+    
+            for ( const outputName of this.manifest.io.outputs.calculate_output.names ) {
+
+                this.arrays_for_output_signals_array[outputName][i] = outputs[outputName];
+    
+                // arrays_for_output_signals_xy[outputName][i].x = t;
+                // arrays_for_output_signals_xy[outputName][i].y = outputs[outputName];
+            }
+        }
+    
+    }
+
+}
+
+
 function setup_simulation_gui_from_promises( simulator_gui_container, promises, settings) {
 
     // init the gui
@@ -583,11 +599,18 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
     promises.p_manifest.then(
         function (manifest) {
 
+            if ( !( 'sampling_time' in manifest )) {
+                manifest.sampling_time = 0.01
+                console.log('NOTE: as not specified in the manifest, applying default sampling time (100 Hz)')
+            }
+
             // set-up the GUI                        
             console.log('simulation ready')
 
-            var arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
-            var arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
+            // var arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
+            // var arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
+
+            var simulator = new simulationInstance(manifest, instance, settings.number_of_samples)
 
             // parameter
             var initvals = genrateParameterInitValues(manifest);
@@ -600,8 +623,10 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
 
                 if (plots_initialized) {
                     // on parameter change simulate and plot
-                    simulate(instance, manifest, arrays_for_output_signals_array, 
-                                arrays_for_output_signals_xy, settings, inputValues);
+                    // simulate(instance, manifest, arrays_for_output_signals_array, 
+                    //             simulatorarrays_for_output_signals_xy, settings, inputValues);
+
+                    simulator.simulate(inputValues)
 
                     // myLineChart.update();
 
@@ -610,15 +635,16 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
             });
 
 
-            simulate(instance, manifest, arrays_for_output_signals_array, 
-                        arrays_for_output_signals_xy, settings, initvals);
+            // simulate(instance, manifest, arrays_for_output_signals_array, 
+            //             arrays_for_output_signals_xy, settings, initvals);
 
+            simulator.simulate(initvals)
 
 
             // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
             // arrays_for_output_signals_array, arrays_for_output_signals_xy);
 
-            preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array)
+            preparePlotsPlotly(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
 
             plots_initialized = true
 
