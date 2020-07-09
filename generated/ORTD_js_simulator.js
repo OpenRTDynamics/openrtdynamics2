@@ -141,8 +141,8 @@ class PlotPlotly extends Plot {
     }
 
     show() {
-        // Plotly.newPlot(this.div, this.traces, this.layout);
         console.log('showing plot')
+        Plotly.newPlot(this.div, this.traces, this.layout);
     }
 
 }
@@ -151,25 +151,7 @@ class PlotPlotly extends Plot {
 
 function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array) {
 
-    var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
-
-    // done
-    function prepare_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
-
-        //
-        // TODO: no checking of x_name, y_name is performed
-        //
-
-        var trace = {
-            x: arrays_for_output_signals_array[x_name],
-            y: arrays_for_output_signals_array[y_name],
-            type: 'scatter',
-            name: tracke_name
-        };
-
-        return trace
-    }
-
+   var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
 
    var N = plotDivs.length
 
@@ -180,10 +162,8 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
         graphDiv = plotDivs[i]
         graphDiv.innerHTML = ''
-        var data = []
 
-        // new
-        var plot = new Plot(graphDiv)
+        var plot = new PlotPlotly(graphDiv)
 
         console.log('new plot', i, graphDiv)
 
@@ -199,20 +179,12 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
                 x_name = x_names[0]
 
                 y_names.forEach(function (y_name) {
-                    trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name, y_name)
-                    data.push(trace)    
-
-                    // new
                     plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
                 })
     
             } else if ( x_names.length == y_names.length ) {
 
                 for (var j=0; j < x_names.length; ++j) {
-                    trace = prepare_trace(arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
-                    data.push(trace)
-
-                    // new
                     plot.add_trace( arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
                 }
 
@@ -228,12 +200,7 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
     
             // put all output signal into one plot
             manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-    
-                trace = prepare_trace(arrays_for_output_signals_array, "time", outputName, outputName)
-                data.push(trace)
-
                 plot.add_trace( arrays_for_output_signals_array, "time", outputName, outputName )
-    
             });
             
         }
@@ -256,25 +223,8 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
             ylabel = ''
         }
 
-        // neew
+        // new
         plot.set_descriptions( title, xlabel, ylabel )
-
-
-
-        var layout = {
-          title: title,
-          xaxis: {
-            title: xlabel,
-            showgrid: true,
-            zeroline: true
-          },
-          yaxis: {
-            title: ylabel,
-            showline: true
-          }
-        };
-        Plotly.newPlot(graphDiv, data, layout);
-
 
         // new
         plot.show()
