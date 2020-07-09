@@ -84,6 +84,68 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
 
 
+class Plot {
+    constructor(div) {
+        this.div = div
+    }
+
+    add_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
+    }
+
+    set_descriptions( title, xlabel, ylabel ) {
+    }
+
+    show () {
+
+    }
+}
+
+
+
+class PlotPlotly extends Plot {
+    constructor(div) {
+        super(div)
+
+        this.traces = []
+    }
+
+    add_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
+        //
+        // TODO: no checking of x_name, y_name is performed
+        //
+
+        var trace = {
+            x: arrays_for_output_signals_array[x_name],
+            y: arrays_for_output_signals_array[y_name],
+            type: 'scatter',
+            name: tracke_name
+        };
+
+        this.traces.push(trace)
+    }
+
+    set_descriptions( title, xlabel, ylabel ) {
+
+        this.layout = {
+            title: title,
+            xaxis: {
+              title: xlabel,
+              showgrid: true,
+              zeroline: true
+            },
+            yaxis: {
+              title: ylabel,
+              showline: true
+            }
+          }
+    }
+
+    show() {
+        // Plotly.newPlot(this.div, this.traces, this.layout);
+        console.log('showing plot')
+    }
+
+}
 
 
 
@@ -91,7 +153,7 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
     var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
 
-    
+    // done
     function prepare_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
 
         //
@@ -113,13 +175,19 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
 
    console.log('building ', N)
 
+
    for (var i = 0; i < N; i++) {
 
         graphDiv = plotDivs[i]
         graphDiv.innerHTML = ''
         var data = []
 
+        // new
+        var plot = new Plot(graphDiv)
+
         console.log('new plot', i, graphDiv)
+
+
 
         if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
 
@@ -133,13 +201,19 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
                 y_names.forEach(function (y_name) {
                     trace = prepare_trace(arrays_for_output_signals_array, x_name, y_name, y_name)
                     data.push(trace)    
+
+                    // new
+                    plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
                 })
     
             } else if ( x_names.length == y_names.length ) {
 
                 for (var j=0; j < x_names.length; ++j) {
                     trace = prepare_trace(arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
-                    data.push(trace)    
+                    data.push(trace)
+
+                    // new
+                    plot.add_trace( arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
                 }
 
             } else {
@@ -155,8 +229,10 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
             // put all output signal into one plot
             manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
     
-                trace = prepare_trace(arrays_for_output_signals_array, "time", outputName)
+                trace = prepare_trace(arrays_for_output_signals_array, "time", outputName, outputName)
                 data.push(trace)
+
+                plot.add_trace( arrays_for_output_signals_array, "time", outputName, outputName )
     
             });
             
@@ -180,6 +256,11 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
             ylabel = ''
         }
 
+        // neew
+        plot.set_descriptions( title, xlabel, ylabel )
+
+
+
         var layout = {
           title: title,
           xaxis: {
@@ -193,6 +274,10 @@ function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output
           }
         };
         Plotly.newPlot(graphDiv, data, layout);
+
+
+        // new
+        plot.show()
 
     }
 
