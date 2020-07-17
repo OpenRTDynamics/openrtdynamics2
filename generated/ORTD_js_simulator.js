@@ -98,6 +98,10 @@ class Plot {
     show () {
 
     }
+
+    update () {
+
+    }
 }
 
 
@@ -145,106 +149,132 @@ class PlotPlotly extends Plot {
         Plotly.newPlot(this.div, this.traces, this.layout);
     }
 
+    update () {
+        Plotly.redraw(this.div)
+    }
 }
 
 
+class PlotManager {
+    constructor(simulator_gui_container, manifest, arrays_for_output_signals_array) {
+        this.simulator_gui_container = simulator_gui_container
+        this.plots = []
+        this.preparePlots(simulator_gui_container, manifest, arrays_for_output_signals_array)
+    }
 
-function preparePlotsPlotly(simulator_gui_container, manifest, arrays_for_output_signals_array) {
+    update() {
+        for (var i = 0; i < this.plots.length; i++) {
+            this.plots[i].update()
+        }
+    }
 
-   var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
+    preparePlots(simulator_gui_container, manifest, arrays_for_output_signals_array) {
 
-   var N = plotDivs.length
+        var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
+        var N = plotDivs.length
 
-   console.log('building ', N)
+        console.log('building ', N)
 
+        for (var i = 0; i < N; i++) {
 
-   for (var i = 0; i < N; i++) {
+                var graphDiv = plotDivs[i]
+                graphDiv.innerHTML = ''
 
-        graphDiv = plotDivs[i]
-        graphDiv.innerHTML = ''
+                var plot
 
-        var plot = new PlotPlotly(graphDiv)
+                console.log('new plot', i, graphDiv)
 
-        console.log('new plot', i, graphDiv)
+                var plot_type
+                if (graphDiv.hasAttribute('type')) {
 
+                    type = graphDiv.getAttribute('type')
 
+                    if (type == 'plotly') {
+                        plot = new PlotPlotly(graphDiv)
+                    }
+                    if (type == 'chartjs') {
+                        plot = new PlotChartJS(graphDiv)
+                    }
 
-        if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
-
-            x_names = graphDiv.getAttribute('x').split(" ")
-            y_names = graphDiv.getAttribute('y').split(" ")
-
-            // TODO: handle unknown names
-            if (x_names.length == 1) {
-                x_name = x_names[0]
-
-                y_names.forEach(function (y_name) {
-                    plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
-                })
-    
-            } else if ( x_names.length == y_names.length ) {
-
-                for (var j=0; j < x_names.length; ++j) {
-                    plot.add_trace( arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
+                } else {
+                    plot = new PlotPlotly(graphDiv)
                 }
 
-            } else {
-                console.log('error in setting-up plot: number of x vs. y signals is not matching')
-            }
+                this.plots.push(plot)
 
-    
-        } else {
-    
-    
-            console.log('no special atrributes found')
-    
-            // put all output signal into one plot
-            manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-                plot.add_trace( arrays_for_output_signals_array, "time", outputName, outputName )
-            });
+                if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
+
+                    var x_names = graphDiv.getAttribute('x').split(" ")
+                    var y_names = graphDiv.getAttribute('y').split(" ")
+
+                    // TODO: handle unknown names
+                    if (x_names.length == 1) {
+                        var x_name = x_names[0]
+
+                        y_names.forEach(function (y_name) {
+                            plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
+                        })
             
-        }
-    
-        // get some comming plot labels
-        var title, xlabel, ylabel
-        if (graphDiv.hasAttribute('title')) {
-            title = graphDiv.getAttribute('title')
-        } else {
-            title = ''
-        }
-        if (graphDiv.hasAttribute('xlabel')) {
-            xlabel = graphDiv.getAttribute('xlabel')
-        } else {
-            xlabel = ''
-        }
-        if (graphDiv.hasAttribute('ylabel')) {
-            ylabel = graphDiv.getAttribute('ylabel')
-        } else {
-            ylabel = ''
-        }
+                    } else if ( x_names.length == y_names.length ) {
 
-        // new
-        plot.set_descriptions( title, xlabel, ylabel )
+                        for (var j=0; j < x_names.length; ++j) {
+                            plot.add_trace( arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
+                        }
 
-        // new
-        plot.show()
+                    } else {
+                        console.log('error in setting-up plot: number of x vs. y signals is not matching')
+                    }
 
+                } else {
+            
+                    console.log('no special atrributes found')
+            
+                    // put all output signal into one plot
+                    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+                        plot.add_trace( arrays_for_output_signals_array, "time", outputName, outputName )
+                    });
+                    
+                }
+            
+                // get some comming plot labels
+                var title, xlabel, ylabel
+                if (graphDiv.hasAttribute('title')) {
+                    title = graphDiv.getAttribute('title')
+                } else {
+                    title = ''
+                }
+                if (graphDiv.hasAttribute('xlabel')) {
+                    xlabel = graphDiv.getAttribute('xlabel')
+                } else {
+                    xlabel = ''
+                }
+                if (graphDiv.hasAttribute('ylabel')) {
+                    ylabel = graphDiv.getAttribute('ylabel')
+                } else {
+                    ylabel = ''
+                }
+
+                // new
+                plot.set_descriptions( title, xlabel, ylabel )
+
+                // new
+                plot.show()
+        }
     }
-
 
 }
 
 
-function updatePlotsPlotly(simulator_gui_container) {
+// function updatePlotsPlotly(simulator_gui_container) {
 
-    var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
-    var N = plotDivs.length
+//     var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
+//     var N = plotDivs.length
  
-    for (var i = 0; i < N; i++) {
-        graphDiv = plotDivs[i]
-        Plotly.redraw(graphDiv)
-    }
-}
+//     for (var i = 0; i < N; i++) {
+//         graphDiv = plotDivs[i]
+//         Plotly.redraw(graphDiv)
+//     }
+// }
 
 
 
@@ -650,6 +680,8 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
             // parameter
             var initvals = genrateParameterInitValues(manifest);
 
+            var plotManager
+
             // var myLineChart
 
             var plots_initialized = false
@@ -665,7 +697,9 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
 
                     // myLineChart.update();
 
-                    updatePlotsPlotly(simulator_gui_container) 
+                    // updatePlotsPlotly(simulator_gui_container) 
+
+                    plotManager.update()
                 }
             });
 
@@ -679,7 +713,9 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
             // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
             // arrays_for_output_signals_array, arrays_for_output_signals_xy);
 
-            preparePlotsPlotly(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
+            plotManager = new PlotManager(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
+
+            // preparePlotsPlotly(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
 
             plots_initialized = true
 
