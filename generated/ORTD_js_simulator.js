@@ -155,6 +155,197 @@ class PlotPlotly extends Plot {
 }
 
 
+
+class PlotChartJS extends Plot {
+    constructor(div) {
+        super(div)
+
+        this.number_of_traces = 0
+
+        this.data_arrays = []
+        this.data_source_arrays = []
+        this.x_names = []
+        this.y_names = []
+        this.Nsamples_list = []
+
+        this.datasets = []
+    }
+
+    allocate_array_struct(Nsamples) {
+        var dataset_plot = [];
+        for (i = 0; i < Nsamples; ++i) {
+            dataset_plot.push({ x: 0.0, y: 0.0 });
+        }
+    
+        return dataset_plot;
+    }
+
+    copy_trace_data(index) {
+        // console.log(this.data_arrays)
+        for (var j = 0; j < this.Nsamples_list[index]; ++j) {
+            this.data_arrays[index][j].x = this.data_source_arrays[index].x[j]
+            this.data_arrays[index][j].y = this.data_source_arrays[index].y[j]
+        }
+    }
+
+    copy_data() {
+        console.log('number of traces ', this.number_of_traces)
+
+        for (var i = 0; i < this.number_of_traces; ++i) {
+            console.log('copy ', i)
+            this.copy_trace_data(i)
+        }
+
+        console.log('end of for loop')
+    }
+
+    add_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
+        //
+        // TODO: no checking of x_name, y_name is performed
+        //
+
+        console.log('Chartjs new trace ', this.number_of_traces, x_name, y_name, tracke_name)
+
+
+        // default colors
+        var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
+
+        // prepare datasets and pre alloc memory for each to fill in data
+        var Nsamples = arrays_for_output_signals_array[x_name].length
+        this.Nsamples_list.push(Nsamples)
+
+        var data = this.allocate_array_struct( Nsamples )
+
+        this.data_arrays.push(data)
+        this.data_source_arrays.push( {x: arrays_for_output_signals_array[x_name], y: arrays_for_output_signals_array[y_name] } )
+
+        var color;
+        if (this.number_of_traces < colorList.length) {
+            color = colorList[this.number_of_traces];
+        } else {
+            color = 'black'
+        }
+
+        var dataset = {
+            label: tracke_name,
+            borderColor: color,
+            data: data
+        };
+
+        this.datasets.push(dataset);
+
+
+        this.number_of_traces++
+    }
+
+    set_descriptions( title, xlabel, ylabel ) {
+
+        this.layout = {
+        }
+    }
+
+    show() {
+
+        var datasets = this.datasets
+
+        this.copy_data()
+        console.log('showing plot', this.div)
+        
+        console.log(datasets)
+
+        // plot
+        this.div.innerHTML = 'Chartjs'
+
+        // create canvas
+        this.canvas = document.createElement('canvas')
+        this.canvas.setAttribute('width', '340')
+        this.canvas.setAttribute('heigth', '200')
+
+        this.div.appendChild(this.canvas)
+
+        this.myLineChart = new Chart(this.canvas, {
+            type: "scatter",
+            data: { datasets },
+            options: {
+                animation: {
+                    duration: 1 // general animation time
+                },
+                hover: {
+                    animationDuration: 0 // duration of animations when hovering an item
+                },
+                responsiveAnimationDuration: 0 // animation duration after a resize
+            }
+        });
+
+    }
+
+    update () {
+        this.copy_data()
+        this.myLineChart.update()
+    }
+}
+
+
+
+
+function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_output_signals_xy) {
+
+
+    // default colors
+    var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
+
+    // prepare datasets and pre alloc memory for each to fill in data
+    var datasets = []
+    var i = 0
+    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
+
+        console.log('added output ')
+        console.log(outputName)
+
+        data = arrays_for_output_signals_xy[outputName]
+
+        var color;
+        if (i < colorList.length) {
+            color = colorList[i];
+        } else {
+            color = 'black'
+        }
+
+        var dataset = {
+            label: outputName,
+            borderColor: color,
+            data: data
+        };
+
+        datasets.push(dataset);
+
+        i = i + 1;
+    });
+
+
+    // plot
+    var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
+    ctx.innerHTML = ''
+
+
+    var myLineChart = new Chart(ctx, {
+        type: "scatter",
+        data: { datasets },
+        options: {
+            animation: {
+                duration: 01 // general animation time
+            },
+            hover: {
+                animationDuration: 0 // duration of animations when hovering an item
+            },
+            responsiveAnimationDuration: 0 // animation duration after a resize
+        }
+    });
+
+    return myLineChart;
+}
+
+
 class PlotManager {
     constructor(simulator_gui_container, manifest, arrays_for_output_signals_array) {
         this.simulator_gui_container = simulator_gui_container
@@ -178,21 +369,22 @@ class PlotManager {
         for (var i = 0; i < N; i++) {
 
                 var graphDiv = plotDivs[i]
-                graphDiv.innerHTML = ''
+                graphDiv.innerHTML = '' //'Plot ' + i + ' to appear...'
 
-                var plot
 
                 console.log('new plot', i, graphDiv)
 
+                var plot
                 var plot_type
+
                 if (graphDiv.hasAttribute('type')) {
 
-                    type = graphDiv.getAttribute('type')
+                    var type = graphDiv.getAttribute('type')
 
                     if (type == 'plotly') {
                         plot = new PlotPlotly(graphDiv)
                     }
-                    if (type == 'chartjs') {
+                    else if (type == 'chartjs') {
                         plot = new PlotChartJS(graphDiv)
                     }
 
@@ -278,65 +470,6 @@ class PlotManager {
 
 
 
-
-
-
-function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_output_signals_xy) {
-
-
-    // default colors
-    var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
-
-    // prepare datasets and pre alloc memory for each to fill in data
-    var datasets = []
-    var i = 0
-    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-
-        console.log('added output ')
-        console.log(outputName)
-
-        data = arrays_for_output_signals_xy[outputName]
-
-        var color;
-        if (i < colorList.length) {
-            color = colorList[i];
-        } else {
-            color = 'black'
-        }
-
-        var dataset = {
-            label: outputName,
-            borderColor: color,
-            data: data
-        };
-
-        datasets.push(dataset);
-
-        i = i + 1;
-    });
-
-
-    // plot
-    var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
-    ctx.innerHTML = ''
-
-
-    var myLineChart = new Chart(ctx, {
-        type: "scatter",
-        data: { datasets },
-        options: {
-            animation: {
-                duration: 01 // general animation time
-            },
-            hover: {
-                animationDuration: 0 // duration of animations when hovering an item
-            },
-            responsiveAnimationDuration: 0 // animation duration after a resize
-        }
-    });
-
-    return myLineChart;
-}
 
 
 
@@ -558,7 +691,7 @@ function allocate_arrays_for_output_signals_xy(manifest, Nsamples) {
 }
 
 
-
+// kick this out
 function allocateOutputMemoryXY(Nsamples) {
     var dataset_plot = [];
     for (i = 0; i < Nsamples; ++i) {
