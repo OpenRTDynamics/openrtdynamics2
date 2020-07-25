@@ -29,14 +29,22 @@ http://localhost:3000/compile/
     <textarea id="secret_token" name="secret_token">
 openrtdynamics
     </textarea>
-            
-    
-    <div id='simulator_gui_container_vehicle'>
+
+
+    <!-- <div id='simulator_gui_container_vehicle'>
             <div class='parameter_editor'></div>
 
-            <div class="plot_plotly" x="x x_r" y="y y_r"              title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></div>
-            <div class="plot_plotly" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
-            <div class="plot_plotly" x="time"  y="lookup_index"       title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></div>
+            <plot x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
+            <plot x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+            <plot x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+    </div> -->
+
+    <div id='simulator_gui_container_vehicle'>
+        <div class='parameter_editor'></div>
+
+        <plot type="chartjs" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
     </div>
 
     <div class="realtime_simulator" id='realtime_simulator_gui_container'>
@@ -79,8 +87,8 @@ No simulation loaded
 
 
     $( "#reload_trigger_vehicle" ).click(function() {
-
-        var ret = loadCompiledSimulator();
+        var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
+        var ret = loadCompiledSimulator(files);
         simulator_gui_container = document.getElementById('simulator_gui_container_vehicle')
         setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});
     });
@@ -90,7 +98,8 @@ No simulation loaded
 
     $( "#reload_trigger2" ).click(function() {
 
-        var ret = loadCompiledSimulator();
+        var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
+        var ret = loadCompiledSimulator(files);
         simulator_gui_container = document.getElementById('simulator_gui_container')
         setup_simulation_gui_from_promises( simulator_gui_container2, ret, {number_of_samples : 300, sampling_time : 0.01} );
     });
@@ -117,17 +126,8 @@ No simulation loaded
 
 </script>
 
-
-  <!-- Load React. -->
-  <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
-  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-
-  <!-- Load our React component. -->
-  <script src="input_gui.js"></script>
-
-  <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
-<script src="node_modules/@json-editor/json-editor/dist/jsoneditor.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js"></script>
+    <script src="input_gui.js"></script>
+    <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js"></script>
 
 </html>

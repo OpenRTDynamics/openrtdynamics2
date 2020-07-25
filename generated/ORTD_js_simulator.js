@@ -1,25 +1,27 @@
 
-function init_simulator_gui_container(divElement) {
+// function init_simulator_gui_container(divElement) {
 
-    if ( divElement.getElementsByClassName("parameter_editor").length == 0
-         && divElement.getElementsByClassName("plot_plotly").length == 0 ) {
+//     if ( divElement.getElementsByClassName("parameter_editor").length == 0
+//          && divElement.getElementsByClassName("plot_plotly").length == 0 ) {
 
-            divElement.innerHTML = `
-            <div class='parameter_editor'></div>
-            <div class="plot_plotly" width="400" height="200"></div>
-         `;
+//             divElement.innerHTML = `
+//             <div class='parameter_editor'></div>
+//             <div class="plot_plotly" width="400" height="200"></div>
+//          `;
     
-         }
+//          }
 
-}
+// }
 
-function clear_simulator_gui_container(simulator_gui_container) {
+
+
+function show_loading(simulator_gui_container) {
 
     var parameterEditorDivs = simulator_gui_container.getElementsByClassName("parameter_editor" ) 
-    var plotDivs            = simulator_gui_container.getElementsByClassName('plot_plotly')
+    var plotDivs            = simulator_gui_container.getElementsByTagName('plot')
 
     for (var i = 0; i < parameterEditorDivs.length; i++) {
-        parameterEditorDivs[i].innerHTML = ''
+        parameterEditorDivs[i].innerHTML = '...'
     }
 
     for (var i = 0; i < plotDivs.length; i++) {
@@ -27,13 +29,6 @@ function clear_simulator_gui_container(simulator_gui_container) {
     }
 
 }
-
-
-
-
-
-
-
 
 
 
@@ -77,7 +72,7 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
 
     var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
     editorDiv.innerHTML = ''
-    var input_gui = new inputGUI2(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
+    var input_gui = new inputGUI(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
 
     return input_gui
 }
@@ -145,7 +140,6 @@ class PlotPlotly extends Plot {
     }
 
     show() {
-        console.log('showing plot')
         Plotly.newPlot(this.div, this.traces, this.layout);
     }
 
@@ -189,14 +183,9 @@ class PlotChartJS extends Plot {
     }
 
     copy_data() {
-        console.log('number of traces ', this.number_of_traces)
-
         for (var i = 0; i < this.number_of_traces; ++i) {
-            console.log('copy ', i)
             this.copy_trace_data(i)
         }
-
-        console.log('end of for loop')
     }
 
     add_trace(arrays_for_output_signals_array, x_name, y_name, tracke_name) {
@@ -204,7 +193,7 @@ class PlotChartJS extends Plot {
         // TODO: no checking of x_name, y_name is performed
         //
 
-        console.log('Chartjs new trace ', this.number_of_traces, x_name, y_name, tracke_name)
+        // console.log('Chartjs new trace ', this.number_of_traces, x_name, y_name, tracke_name)
 
 
         // default colors
@@ -246,22 +235,23 @@ class PlotChartJS extends Plot {
 
     show() {
 
+
         var datasets = this.datasets
 
         this.copy_data()
-        console.log('showing plot', this.div)
-        
-        console.log(datasets)
 
         // plot
         this.div.innerHTML = 'Chartjs'
+
+        this.subdiv = document.createElement('div')
+        this.div.appendChild(this.subdiv)
 
         // create canvas
         this.canvas = document.createElement('canvas')
         this.canvas.setAttribute('width', '340')
         this.canvas.setAttribute('heigth', '200')
 
-        this.div.appendChild(this.canvas)
+        this.subdiv.appendChild(this.canvas)
 
         this.myLineChart = new Chart(this.canvas, {
             type: "scatter",
@@ -277,6 +267,8 @@ class PlotChartJS extends Plot {
             }
         });
 
+        console.log('showed chartjs plot ', this.div, this.canvas, this.datasets)
+
     }
 
     update () {
@@ -286,64 +278,6 @@ class PlotChartJS extends Plot {
 }
 
 
-
-
-function preparePlotsChartJS(simulator_gui_container, manifest, arrays_for_output_signals_xy) {
-
-
-    // default colors
-    var colorList = ['black', 'red', 'green', 'blue', 'yellow', 'grey'];
-
-    // prepare datasets and pre alloc memory for each to fill in data
-    var datasets = []
-    var i = 0
-    manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
-
-        console.log('added output ')
-        console.log(outputName)
-
-        data = arrays_for_output_signals_xy[outputName]
-
-        var color;
-        if (i < colorList.length) {
-            color = colorList[i];
-        } else {
-            color = 'black'
-        }
-
-        var dataset = {
-            label: outputName,
-            borderColor: color,
-            data: data
-        };
-
-        datasets.push(dataset);
-
-        i = i + 1;
-    });
-
-
-    // plot
-    var ctx = simulator_gui_container.getElementsByClassName('plot')[0];
-    ctx.innerHTML = ''
-
-
-    var myLineChart = new Chart(ctx, {
-        type: "scatter",
-        data: { datasets },
-        options: {
-            animation: {
-                duration: 01 // general animation time
-            },
-            hover: {
-                animationDuration: 0 // duration of animations when hovering an item
-            },
-            responsiveAnimationDuration: 0 // animation duration after a resize
-        }
-    });
-
-    return myLineChart;
-}
 
 
 class PlotManager {
@@ -361,10 +295,8 @@ class PlotManager {
 
     preparePlots(simulator_gui_container, manifest, arrays_for_output_signals_array) {
 
-        var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
+        var plotDivs = simulator_gui_container.getElementsByTagName('plot');
         var N = plotDivs.length
-
-        console.log('building ', N)
 
         for (var i = 0; i < N; i++) {
 
@@ -457,21 +389,6 @@ class PlotManager {
 }
 
 
-// function updatePlotsPlotly(simulator_gui_container) {
-
-//     var plotDivs = simulator_gui_container.getElementsByClassName('plot_plotly');
-//     var N = plotDivs.length
- 
-//     for (var i = 0; i < N; i++) {
-//         graphDiv = plotDivs[i]
-//         Plotly.redraw(graphDiv)
-//     }
-// }
-
-
-
-
-
 
 function compileSimulator(source_code, compile_service_url, secret_token) {
 
@@ -534,15 +451,13 @@ function compileSimulator(source_code, compile_service_url, secret_token) {
 
 
 
-// load wasm file
-function loadCompiledSimulator() {
+// load wasm file files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
+function loadCompiledSimulator(files) {
 
     var p_manifest = new Promise(
         function (resolve, reject) {
 
-            console.log('loading manifest')
-
-            fetch('simulation_manifest.json', {cache: "no-cache"})
+            fetch(files.manifest, {cache: "no-cache"})
                 .then(response => response.json())
                 .then(response => {
             
@@ -558,9 +473,7 @@ function loadCompiledSimulator() {
     var rawWebAssembly = new Promise(
         function (resolve, reject) {
 
-            console.log('loading wasm data...')
-
-            fetch('main.wasm', {cache: "no-cache"} ).then(response => {
+            fetch(files.wasm, {cache: "no-cache"} ).then(response => {
             
                 resolve( response['arrayBuffer']() );
 
@@ -574,9 +487,7 @@ function loadCompiledSimulator() {
     var jscode = new Promise(
         function (resolve, reject) {
 
-            console.log('loading js part of wasm data')
-
-            fetch('main.js', {cache: "no-cache"})
+            fetch(files.jscode, {cache: "no-cache"})
                 .then(response => response.text())
                 .then(response => {
             
@@ -590,17 +501,13 @@ function loadCompiledSimulator() {
     );
 
     promises = {p_manifest : p_manifest, p_rawWebAssembly : rawWebAssembly, p_jscode : jscode}
-
-    console.log(promises)
-
-
     return promises;
 }
 
 
 
 
-// create instance fo the simulator
+// create instance for the simulator
 function createInstance( p_manifest, rawWebAssembly, init_fn ) {
     var Module = {
 
@@ -717,9 +624,7 @@ class simulationInstance {
         this.instance = wasm_instance
         this.number_of_samples = number_of_samples
 
-        // this.arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, number_of_samples)
         this.arrays_for_output_signals_array = this.allocate_arrays_for_output_signals_array()
-
     }
 
     allocate_arrays_for_output_signals_array() {
@@ -773,11 +678,7 @@ class simulationInstance {
             this.arrays_for_output_signals_array["time"][i] = t
     
             for ( const outputName of this.manifest.io.outputs.calculate_output.names ) {
-
                 this.arrays_for_output_signals_array[outputName][i] = outputs[outputName];
-    
-                // arrays_for_output_signals_xy[outputName][i].x = t;
-                // arrays_for_output_signals_xy[outputName][i].y = outputs[outputName];
             }
         }
     
@@ -789,8 +690,10 @@ class simulationInstance {
 function setup_simulation_gui_from_promises( simulator_gui_container, promises, settings) {
 
     // init the gui
-    init_simulator_gui_container(simulator_gui_container)
-    clear_simulator_gui_container(simulator_gui_container)
+    // init_simulator_gui_container(simulator_gui_container)
+    // clear_simulator_gui_container(simulator_gui_container)
+
+    show_loading(simulator_gui_container)
 
     setup_simulation_from_promises(promises, function(instance) {
 
@@ -802,60 +705,27 @@ function setup_simulation_gui_from_promises( simulator_gui_container, promises, 
                 console.log('NOTE: as not specified in the manifest, applying default sampling time (100 Hz)')
             }
 
-            // set-up the GUI                        
-            console.log('simulation ready')
-
-            // var arrays_for_output_signals_xy = allocate_arrays_for_output_signals_xy(manifest, settings.number_of_samples)
-            // var arrays_for_output_signals_array = allocate_arrays_for_output_signals_array(manifest, settings.number_of_samples)
-
+            // set-up the GUI and simulator
             var simulator = new simulationInstance(manifest, instance, settings.number_of_samples)
 
             // parameter
             var initvals = genrateParameterInitValues(manifest);
-
             var plotManager
-
-            // var myLineChart
-
             var plots_initialized = false
 
             initParameterEditor(simulator_gui_container, manifest, initvals, function (inputValues) {
 
                 if (plots_initialized) {
                     // on parameter change simulate and plot
-                    // simulate(instance, manifest, arrays_for_output_signals_array, 
-                    //             simulatorarrays_for_output_signals_xy, settings, inputValues);
-
                     simulator.simulate(inputValues)
-
-                    // myLineChart.update();
-
-                    // updatePlotsPlotly(simulator_gui_container) 
-
                     plotManager.update()
                 }
             });
 
-
-            // simulate(instance, manifest, arrays_for_output_signals_array, 
-            //             arrays_for_output_signals_xy, settings, initvals);
-
             simulator.simulate(initvals)
 
-
-            // myLineChart = preparePlotsChartJS(simulator_gui_container, manifest, 
-            // arrays_for_output_signals_array, arrays_for_output_signals_xy);
-
             plotManager = new PlotManager(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
-
-            // preparePlotsPlotly(simulator_gui_container, manifest, simulator.arrays_for_output_signals_array)
-
             plots_initialized = true
-
-
-
-
-            // myLineChart.update();
 
         })
 

@@ -1,46 +1,7 @@
 'use strict';
 
 
-const e = React.createElement;
-
-class Slider extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { val: props.default_value };
-  }
-
-  update = (val) => {
-    this.props.onChange({ index:this.props.index, name: this.props.name, val:val })
-    this.setState( {val: val } )
-  }
-
-  render() {
-    return [
-
-      e('button', { key : "button",
-                    onClick: () => this.update( this.props.default_value ) 
-                  },
-                  'reset' ),
-
-      e('input', {  type:'range', 
-                    max : this.props.max_val, 
-                    min : this.props.min_val, 
-                    step : (this.props.max_val - this.props.min_val) / this.props.steps,
-                    value : this.state.val,
-                    className : "slider",
-                    key : "slider",
-                    onChange: (e) => this.update( parseFloat(e.target.value) ) 
-
-                }),
-
-      '' + this.state.val
-
-    ];
-  }
-}
-
-
-class Slider2 {
+class Slider {
   constructor(div, props) {
     this.div = div
     this.props = props;
@@ -96,89 +57,10 @@ class Slider2 {
 }
 
 
-class InputBox extends React.Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = { values: [] };
-  }
-
-  onChange = (e) => {
-    this.props.onChange(e)
-  }
-
-  render() {
-
-    var element_list = []
-    for (var i = 0; i < this.props.names.length; ++i) {
-
-      var index = i
-      console.log(this.props.properties)
-
-      
-      var name = this.props.names[i]
-      var properties = this.props.properties[i]
-      if (properties === null) {
-        properties = {}
-      }
-
-
-      var min_val, max_val, default_value, steps;
-
-      if ('default_value' in properties && !(properties.default_value === null)) {
-        default_value = properties.default_value
-      } else {
-        default_value = 0
-      }
-
-      if ('range' in properties && !(properties.range === null)) {
-        min_val = properties.range[0]
-        max_val = properties.range[1]
-
-      } else {
-        max_val = 1.0
-        min_val = 0.0
-      }
-
-      if ('steps' in properties && !(properties.steps === null)) {
-        steps = properties.steps
-      } else {
-        steps = 1000
-      }
-
-      var list_element = e( 'div', { key : name },
-        [
-          name,
-
-          e( Slider, {  
-                        key:'slider', 
-                        index:index, 
-                        name : name,
-                        max_val : max_val, 
-                        min_val : min_val, 
-                        steps : steps,
-                        default_value : default_value, 
-                        onChange: (e) => this.onChange(e) 
-                      })
-
-        ]
-      )
-
-      element_list.push( list_element )
-    }
-
-
-    return e('div', {}, element_list)
-
-  }
-
-}
 
 
 
-
-
-class InputBox2 {
+class InputBox {
   constructor(div, props) {
     this.div = div
     this.props = props;
@@ -240,7 +122,7 @@ class InputBox2 {
 
       // container for sliders
       var c = document.createElement('div')
-      new Slider2(c, {  
+      new Slider(c, {  
         index:index, 
         name : name,
         max_val : max_val, 
@@ -267,24 +149,6 @@ class InputBox2 {
 
 
 
-class inputGUI2 {
-
-  constructor(div1, names, properties, change_callback) {
-    this.change_callback = change_callback
-
-    this.div = div1
-
-    new InputBox2( this.div, {names : names, properties : properties, onChange : this.onChange } )
-  }
-
-
-  onChange = (e) => {
-    this.change_callback(e)
-  }
-
-}
-
-
 class inputGUI {
 
   constructor(div1, names, properties, change_callback) {
@@ -292,13 +156,9 @@ class inputGUI {
 
     this.div = div1
 
-    ReactDOM.render(e(InputBox, {names : names, properties : properties, onChange : this.onChange }, ), this.div)
+    new InputBox( this.div, {names : names, properties : properties, onChange : this.onChange } )
   }
 
-  destroy() {
-    console.log("removing react container")
-    ReactDOM.unmountComponentAtNode(this.div);
-  }
 
   onChange = (e) => {
     this.change_callback(e)
@@ -307,17 +167,17 @@ class inputGUI {
 }
 
 
-var names = ['a', 'b', 'c']
-var properties = [ 
-  {  range : [0,2.2], steps : 1000, default_value : 1.11 },
-  {  range : [-2, 2], steps : 1000, default_value : -0.1 },
-  {  range : [0,200], steps : 100,  default_value : 111 }
-]  
 
-const div = document.querySelector('#input_container');
-var input_gui = new inputGUI2(div, names, properties, (e) => console.log(e) )
 
+// // example code
+
+// var names = ['a', 'b', 'c']
+// var properties = [ 
+//   {  range : [0,2.2], steps : 1000, default_value : 1.11 },
+//   {  range : [-2, 2], steps : 1000, default_value : -0.1 },
+//   {  range : [0,200], steps : 100,  default_value : 111 }
+// ]  
 
 // const div = document.querySelector('#input_container');
-// var input_gui = new Slider2(div, { index:1, name:'huhu', default_value:1.1, max_val:2, min_val:0, steps:100, onChange: (e) => console.log(e)  } )
+// var input_gui = new inputGUI(div, names, properties, (e) => console.log(e) )
 
