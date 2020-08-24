@@ -471,19 +471,49 @@ class PutAPIFunction(ExecutionCommand):
                 else:
                     lines += '// API-function' + self._nameAPI
 
+
+                def cpp_define_function(fn_name, input_signals, output_signals):
+                    lines = ''
+                    lines += 'void ' + fn_name + '('
+
+                    # put the parameter list e.g. double & y1, double & y2, u1, u2
+                    elements = []
+                    for s in output_signals:
+                        elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
+                        
+                    elements.extend( cgh.define_variable_list( input_signals ) )
+
+                    lines += ', '.join(elements)
+                    lines +=  ') {\n'
+
+                    return lines
+
+
+
                 lines += '\n'
-                lines += 'void ' + self._nameAPI + '('
+                lines += cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals )
+                lines +=  '{\n'
 
-                # put the parameter list e.g. double & y1, double & y2, u1, u2
-                elements = []
-                for s in self.outputSignals:
-#                    elements.append( s.getDatatype().cppDataType + ' & '  + s.name )
-                    elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
+                # lines += '\n'
+                # lines += 'void ' + self._nameAPI + '('
+
+                # # put the parameter list e.g. double & y1, double & y2, u1, u2
+                # elements = []
+                # for s in self.outputSignals:
+                #     elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
                     
-                elements.extend( cgh.define_variable_list( self.inputSignals ) )
+                # elements.extend( cgh.define_variable_list( self.inputSignals ) )
 
-                lines += ', '.join(elements)
-                lines +=  ') {\n'
+                # lines += ', '.join(elements)
+                # lines +=  ') {\n'
+
+
+
+
+
+
+
+
 
                 # innerLines will be indented
                 innerLines = ''
