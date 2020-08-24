@@ -82,7 +82,7 @@ class DataType(object):
 
     def cpp_define_variable(self, variable_name, make_a_reference = False):
         if make_a_reference:
-            variable_name_ = ' &' + variable_name + ''
+            variable_name_ = '&' + variable_name + ''
         else:
             variable_name_ = variable_name
 

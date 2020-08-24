@@ -63,7 +63,7 @@ class PutRuntimeCppHelper:
         # 
 
         def makeStrings(signals):
-            namesCSVList = cgh.signalListHelper_names_string(signals)
+            namesCSVList = cgh.signal_list_to_names_string(signals)
             namesVarDef = cgh.define_variable_list_string(signals)
             prinfPattern = cgh.signalListHelper_printfPattern_string(signals)
 
@@ -91,11 +91,11 @@ class PutRuntimeCppHelper:
 
         # old variant
         #
-        # calcOutputsArgsList = signalListHelper_names( self.mainSimulation.outputCommand.outputSignals )
-        # calcOutputsArgsList.extend(  signalListHelper_names( self.mainSimulation.outputCommand.inputSignals ) )
+        # calcOutputsArgsList = signal_list_to_name_list( self.mainSimulation.outputCommand.outputSignals )
+        # calcOutputsArgsList.extend(  signal_list_to_name_list( self.mainSimulation.outputCommand.inputSignals ) )
         # calcOutputsArgs = ', '.join( calcOutputsArgsList )
 
-        calcOutputsArgs = cgh.signalListHelper_names( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals + self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
+        calcOutputsArgs = cgh.signal_list_to_name_list( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals + self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  

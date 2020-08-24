@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-#import contextvars
 from typing import Dict, List
 
 from .irpar import irparSet, irparElement, irparElement_container
@@ -8,14 +7,6 @@ from .Block import *
 
 from .DatatypePropagation import *
 
-
-# currentSimulation = 'none'
-
-# def detSimulationContext(sim):
-#     currentSimulation = sim
-
-# def showSimulationContext():
-#     print 
 
 
 # TODO: rename this to System
@@ -31,7 +22,6 @@ class Simulation:
         self.UpperLevelSim = upperLevelSim
         self._name = name
         self.BlocksArray = []
-
 
         # counter for system input signals
         # This determines the order of teh arguments of the generated c++ functions
@@ -298,11 +288,6 @@ class Simulation:
     def blocks(self):
         return self.BlocksArray
 
-    # TODO: remove
-    def getBlocksArray(self):
-        return self.BlocksArray
-
-
     def GetInputInterface(self):
         # Build an input-interface for the ORTD interpreter
         # inform of a "inlist" structure
@@ -324,14 +309,7 @@ class Simulation:
             block.verifyInputSignals(ignore_signals_with_datatype_inheritance)
 
     def propagate_datatypes(self):
-        #
-        #
-        #
-
         print("Propagating datatypes...")
-
-        # for block in self.BlocksArray:
-        #     block.verifyInputSignals(ignore_signals_with_datatype_inheritance=True)
 
         self.resolve_anonymous_signals(ignore_signals_with_datatype_inheritance=True)
 

@@ -74,7 +74,7 @@ class CommandCalculateOutputs(ExecutionCommand):
         signalListStr = '['
 
         if self.targetSignals is not None:
-            signalListStr += cgh.signalListHelper_names_string(self.targetSignals)
+            signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
 
         signalListStr += ']'
 
@@ -137,9 +137,9 @@ class CommandCalculateOutputs(ExecutionCommand):
 
 
             if flag == 'code':
-                lines += '\n// calculating the block outputs in the following order ' + cgh.signalListHelper_names_string(self.executionLine.signalOrder ) + '\n'
-                lines += '// that depend on ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignalsSimulationInputs) + '\n'
-                lines += '// dependencies that require a state update are ' + cgh.signalListHelper_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
+                lines += '\n// calculating the block outputs in the following order ' + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + '\n'
+                lines += '// that depend on ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + '\n'
+                lines += '// dependencies that require a state update are ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
                 lines += '\n'
 
 
@@ -328,7 +328,7 @@ class CommandCacheOutputs(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n'
-                lines += '// saving the signals ' + cgh.signalListHelper_names_string(self.signals) + ' into the states \n'
+                lines += '// saving the signals ' + cgh.signal_list_to_names_string(self.signals) + ' into the states \n'
 
 
                 for s in self.signals:
@@ -379,7 +379,7 @@ class CommandRestoreCache(ExecutionCommand):
 
             if flag == 'code':
                 lines += '\n'
-                lines += '// restoring the signals ' + cgh.signalListHelper_names_string(self.signals) + ' from the states \n'
+                lines += '// restoring the signals ' + cgh.signal_list_to_names_string(self.signals) + ' from the states \n'
 
                 for s in self.signals:
 
@@ -467,71 +467,26 @@ class PutAPIFunction(ExecutionCommand):
                 # ------ define the API-function ------
                 #
                 if len(self.outputSignals) > 0:
-                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signalListHelper_names_string( self.outputSignals )  #  ' '.join( cgh.signalListHelper_names( self.outputSignals ) )
+                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signal_list_to_names_string( self.outputSignals )  #  ' '.join( cgh.signal_list_to_name_list( self.outputSignals ) )
                 else:
                     lines += '// API-function' + self._nameAPI
 
-
-                def cpp_define_function(fn_name, input_signals, output_signals):
-                    lines = ''
-                    lines += 'void ' + fn_name + '('
-
-                    # put the parameter list e.g. double & y1, double & y2, u1, u2
-                    elements = []
-                    for s in output_signals:
-                        elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
-                        
-                    elements.extend( cgh.define_variable_list( input_signals ) )
-
-                    lines += ', '.join(elements)
-                    lines +=  ') {\n'
-
-                    return lines
-
-
-
                 lines += '\n'
-                lines += cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals )
-                lines +=  '{\n'
 
-                # lines += '\n'
-                # lines += 'void ' + self._nameAPI + '('
-
-                # # put the parameter list e.g. double & y1, double & y2, u1, u2
-                # elements = []
-                # for s in self.outputSignals:
-                #     elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
-                    
-                # elements.extend( cgh.define_variable_list( self.inputSignals ) )
-
-                # lines += ', '.join(elements)
-                # lines +=  ') {\n'
-
-
-
-
-
-
-
-
-
-                # innerLines will be indented
-                innerLines = ''
+                # innerLines will be put into the functions
+                functionLines = ''
                 
                 # put the local variables
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'localvar')
+                    functionLines += c.codeGen(language, 'localvar')
                 
-                innerLines += '\n'
+                functionLines += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'code')
+                    functionLines += c.codeGen(language, 'code')
 
-                lines += indent(innerLines, '  ')
-
-                # define the API-function (finish)
-                lines += '}\n\n'
+                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, functionLines )
 
                 #
                 # ------ end of 'define the API-function' ------
@@ -579,18 +534,18 @@ class PutAPIFunction(ExecutionCommand):
 
                     lines += '{\n'
 
-                    innerLines = ''
-                    innerLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+                    functionLines = ''
+                    functionLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
-                    innerLines += '// call to wrapped function\n'
-                    innerLines += self._nameAPI + '(' + argumentsString + ');\n'
+                    functionLines += '// call to wrapped function\n'
+                    functionLines += self._nameAPI + '(' + argumentsString + ');\n'
 
 
-                    innerLines += '\n'
-                    innerLines += '// return the signals in a struct\n'
-                    innerLines += 'return outputs;\n'
+                    functionLines += '\n'
+                    functionLines += '// return the signals in a struct\n'
+                    functionLines += 'return outputs;\n'
 
-                    lines += indent(innerLines, '  ')
+                    lines += indent(functionLines, '  ')
                     
                     lines += '}\n\n'
                 else:

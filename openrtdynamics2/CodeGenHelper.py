@@ -26,7 +26,8 @@ def indent(lines):
 #
 
 
-def signalListHelper_names(signals):
+# rename to signal_list_to_name_list
+def signal_list_to_name_list(signals):
     names = []
 
     for s in signals:
@@ -36,8 +37,8 @@ def signalListHelper_names(signals):
 
 
 # TODO: rename to comma_separated_names_string
-def signalListHelper_names_string(signals):
-    return ', '.join( signalListHelper_names(signals)  )
+def signal_list_to_names_string(signals):
+    return ', '.join( signal_list_to_name_list(signals)  )
 
 
 
@@ -91,15 +92,6 @@ def define_variable_list(signals, make_a_reference = False):
 
     return vardefStr
 
-
-
-
-def asign( from_signal_name, to_signal_name ):
-    return to_signal_name + ' = ' + from_signal_name + ';\n'
-
-def define_variable_list_string(signals, make_a_reference = False):
-    return '; '.join( define_variable_list(signals, make_a_reference)  ) + ';'
-
 def defineVariables( signals, make_a_reference = False ):
     """
         create a string containing e.g.
@@ -110,6 +102,17 @@ def defineVariables( signals, make_a_reference = False ):
     elements = define_variable_list(signals, make_a_reference )
 
     return ';\n'.join( elements ) + ';\n'
+
+
+
+
+
+
+def asign( from_signal_name, to_signal_name ):
+    return to_signal_name + ' = ' + from_signal_name + ';\n'
+
+def define_variable_list_string(signals, make_a_reference = False):
+    return '; '.join( define_variable_list(signals, make_a_reference)  ) + ';'
 
 
 
@@ -214,5 +217,66 @@ def generate_if_else(language, condition_list, action_list):
 def generate_compare_equality_to_constant( language, signal_name, constant ):
     return signal_name + ' == ' + str(constant)
 
+
+
+def cpp_define_function(fn_name, input_signals, output_signals, code):
+    """
+        generate code for a c++ function using in- and output signals
+    """
+    lines = ''
+    lines += 'void ' + fn_name + '('
+
+    # put the parameter list e.g. double & y1, double & y2, u1, u2
+    elements = []
+    # for s in output_signals:
+    #     elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
+        
+    elements.extend( define_variable_list( output_signals, make_a_reference=True ) )
+    elements.extend( define_variable_list( input_signals ) )
+
+    lines += ', '.join(elements)
+    lines +=  ') { // created by cpp_define_function\n'
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += '}\n'
+
+    return lines
+
+
+def cpp_define_function_from_types(fn_name, input_types, input_names, output_types, output_names, code):
+    """
+        generate code for a c++ function using types and names for the in- and outputs
+    """
+    lines = ''
+    lines += 'void ' + fn_name + '('
+
+    # put the parameter list e.g. double & y1, double & y2, u1, u2
+    elements = []
+
+    for i in range(0, len(output_types)):
+        elements.append( output_types[i].cpp_define_variable( output_names[i], make_a_reference=True ) )
+        
+    for i in range(0, len(input_types)):
+        elements.append( input_types[i].cpp_define_variable( input_names[i], make_a_reference=True ) )
+
+
+    lines += ', '.join(elements)
+    lines +=  ') {\n'
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += '\n}\n'
+
+    return lines
+
+def call_function_from_varnames(fn_name, input_names, output_names):
+
+    lines = ''
+    lines += fn_name + '(' + ', '.join(output_names) + ', ' + ', '.join(input_names) + ');\n'
+
+    return lines
 
 

@@ -279,11 +279,11 @@ class GenericSubsystem(BlockPrototype):
 
     # helper fn to build code
     def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
-        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signalListHelper_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
+        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signal_list_to_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
 
     # helper fn to build code
     def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
-        return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signalListHelper_names_string(self.inputsToUpdateStates) + ');\n'
+        return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signal_list_to_names_string(self.inputsToUpdateStates) + ');\n'
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
@@ -569,7 +569,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
             # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=self._control_input.name,
-                                            switch_ouput_signals_name= cgh.signalListHelper_names(signals),
+                                            switch_ouput_signals_name= cgh.signal_list_to_name_list(signals),
                                              calculate_outputs = True, update_states = False )
 
         return lines
@@ -650,7 +650,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
             # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals_name=cgh.signalListHelper_names(outputs_to_compute),
+                                            switch_ouput_signals_name=cgh.signal_list_to_name_list(outputs_to_compute),
                                             additional_outputs_names=[self.state_output.name] )
 
             # lines += self.state_output.name + ' = ' + self._state_memory_delayed + ';\n'
@@ -1187,8 +1187,6 @@ def pow(base : SignalUserTemplate, power : SignalUserTemplate ):
 
 
 
-def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : List [str], input_types, output_types, output_names, cpp_source_code : str ):
-    return wrap_signal_list( GenericCppStatic(get_simulation_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
 
 
 class GenericCppStatic(BlockPrototype):
@@ -1214,6 +1212,8 @@ class GenericCppStatic(BlockPrototype):
 
         BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
 
+        self._static_function_name = 'fn_static_' + str(self.id) # TODO: generate a unique id
+
     def configDefineOutputTypes(self, inputTypes):
 
         for i in range(0, len(inputTypes)):
@@ -1233,31 +1233,45 @@ class GenericCppStatic(BlockPrototype):
         # return a list of input signals that are required to update the states
         return None  # no states
 
+    def codegen_addToNamespace(self, language):
+
+        if language == 'c++':
+            ilines = ''
+
+            info_comment_1 = '// begin of user defined function\n'
+            info_comment_2 = '\n// end of user defined function\n'
+
+            ilines += cgh.cpp_define_function_from_types(self._static_function_name, self._input_types, self._input_names, self._output_types, self._output_names, info_comment_1 + self._cpp_source_code + info_comment_2 )
+
+            return ilines
+
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
 
             ilines = ''
 
-            for i in range(0, len(self._input_names)):
-                ilines += self._input_types[i].cpp_define_variable(variable_name=self._input_names[i], make_a_reference=True)
-                ilines += ' = ' + self.inputs[i].name + ';\n'
-
+            # create tmp output variables
+            tmp_output_variable_names = []
             for i in range(0, len(self._output_names)):
-                ilines += self._output_types[i].cpp_define_variable(variable_name=self._output_names[i]) + ';\n'
+                tmp_variable_name = self._static_function_name + '_' + self._output_names[i]
+                tmp_output_variable_names.append( tmp_variable_name )
+                ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
 
-            ilines += '// generic_cpp_static: begin of user defined code\n'
-            ilines += self._cpp_source_code
-            ilines += '\n// generic_cpp_static: end of user defined code\n'
+            # function call
+            ilines += cgh.call_function_from_varnames( self._static_function_name, cgh.signal_list_to_name_list(self.inputs), tmp_output_variable_names)
 
+            # copy outputs from tmp variables
             for i in range(0, len(self._output_names)):
 
-                # only set the needed outputs (for the others no memory might be defined)
+                # only copy the needed outputs as indicated by 'signals'
                 if self.outputs[i] in signals:
-                    ilines += self.outputs[i].name + ' = ' + self._output_names[i] + ';\n'
+                    ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
 
-            return '{\n' + cgh.indent(ilines) + '}\n'
+            return '{ // calling the static function ' + self._static_function_name + '\n' + cgh.indent(ilines) + '}\n'
 
+def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : List [str], input_types, output_types, output_names, cpp_source_code : str ):
+    return wrap_signal_list( GenericCppStatic(get_simulation_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
 
 
 

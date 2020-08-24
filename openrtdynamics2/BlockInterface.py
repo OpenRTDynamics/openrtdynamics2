@@ -80,6 +80,10 @@ class BlockPrototype(object):
     def name(self):
         return self.block.name
 
+    @property
+    def id(self):
+        return self.block.id
+
     # TODO what's with this? remove this and replace with 'outputs'
     @property
     def outputSignals(self):
@@ -145,8 +149,6 @@ class BlockPrototype(object):
 
     def codeGen_setOutputReference(self, language, signal):
         """
-            NOTE 8.4.2020: unused 
-
             indicates that for the given signal no local variable will be reserved by calling codeGen_localvar.
             Insted the variable to store the signal is an output of the system and has been already defined.
         """

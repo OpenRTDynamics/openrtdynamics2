@@ -5,7 +5,7 @@ from . import CodeGenHelper as cgh
     
 def makeSignalDescription(signals, json : bool):
     signalDescription = {}
-    signalDescription['names'] = cgh.signalListHelper_names(signals)
+    signalDescription['names'] = cgh.signal_list_to_name_list(signals)
     signalDescription['cpptypes'] = cgh.signalListHelper_typeNames(signals)
 
     signalDescription['properties'] = []
