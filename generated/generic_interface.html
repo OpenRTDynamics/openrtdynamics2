@@ -11,12 +11,11 @@
         Click here to (re)load from a fixed folder (vehicle config)
     </div>
 
-    <div id="reload_trigger2">
+    <div id="reload_trigger">
         Click here to (re)load from a fixed folder (generic)
     </div>
 
-
-    <div id="remote_compile_trigger2">
+    <div id="remote_compile_trigger">
         Click here to compile source on remote (generic)
     </div>
 
@@ -30,14 +29,6 @@ http://localhost:3000/compile/
 openrtdynamics
     </textarea>
 
-
-    <!-- <div id='simulator_gui_container_vehicle'>
-            <div class='parameter_editor'></div>
-
-            <plot x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
-            <plot x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
-            <plot x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
-    </div> -->
 
     <div id='simulator_gui_container_vehicle'>
         <div class='parameter_editor'></div>
@@ -57,13 +48,11 @@ openrtdynamics
 
 
     <div id='simulator_gui_container'>
+        <div class='parameter_editor'></div>
+        <plot type="chartjs" title="lookup" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
 No simulation loaded
     </div>
         
-    <div id='simulator_gui_container3'>
-No simulation loaded
-    </div>
-                
                      
 
     manifest
@@ -83,9 +72,6 @@ No simulation loaded
 
 
 
-
-
-
     $( "#reload_trigger_vehicle" ).click(function() {
         var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
         var ret = loadCompiledSimulator(files);
@@ -93,33 +79,24 @@ No simulation loaded
         setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});
     });
 
-
-
-
-    $( "#reload_trigger2" ).click(function() {
+    $( "#reload_trigger" ).click(function() {
 
         var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
         var ret = loadCompiledSimulator(files);
         simulator_gui_container = document.getElementById('simulator_gui_container')
-        setup_simulation_gui_from_promises( simulator_gui_container2, ret, {number_of_samples : 300, sampling_time : 0.01} );
+        setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 300, sampling_time : 0.01} );
     });
-
-
-
-
-
-
 
     $( "#remote_compile_trigger" ).click(function() {
 
-        simulator_gui_container3 = document.getElementById('simulator_gui_container3')
+        simulator_gui_container = document.getElementById('simulator_gui_container')
 
         code = document.getElementById("source_code").value
         manifest = document.getElementById("manifest").value
         compile_service_url = document.getElementById("compile_service_url").value
         secret_token = document.getElementById("secret_token").value
 
-        setup_simulation_gui( simulator_gui_container3, compile_service_url, secret_token, manifest, code, {number_of_samples : 300, sampling_time : 0.01} )
+        setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code, {number_of_samples : 300, sampling_time : 0.01} )
         
 
     });
@@ -128,6 +105,7 @@ No simulation loaded
 
     <script src="input_gui.js"></script>
     <script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js"></script> -->
+    <script src="node_modules/plotly.js-dist/plotly.js"></script>
 
 </html>

@@ -1,19 +1,4 @@
 
-// function init_simulator_gui_container(divElement) {
-
-//     if ( divElement.getElementsByClassName("parameter_editor").length == 0
-//          && divElement.getElementsByClassName("plot_plotly").length == 0 ) {
-
-//             divElement.innerHTML = `
-//             <div class='parameter_editor'></div>
-//             <div class="plot_plotly" width="400" height="200"></div>
-//          `;
-    
-//          }
-
-// }
-
-
 
 function show_loading(simulator_gui_container) {
 

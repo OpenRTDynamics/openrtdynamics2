@@ -1015,27 +1015,44 @@ if testname == 'memory_machine':
     input_signals_mapping = {}
 
 if testname == 'generic_cpp_static':
-    x_r = dy.float64(1.0)
-    y_r = dy.float64(2.0)
 
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    # define system inputs
+    someinput = dy.system_input( baseDatatype ).set_name('someinput')
+
+
+    value = dy.float64(0.7)
 
     #
     source_code = """
 
-        output1 = x_r - y_r;
-        output2 = 1;
-        output3 = 2;
+        // c++ code
+
+        output1 = value;
+        if (someinput > value) {
+            output2 = value;
+        } else {
+            output2 = someinput;
+        }
+        output3 = 0.0;
 
     """
 
-    outputs = dy.generic_cpp_static(input_signals=[ x_r, y_r ], input_names=[ 'x_r', 'y_r' ], 
+    outputs = dy.generic_cpp_static(input_signals=[ someinput, value ], input_names=[ 'someinput', 'value' ], 
                         input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
                         output_names=['output1', 'output2', 'output3'],
                         output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
                         cpp_source_code = source_code )
 
-    output_signals = [ outputs[0], outputs[1], outputs[2] ]
+    output1 = outputs[0]
+    output2 = outputs[1]
+    output3 = outputs[2]
+
+    dy.set_primary_outputs( [ output1, output2, output3 ], ['output1', 'output2', 'output3'] )
+    
     input_signals_mapping = {}
+    output_signals = None
 
 if testname == 'vanderpol':
     # https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
@@ -1054,7 +1071,8 @@ if testname == 'vanderpol':
 
 
 # set the outputs of the system
-dy.set_primary_outputs(output_signals)
+if output_signals is not None:
+    dy.set_primary_outputs(output_signals)
 
 # Compile system (propagate datatypes)
 compile_results = dy.compile_current_system()
