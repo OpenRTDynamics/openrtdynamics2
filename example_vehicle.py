@@ -75,8 +75,8 @@ def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0)
 
 
 # define system inputs
-velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.2)
-k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.005)
+velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 20.0], "default_value" : 20.0 })
+k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 1.0], "default_value" : 0.33 })
 
 wheelbase = 3.0
 
