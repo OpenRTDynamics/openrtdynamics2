@@ -120,7 +120,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'generic_cpp_static' # 
+testname = 'memory' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true

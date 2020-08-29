@@ -41,6 +41,8 @@ class BlockPrototype(object):
             if output_datatype_list is None:
                 datatype = None
             else:
+                # the datatype for the output signal number i is already given and the block will 
+                # be configured accordingly
                 datatype = output_datatype_list[i]
 
             self._outputSignals.append( BlockOutputSignal(sim, datatype, self.block, sourcePort=i  ) )
@@ -112,6 +114,21 @@ class BlockPrototype(object):
     #
     # Callback functions that should/could be re-implemented
     #
+
+    def returnDependingInputs(self, outputSignal):
+        """
+            returns a list of input signals on which the given output signal depends on with a direct feedforward
+        """
+        raise BaseException('BlockPrototype: returnDependingInputs not defined')
+#        return [] # default none
+
+    def returnInutsToUpdateStates(self, outputSignal):
+        """
+            returns a list of input signals that are required to update the states
+            that are required to further compute outputSignal
+        """
+        raise BaseException('BlockPrototype: returnInutsToUpdateStates not defined')
+
 
     def compile_callback_all_subsystems_compiled(self):
         """

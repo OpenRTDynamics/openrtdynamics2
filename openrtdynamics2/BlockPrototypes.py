@@ -1356,26 +1356,58 @@ def delay(u : SignalUserTemplate, initial_state = None):
 # A memory
 #
 
-class Memory(StaticSource_To1):
-    def __init__(self, sim : Simulation, datatype, constant_array):
+class Memory(BlockPrototype):
+    def __init__(self, sim : Simulation, datatype, constant_array, write_index : Signal = None, value : Signal = None ):
 
         self._constant_array = constant_array
         self._length         = len(constant_array)
         self._array_datatype = DataTypeArray( self._length, datatype )
 
-        # call super
-        StaticSource_To1.__init__(self, sim, self._array_datatype)
+        if write_index is None:
+            self._static = True
+        elif signal is not None:
+            self._static = False
+        else:
+            raise BaseException('Memory: write_index was defined but no value to write')
 
+        # call super
+        if self._static:
+            BlockPrototype.__init__(self, sim, inputSignals = [], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
+        else:
+            BlockPrototype.__init__(self, sim, inputSignals = [write_index, value], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
+
+        # indicate that the output of this port is passed by reference in c++
         self.outputs[0].set_is_referencing_memory(True)
+
+    # TODO: not sure if this is ever beeing called as the output datatypes are already specified in the constructor
+    def configDefineOutputTypes(self, inputTypes):
+        # define the output type 
+        return [ self._array_datatype ]
+
+    def returnDependingInputs(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        # the output depends on nothing
+        return []
+            
+    def returnInutsToUpdateStates(self, outputSignal):
+        # return a list of input signals that are required to update the states
+
+        if self._static:
+            return []  # no states
+        else:
+            return [self.inputs[0], self.inputs[1]]
+
+    #
+    # code gen
+    #
 
     def codeGen_defStates(self, language):
         if language == 'c++':
+
+            # encode the given data and initialize a C array
             csv_array = ','.join([str(x) for x in self._constant_array])
             return self._array_datatype.cpp_define_variable(  self.getUniqueVarnamePrefix() + '_array' ) + ' {' + csv_array + '};\n'
-
-    def returnInutsToUpdateStates(self, outputSignal):
-        # return a list of input signals that are required to update the states
-        return []  # no inputs but update states
 
     def codeGen_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
@@ -1402,4 +1434,5 @@ class MemoryRead(StaticFn_NTo1):
 
 def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
     return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputs[0] )
+
 
