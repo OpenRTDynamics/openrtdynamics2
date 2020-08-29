@@ -17,12 +17,12 @@ class SystemLibraryEntry(object):
         self.compileResults = compileResults
         self.mainSimulation = compileResults.commandToExecute
 
-        self.codeGen()
+        self.generate_code()
 
-    def codeGen(self):
+    def generate_code(self):
 
         # build the code for the implementation
-        self._simulationCode = self.mainSimulation.codeGen('c++', 'code')
+        self._simulationCode = self.mainSimulation.generate_code('c++', 'code')
 
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes

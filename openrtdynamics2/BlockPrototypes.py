@@ -228,12 +228,12 @@ class GenericSubsystem(BlockPrototype):
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
 
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         # the datatypes are fixed in the manifest 
         return self.outputTypes        
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
         #       (Every output depends on every signal in self.inputsToCalculateOutputs)
@@ -243,7 +243,7 @@ class GenericSubsystem(BlockPrototype):
 
         return self.inputsToCalculateOutputs
 
-    def returnInutsToUpdateStates(self, outputSignal):
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
  
         # return a list of input signals that are required to update the states
         return self.inputsToUpdateStates
@@ -257,35 +257,35 @@ class GenericSubsystem(BlockPrototype):
 
         return lines
 
-    def codeGen_defStates(self, language):
+    def generate_code_defStates(self, language):
         if language == 'c++':
             lines = '// instance of ' + self.manifest.API_name + '\n'
             lines += self.manifest.API_name + ' ' + self.instanceVarname + ';\n'
 
             return lines
 
-    def codeGen_reset(self, language):
+    def generate_code_reset(self, language):
         if language == 'c++':
             return self.instanceVarname + '.' + self.manifest.getAPIFunctionName('reset') +  '();\n'
 
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
 
     # helper fn to build code
-    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
-        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signal_list_to_names_string(self.outputSignals + self.inputsToCalculateOutputs) + ');\n'
+    def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
+        return instanceVarname + '.' + manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signal_list_to_names_string(self.outputs + self.inputsToCalculateOutputs) + ');\n'
 
     # helper fn to build code
-    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+    def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
         return instanceVarname + '.' + manifest.getAPIFunctionName('state_update') +  '(' + cgh.signal_list_to_names_string(self.inputsToUpdateStates) + ');\n'
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             lines = ''
@@ -294,7 +294,7 @@ class GenericSubsystem(BlockPrototype):
             # TODO: 2.5.2020: concept: how to compute only the nescessary signals?
             #
 
-            for s in self.outputSignals:
+            for s in self.outputs:
                 lines += cgh.defineVariableLine( s ) 
 
                 if s not in signals:
@@ -302,15 +302,15 @@ class GenericSubsystem(BlockPrototype):
                 else:
                     lines += ''                
 
-            lines += self.codeGen_call_OutputFunction(self.instanceVarname, self.manifest, language)
+            lines += self.generate_code_call_OutputFunction(self.instanceVarname, self.manifest, language)
 
         return lines
 
-    def codeGen_update(self, language):
+    def generate_code_update(self, language):
         if language == 'c++':
 
             # input to this call are the signals in self.inputsToUpdateStates
-            return self.codeGen_call_UpdateFunction(self.instanceVarname, self.manifest, language)
+            return self.generate_code_call_UpdateFunction(self.instanceVarname, self.manifest, language)
 
 def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
     return wrap_signal_list( GenericSubsystem(get_simulation_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )
@@ -421,7 +421,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far..
         #       Every output depends on every signal
@@ -429,7 +429,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return self._list_of_all_inputs
         
 
-    def returnInutsToUpdateStates(self, outputSignal):
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
  
         # NOTE: This is a simplified veriant so far..
         #       The update depends on every signal
@@ -446,7 +446,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         # generate code for calculating the outputs 
         if calculate_outputs:
 
-            innerLines += system_prototype.codeGen_output_list(language, system_prototype.outputs)
+            innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
 
             for i in range( 0, len( ouput_signals_name ) ):
                 innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
@@ -459,7 +459,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         # generate code for updating the states
         if update_states:
-            innerLines += system_prototype.codeGen_update(language)
+            innerLines += system_prototype.generate_code_update(language)
 
 
         lines += cgh.indent(innerLines)
@@ -509,12 +509,12 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
     
-    def codeGen_defStates(self, language):
+    def generate_code_defStates(self, language):
         if language == 'c++':
 
             lines = ''
             for system_prototype in self._subsystem_prototypes:
-                lines += system_prototype.codeGen_defStates(language)
+                lines += system_prototype.generate_code_defStates(language)
 
             return lines
 
@@ -522,18 +522,18 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
         system_to_reset = self._subsystem_prototypes[ system_index ]
 
-        lines = system_to_reset.codeGen_reset(language)
+        lines = system_to_reset.generate_code_reset(language)
 
         return lines
 
-    def codeGen_reset(self, language):
+    def generate_code_reset(self, language):
         if language == 'c++':
 
             # TODO: somehow 
 
             lines = '// reset state of all subsystems in multisubsystem ' + self.name + '\n'
             for system_prototype in self._subsystem_prototypes:
-                lines += system_prototype.codeGen_reset(language)
+                lines += system_prototype.generate_code_reset(language)
 
             return lines
 
@@ -555,14 +555,14 @@ class SwichSubsystems(MultiSubsystemEmbedder):
                                         number_of_additional_outputs=0 )
 
 
-    def codeGen_defStates(self, language):
-        lines = MultiSubsystemEmbedder.codeGen_defStates(self, language)
+    def generate_code_defStates(self, language):
+        lines = MultiSubsystemEmbedder.generate_code_defStates(self, language)
         lines += '' # add something
         
         return lines
 
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
@@ -574,7 +574,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
         return lines
 
-    def codeGen_update(self, language):
+    def generate_code_update(self, language):
 
         lines = ''
         if language == 'c++':
@@ -616,18 +616,18 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         return self.additional_outputs[0]
 
 
-    def codeGen_reset(self, language):
+    def generate_code_reset(self, language):
         if language == 'c++':
 
             lines = self._state_memory + ' = 0;\n' # add something
 
-            lines += MultiSubsystemEmbedder.codeGen_reset(self, language)
+            lines += MultiSubsystemEmbedder.generate_code_reset(self, language)
 
             return lines
 
 
-    def codeGen_defStates(self, language):
-        lines = MultiSubsystemEmbedder.codeGen_defStates(self, language)
+    def generate_code_defStates(self, language):
+        lines = MultiSubsystemEmbedder.generate_code_defStates(self, language)
 
         self._state_memory = self.getUniqueVarnamePrefix() + 'state'
         lines += 'int ' + self._state_memory + ' {0};'
@@ -635,7 +635,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         return lines
 
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
@@ -683,7 +683,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
         return lines
 
-    def codeGen_update(self, language):
+    def generate_code_update(self, language):
 
         lines = ''
         if language == 'c++':
@@ -737,12 +737,12 @@ class TruggeredSubsystem(GenericSubsystem):
                                     N_outputs = N_outputs, 
                                     additionalInputs=[ trigger ] )
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
         #       (Every output depends on every signal in dependingInputs)
 
-        dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
+        dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
 
         # NOTE: important here to make a copy of the list returned by GenericSubsystem.
         #       otherwise the original list would be modified by append.
@@ -753,23 +753,23 @@ class TruggeredSubsystem(GenericSubsystem):
         return dependingInputsOuter
         
 
-    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+    def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
 
         if self.prevent_output_computation:
             # the subsystems outputs are only computed when triggered
             lines = 'if (' +  self.triggerSignal.name + ') {\n'
-            lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+            lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
             lines += '}\n'
         else:
             # the subsystems outputs are always computed
-            lines = GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
+            lines = GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
 
 
         return lines
 
-    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+    def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
         lines = 'if (' +  self.triggerSignal.name + ') {\n'
-        lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+        lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
         lines += '}\n'
 
         return lines
@@ -794,12 +794,12 @@ class ForLoopSubsystem(GenericSubsystem):
 
         GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ i_max ] )
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
         # NOTE: This is a simplified variant so far.. no dependence on the given 'outputSignal'
         #       (Every output depends on every signal in dependingInputs)
 
-        dependingInputs = GenericSubsystem.returnDependingInputs(self, outputSignal)
+        dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
 
         # NOTE: important here to make a copy of the list returned by GenericSubsystem.
         #       otherwise the original list would be modified by append.
@@ -810,15 +810,15 @@ class ForLoopSubsystem(GenericSubsystem):
         return dependingInputsOuter
         
 
-    def codeGen_call_OutputFunction(self, instanceVarname, manifest, language):
+    def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
         lines = 'for (int i = 0; i < '  +  self.i_max_signal.name + '; ++i) {\n'
-        lines += GenericSubsystem.codeGen_call_OutputFunction(self, instanceVarname, manifest, language)
-        lines += GenericSubsystem.codeGen_call_UpdateFunction(self, instanceVarname, manifest, language)
+        lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
+        lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
         lines += '}\n'
 
         return lines
 
-    def codeGen_call_UpdateFunction(self, instanceVarname, manifest, language):
+    def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
         # lines = 'if (' +  self.triggerSignal.name + ') {\n'
         # lines += '}\n'
 
@@ -848,7 +848,7 @@ class Const(StaticSource_To1):
         # call super
         StaticSource_To1.__init__(self, sim, datatype)
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + str( self.constant ) + ';\n'
 
@@ -869,9 +869,9 @@ class Gain(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputSignal(0).name +  ';\n'
+            return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputs[0].name +  ';\n'
 
 def gain(u : SignalUserTemplate, gain : float ):
     return wrap_signal( Gain(get_simulation_context(), u.unwrap, gain).outputs[0] )
@@ -888,13 +888,13 @@ class ConvertDatatype(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
         return [ self._target_type ]  
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             # TODO: only = is used and the c++ compiler decides how to convert...
-            return signals[0].name + ' = ' + self.inputSignal(0).name + ';\n'
+            return signals[0].name + ' = ' + self.inputs[0].name + ';\n'
 
 def convert(u : SignalUserTemplate, target_type : DataType ):
     return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputs[0] )
@@ -915,7 +915,7 @@ class Add(StaticFn_NTo1):
         self.factors = factors
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
@@ -940,7 +940,7 @@ class Operator1(StaticFn_NTo1):
         self.operator = operator
         StaticFn_NTo1.__init__(self, sim, inputSignals)
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             strs = []
@@ -970,13 +970,13 @@ class ComparisionOperator(StaticFn_NTo1):
 
         StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         # return a proposal for an output type. 
         return [ DataTypeBoolean(1) ]
 
-    # def codeGen_output(self, language, signal : Signal):
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    # def generate_code_output(self, language, signal : Signal):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
@@ -1003,7 +1003,7 @@ class SwitchNto1(StaticFn_NTo1):
 
         StaticFn_NTo1.__init__(self, sim, inputSignals )
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         # check weather the trigger input is int32
         if inputTypes[0] is not None:
@@ -1012,12 +1012,12 @@ class SwitchNto1(StaticFn_NTo1):
 
         # determine a guess for the output datatype
         # check if all given datatypes are equal
-        autoDatatype = autoDatatype_Nto1(self.outputSignal(0).getDatatype(), inputTypes[1:-1] )
+        autoDatatype = autoDatatype_Nto1(self.outputs[0].getDatatype(), inputTypes[1:-1] )
 
-        return [ autoDatatype ] # DataTypeFloat64(1)
+        return [ autoDatatype ]
 
-    #def codeGen_output(self, language, signal : Signal):
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    #def generate_code_output(self, language, signal : Signal):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             lines = '\n// switch ' + str(len(self.inputs)) + ' inputs --> ' + self.state.name + '\n'
@@ -1077,12 +1077,12 @@ class ConditionalOverwrite(StaticFn_NTo1):
 
         StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         # just inherit the input type
         return [ inputTypes[0] ]
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
 #            lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
@@ -1128,9 +1128,9 @@ class StaticFnByName_1To1(StaticFn_1To1):
 
         StaticFn_1To1.__init__(self, sim, u)
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputSignal(0).name +  ');\n'
+            return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputs[0].name +  ');\n'
 
 
 
@@ -1168,7 +1168,7 @@ class StaticFnByName_2To1(StaticFn_NTo1):
 
         StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
             lines = signals[0].name + ' = ' + self._function_name + '(' + self.inputSignals[0].name +  ', ' + self.inputSignals[1].name + ')' + ';\n'
@@ -1214,7 +1214,7 @@ class GenericCppStatic(BlockPrototype):
 
         self._static_function_name = 'fn_static_' + str(self.id) # TODO: generate a unique id
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         for i in range(0, len(inputTypes)):
             if inputTypes[i] is not None and not inputTypes[i].isEqualTo( self._input_types[i] ):
@@ -1223,13 +1223,13 @@ class GenericCppStatic(BlockPrototype):
         # return a proposal for an output type. 
         return self._output_types
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on all inputs
         return self.inputs 
 
-    def returnInutsToUpdateStates(self, outputSignal):
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
         # return a list of input signals that are required to update the states
         return None  # no states
 
@@ -1245,7 +1245,7 @@ class GenericCppStatic(BlockPrototype):
 
             return ilines
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
 
@@ -1293,38 +1293,38 @@ class Delay(BlockPrototype):
         self._initial_state = initial_state
         BlockPrototype.__init__(self, sim, [ u ], 1)
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
 
         # just inherit the input type 
         output_type = inputTypes[0]
 
         return [ output_type ]        
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
 
         # no (direct feedtrough) dependence on any input - only state dependent
         return [  ]
 
-    def returnInutsToUpdateStates(self, outputSignal):
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
         # return a list of input signals that are required to update the states
         return self.inputs  # all inputs
 
-    def codeGen_defStates(self, language):
+    def generate_code_defStates(self, language):
         if language == 'c++':
             return self.outputs[0].datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_mem' )  + ';\n'
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_mem' + ';\n'
 
-    def codeGen_update(self, language):
+    def generate_code_update(self, language):
         if language == 'c++':
 
-            lines = self.getUniqueVarnamePrefix() + '_mem' + ' = ' + self.inputSignal(0).name + ';\n'
+            lines = self.getUniqueVarnamePrefix() + '_mem' + ' = ' + self.inputs[0].name + ';\n'
             return lines
 
-    def codeGen_reset(self, language):
+    def generate_code_reset(self, language):
         if language == 'c++':
 
             if self._initial_state is None:
@@ -1380,17 +1380,17 @@ class Memory(BlockPrototype):
         self.outputs[0].set_is_referencing_memory(True)
 
     # TODO: not sure if this is ever beeing called as the output datatypes are already specified in the constructor
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
         # define the output type 
         return [ self._array_datatype ]
 
-    def returnDependingInputs(self, outputSignal):
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on nothing
         return []
             
-    def returnInutsToUpdateStates(self, outputSignal):
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
         # return a list of input signals that are required to update the states
 
         if self._static:
@@ -1402,14 +1402,14 @@ class Memory(BlockPrototype):
     # code gen
     #
 
-    def codeGen_defStates(self, language):
+    def generate_code_defStates(self, language):
         if language == 'c++':
 
             # encode the given data and initialize a C array
             csv_array = ','.join([str(x) for x in self._constant_array])
             return self._array_datatype.cpp_define_variable(  self.getUniqueVarnamePrefix() + '_array' ) + ' {' + csv_array + '};\n'
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             # place a reference
             return cgh.defineVariable( signals[0], make_a_reference=True ) + ' = ' + self.getUniqueVarnamePrefix() + '_array' + ';\n'
@@ -1424,11 +1424,11 @@ class MemoryRead(StaticFn_NTo1):
     def __init__(self, sim : Simulation, memory : Signal, index : Signal ):
         StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
 
-    def configDefineOutputTypes(self, inputTypes):
+    def config_request_define_output_types(self, inputTypes):
         # returt the datatype of the array elements
         return [ self.inputs[0].getDatatype().datatype_of_elements ]  
 
-    def codeGen_output_list(self, language, signals : List [ Signal ] ):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + self.inputs[0].name + '[' + self.inputs[1].name + '];\n'
 

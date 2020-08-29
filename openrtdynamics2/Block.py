@@ -88,9 +88,9 @@ class Block:
         resolveUndeterminedSignals( self.inputSignals, ignore_signals_with_datatype_inheritance )
 
 
-    def configDefineOutputTypes(self):
+    def config_request_define_output_types(self):
         # ask the block's prototype class instance to define the output types given
-        # the input types by calling the prototype's function 'configDefineOutputTypes' 
+        # the input types by calling the prototype's function 'config_request_define_output_types' 
         # 
         # Please note that the input types are define by other blocks
         # whose outputs are connected to this block.
@@ -115,12 +115,12 @@ class Block:
                     inputSignalTypes.append(s.getProposedDatatype() )
                 else:
                     # no info on this input signal is available -- just put None and let the blocks propotype
-                    # 'configDefineOutputTypes' function deceide what to do.
+                    # 'config_request_define_output_types' function deceide what to do.
                     inputSignalTypes.append(None)
 
 
         # ask prototype to define output types (this might just be a proposal for datatypes; they are fixed later)
-        proposedOutputSingalTypes = self.blockPrototype.configDefineOutputTypes( inputSignalTypes )
+        proposedOutputSingalTypes = self.blockPrototype.config_request_define_output_types( inputSignalTypes )
 
         # update all signals accordingly
         for i in range(0, len(self.OutputSignals)):
@@ -164,24 +164,6 @@ class Block:
     def getOutputSignals(self):
         return self.OutputSignals
 
-    def getOutputSignal(self, port):
-        if port < 0:
-            raise Exception('port < 0')
-
-        if port >= len(self.OutputSignals): 
-            raise Exception('port out of range')
-
-        return self.OutputSignals[port]
-
-    def getInputSignal(self, port):
-        if port < 0:
-            raise Exception('port < 0')
-
-        if port >= len(self.inputSignals): 
-            raise Exception('port out of range')
-
-        return self.inputSignals[port]
-    
 
 
 

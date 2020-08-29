@@ -29,7 +29,7 @@ class DatatypePropagation:
         # once a new block is added or one of the input signals change
 
         # trigger the block to define its output signals or give a proposal
-        block.configDefineOutputTypes()
+        block.config_request_define_output_types()
 
         pass
 
@@ -124,7 +124,7 @@ class DatatypePropagation:
 
             # ask each block connected to the signal s to update its output type (proposals)
             for destBlock in s.getDestinationBlocks():
-                destBlock.configDefineOutputTypes()
+                destBlock.config_request_define_output_types()
 
             # forward the datatype of s to the signals that use the same datatype
             inherit_fixed_datatype(s)
@@ -136,7 +136,7 @@ class DatatypePropagation:
             
             # ask each block connected to the signal s to update its output type (proposals)
             for destBlock in s.getDestinationBlocks():
-                destBlock.configDefineOutputTypes()
+                destBlock.config_request_define_output_types()
 
             # forward the datatype of s to the signals that use the same datatype
             inherit_proposed_datatype(s)
@@ -209,7 +209,7 @@ class DatatypePropagation:
 
     #     while True:
 
-    #         # during the call of .configDefineOutputTypes() the lists might be updated
+    #         # during the call of .config_request_define_output_types() the lists might be updated
     #         # by hereby triggered calls to the notify_* funcrions of this class
     #         # Hence, make copies of these lists before
 
@@ -226,7 +226,7 @@ class DatatypePropagation:
 
     #         # a counter that counts the number of signal datatype updates within this loop
     #         # Please note, that this counter is increased in external functions
-    #         # triggered by the calls 'destBlock.configDefineOutputTypes()'
+    #         # triggered by the calls 'destBlock.config_request_define_output_types()'
     #         updateCounterBefore = self.updateCounter
 
     #         # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
@@ -236,7 +236,7 @@ class DatatypePropagation:
     #             # ask each block connected to the signal s to update its output type (proposals)
     #             for destBlock in s.getDestinationBlocks():
 
-    #                 destBlock.configDefineOutputTypes()
+    #                 destBlock.config_request_define_output_types()
 
 
     #         # forward the datatype proposals to the connected blocks
@@ -246,7 +246,7 @@ class DatatypePropagation:
     #             # ask each block connected to the signal s to update its output type (proposals)
     #             for destBlock in s.getDestinationBlocks():
 
-    #                 destBlock.configDefineOutputTypes()
+    #                 destBlock.config_request_define_output_types()
 
     #         if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedProposedTypes) == 0:
 

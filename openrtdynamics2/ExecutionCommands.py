@@ -33,15 +33,15 @@ class ExecutionCommand(object):
         self.contextCommand = context
         self.treeLevel_ = context.treeLevel + 1
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         # 
-        raise BaseException('codeGen_init unimplemented')
+        raise BaseException('generate_code_init unimplemented')
 
-    def codeGen_destruct(self, language):
-        raise BaseException('codeGen_destruct unimplemented')
+    def generate_code_destruct(self, language):
+        raise BaseException('generate_code_destruct unimplemented')
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -82,13 +82,13 @@ class CommandCalculateOutputs(ExecutionCommand):
 
         self.executionLine.printExecutionLine()
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -113,7 +113,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                             # notify the block prototype that the signal s will be a system output
                             # and, hence, no memory shall be allocated for s (because the memory is already
                             # available)
-                            s.getSourceBlock().getBlockPrototype().codeGen_setOutputReference('c++', s)
+                            s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference('c++', s)
                             
                             
                             
@@ -163,7 +163,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                 # for each blocks that provides outputs that are needed to compute,
                 # generate the code to calculate these outputs.
                 for block in blocks_with_outputs_to_compute:
-                    lines += block.getBlockPrototype().codeGen_output_list('c++', blocks_with_outputs_to_compute[ block ] )
+                    lines += block.getBlockPrototype().generate_code_output_list('c++', blocks_with_outputs_to_compute[ block ] )
                     
         return lines
 
@@ -189,13 +189,13 @@ class CommandResetStates(ExecutionCommand):
 
         # self.executionLine.printExecutionLine()
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -204,7 +204,7 @@ class CommandResetStates(ExecutionCommand):
             if flag == 'code':
                 lines += ''
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen_reset('c++')
+                    lines += b.getBlockPrototype().generate_code_reset('c++')
 
         return lines
 
@@ -234,13 +234,13 @@ class CommandUpdateStates(ExecutionCommand):
 
         # self.executionLine.printExecutionLine()
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -257,14 +257,14 @@ class CommandUpdateStates(ExecutionCommand):
                     # TODO: rename 'defStates' to 'variables'
                     #
                     
-                    lines += b.getBlockPrototype().codeGen_defStates('c++')
+                    lines += b.getBlockPrototype().generate_code_defStates('c++')
 
             if flag == 'code':
                 lines += '\n'
                 lines += ''
 
                 for b in self.blockList:
-                    lines += b.getBlockPrototype().codeGen_update('c++')
+                    lines += b.getBlockPrototype().generate_code_update('c++')
 
 
         return lines
@@ -297,13 +297,13 @@ class CommandCacheOutputs(ExecutionCommand):
         for s in self.signals:
             print("  - " + s.toStr() )
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -365,13 +365,13 @@ class CommandRestoreCache(ExecutionCommand):
         for s in self.signals:
             print("  - " + s.toStr() )
 
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         pass
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         pass
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -443,15 +443,15 @@ class PutAPIFunction(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
         for c in self.executionCommands:
-            c.codeGen_init(language)
+            c.generate_code_init(language)
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         for c in self.executionCommands:
-            c.codeGen_destruct(language)
+            c.generate_code_destruct(language)
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -459,7 +459,7 @@ class PutAPIFunction(ExecutionCommand):
 
             if flag == 'variables':
                 for c in self.executionCommands:
-                    lines += c.codeGen(language, 'variables')
+                    lines += c.generate_code(language, 'variables')
 
 
             if flag == 'code':
@@ -478,13 +478,13 @@ class PutAPIFunction(ExecutionCommand):
                 
                 # put the local variables
                 for c in self.executionCommands:
-                    functionLines += c.codeGen(language, 'localvar')
+                    functionLines += c.generate_code(language, 'localvar')
                 
                 functionLines += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    functionLines += c.codeGen(language, 'code')
+                    functionLines += c.generate_code(language, 'code')
 
                 lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, functionLines )
 
@@ -614,21 +614,21 @@ class PutSystem(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
 
         for c in self.executionCommands:
-            c.codeGen_init(language)
+            c.generate_code_init(language)
 
         # call init codegen for each block in the simulation
         for block in self.system.blocks:
-            block.getBlockPrototype().codeGen_init(language)
+            block.getBlockPrototype().generate_code_init(language)
 
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         for c in self.executionCommands:
-            c.codeGen_destruct(language)
+            c.generate_code_destruct(language)
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -653,13 +653,13 @@ class PutSystem(ExecutionCommand):
                 innerLines = '// variables\n'
                 innerLines = 'public:\n'
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'variables')
+                    innerLines += c.generate_code(language, 'variables')
                 
                 innerLines += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'code')
+                    innerLines += c.generate_code(language, 'code')
 
                 lines += cgh.indent(innerLines)
 
@@ -701,16 +701,16 @@ class PutSystemAndSubsystems(ExecutionCommand):
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
-    def codeGen_init(self, language):
+    def generate_code_init(self, language):
 
         for c in self.executionCommands:
-            c.codeGen_init(language)        
+            c.generate_code_init(language)        
 
-    def codeGen_destruct(self, language):
+    def generate_code_destruct(self, language):
         for c in self.executionCommands:
-            c.codeGen_destruct(language)            
+            c.generate_code_destruct(language)            
 
-    def codeGen(self, language, flag):
+    def generate_code(self, language, flag):
 
         lines = ''
 
@@ -729,13 +729,13 @@ class PutSystemAndSubsystems(ExecutionCommand):
                 innerLines = '// global variables\n'
 
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'variables')
+                    innerLines += c.generate_code(language, 'variables')
 
                 innerLines += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    innerLines += c.codeGen(language, 'code')
+                    innerLines += c.generate_code(language, 'code')
 
                 lines += cgh.indent(innerLines)
 

@@ -44,9 +44,9 @@ class PutRuntimeCppHelper:
             simulationCode += include.sourceCode
 
         # build the code for the implementation
-        self.mainSimulation.codeGen_init('c++')
-        simulationCode += self.mainSimulation.codeGen('c++', 'code')
-        self.mainSimulation.codeGen_destruct('c++')
+        self.mainSimulation.generate_code_init('c++')
+        simulationCode += self.mainSimulation.generate_code('c++', 'code')
+        self.mainSimulation.generate_code_destruct('c++')
 
         # the manifest containts meta-information about the simulation and its interface
         # i.e. input and output signals names and datatypes
@@ -303,10 +303,10 @@ class WasmRuntime(PutRuntimeCppHelper):
 
 
         # build I/O structs
-        ioExport = self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.outputCommand)
-        ioExport += self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.updateCommand)
+        ioExport = self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.outputCommand)
+        ioExport += self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.updateCommand)
 
-        ioExport += self.codeGen_writeIO(self.mainSimulation.command_to_put_main_system.resetCommand)
+        ioExport += self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.resetCommand)
 
         self.template = Template(self.template).safe_substitute( ioExport=ioExport,
                                                                  inputConstAssignment=inputConstAssignment    ) 
@@ -319,7 +319,7 @@ class WasmRuntime(PutRuntimeCppHelper):
 
 
 
-    def codeGen_writeIO__(self, command_API, inputOutput : int):
+    def generate_code_writeIO__(self, command_API, inputOutput : int):
 
         if inputOutput == 1:
             structPrefix = 'Inputs_'
@@ -348,8 +348,8 @@ class WasmRuntime(PutRuntimeCppHelper):
 
         return lines
 
-    def codeGen_writeIO(self, command_API):
-        return self.codeGen_writeIO__(command_API, 1) + self.codeGen_writeIO__(command_API, 2)
+    def generate_code_writeIO(self, command_API):
+        return self.generate_code_writeIO__(command_API, 1) + self.generate_code_writeIO__(command_API, 2)
 
 
     def write_code(self, folder):

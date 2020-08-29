@@ -137,7 +137,7 @@ class TraverseGraph:
             return
 
         # check of the block 'startBlock'
-        #if returnDependingInputs( signal )
+        #if config_request_define_feedforward_input_dependencies( signal )
 
         # store this block as it is reachable
         self.reachableBlocks.append( startBlock )
@@ -449,14 +449,14 @@ class BuildExecutionPath:
         # check if the block that yields startSignal uses internal-states to compute startSignal
         #
 
-        inputsToUpdateStatesTmp = blocksPrototype.returnInutsToUpdateStates( startSignal )
+        inputsToUpdateStatesTmp = blocksPrototype.config_request_define_state_update_input_dependencies( startSignal )
         if inputsToUpdateStatesTmp is not None:
             print(tabs + "--- signals needed *indirectly* for " + startSignal.name + " (through state update) --" )
 
             # 
             self.blocksToUpdateStates.append( block )
 
-            # please note: blocksPrototype.returnInutsToUpdateStates might return some undetermined signals that are resolved here
+            # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
             resolveUndeterminedSignals( inputsToUpdateStatesTmp )
 
             # add the signals that are required to perform the state update
@@ -472,9 +472,9 @@ class BuildExecutionPath:
         #
         print(tabs + "--- signals needed for " + startSignal.name + " --" )
 
-        dependingSignals = blocksPrototype.returnDependingInputs(startSignal)
+        dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(startSignal)
 
-        # please note: blocksPrototype.returnDependingInputs might return some undetermined signals that are resolved here
+        # please note: blocksPrototype.config_request_define_feedforward_input_dependencies might return some undetermined signals that are resolved here
         resolveUndeterminedSignals( dependingSignals )
 
         if len(dependingSignals) == 0:
