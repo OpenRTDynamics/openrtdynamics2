@@ -44,8 +44,11 @@ class Signal(object):
         # notify the creation of this signal
         self.sim.datatypePropagation.notifySignal(self)
 
-        # properties
+        # properties (user)
         self._properties = None
+
+        # properties (internal, controlled by block prototypes)
+        self.properties_internal = {}
 
     @property
     def properties(self):

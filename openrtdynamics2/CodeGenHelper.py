@@ -181,6 +181,8 @@ def getStructElements( structVarname, signals ):
 
 
 
+def brackets(code):
+    return '{\n' + indent(code) + '\n}\n'
 
 #
 # control flow
@@ -204,7 +206,7 @@ def generate_if_else(language, condition_list, action_list):
 
 
     if len(action_list) == N + 1:
-        lines += '\n} else {\n' + indent( action_list[ N ] ) + '\n}'
+        lines += '\n} else {\n' + indent( action_list[ N ] ) + '\n}\n'
 
     elif len(action_list) == N:
         lines += '\n}\n'

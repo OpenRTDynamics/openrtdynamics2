@@ -1212,7 +1212,7 @@ class GenericCppStatic(BlockPrototype):
 
         BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
 
-        self._static_function_name = 'fn_static_' + str(self.id) # TODO: generate a unique id
+        self._static_function_name = 'fn_static_' + str(self.id)
 
     def config_request_define_output_types(self, inputTypes):
 
@@ -1365,7 +1365,7 @@ class Memory(BlockPrototype):
 
         if write_index is None:
             self._static = True
-        elif signal is not None:
+        elif value is not None:
             self._static = False
         else:
             raise BaseException('Memory: write_index was defined but no value to write')
@@ -1378,6 +1378,8 @@ class Memory(BlockPrototype):
 
         # indicate that the output of this port is passed by reference in c++
         self.outputs[0].set_is_referencing_memory(True)
+
+        self.outputs[0].properties_internal['memory_length'] = self._length
 
     # TODO: not sure if this is ever beeing called as the output datatypes are already specified in the constructor
     def config_request_define_output_types(self, inputTypes):
@@ -1414,14 +1416,47 @@ class Memory(BlockPrototype):
             # place a reference
             return cgh.defineVariable( signals[0], make_a_reference=True ) + ' = ' + self.getUniqueVarnamePrefix() + '_array' + ';\n'
 
-def memory(datatype, constant_array):
-    return wrap_signal( Memory(get_simulation_context(), datatype, constant_array).outputs[0] )
+    def generate_code_update(self, language):
+        if language == 'c++':
+
+            code = '' +  self.inputs[0].datatype.cpp_define_variable(variable_name='tmp') + ' = ' + self.inputs[0].name + ';\n'
+            code += cgh.generate_if_else(language, condition_list= ['tmp < 0'], action_list=['tmp = 0;'])
+            code += cgh.generate_if_else(language, condition_list= ['tmp >= ' + str(self._length) ], action_list=[ 'tmp = ' + str(self._length-1) + ';' ])
+
+            code += self.getUniqueVarnamePrefix() + '_array[tmp] = ' + self.inputs[1].name + ';\n'
+
+            return cgh.brackets(code)
+
+    # def generate_code_reset(self, language):
+    #     if language == 'c++':
+
+
+
+    #         return self.getUniqueVarnamePrefix() + '_mem' + ' = ' + initial_state_str + ';\n'
+
+
+
+def memory(datatype, constant_array, write_index : SignalUserTemplate = None, value : SignalUserTemplate = None):
+    if write_index is not None and value is not None:
+        return wrap_signal( Memory(get_simulation_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
+    elif write_index is None and value is None:
+        return wrap_signal( Memory(get_simulation_context(), datatype, constant_array).outputs[0] )
+    else:
+        raise BaseException('memory: write_index and value were not properly defined')
 
 
 
 
 class MemoryRead(StaticFn_NTo1):
     def __init__(self, sim : Simulation, memory : Signal, index : Signal ):
+
+        if 'memory_length' not in memory.properties_internal:
+            raise BaseException('No property memory_length in input signal. Please create the input signal using memory()')
+
+        self._length = memory.properties_internal['memory_length']
+
+        # print(' ############# reading a memory of length', self._length)
+
         StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
 
     def config_request_define_output_types(self, inputTypes):
@@ -1430,7 +1465,14 @@ class MemoryRead(StaticFn_NTo1):
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + self.inputs[0].name + '[' + self.inputs[1].name + '];\n'
+
+            code = '' +  self.inputs[1].datatype.cpp_define_variable(variable_name='tmp') + ' = ' + self.inputs[1].name + ';\n'
+            code += cgh.generate_if_else(language, condition_list= ['tmp < 0'], action_list=['tmp = 0;'])
+            code += cgh.generate_if_else(language, condition_list= ['tmp >= ' + str(self._length) ], action_list=[ 'tmp = ' + str(self._length-1) + ';' ])
+
+            code += signals[0].name + ' = ' + self.inputs[0].name + '[tmp];\n'
+            
+            return cgh.brackets(code)
 
 def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
     return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputs[0] )

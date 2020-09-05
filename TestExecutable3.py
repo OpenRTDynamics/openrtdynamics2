@@ -1,3 +1,5 @@
+import math
+
 import openrtdynamics2.lang as dy
 
 import os
@@ -120,7 +122,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'memory' # 
+testname = 'memory_ringbuf' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -398,14 +400,14 @@ if testname == 'test_comparison':
 
 
 if testname == 'test_step':
-    y = dy.float64(3) * dy.step(10) + dy.float64(-5) * dy.step(40) + dy.float64(2) * dy.step(70) 
+    y = dy.float64(3) * dy.signal_step(10) + dy.float64(-5) * dy.signal_step(40) + dy.float64(2) * dy.signal_step(70) 
 
     output_signals = [ y ]
     input_signals_mapping = {}
 
 if testname == 'test_ramp':
-    y1 = dy.float64(3) * dy.ramp(10) - dy.float64(2) * dy.ramp(70) 
-    y2 = dy.float64(-5) * dy.ramp(40)
+    y1 = dy.float64(3) * dy.signal_ramp(10) - dy.float64(2) * dy.signal_ramp(70) 
+    y2 = dy.float64(-5) * dy.signal_ramp(40)
 
     y1.set_name('y1')
 
@@ -661,7 +663,7 @@ if testname == 'inline_ifsubsystem':
     input = dy.system_input( baseDatatype ).set_name('input')
 
 
-    ramp = dy.ramp(10).set_name('ramp')
+    ramp = dy.signal_ramp(10).set_name('ramp')
 
     activated = ramp > switch
 
@@ -702,7 +704,7 @@ if testname == 'inline_ifsubsystem_oscillator':
     activation_sample = dy.system_input( baseDatatype ).set_name('activation_sample')
     U = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
-    with dy.sub_if( (dy.ramp(0) > activation_sample) * (dy.ramp(100) < activation_sample), prevent_output_computation=False ) as system:
+    with dy.sub_if( (dy.signal_ramp(0) > activation_sample) * (dy.signal_ramp(100) < activation_sample), prevent_output_computation=False ) as system:
 
         x = dy.signal()
         v = dy.signal()
@@ -1013,6 +1015,22 @@ if testname == 'memory_machine':
 
     output_signals = [ position_index, next_position ]
     input_signals_mapping = {}
+
+if testname == 'memory_ringbuf':
+
+    vector = [ 2.2, 2.1, 2.3, 2.6, 2.3, 2.8, 2.3, 2.4, 2.9, 2.0 ]
+
+    rolling_index = dy.counter_limited( upper_limit=len(vector)-1, stepwidth=dy.int32(1), initial_state=1, reset_on_limit=True)
+    write_index = dy.delay(rolling_index)
+    value_to_write = dy.signal_sinus(N_period=150)
+
+    data = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=vector, write_index=write_index, value=value_to_write ).set_name('data')
+    looked_up_element = dy.memory_read( memory=data, index=rolling_index ).set_name('looked_up_element')
+
+    output_signals = [ value_to_write, looked_up_element, rolling_index ]
+    input_signals_mapping = {}
+
+
 
 if testname == 'generic_cpp_static':
 

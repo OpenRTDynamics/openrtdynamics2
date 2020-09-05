@@ -156,7 +156,6 @@ class BlockPrototype(object):
         """
             to define discrete-time states of the block
         """
-
         return ''
 
     def generate_code_constructor(self, language):
