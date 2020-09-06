@@ -85,26 +85,36 @@ steering = psi_r - psi + Delta_u
 
 #
 disturbance_transient = np.concatenate(( cosra(50, 0, 1.0), co(10, 1.0), cosra(50, 1.0, 0) ))
-steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == sample_disturbance)
+steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == sample_disturbance, prevent_initial_playback=True)
 
 # apply disturbance to the steering input
 disturbed_steering = steering + steering_disturbance * disturbance_amplitude
 
 
+def discrete_time_bicycle_model(delta, v):
+    x   = dy.signal()
+    y   = dy.signal()
+    psi = dy.signal()
 
-# bicycle model
-x_dot   = velocity * dy.cos( disturbed_steering + psi )
-y_dot   = velocity * dy.sin( disturbed_steering + psi )
-psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbed_steering )
+    # bicycle model
+    x_dot   = v * dy.cos( delta + psi )
+    y_dot   = v * dy.sin( delta + psi )
+    psi_dot = v / dy.float64(wheelbase) * dy.sin( delta )
 
-# integrators
-sampling_rate = 0.01
-x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
-y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
-psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
+    # integrators
+    sampling_rate = 0.01
+    x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
+    y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
+    psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
+
+    return x, y, psi
 
 
+x_, y_, psi_ = discrete_time_bicycle_model(disturbed_steering, velocity)
 
+x << x_
+y << y_
+psi << psi_
 
 # main simulation ouput
 dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance ], 

@@ -15,6 +15,9 @@ def boolean(value : int):
 
 
 
+#
+# Counters
+#
 
 class Counter():
     """
@@ -61,6 +64,37 @@ def counter():
 
     return tmp
 
+
+def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False ):
+    
+    if stepwidth is None:
+        stepwidth = dy.int32(1)
+
+    counter = dy.signal()
+    reached_upper_limit = counter >= dy.int32(upper_limit)
+
+    # increase the counter until the end is reached
+    new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
+
+    if reset is not None:
+        # reset in case this is requested
+        new_counter = dy.conditional_overwrite(new_counter, reset, 0)
+
+    if reset_on_limit:
+        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, 0)
+
+    # introduce a state variable for the counter
+    counter << dy.delay( new_counter, initial_state=initial_state )
+
+    return counter
+
+
+
+
+#
+# signal generators
+#
+
 def signal_sinus(N_period : int = 100, phi = None):
     """
         Signal generator for sinosoidal signals
@@ -101,7 +135,6 @@ def signal_ramp(k_start : int):
 
         k_start - the sampling index as returned by counter() at which the ramp starts increasing.
     """
-    # TODO
     k = dy.counter()
     active = dy.int32(k_start) <= k
 
@@ -111,6 +144,99 @@ def signal_ramp(k_start : int):
     return activation * linearRise
 
 
+def signal_impulse(k_event : int):
+    """
+        Pulse signal generator
+
+        generates a unique pulse at sampling index k_event
+
+        k_event - the sampling index at which the pulse appears
+    """
+
+    if k_event < 0:
+        raise BaseException('The sampling index for the event is invalid (k_event < 0)')
+
+    k = dy.counter()
+    pulse_signal = dy.int32(k_event) == k
+
+    return pulse_signal
+
+
+def play( sequence_array, reset=None, reset_on_end:bool=False, prevent_initial_playback:bool=False ):
+    """
+        playback of a sequence
+
+        returns sample, playback_index
+
+        sequence_array           - the sequence given as a list of values
+        reset                    - reset the playback and start from the beginning
+        reset_on_end             - reset playback once the end is reached (repetitive playback)
+        prevent_initial_playback - await a reset until playback is started 
+
+        sample                   - the value obtained from sequence_array
+        playback_index           - the current position of playback (index of the currently issued sequence element)
+    """
+
+    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
+
+    if prevent_initial_playback:
+        initial_counter_state = np.size(sequence_array)
+    else:
+        initial_counter_state = 0
+
+    playback_index = counter_limited( upper_limit=np.size(sequence_array)-1, stepwidth=dy.int32(1), initial_state=initial_counter_state, reset=reset, reset_on_limit=reset_on_end)
+
+    # sample the given data
+    sample = dy.memory_read(sequence_array_storage, playback_index)
+
+    return sample, playback_index
+
+
+
+
+#
+# Filters
+#
+
+def diff(u : dy.Signal):
+    """
+        Discrete difference
+
+        y = u[k] - u[k-1] 
+    """
+
+    i = dy.delay( u )
+    y = dy.add( [ i, u ], [ -1, 1 ] )
+
+    return y
+
+def sum(u : dy.Signal):
+    """
+        Accumulative sum
+
+        y[k+1] = y[k] + u[k]
+    """
+
+    y = dy.signal()    
+    y << dy.delay(y + u)
+
+    return y
+
+def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+    """
+        Euler (forward) integrator
+
+        y[k+1] = y[k] + sampling_rate * u[k]
+    """
+
+    yFb = dy.signal()
+
+    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    y = dy.delay( i, initial_state )
+
+    yFb << y
+
+    return y
 
 def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
 
@@ -124,12 +250,19 @@ def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
     
     return y
 
-
-
-def dtf_filter(u : dy.Signal, num_coeff : List[float], den_coeff : List[float] ):
+def transfer_function_discrete(u : dy.Signal, num_coeff : List[float], den_coeff : List[float] ):
 
     """
     Discrete time transfer function
+
+    u         - input signal
+    num_coeff - list of numerator coefficients of the transfer function
+    den_coeff - list of denominator coefficients of the transfer function
+
+    returns the output of the filter
+
+    Details:
+    --------
 
     This filter realizes a discrete-time transfer function by using 'direct form II'
     c.f. https://en.wikipedia.org/wiki/Digital_filter .
@@ -203,107 +336,9 @@ def dtf_filter(u : dy.Signal, num_coeff : List[float], den_coeff : List[float] )
 
 
 
-
-
-def diff(u : dy.Signal):
-    """
-        Discrete difference
-
-        y = u[k] - u[k-1] 
-    """
-
-    i = dy.delay( u )
-    y = dy.add( [ i, u ], [ -1, 1 ] )
-
-    return y
-
-def sum(u : dy.Signal):
-    """
-        Accumulative sum
-
-        y[k+1] = y[k] + u[k]
-    """
-
-    y = dy.signal()    
-    y << dy.delay(y + u)
-
-    return y
-
-def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
-    """
-        Euler (forward) integrator
-
-        y[k+1] = y[k] + sampling_rate * u[k]
-    """
-
-    yFb = dy.signal()
-
-    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
-    y = dy.delay( i, initial_state )
-
-    yFb << y
-
-    return y
-    
-
-def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit=False ):
-    
-    if stepwidth is None:
-        stepwidth = dy.int32(1)
-
-    counter = dy.signal()
-    reached_upper_limit = counter >= dy.int32(upper_limit)
-
-    # increase the counter until the end is reached
-    new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
-
-    if reset is not None:
-        # reset in case this is requested
-        new_counter = dy.conditional_overwrite(new_counter, reset, 0)
-
-    if reset_on_limit:
-        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, 0)
-
-    # introduce a state variable for the counter
-    counter << dy.delay( new_counter, initial_state=initial_state )
-
-    return counter
-
-
-
-def play( sequence_array, reset, reset_on_end=False ):
-    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
-
-
-
-    playback_index = counter_limited( upper_limit=np.size(sequence_array), stepwidth=dy.int32(1), initial_state=np.size(sequence_array), reset=reset, reset_on_limit=reset_on_end)
-
-
-
-    # subsampling = dy.int32(1)
-    # playback_index = dy.signal()
-    # reached_end = playback_index == dy.int32(np.size(sequence_array))
-
-    # # increase the index counter until the end is reached
-    # new_index = playback_index + dy.conditional_overwrite(subsampling, reached_end , 0)
-
-    # # reset
-    # new_index = dy.conditional_overwrite(new_index, reset, 0)
-
-    # # introduce a state variable for the counter
-    # playback_index << dy.delay( new_index, initial_state=np.size(sequence_array) )
-
-
-
-
-
-
-
-    # sample the given data
-    output = dy.memory_read(sequence_array_storage, playback_index)
-
-    return output, playback_index
-
+#
+# Control
+#
 
 def PID_controller(r, y, Ts, kp, ki = None, kd = None):
     Ts = dy.float64(Ts)
