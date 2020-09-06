@@ -1353,7 +1353,7 @@ def delay(u : SignalUserTemplate, initial_state = None):
 
 
 #
-# A memory
+# memory / array to store / read values
 #
 
 class Memory(BlockPrototype):
@@ -1419,6 +1419,9 @@ class Memory(BlockPrototype):
     def generate_code_update(self, language):
         if language == 'c++':
 
+            if self._static:
+                return ''
+
             code = '' +  self.inputs[0].datatype.cpp_define_variable(variable_name='tmp') + ' = ' + self.inputs[0].name + ';\n'
             code += cgh.generate_if_else(language, condition_list= ['tmp < 0'], action_list=['tmp = 0;'])
             code += cgh.generate_if_else(language, condition_list= ['tmp >= ' + str(self._length) ], action_list=[ 'tmp = ' + str(self._length-1) + ';' ])
@@ -1427,16 +1430,31 @@ class Memory(BlockPrototype):
 
             return cgh.brackets(code)
 
-    # def generate_code_reset(self, language):
-    #     if language == 'c++':
+    def generate_code_reset(self, language):
+        if language == 'c++':
+            # TODO
+            return '// WARNIG: reset of memeory not implemented\n'
 
-
-
-    #         return self.getUniqueVarnamePrefix() + '_mem' + ' = ' + initial_state_str + ';\n'
 
 
 
 def memory(datatype, constant_array, write_index : SignalUserTemplate = None, value : SignalUserTemplate = None):
+    """
+        Define an array
+
+        Allocates static memory for an array of elements given a datatype.
+        During each sampling instant, one element can be (over)written. 
+
+        datatype       - the datatype of the array elements
+        constant_array - list of constants that contain the data to initialize the array
+        write_index    - the array index of the element to replace by value (optional)
+        value          - the value to write into the array at write_index (optional)
+
+        returns a reference to the memory segment which is accessible by memory_read()
+
+        Limitations: currently the memory is not reset on subsystem reset. This will change.
+    """
+
     if write_index is not None and value is not None:
         return wrap_signal( Memory(get_simulation_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
     elif write_index is None and value is None:
@@ -1475,6 +1493,13 @@ class MemoryRead(StaticFn_NTo1):
             return cgh.brackets(code)
 
 def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
+    """
+        Read an element from an array defined by memory()
+
+        index - the index indicating the element to read.
+
+        Returns the value of the element
+    """
     return wrap_signal( MemoryRead(get_simulation_context(), memory.unwrap, index.unwrap ).outputs[0] )
 
 
