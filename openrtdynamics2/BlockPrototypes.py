@@ -447,60 +447,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
 
-
-        def generate_subsystem_embedder(language, system_prototype : GenericSubsystem, ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
-            """
-                generate code to call a subsystem
-
-                - system_prototype   - the block prototype including the subsystem - type: GenericSubsystem
-                - ouput_signals_name - list of variable names to which the output signals of the subsystem are assigned to
-                - calculate_outputs  - generate a call to the output computation API function of the subsystem
-                - update_states      - generate a call to the state update API function of the subsystem
-            """
-
-
-            lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
-
-            innerLines = ''
-
-            #
-            # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
-            #
-
-            # generate code for calculating the outputs 
-            if calculate_outputs:
-
-                innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
-
-                if len(system_prototype.outputs) != len(ouput_signals_name):
-                    raise BaseException('len(system_prototype.outputs) != len(ouput_signals_name)')
-
-                for i in range( 0, len( ouput_signals_name ) ):
-                    innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
-
-                # if additional_outputs_names is not None:                 
-
-                #     for i in range( 0, len( additional_outputs_names ) ):
-                #         innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
-
-
-            # generate code for updating the states
-            if update_states:
-                innerLines += system_prototype.generate_code_update(language)
-
-
-            lines += cgh.indent(innerLines)
-            lines += '}\n'
-
-            return lines
-
-
-
-
-
-
-
-
         lines = ''
 
         action_list = []
@@ -516,14 +462,14 @@ class MultiSubsystemEmbedder(BlockPrototype):
                 ouput_signals_name.extend( additional_outputs_names )
 
                 # call each subsystem embedder to generate its code
-                code_calculate_outputs = generate_subsystem_embedder( language, system_prototype, ouput_signals_name=ouput_signals_name, additional_outputs_names=None )
+                code_calculate_outputs = cgh.embedd_subsystem( language, system_prototype, ouput_signals_name=ouput_signals_name)
             else:
                 code_calculate_outputs = '' # no operation
 
 
             if update_states:
                 # call each subsystem embedder to generate its update code
-                code_update_states = generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True, additional_outputs_names=None )
+                code_update_states = cgh.embedd_subsystem( language, system_prototype, calculate_outputs=False, update_states=True)
             else:
                 code_update_states = '' # no operation
 

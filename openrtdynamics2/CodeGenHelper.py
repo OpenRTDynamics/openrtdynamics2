@@ -109,12 +109,21 @@ def defineVariables( signals, make_a_reference = False ):
 
 
 def asign( from_signal_name, to_signal_name ):
+    """
+        generate code to asign a value
+
+        - from_signal_name
+        - to_signal_name
+    """
     return to_signal_name + ' = ' + from_signal_name + ';\n'
 
 def define_variable_list_string(signals, make_a_reference = False):
     return '; '.join( define_variable_list(signals, make_a_reference)  ) + ';'
 
 
+
+def generate_compare_equality_to_constant( language, signal_name, constant ):
+    return signal_name + ' == ' + str(constant)
 
 
 
@@ -216,8 +225,50 @@ def generate_if_else(language, condition_list, action_list):
 
     return lines
 
-def generate_compare_equality_to_constant( language, signal_name, constant ):
-    return signal_name + ' == ' + str(constant)
+
+
+
+def embedd_subsystem(language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
+    """  
+        generate code to call a subsystem
+
+        - system_prototype   - the block prototype including the subsystem - type: : dy.GenericSubsystem
+        - ouput_signals_name - list of variable names to which the output signals of the subsystem are assigned to
+        - calculate_outputs  - generate a call to the output computation API function of the subsystem
+        - update_states      - generate a call to the state update API function of the subsystem
+    """
+
+
+    lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
+
+    innerLines = ''
+
+    #
+    # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+    #
+
+    # generate code for calculating the outputs 
+    if calculate_outputs:
+
+        innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
+
+        if len(system_prototype.outputs) != len(ouput_signals_name):
+            raise BaseException('len(system_prototype.outputs) != len(ouput_signals_name)')
+
+        for i in range( 0, len( ouput_signals_name ) ):
+            innerLines += asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
+
+    # generate code for updating the states
+    if update_states:
+        innerLines += system_prototype.generate_code_update(language)
+
+
+    lines += indent(innerLines)
+    lines += '}\n'
+
+    return lines
+
+
 
 
 
