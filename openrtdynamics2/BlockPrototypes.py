@@ -329,13 +329,16 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 class MultiSubsystemEmbedder(BlockPrototype):
     """
-        Include a switch including multiple sub-systems 
+        Include a switch including multiple sub-systems (class to be derived, e.g. by StatemachineSwichSubsystems, SwichSubsystems)
 
         - additional_inputs       - inputs used to control the switching strategy
         - subsystem_prototypes    - a list of the prototypes of all subsystems (of type GenericSubsystem)
         - switch_reference_outputs : List [Signal] - output signals of the reference subsystem from which the output datatypes are inherited
         - number_of_additional_outputs  - the number of outputs besides the subsystems outputs
 
+        helper function for code generation
+
+        - self.generate_switch()
     """
     def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_additional_outputs = 0 ):
 
@@ -437,6 +440,8 @@ class MultiSubsystemEmbedder(BlockPrototype):
         return self._list_of_all_inputs
 
 
+
+    # for code_gen
     def generate_subsystem_embedder(self, language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
 
         lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
@@ -469,7 +474,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
 
-    
+    # for code_gen
     def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
 
         lines = ''
@@ -492,8 +497,6 @@ class MultiSubsystemEmbedder(BlockPrototype):
                 code_update_states = self.generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True, additional_outputs_names=additional_outputs_names )
             else:
                 code_update_states = ''
-
-
 
             action_list.append( code_calculate_outputs + code_update_states )
 
@@ -541,7 +544,8 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 class SwichSubsystems(MultiSubsystemEmbedder):
     """
-
+        A system that includes multiple subsystems and a control input to switch in-between
+        The outputs of the currently acrive subsystem are forwarded.
     """
 
     def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
@@ -566,7 +570,8 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
-            # lines += cgh.defineVariables( signals ) + '\n'
+            
+            # the method self.generate_switch is provided by MultiSubsystemEmbedder 
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=self._control_input.name,
                                             switch_ouput_signals_name= cgh.signal_list_to_name_list(signals),
@@ -658,7 +663,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         return lines
 
 
-
+    # code_gen helper
     def generate_switch_to_reset_leaving_subsystem( self, language, switch_control_signal_name ):
 
         lines = ''

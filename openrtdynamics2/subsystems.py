@@ -187,9 +187,103 @@ class sub_if:
 
 
 
+
+
+
+
+
+class SwitchPrototype:
+    """
+        a switch for subsystems that are inmplemented by SwitchedSubsystemPrototype (class to be derived)
+
+        switch_subsystem_name        - the name of the switch
+        number_of_additional_outputs - the number of system outputs in addition to the embedded systems outputs
+                                       i.e. control outputs of a switch/statemaching/...
+
+        member variables
+
+        self._switch_output_links    - overwrite by derived class when calling on_exit()
+        self.outputs                 - a list of output signals as defined by self._switch_output_links
+
+        methods to be defined
+
+        on_exit(subsystem_prototypes)  - callback once all subsystems were defined
+                                         during this callback self._switch_output_links must be defined
+
+    """
+
+
+    def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
+
+        self._switch_subsystem_name = switch_subsystem_name
+        self._total_number_of_subsystem_outputs = None
+        self._switch_output_links = None
+        self._switch_system = None
+        self._number_of_additional_outputs = number_of_additional_outputs
+        self._number_of_switched_outputs = None
+
+        # List [ dy.GenericSubsystem ]
+        self._subsystem_prototypes = None
+
+        # List [ switch_single_sub ]
+        self._subsystem_list = None
+
+
+    def new_subsystem(self, subsystem_name = None):
+        raise BaseException("to be implemented")
+
+    def __enter__(self):
+
+        self._subsystem_list = []
+        self._subsystem_prototypes = []
+
+        return self
+
+    def on_exit(self, subsystem_prototypes):
+        """
+            called when all subsystems have been added to the switch
+
+            subsystem_prototypes - the list of subsystem block prototypes of type dy.GenericSubsystem
+        """
+        raise BaseException("to be implemented")
+
+    def __exit__(self, type, value, traceback):
+        # collect all prototyes thet embedd the subsystems
+        for system in self._subsystem_list:
+            self._subsystem_prototypes.append( system.subsystem_prototype )
+
+        # analyze the default subsystem (the first) to get the output datatypes to use
+        for subsystem in [ self._subsystem_list[0] ]:
+
+            # get the outputs that will serve as reference points for datatype inheritance
+            number_of_normal_outputs = len( subsystem.outputs ) - self._number_of_additional_outputs
+            self._reference_outputs = subsystem.outputs[0:number_of_normal_outputs]
+            self._total_number_of_subsystem_outputs = len(subsystem.outputs)
+
+            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_additional_outputs
+
+        self.on_exit( self._subsystem_prototypes )
+
+    @property
+    def outputs(self):
+
+        if self._switch_output_links is None:
+            BaseException("Please close the switch subsystem before querying its outputs")
+        
+        return self._switch_output_links
+    
+
+#
+# Switch among subsystems i.e. similar to select/case
+#
+
 class SwitchedSubsystemPrototype:
     """
-        A subsystem contained among others e.g. in a switch
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        methods to called by the user
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
     """
     def __init__(self, subsystem_name = None ):
 
@@ -216,7 +310,6 @@ class SwitchedSubsystemPrototype:
     def outputs(self):
         return self._outputs_inside_subsystem
 
-
     def set_switched_outputs(self, signals):
         """
             connect a list of outputs to the switch that switches between multple subsystems of this kind
@@ -224,15 +317,12 @@ class SwitchedSubsystemPrototype:
 
         if self._outputs_inside_subsystem is None:
             self._outputs_inside_subsystem = signals.copy()
-
         else:
             raise BaseException("tried to overwrite previously set outputs")
 
-
     def __enter__(self):
 
-        print("enter system " + self._subsystem_name)
-
+        #print("enter system " + self._subsystem_name)
         self._system = dy.enter_subsystem(self._subsystem_name )
 
         return self
@@ -250,7 +340,7 @@ class SwitchedSubsystemPrototype:
         # create generic subsystem block prototype
         self._embeddedingBlockPrototype = dy.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
                                                     manifest=None, inputSignals=None, 
-                                                    embedded_subsystem=dy.get_simulation_context(),
+                                                    embedded_subsystem=embedded_subsystem,
                                                     N_outputs=number_of_subsystem_ouputs )
 
         # leave the context of the subsystem
@@ -259,77 +349,6 @@ class SwitchedSubsystemPrototype:
     @property
     def subsystem_prototype(self):
         return self._embeddedingBlockPrototype
-
-
-
-
-class SwitchPrototype:
-    """
-        a switch for subsystems
-    """
-
-
-    def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
-
-        self._switch_subsystem_name = switch_subsystem_name
-        self._total_number_of_subsystem_outputs = None
-        self._switch_output_links = None
-        self._switch_system = None
-        self._number_of_additional_outputs = number_of_additional_outputs
-        self._number_of_switched_outputs = None
-
-        # List [ dy.GenericSubsystem ]
-        self._subsystem_prototypes = None
-
-        # List [ switch_single_sub ]
-        self._subsystem_list = None
-
-
-    def new_subsystem(self, subsystem_name = None):
-        raise BaseException("to be implemented")
-
-        # system = switch_single_sub(subsystem_name=subsystem_name)
-
-        # self._subsystem_list.append(system)
-
-        # return system
-
-
-    def __enter__(self):
-
-        self._subsystem_list = []
-        self._subsystem_prototypes = []
-
-        return self
-
-    def on_exit(self, subsystem_prototypes):
-        raise BaseException("to be implemented")
-
-
-    def __exit__(self, type, value, traceback):
-        # collect all prototyes thet embedd the subsystems
-        for system in self._subsystem_list:
-            self._subsystem_prototypes.append( system.subsystem_prototype )
-
-        # analyze the default subsystem (the first) to get the output datatypes to use
-        for subsystem in [ self._subsystem_list[0] ]:
-
-            # get the outputs that will serve as reference points for datatype inheritance
-            self._reference_outputs = subsystem.outputs[0:-self._number_of_additional_outputs]
-            self._total_number_of_subsystem_outputs = len(subsystem.outputs)
-
-            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_additional_outputs
-
-        self.on_exit( self._subsystem_prototypes )
-
-    @property
-    def outputs(self):
-
-        if self._switch_output_links is None:
-            BaseException("Please close the switch subsystem before querying its outputs")
-        
-        return self._switch_output_links
-    
 
 
 
@@ -356,8 +375,11 @@ class sub_switch(SwitchPrototype):
                 subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
-        #
+        # connect the normal outputs via links
         self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+        # connect the additional (control) outputs
+        # -- None --
 
 
 
@@ -366,6 +388,14 @@ class sub_switch(SwitchPrototype):
 #
 
 class state_sub(SwitchedSubsystemPrototype):
+    """
+        A single subsystem as part of a state machine (implemented by sub_statemachine)
+
+        methods to called by the user
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the state machine
+    """
+
     def __init__(self, subsystem_name = None ):
         SwitchedSubsystemPrototype.__init__(self, subsystem_name)
 
@@ -378,7 +408,6 @@ class state_sub(SwitchedSubsystemPrototype):
         self._state_signal = state_signal
 
         SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
-
 
     @property
     def state_control_output(self):
@@ -400,10 +429,19 @@ class state_sub(SwitchedSubsystemPrototype):
 
 
 class sub_statemachine(SwitchPrototype):
+    """
+        A state machine subsystem
+
+        properties
+
+        self.state - status signal of the state machine (available after 'with sub_statemachine' has findished)
+    """
     def __init__(self, switch_subsystem_name):
+        number_of_additional_outputs = 1 # add one control output to inform about the current state
 
-        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs=1 )
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs )
 
+        # state output signal undefined until defined by on_exit() 
         self._state_output = None
 
     @property
@@ -425,7 +463,9 @@ class sub_statemachine(SwitchPrototype):
                 subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
-        #
+        # connect the normal outputs via links
         self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+        # connect the additional (control) outputs
         self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
 
