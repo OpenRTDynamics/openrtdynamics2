@@ -472,13 +472,16 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
                 innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
 
+                if len(system_prototype.outputs) != len(ouput_signals_name):
+                    raise BaseException('len(system_prototype.outputs) != len(ouput_signals_name)')
+
                 for i in range( 0, len( ouput_signals_name ) ):
                     innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
 
-                if additional_outputs_names is not None:                 
+                # if additional_outputs_names is not None:                 
 
-                    for i in range( 0, len( additional_outputs_names ) ):
-                        innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
+                #     for i in range( 0, len( additional_outputs_names ) ):
+                #         innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
 
 
             # generate code for updating the states
@@ -507,17 +510,22 @@ class MultiSubsystemEmbedder(BlockPrototype):
         for system_prototype in self._subsystem_prototypes:
 
             if calculate_outputs:
+                # combine all output names to one list: normal subsystem outputs and control outputs
+                ouput_signals_name = []
+                ouput_signals_name.extend( switch_ouput_signals_name )
+                ouput_signals_name.extend( additional_outputs_names )
+
                 # call each subsystem embedder to generate its code
-                code_calculate_outputs = generate_subsystem_embedder( language, system_prototype, ouput_signals_name=switch_ouput_signals_name, additional_outputs_names=additional_outputs_names )
+                code_calculate_outputs = generate_subsystem_embedder( language, system_prototype, ouput_signals_name=ouput_signals_name, additional_outputs_names=None )
             else:
-                code_calculate_outputs = ''
+                code_calculate_outputs = '' # no operation
 
 
             if update_states:
                 # call each subsystem embedder to generate its update code
-                code_update_states = generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True, additional_outputs_names=additional_outputs_names )
+                code_update_states = generate_subsystem_embedder( language, system_prototype, calculate_outputs=False, update_states=True, additional_outputs_names=None )
             else:
-                code_update_states = ''
+                code_update_states = '' # no operation
 
             action_list.append( code_calculate_outputs + code_update_states )
 

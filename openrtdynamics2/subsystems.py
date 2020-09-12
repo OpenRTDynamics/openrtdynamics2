@@ -196,7 +196,7 @@ class sub_if:
 
 class SwitchPrototype:
     """
-        a switch for subsystems that are inmplemented by SwitchedSubsystemPrototype (class to be derived)
+        a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)
 
         switch_subsystem_name        - the name of the switch
         number_of_additional_outputs - the number of system outputs in addition to the embedded systems outputs
@@ -213,6 +213,8 @@ class SwitchPrototype:
                                          during this callback self._switch_output_links must be defined
 
     """
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
 
     def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
 
@@ -283,6 +285,9 @@ class SwitchedSubsystemPrototype:
 
         set_switched_outputs(signals)  - connect a list of signals to the output of the switch
     """
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
+
     def __init__(self, subsystem_name = None ):
 
         if subsystem_name is not None:
@@ -311,9 +316,25 @@ class SwitchedSubsystemPrototype:
     def set_switched_outputs(self, signals):
         """
             connect a list of outputs to the switch that switches between multple subsystems of this kind
+
+            use self.set_switched_outputs_prototype in the derived classes to set this
         """
         
         BaseException("to be implemented")
+
+    def set_switched_outputs_prototype(self, signals):
+        """
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        """
+
+        if self._outputs_inside_subsystem is None:
+            self._outputs_inside_subsystem = signals.copy()
+        else:
+            raise BaseException("tried to overwrite previously set outputs")
+
+
+
+
 
     def __enter__(self):
 
@@ -363,7 +384,7 @@ class SwitchedSubsystem(SwitchedSubsystemPrototype):
     """
         A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
 
-        - methods to called by the user -
+        - methods to be called by the user -
 
         set_switched_outputs(signals)  - connect a list of signals to the output of the switch
     """
@@ -377,10 +398,12 @@ class SwitchedSubsystem(SwitchedSubsystemPrototype):
             connect a list of outputs to the switch that switches between multple subsystems of this kind
         """
 
-        if self._outputs_inside_subsystem is None:
-            self._outputs_inside_subsystem = signals.copy()
-        else:
-            raise BaseException("tried to overwrite previously set outputs")
+        self.set_switched_outputs_prototype(signals)
+
+        # if self._outputs_inside_subsystem is None:
+        #     self._outputs_inside_subsystem = signals.copy()
+        # else:
+        #     raise BaseException("tried to overwrite previously set outputs")
 
 
 
@@ -424,7 +447,7 @@ class state_sub(SwitchedSubsystemPrototype):
 
         - methods to called by the user -
 
-        set_switched_outputs(signals)  - connect a list of signals to the output of the state machine
+        set_switched_outputs(signals, state_signal)  - connect a list of signals to the output of the state machine
     """
 
     def __init__(self, subsystem_name = None ):
@@ -435,10 +458,18 @@ class state_sub(SwitchedSubsystemPrototype):
 
 
     def set_switched_outputs(self, signals, state_signal):
+        """
+            set the output signals of a subsystem embedded into the state machine
+
+            - signals      - normal system output that are forwarded using a switch
+            - state_signal - control signal indicating the next state the state machine enters
+        """
         self._output_signals = signals
         self._state_signal = state_signal
 
-        SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
+        # SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
+
+        self.set_switched_outputs_prototype( signals +  [state_signal] )
 
     @property
     def state_control_output(self):
