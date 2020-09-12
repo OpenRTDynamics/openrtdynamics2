@@ -24,7 +24,7 @@ class GenericSubsystem(BlockPrototype):
         - manifest     - the manifest of the subsystem to include (optional, might be handed over by init())
         - inputSignals - the inputs to the subsystem 
         - N_outputs    - prepare a number of nOutputs (optional in case a manifest is given)
-        - embedded_subsystem - the system to embed (optional)
+        - embedded_subsystem - the system to embed (optional in case a manifest to an already compiled subsystem is given, NOT IMPLEMENTED)
 
         Note: the number of outputs must be defined either by N_outputs or by a manifest
 
@@ -69,8 +69,6 @@ class GenericSubsystem(BlockPrototype):
 
             output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
-
-
     @property
     def embedded_subsystem(self):
         """
@@ -88,20 +86,19 @@ class GenericSubsystem(BlockPrototype):
         self.anonymous_output_signals = anonymous_output_signals
 
     def compile_callback_all_subsystems_compiled(self):
-        # TODO: call init() here
 
         embedded_system = self._embedded_subsystem
         #
-        # potential code:
+        # continue init as now all subsystems are compiled and the compile results and the manifest of
+        # the system to compile is available.
         #
         self.init(embedded_system.compilationResult.manifest, embedded_system.compilationResult, embedded_system.compilationResult.inputSignals)
-
-        
 
     # post_compile_callback (called after the subsystem to embedd was compiled)
     def init(self, manifest, compileResult, inputSignals):
         """
-            This is a second phase initialization of this subsystem block
+            This is a second phase initialization of this subsystem block 
+            (to be called by compile_callback_all_subsystems_compiled())
 
             This function shall be called when the subsystem to embedd is compiled
             after the instance of 'GenericSubsystem' is created. This way, it is possible
@@ -153,7 +150,7 @@ class GenericSubsystem(BlockPrototype):
                 # TODO: CHECK FOR FAILING LOOKUP
                 signal = signals[ dependingInput_name ]
 
-                # check datatype (NOTE: MOVE.. not possible here in the constructor)
+                # check datatype
                 if not signal.getDatatype().cppDataType == dependingInput_cpptype:
                     raise BaseException('datatype does not match the one specified in the manifest. (' + (dependingInput_cpptype) + ' is required in the manifest)' )
 
@@ -356,12 +353,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         if self._number_of_switched_outputs + number_of_additional_outputs != self._total_number_of_subsystem_outputs:
             raise BaseException("given number of total subsystem outputs does not match")
 
-
-
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
-
-
-
 
         # assertion
         for subsystem_prototype in self._subsystem_prototypes:
@@ -447,6 +439,10 @@ class MultiSubsystemEmbedder(BlockPrototype):
         lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
 
         innerLines = ''
+
+        #
+        # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+        #
 
         # generate code for calculating the outputs 
         if calculate_outputs:
@@ -757,6 +753,35 @@ class TruggeredSubsystem(GenericSubsystem):
 
         return dependingInputsOuter
         
+
+
+        # TODO: use this to generate code
+
+        # #
+        # # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+        # #
+
+        # # generate code for calculating the outputs 
+        # if calculate_outputs:
+
+        #     innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
+
+        #     for i in range( 0, len( ouput_signals_name ) ):
+        #         innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
+
+        #     if additional_outputs_names is not None:                 
+
+        #         for i in range( 0, len( additional_outputs_names ) ):
+        #             innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
+
+
+        # # generate code for updating the states
+        # if update_states:
+        #     innerLines += system_prototype.generate_code_update(language)
+
+
+
+
 
     def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
 

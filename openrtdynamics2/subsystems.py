@@ -186,7 +186,9 @@ class sub_if:
 
 
 
-
+#
+# new stuff
+#
 
 
 
@@ -200,18 +202,17 @@ class SwitchPrototype:
         number_of_additional_outputs - the number of system outputs in addition to the embedded systems outputs
                                        i.e. control outputs of a switch/statemaching/...
 
-        member variables
+        - member variables -
 
         self._switch_output_links    - overwrite by derived class when calling on_exit()
         self.outputs                 - a list of output signals as defined by self._switch_output_links
 
-        methods to be defined
+        - methods to be defined -
 
         on_exit(subsystem_prototypes)  - callback once all subsystems were defined
                                          during this callback self._switch_output_links must be defined
 
     """
-
 
     def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
 
@@ -273,15 +274,12 @@ class SwitchPrototype:
         return self._switch_output_links
     
 
-#
-# Switch among subsystems i.e. similar to select/case
-#
 
 class SwitchedSubsystemPrototype:
     """
         A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
 
-        methods to called by the user
+        - methods to called by the user -
 
         set_switched_outputs(signals)  - connect a list of signals to the output of the switch
     """
@@ -314,11 +312,8 @@ class SwitchedSubsystemPrototype:
         """
             connect a list of outputs to the switch that switches between multple subsystems of this kind
         """
-
-        if self._outputs_inside_subsystem is None:
-            self._outputs_inside_subsystem = signals.copy()
-        else:
-            raise BaseException("tried to overwrite previously set outputs")
+        
+        BaseException("to be implemented")
 
     def __enter__(self):
 
@@ -351,6 +346,42 @@ class SwitchedSubsystemPrototype:
         return self._embeddedingBlockPrototype
 
 
+##
+##
+## Derivatives of SwitchedSubsystemPrototype
+##
+##
+
+
+
+
+#
+# Switch among subsystems i.e. similar to select/case
+#
+
+class SwitchedSubsystem(SwitchedSubsystemPrototype):
+    """
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        - methods to called by the user -
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
+    """
+    def __init__(self, subsystem_name = None ):
+
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
+
+
+    def set_switched_outputs(self, signals):
+        """
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        """
+
+        if self._outputs_inside_subsystem is None:
+            self._outputs_inside_subsystem = signals.copy()
+        else:
+            raise BaseException("tried to overwrite previously set outputs")
+
 
 
 class sub_switch(SwitchPrototype):
@@ -361,7 +392,7 @@ class sub_switch(SwitchPrototype):
 
     def new_subsystem(self, subsystem_name = None):
 
-        system = SwitchedSubsystemPrototype(subsystem_name=subsystem_name)
+        system = SwitchedSubsystem(subsystem_name=subsystem_name)
         self._subsystem_list.append(system)
 
         return system
@@ -391,7 +422,7 @@ class state_sub(SwitchedSubsystemPrototype):
     """
         A single subsystem as part of a state machine (implemented by sub_statemachine)
 
-        methods to called by the user
+        - methods to called by the user -
 
         set_switched_outputs(signals)  - connect a list of signals to the output of the state machine
     """
@@ -418,21 +449,12 @@ class state_sub(SwitchedSubsystemPrototype):
         return self._output_signals
 
 
-    # @property
-    # def outputs(self):
-    #     if self._state_signal is None:
-    #         BaseException("Please do not forget to control the state set_next_state()")
-
-    #     # subsystem_outputs = SwitchedSubsystemPrototype.
-    #     return self._outputs_inside_subsystem # + self._state_signal
-
-
 
 class sub_statemachine(SwitchPrototype):
     """
         A state machine subsystem
 
-        properties
+        - properties -
 
         self.state - status signal of the state machine (available after 'with sub_statemachine' has findished)
     """
