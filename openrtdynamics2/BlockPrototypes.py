@@ -370,7 +370,7 @@ class SingleSubsystemEmbedder(BlockPrototype):
         Picture drawn by http://asciiflow.com/
 
     """
-    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
+    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, number_of_control_outputs : int = 0 ):
 
         # the prototypes of the subsystem
         self._subsystem_prototype = subsystem_prototype
@@ -382,7 +382,7 @@ class SingleSubsystemEmbedder(BlockPrototype):
         self._number_of_control_outputs = number_of_control_outputs
 
         self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
-        self._number_of_normal_outputs = len(reference_outputs)
+        self._number_of_normal_outputs = len(self._subsystem_prototype.outputs)
 
         if self._number_of_normal_outputs + number_of_control_outputs != self._total_number_of_subsystem_outputs:
             raise BaseException("given number of total subsystem outputs does not match")
@@ -404,11 +404,11 @@ class SingleSubsystemEmbedder(BlockPrototype):
         # will be filled in on compile_callback_all_subsystems_compiled()
         self._list_of_all_inputs = None
 
-        # inherit output datatypes of the reference subsystem
+        # inherit output datatypes of this block from the embeded subsystem DEBUG: s15 <-- s17 shall be linked
         for i in range(0, self._number_of_normal_outputs ):
 
             output_signal_of_embedding_block = self.outputs[i]
-            output_signal_of_subsystem = reference_outputs[i]
+            output_signal_of_subsystem = self._subsystem_prototype.outputs[i] # reference_outputs[i]
             output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
         # NOTE: datatypes for additional outputs are untouched
@@ -493,7 +493,7 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
     """
 
 
-    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototype : GenericSubsystem, reference_outputs : List [Signal], prevent_output_computation = False ):
+    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototype : GenericSubsystem,  prevent_output_computation = False ):
         
         self._control_input = control_input
         self.prevent_output_computation = prevent_output_computation
@@ -501,7 +501,6 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         SingleSubsystemEmbedder.__init__(self, sim, 
                                         control_inputs=[control_input], 
                                         subsystem_prototype=subsystem_prototype, 
-                                        reference_outputs=reference_outputs,
                                         number_of_control_outputs=0 )
 
 

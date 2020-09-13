@@ -129,7 +129,9 @@ class SignalUser(SignalUserTemplate):
 
 
 
-
+#
+# TODO: is this still needed?
+#
 class SubsystemOutputLinkUser(SignalUser):
     """
         A signal that serves as a placeholder for a subsystem output to be used in the embedding
