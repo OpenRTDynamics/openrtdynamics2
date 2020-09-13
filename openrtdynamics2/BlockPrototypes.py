@@ -480,6 +480,70 @@ class SingleSubsystemEmbedder(BlockPrototype):
 
 
 
+class TruggeredSubsystem(SingleSubsystemEmbedder):
+    """
+        Include a triggered sub-system
+
+        Optional:
+
+            prevent_output_computation = True: 
+                The subsystems outputs are only computed when triggered. Please note that the outputs
+                of the subsystem are uninitialized until the subsystem is triggered for the first time.
+
+    """
+
+
+    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototype : GenericSubsystem, reference_outputs : List [Signal], prevent_output_computation = False ):
+        
+        self._control_input = control_input
+        self.prevent_output_computation = prevent_output_computation
+
+        SingleSubsystemEmbedder.__init__(self, sim, 
+                                        control_inputs=[control_input], 
+                                        subsystem_prototype=subsystem_prototype, 
+                                        reference_outputs=reference_outputs,
+                                        number_of_control_outputs=0 )
+
+
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+
+        lines = ''
+        if language == 'c++':
+            
+            code_compute_output = self._subsystem_prototype.generate_code_output_list(language, self._subsystem_prototype.outputs)
+
+            if self.prevent_output_computation:
+
+                # the subsystems outputs are only computed when triggered
+                lines += cgh.generate_if_else(language, 
+                    condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input, 1 ) ], 
+                    action_list=[ code_compute_output ])
+
+                # TODO: copy output signals and only the ones requested
+
+            else:
+                # the subsystems outputs are always computed
+                lines += code_compute_output
+
+
+        return lines
+
+    def generate_code_update(self, language):
+
+        lines = ''
+        if language == 'c++':
+
+            code_compute_state_update = self._subsystem_prototype.generate_code_update(language)
+
+            # the subsystems outputs are only computed when triggered
+            lines += cgh.generate_if_else(language, 
+                condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input, 1 ) ], 
+                action_list=[ code_compute_state_update ])
+
+        return lines
+
+
 
 
 
@@ -860,98 +924,98 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
 
 
-class TruggeredSubsystem(GenericSubsystem):
-    """
-        Include a triggered sub-system
+# class TruggeredSubsystem(GenericSubsystem):
+#     """
+#         Include a triggered sub-system
 
-        Optional:
+#         Optional:
 
-            prevent_output_computation = True: 
-                The subsystems outputs are only computed when triggered. Please note that the outputs
-                of the subsystem are uninitialized until the subsystem is triggered.
+#             prevent_output_computation = True: 
+#                 The subsystems outputs are only computed when triggered. Please note that the outputs
+#                 of the subsystem are uninitialized until the subsystem is triggered.
 
-    """
-    def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal, N_outputs = None, prevent_output_computation = False ):
+#     """
+#     def __init__(self, sim : Simulation, manifest, inputSignals, trigger : Signal, N_outputs = None, prevent_output_computation = False ):
 
-        # TODO: add this signal to the blocks inputs
-        self.triggerSignal = trigger
-        self.prevent_output_computation = prevent_output_computation
+#         # TODO: add this signal to the blocks inputs
+#         self.triggerSignal = trigger
+#         self.prevent_output_computation = prevent_output_computation
 
-        GenericSubsystem.__init__(self, 
-                                    sim=sim, 
-                                    manifest=manifest, 
-                                    inputSignals=inputSignals, 
-                                    N_outputs = N_outputs, 
-                                    additionalInputs=[ trigger ] )
+#         GenericSubsystem.__init__(self, 
+#                                     sim=sim, 
+#                                     manifest=manifest, 
+#                                     inputSignals=inputSignals, 
+#                                     N_outputs = N_outputs, 
+#                                     additionalInputs=[ trigger ] )
 
-    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+#     def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
-        # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in dependingInputs)
+#         # NOTE: This is a simplified veriant so far.. no dependence on the given 'outputSignal'
+#         #       (Every output depends on every signal in dependingInputs)
 
-        dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
+#         dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
 
-        # NOTE: important here to make a copy of the list returned by GenericSubsystem.
-        #       otherwise the original list would be modified by append.
-        dependingInputsOuter = dependingInputs.copy()
+#         # NOTE: important here to make a copy of the list returned by GenericSubsystem.
+#         #       otherwise the original list would be modified by append.
+#         dependingInputsOuter = dependingInputs.copy()
         
-        dependingInputsOuter.append( self.triggerSignal )
+#         dependingInputsOuter.append( self.triggerSignal )
 
-        return dependingInputsOuter
+#         return dependingInputsOuter
         
 
 
-        # TODO: use this to generate code
+#         # TODO: use this to generate code
 
-        # #
-        # # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
-        # #
+#         # #
+#         # # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+#         # #
 
-        # # generate code for calculating the outputs 
-        # if calculate_outputs:
+#         # # generate code for calculating the outputs 
+#         # if calculate_outputs:
 
-        #     innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
+#         #     innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
 
-        #     for i in range( 0, len( ouput_signals_name ) ):
-        #         innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
+#         #     for i in range( 0, len( ouput_signals_name ) ):
+#         #         innerLines += cgh.asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
 
-        #     if additional_outputs_names is not None:                 
+#         #     if additional_outputs_names is not None:                 
 
-        #         for i in range( 0, len( additional_outputs_names ) ):
-        #             innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
-
-
-        # # generate code for updating the states
-        # if update_states:
-        #     innerLines += system_prototype.generate_code_update(language)
+#         #         for i in range( 0, len( additional_outputs_names ) ):
+#         #             innerLines += cgh.asign( system_prototype.outputs[i + len(ouput_signals_name)  ].name, additional_outputs_names[i] )
 
 
+#         # # generate code for updating the states
+#         # if update_states:
+#         #     innerLines += system_prototype.generate_code_update(language)
 
 
 
-    def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
-
-        if self.prevent_output_computation:
-            # the subsystems outputs are only computed when triggered
-            lines = 'if (' +  self.triggerSignal.name + ') {\n'
-            lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
-            lines += '}\n'
-        else:
-            # the subsystems outputs are always computed
-            lines = GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
 
 
-        return lines
+#     def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
 
-    def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
-        lines = 'if (' +  self.triggerSignal.name + ') {\n'
-        lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
-        lines += '}\n'
+#         if self.prevent_output_computation:
+#             # the subsystems outputs are only computed when triggered
+#             lines = 'if (' +  self.triggerSignal.name + ') {\n'
+#             lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
+#             lines += '}\n'
+#         else:
+#             # the subsystems outputs are always computed
+#             lines = GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
 
-        return lines
+
+#         return lines
+
+#     def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
+#         lines = 'if (' +  self.triggerSignal.name + ') {\n'
+#         lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
+#         lines += '}\n'
+
+#         return lines
         
-def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate, prevent_output_computation = False ):
-    return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals, prevent_output_computation ), unwrap( trigger ) ).outputSignals )
+# def triggered_subsystem( manifest, inputSignals : List[SignalUserTemplate], trigger : SignalUserTemplate, prevent_output_computation = False ):
+#     return wrap_signal_list( TruggeredSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals, prevent_output_computation ), unwrap( trigger ) ).outputSignals )
 
         
 
