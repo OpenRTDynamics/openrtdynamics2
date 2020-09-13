@@ -228,7 +228,7 @@ def generate_if_else(language, condition_list, action_list):
 
 
 
-def embedd_subsystem(language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
+def embed_subsystem(language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
     """  
         generate code to call a subsystem
 

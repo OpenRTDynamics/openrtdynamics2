@@ -199,7 +199,7 @@ class SwitchPrototype:
         a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)
 
         switch_subsystem_name        - the name of the switch
-        number_of_additional_outputs - the number of system outputs in addition to the embedded systems outputs
+        number_of_control_outputs - the number of system outputs in addition to the embedded systems outputs
                                        i.e. control outputs of a switch/statemaching/...
 
         - member variables -
@@ -216,13 +216,13 @@ class SwitchPrototype:
 
     # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
 
-    def __init__(self, switch_subsystem_name, number_of_additional_outputs=0):
+    def __init__(self, switch_subsystem_name, number_of_control_outputs=0):
 
         self._switch_subsystem_name = switch_subsystem_name
         self._total_number_of_subsystem_outputs = None
         self._switch_output_links = None
         self._switch_system = None
-        self._number_of_additional_outputs = number_of_additional_outputs
+        self._number_of_control_outputs = number_of_control_outputs
         self._number_of_switched_outputs = None
 
         # List [ dy.GenericSubsystem ]
@@ -259,11 +259,11 @@ class SwitchPrototype:
         for subsystem in [ self._subsystem_list[0] ]:
 
             # get the outputs that will serve as reference points for datatype inheritance
-            number_of_normal_outputs = len( subsystem.outputs ) - self._number_of_additional_outputs
+            number_of_normal_outputs = len( subsystem.outputs ) - self._number_of_control_outputs
             self._reference_outputs = subsystem.outputs[0:number_of_normal_outputs]
             self._total_number_of_subsystem_outputs = len(subsystem.outputs)
 
-            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_additional_outputs
+            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_control_outputs
 
         self.on_exit( self._subsystem_prototypes )
 
@@ -411,7 +411,7 @@ class sub_switch(SwitchPrototype):
     def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
 
         self._select_signal = select_signal
-        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs=0)
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs=0)
 
     def new_subsystem(self, subsystem_name = None):
 
@@ -490,9 +490,9 @@ class sub_statemachine(SwitchPrototype):
         self.state - status signal of the state machine (available after 'with sub_statemachine' has findished)
     """
     def __init__(self, switch_subsystem_name):
-        number_of_additional_outputs = 1 # add one control output to inform about the current state
+        number_of_control_outputs = 1 # add one control output to inform about the current state
 
-        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_additional_outputs )
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs )
 
         # state output signal undefined until defined by on_exit() 
         self._state_output = None

@@ -324,34 +324,203 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 
 
+
+
+
+
+
+
+class SingleSubsystemEmbedder(BlockPrototype):
+    """
+        Prototype for a block that includes one sub-system
+          (this is class to be derived, e.g. by XX, XX)
+
+        - control_inputs                        - inputs used to control the execution (e.g. the condition for if)
+        - subsystem_prototype                   - the prototypes the subsystem (of type GenericSubsystem)
+        - reference_outputs                     - output signals of the reference subsystem from which the output datatypes are inherited
+        - number_of_control_outputs             - the number of outputs of the subsystem used to control execution
+
+        - helper function for code generation -
+
+        - XX
+
+                         
+                        +--------------------------------------------------+
+                        | SingleSubsystemEmbedder                          |
+                        |                       +-------------+            |
+        normal input 1  |                       |             |            |  normal output 1
+                     +------------------------->+             +--------------->
+                        |                       |   embeded   |            |
+        normal input 2  |                       |             |            |  normal output 2
+                     +------------------------->+             +--------------->
+                        |                       |  subsystem  |            |
+                        |        control status |             | control    |
+                        |            +--------->+             +-----+      |
+                        |            |          |             | output     |
+                        |            |          +-------------+     |      |
+                        |            |                              |      |
+                        |     +------+------+                       |      |
+        control input   |     |  execution  |                       |      |
+                     +------->+  control of +<----------------------+      |
+                        |     |  subsystem  |                              |
+                        |     +-------------+                              |
+                        |                                                  |
+                        +--------------------------------------------------+
+
+        Picture drawn by http://asciiflow.com/
+
+    """
+    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
+
+        # the prototypes of the subsystem
+        self._subsystem_prototype = subsystem_prototype
+        
+        # analyze the default subsystem (the first) to get the output datatypes to use
+        reference_subsystem = self._subsystem_prototype
+
+        # the number of outputs besides the subsystems outputs
+        self._number_of_control_outputs = number_of_control_outputs
+
+        self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
+        self._number_of_normal_outputs = len(reference_outputs)
+
+        if self._number_of_normal_outputs + number_of_control_outputs != self._total_number_of_subsystem_outputs:
+            raise BaseException("given number of total subsystem outputs does not match")
+
+        self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
+
+
+
+        # now call the constructor for block prototypes and make input and output signals available
+        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
+
+
+
+        # control inputs that are used to control how the subsystems are handled
+        self._control_inputs = control_inputs 
+
+
+        # a list of all inputs including self._list_of_all_subsystem_inputs and self._control_inputs
+        # will be filled in on compile_callback_all_subsystems_compiled()
+        self._list_of_all_inputs = None
+
+        # inherit output datatypes of the reference subsystem
+        for i in range(0, self._number_of_normal_outputs ):
+
+            output_signal_of_embedding_block = self.outputs[i]
+            output_signal_of_subsystem = reference_outputs[i]
+            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+        # NOTE: datatypes for additional outputs are untouched
+
+    @property
+    def additional_outputs(self):
+        return self.outputs[ self._number_of_normal_outputs: ]
+
+    @property
+    def normal_outouts(self):
+        return self.outputs[ 0:self._number_of_normal_outputs ]
+
+
+    def compile_callback_all_subsystems_compiled(self):
+
+        # Get all input signals required by the subsystem
+        set_of_all_inputs = set()
+        set_of_all_inputs.update( self._subsystem_prototype.inputs )
+
+        # add the control inputs
+        set_of_all_inputs.update( self._control_inputs )
+
+        self._list_of_all_inputs = list(set_of_all_inputs)
+
+    def compile_callback_all_datatypes_defined(self):
+        pass
+
+
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+
+        # NOTE: This is a simplified veriant so far..
+        #       Every output depends on every signal
+
+        return self._list_of_all_inputs
+        
+
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
+ 
+        # NOTE: This is a simplified veriant so far..
+        #       The update depends on every signal
+
+        return self._list_of_all_inputs
+
+    
+    def generate_code_defStates(self, language):
+        if language == 'c++':
+
+            lines = ''
+            lines += self._subsystem_prototype.generate_code_defStates(language)
+
+            return lines
+
+
+    def generate_code_reset(self, language):
+        if language == 'c++':
+
+
+            lines = '// reset state of subsystem embeded by ' + self.name + '\n'
+            lines += self._subsystem_prototype.generate_code_reset(language)
+
+            return lines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class MultiSubsystemEmbedder(BlockPrototype):
     """
         Prototype for a block that includes multiple sub-systems whose outputs are joint in a switching manner
           (this is class to be derived, e.g. by StatemachineSwichSubsystems, SwichSubsystems)
 
-        - additional_inputs                        - inputs used to control the switching strategy
-        - subsystem_prototypes                     - a list of the prototypes of all subsystems (of type GenericSubsystem)
-        - switch_reference_outputs                 - output signals of the reference subsystem from which the output datatypes are inherited
-        - number_of_additional_outputs             - the number of outputs besides the subsystems outputs
+        - control_inputs                        - inputs used to control the switching strategy
+        - subsystem_prototypes                  - a list of the prototypes of all subsystems (of type GenericSubsystem)
+        - switch_reference_outputs              - output signals of the reference subsystem from which the output datatypes are inherited
+        - number_of_control_outputs             - the number of outputs of the subsystems used to control the execution
 
         - helper function for code generation -
 
-        - self.generate_switch()
+        - self.generate_switch(), generate_reset()
     """
-    def __init__(self, sim : Simulation, additional_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_additional_outputs : int = 0 ):
+    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
 
+        # a list of the prototypes of all subsystems
         self._subsystem_prototypes = subsystem_prototypes
         
         # analyze the default subsystem (the first) to get the output datatypes to use
         reference_subsystem = self._subsystem_prototypes[0]
 
         # the number of outputs besides the subsystems outputs
-        self._number_of_additional_outputs = number_of_additional_outputs
+        self._number_of_control_outputs = number_of_control_outputs
 
         self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
         self._number_of_switched_outputs = len(switch_reference_outputs)
 
-        if self._number_of_switched_outputs + number_of_additional_outputs != self._total_number_of_subsystem_outputs:
+        if self._number_of_switched_outputs + number_of_control_outputs != self._total_number_of_subsystem_outputs:
             raise BaseException("given number of total subsystem outputs does not match")
 
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
@@ -363,20 +532,18 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
         # now call the constructor for block prototypes and make input and output signals available
-        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_switched_outputs + self._number_of_additional_outputs )
+        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
 
 
 
         # control inputs that are used to control how the subsystems are handled
-        self._additional_inputs = additional_inputs 
-
-        # a list of the prototypes of all subsystems
-        self._subsystem_prototypes = subsystem_prototypes
+        self._control_inputs = control_inputs 
 
         # a list of all inputs used by all subsystems
         self._list_of_all_subsystem_inputs = None
 
-        # a list of all inputs including self._list_of_all_subsystem_inputs and self._additional_inputs
+        # a list of all inputs including self._list_of_all_subsystem_inputs and self._control_inputs
+        # will be filled in on compile_callback_all_subsystems_compiled()
         self._list_of_all_inputs = None
 
         # inherit output datatypes of the reference subsystem
@@ -386,7 +553,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
             output_signal_of_subsystem = switch_reference_outputs[i]
             output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
-        # NOTE: datatypes for additional outputs are untouched
+        # NOTE: datatypes for control outputs are untouched
 
     @property
     def additional_outputs(self):
@@ -410,7 +577,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
         self._list_of_all_subsystem_inputs = list( set_of_all_inputs )
 
         # add additional inputs
-        set_of_all_inputs.update( self._additional_inputs )
+        set_of_all_inputs.update( self._control_inputs )
 
         self._list_of_all_inputs = list(set_of_all_inputs)
             
@@ -439,13 +606,10 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
     # for code_gen
-
-
-    # for code_gen
     def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals_name=None, calculate_outputs = True, update_states = False, additional_outputs_names=None ):
-
-
-
+        """
+            code generation helper to embed multiple subsystems and a switch for the outputs
+        """
 
         lines = ''
 
@@ -462,14 +626,14 @@ class MultiSubsystemEmbedder(BlockPrototype):
                 ouput_signals_name.extend( additional_outputs_names )
 
                 # call each subsystem embedder to generate its code
-                code_calculate_outputs = cgh.embedd_subsystem( language, system_prototype, ouput_signals_name=ouput_signals_name)
+                code_calculate_outputs = cgh.embed_subsystem( language, system_prototype, ouput_signals_name=ouput_signals_name)
             else:
                 code_calculate_outputs = '' # no operation
 
 
             if update_states:
                 # call each subsystem embedder to generate its update code
-                code_update_states = cgh.embedd_subsystem( language, system_prototype, calculate_outputs=False, update_states=True)
+                code_update_states = cgh.embed_subsystem( language, system_prototype, calculate_outputs=False, update_states=True)
             else:
                 code_update_states = '' # no operation
 
@@ -490,6 +654,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
     def generate_code_defStates(self, language):
         if language == 'c++':
 
+            # implement state definition for each subsystem
             lines = ''
             for system_prototype in self._subsystem_prototypes:
                 lines += system_prototype.generate_code_defStates(language)
@@ -497,6 +662,9 @@ class MultiSubsystemEmbedder(BlockPrototype):
             return lines
 
     def generate_reset(self, language, system_index):
+        """
+            helper fn for code generation
+        """
 
         system_to_reset = self._subsystem_prototypes[ system_index ]
 
@@ -507,8 +675,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
     def generate_code_reset(self, language):
         if language == 'c++':
 
-            # TODO: somehow 
-
+            # reset all subsystems
             lines = '// reset state of all subsystems in multisubsystem ' + self.name + '\n'
             for system_prototype in self._subsystem_prototypes:
                 lines += system_prototype.generate_code_reset(language)
@@ -528,10 +695,10 @@ class SwichSubsystems(MultiSubsystemEmbedder):
         self._control_input = control_input
 
         MultiSubsystemEmbedder.__init__(self, sim, 
-                                        additional_inputs=[control_input], 
+                                        control_inputs=[control_input], 
                                         subsystem_prototypes=subsystem_prototypes, 
                                         switch_reference_outputs=reference_outputs,
-                                        number_of_additional_outputs=0 )
+                                        number_of_control_outputs=0 )
 
 
     def generate_code_defStates(self, language):
@@ -578,10 +745,10 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
     def __init__(self, sim : Simulation, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
         
         MultiSubsystemEmbedder.__init__(self, sim, 
-                                        additional_inputs=[], 
+                                        control_inputs=[], 
                                         subsystem_prototypes=subsystem_prototypes, 
                                         switch_reference_outputs=reference_outputs,
-                                        number_of_additional_outputs = 1 )
+                                        number_of_control_outputs = 1 )
 
         # how to add more outputs?
         self.state_output.setDatatype( DataTypeInt32(1) )
