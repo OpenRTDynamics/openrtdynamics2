@@ -3,24 +3,52 @@
 <script src="js/jquery-3.4.1.min.js"></script>
 <script src="ORTD_js_simulator.js"></script>
 
+<style>
+
+        .wrap4 {
+            border: 0px solid #c3c3c3;
+            display: -webkit-flex;
+            /* Safari */
+            -webkit-flex-wrap: wrap;
+            /* Safari 6.1+ */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wrap5 {
+            border: 0px solid #c3c3c3;
+            display: -webkit-flex;
+            /* Safari */
+            -webkit-flex-wrap: wrap;
+            /* Safari 6.1+ */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+        }   
+
+</style>
+
+
+
 
 <html>
 
-    <div id="reload_trigger_vehicle">
-        Click here to (re)load
-    </div>
-
-    <div id='simulator_gui_container_vehicle'>
+    <div id='simulator_gui_container_vehicle' class="wrap5">
+        <plot type="plotly" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="800" height="200"></plot>
         <div class='parameter_editor'></div>
 
-        <plot type="plotly" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="800" height="200"></plot>
-        <plot type="plotly" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        <!-- <plot type="plotly" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
+
         <!-- <plot type="plotly" x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
     </div>
 
 <script>
 
-    $( "#reload_trigger_vehicle" ).click(function() {
+    $(document).ready(function()  {
 
         var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
         var ret = loadCompiledSimulator(files);

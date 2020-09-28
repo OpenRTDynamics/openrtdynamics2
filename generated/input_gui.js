@@ -27,7 +27,8 @@ class Slider {
     // button
     var b = document.createElement('button')
     b.addEventListener("click", () => this.update( this.props.default_value ) );
-    b.innerText = 'reset'
+    b.innerText = 'X'
+    b.setAttribute('class', 'parameter_button_reset')
 
     // slider
     var s = document.createElement('input')
@@ -37,17 +38,22 @@ class Slider {
     s.setAttribute('step', (this.props.max_val - this.props.min_val) / this.props.steps)
     s.setAttribute('className', 'slider')
     s.addEventListener('input', (e) => this.update( parseFloat(e.target.value) )  )
+    s.setAttribute('class', 'parameter_slider')
 
 
     this.s = s
 
     // value
-    this.v = document.createElement('span')
+    this.v = document.createElement('div')
+    this.v.setAttribute('class', 'parameter_value_display')
+
+    console.log('sfsafasfsafasflasl')
 
     // combine into div
     this.div.appendChild(b)
     this.div.appendChild(s)
     this.div.appendChild(this.v)
+    this.div.setAttribute('class', 'parameter_arange')
 
     //
     this.update(this.props.default_value)
