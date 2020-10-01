@@ -47,8 +47,6 @@ class Slider {
     this.v = document.createElement('div')
     this.v.setAttribute('class', 'parameter_value_display')
 
-    console.log('sfsafasfsafasflasl')
-
     // combine into div
     this.div.appendChild(b)
     this.div.appendChild(s)
@@ -124,7 +122,11 @@ class InputBox {
 
       // name
       var n = document.createElement('span')
-      n.innerText = name
+      if ('title' in properties) {
+        n.innerText = properties.title
+      } else {
+        n.innerText = name
+      }
 
       // container for sliders
       var c = document.createElement('div')
@@ -179,7 +181,7 @@ class inputGUI {
 
 // var names = ['a', 'b', 'c']
 // var properties = [ 
-//   {  range : [0,2.2], steps : 1000, default_value : 1.11 },
+//   {  range : [0,2.2], steps : 1000, default_value : 1.11, title : 'some title' },
 //   {  range : [-2, 2], steps : 1000, default_value : -0.1 },
 //   {  range : [0,200], steps : 100,  default_value : 111 }
 // ]  
