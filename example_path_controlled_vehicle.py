@@ -26,13 +26,11 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 
 # define system inputs
-velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 17.0 })
-k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 1.0 })
-k_i            = dy.system_input( baseDatatype ).set_name('k_i').set_properties({ "range" : [0, 4.0], "default_value" : 0 })
-k_d            = dy.system_input( baseDatatype ).set_name('k_d').set_properties({ "range" : [0, 0.05], "default_value" : 0 })
+velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 17.0, "title" : "vehicle velocity" })
+k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 1.0, "title" : "controller gain" })
 
-sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50 }), target_type=dy.DataTypeInt32(1) )
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 5 })     * dy.float64(math.pi / 180.0)
+disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 5, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "position of disturbance" }), target_type=dy.DataTypeInt32(1) )
 
 wheelbase = 3.0
 
@@ -73,7 +71,7 @@ Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
 #
 
 # feedback
-Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = k_i, kd = k_d) # 
+Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
 # path tracking
 steering = psi_r - psi + Delta_u

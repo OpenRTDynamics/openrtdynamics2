@@ -52,12 +52,27 @@ function initParameterEditor(simulator_gui_container, manifest, initvals, fn) {
     var i1 = manifest.io.inputs.state_update.names.concat(manifest.io.inputs.calculate_output.names);
     var t1 = manifest.io.inputs.state_update.cpptypes.concat(manifest.io.inputs.calculate_output.cpptypes);
     var p1 = manifest.io.inputs.state_update.properties.concat(manifest.io.inputs.calculate_output.properties);
+    var ports1 = manifest.io.inputs.state_update.port_numbers.concat(manifest.io.inputs.calculate_output.port_numbers);
 
+    // sort items according to port number
+    var i1_sorted = new Array(i1.len); 
+    var p1_sorted = new Array(i1.len);
+    for (i = 0; i < i1.length; ++i) {
+            port = ports1[i]
+            if (port===null) {
+                console.log('skipping parameter as port number is not given')
+            } else {
+                i1_sorted[port] = i1[i]
+                p1_sorted[port] = p1[i]    
+            }
+    }
+
+    // set-up GUI
     var value_storage = {} // will be filled in by the input gui on creation
 
     var editorDiv = simulator_gui_container.getElementsByClassName("parameter_editor" )[0]
     editorDiv.innerHTML = ''
-    var input_gui = new inputGUI(editorDiv, i1, p1, (e) => { console.log(e); value_storage[e.name] = e.val ; fn(value_storage) } )
+    var input_gui = new inputGUI(editorDiv, i1_sorted, p1_sorted, (e) => { value_storage[e.name] = e.val ; fn(value_storage) } )
 
     return input_gui
 }
@@ -160,7 +175,6 @@ class PlotChartJS extends Plot {
     }
 
     copy_trace_data(index) {
-        // console.log(this.data_arrays)
         for (var j = 0; j < this.Nsamples_list[index]; ++j) {
             this.data_arrays[index][j].x = this.data_source_arrays[index].x[j]
             this.data_arrays[index][j].y = this.data_source_arrays[index].y[j]
@@ -178,7 +192,6 @@ class PlotChartJS extends Plot {
         // TODO: no checking of x_name, y_name is performed
         //
 
-        // console.log('Chartjs new trace ', this.number_of_traces, x_name, y_name, tracke_name)
 
 
         // default colors
@@ -252,8 +265,6 @@ class PlotChartJS extends Plot {
             }
         });
 
-        console.log('showed chartjs plot ', this.div, this.canvas, this.datasets)
-
     }
 
     update () {
@@ -288,8 +299,8 @@ class PlotManager {
                 var graphDiv = plotDivs[i]
                 graphDiv.innerHTML = '' //'Plot ' + i + ' to appear...'
 
-
-                console.log('new plot', i, graphDiv)
+                // new plot
+                // console.log('new plot', i, graphDiv)
 
                 var plot
                 var plot_type
@@ -336,7 +347,7 @@ class PlotManager {
 
                 } else {
             
-                    console.log('no special atrributes found')
+                    console.log('no special atrributes found -- creating default plot')
             
                     // put all output signal into one plot
                     manifest.io.outputs.calculate_output.names.forEach(function (outputName) {
@@ -396,8 +407,6 @@ function compileSimulator(source_code, compile_service_url, secret_token) {
                 .then(response => response.text())
                 .then(result => {
 
-                    console.log(result)
-
                     resolve( JSON.parse( result ) )
 
                 })
@@ -449,7 +458,7 @@ function loadCompiledSimulator(files) {
                 resolve( response );                    
 
             }).then(data => { 
-                console.log(data);
+                // console.log(data);
             });
 
         }
@@ -463,7 +472,7 @@ function loadCompiledSimulator(files) {
                 resolve( response['arrayBuffer']() );
 
             }).then(data => { 
-                console.log(data);
+                // console.log(data);
             });
 
         }
@@ -479,7 +488,7 @@ function loadCompiledSimulator(files) {
                     resolve( response );                    
 
                 }).then(data => { 
-                    console.log(data);
+                    // console.log(data);
                 });
 
         }
@@ -502,7 +511,6 @@ function createInstance( p_manifest, rawWebAssembly, init_fn ) {
             return rawWebAssembly.then(function(binary) {
 
                     console.log('starting WebAssembly.instantiate')
-                    console.log(binary);
 
                     var wasmInstantiate = WebAssembly.instantiate(new Uint8Array(binary), imports).then( function(output) {
 
@@ -542,15 +550,11 @@ function createInstance( p_manifest, rawWebAssembly, init_fn ) {
 function setup_simulation_from_promises(promises, init_fn) {
 
 
-    console.log(promises)
-
     p_manifest = promises.p_manifest
     p_jscode   = promises.p_jscode
 
 
     p_jscode.then( function (jscode) {
-
-        console.log( jscode )
 
         Module = createInstance( p_manifest, promises.p_rawWebAssembly, init_fn ) 
         
@@ -728,8 +732,6 @@ function setup_simulation_gui( simulator_gui_container, compile_service_url, sec
 
     var p_manifest = new Promise(
         function (resolve, reject) {
-
-            console.log(manifest)
 
             resolve( JSON.parse( manifest ) )
 

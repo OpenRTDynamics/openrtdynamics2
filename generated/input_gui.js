@@ -27,7 +27,8 @@ class Slider {
     // button
     var b = document.createElement('button')
     b.addEventListener("click", () => this.update( this.props.default_value ) );
-    b.innerText = 'X'
+//    b.innerHTML =  '<b style=\'font-size: 40px;\'>&#8634;</b>' // '&#8634;' // '↺'
+    b.innerHTML =  'reset' 
     b.setAttribute('class', 'parameter_button_reset')
 
     // slider
@@ -82,8 +83,6 @@ class InputBox {
     for (var i = 0; i < this.props.names.length; ++i) {
 
       var index = i
-      console.log(this.props.properties)
-
       
       var name = this.props.names[i]
       var properties = this.props.properties[i]
