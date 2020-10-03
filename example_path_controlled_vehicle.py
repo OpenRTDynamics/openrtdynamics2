@@ -8,9 +8,10 @@ init(autoreset=True)
 import math
 import numpy as np
 
-from vehicle_lib import *
+from vehicle_lib.vehicle_lib import *
+from vehicle_lib.path_generation import *
 
-
+import vehicle_lib.example_data as example_data
 
 
 #
@@ -26,11 +27,11 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 
 # define system inputs
-velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 17.0, "title" : "vehicle velocity" })
-k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 1.0, "title" : "controller gain" })
+velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
+k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.112, "title" : "controller gain" })
 
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 5, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
-sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "position of disturbance" }), target_type=dy.DataTypeInt32(1) )
+disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -45, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
 
 wheelbase = 3.0
 
@@ -39,10 +40,10 @@ wheelbase = 3.0
 #
 
 Td = 0.1
-path_x = np.concatenate(( ra(360, 0, 80, Ts=Td),  )) 
-path_y = np.concatenate(( co(50, 0, Ts=Td), cosra(100, 0, 1, Ts=Td), co(50, 1, Ts=Td), cosra(100, 1, 0, Ts=Td), co(60,0, Ts=Td) ))
-path_distance = np.concatenate((np.zeros(1), np.cumsum( np.sqrt( np.square( np.diff(path_x) ) + np.square( np.diff(path_y) ) ) ) ))
-N_path = np.size(path_x)
+path_x = example_data.output['X'] # np.concatenate(( ra(360, 0, 80, Ts=Td),  )) 
+path_y = example_data.output['Y'] # np.concatenate(( co(50, 0, Ts=Td), cosra(100, 0, 1, Ts=Td), co(50, 1, Ts=Td), cosra(100, 1, 0, Ts=Td), co(60,0, Ts=Td) ))
+path_distance = example_data.output['D'] #  np.concatenate((np.zeros(1), np.cumsum( np.sqrt( np.square( np.diff(path_x) ) + np.square( np.diff(path_y) ) ) ) ))
+N_path = example_data.Nmax # np.size(path_x)
 
 path_x_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_x )
 path_y_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_y )
@@ -75,6 +76,9 @@ Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = 
 
 # path tracking
 steering = psi_r - psi + Delta_u
+steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True) 
+
+# steering = dy.difference_angle(psi_r , psi) + Delta_u
 
 #
 # The model of the vehicle
@@ -87,6 +91,9 @@ steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == s
 
 # apply disturbance to the steering input
 disturbed_steering = steering + steering_disturbance * disturbance_amplitude
+
+#
+disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
 
 
 def discrete_time_bicycle_model(delta, v):
@@ -115,8 +122,8 @@ y << y_
 psi << psi_
 
 # main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance ], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance'])
+dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering ], 
+        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance', 'disturbed_steering'])
 
 #
 sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)

@@ -138,7 +138,7 @@ def sample_path(path_distance_storage, path_x_storage, path_y_storage, index):
 def distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y ):
 
     psi_tmp = dy.atan2(y - y_r, x - x_r)
-    delta_angle = psi_r - psi_tmp # attention!
+    delta_angle = dy.unwrap_angle( psi_r - psi_tmp, normalize_around_zero=True )
     sign = dy.conditional_overwrite(dy.float64(1.0), delta_angle > dy.float64(0) ,  -1.0  )
     Delta_l = distance * sign
 

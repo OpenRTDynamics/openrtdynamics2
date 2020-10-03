@@ -83,27 +83,30 @@ wheelbase = 3.0
 # generate a step-wise reference signal
 pwm_signal, state_control = generate_signal_PWM( period=dy.float64(200), modulator=dy.float64(0.5) )
 reference = (pwm_signal - dy.float64(0.5)) * dy.float64(1.0)
+reference.set_name('reference')
 
 # create placeholder for the plant output signal
-x   = dy.signal()
-y   = dy.signal()
-psi = dy.signal()
+x   = dy.signal().set_name('x')
+y   = dy.signal().set_name('y')
+psi = dy.signal().set_name('psi')
 
 # controller error
 error = reference - y
+error.set_name('error')
 
 steering = dy.float64(0.0) + k_p * error - psi
+steering.set_name('steering')
 
 
-
-x_dot   = velocity * dy.cos( steering + psi )
-y_dot   = velocity * dy.sin( steering + psi )
-psi_dot = velocity / dy.float64(wheelbase) * dy.sin( steering )
 
 
 sw = False
 
 if sw:
+    
+    x_dot   = velocity * dy.cos( steering + psi )
+    y_dot   = velocity * dy.sin( steering + psi )
+    psi_dot = velocity / dy.float64(wheelbase) * dy.sin( steering )
 
     # integrators
     sampling_rate = 0.01
@@ -119,9 +122,22 @@ else:
         psi = dy.signal()
 
         # bicycle model
-        x_dot   = v * dy.cos( delta + psi )
-        y_dot   = v * dy.sin( delta + psi )
+        tmp = delta + psi
+        tmp.set_name('tmp')
+
+        print()
+
+        # x_dot   = v * dy.cos( delta + psi )
+        # y_dot   = v * dy.sin( delta + psi )
+        x_dot   = v * dy.cos( tmp )
+        y_dot   = v * dy.sin( tmp )
+
+
         psi_dot = v / dy.float64(wheelbase) * dy.sin( delta )
+
+        x_dot.set_name('x_dot')
+        y_dot.set_name('y_dot')
+        psi_dot.set_name('psi_dot')
 
         # integrators
         sampling_rate = 0.01
@@ -132,7 +148,7 @@ else:
         return x, y, psi
 
 
-    x_, y_, psi_ = bicycle_model(steering + psi, velocity)
+    x_, y_, psi_ = bicycle_model(steering, velocity)
 
     x << x_
     y << y_
