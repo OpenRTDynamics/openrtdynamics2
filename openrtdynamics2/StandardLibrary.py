@@ -4,16 +4,80 @@ from typing import Dict, List
 from . import lang as dy
 import numpy as np
 
+#
+# constants
+#
+
 def int32(value : int):
+    """
+        create a constant signal of DataTypeInt32
+    """
     return dy.const(value, dy.DataTypeInt32(1) )
 
 def float64(value : float):
+    """
+        create a constant signal of DataTypeFloat64
+    """
     return dy.const(value, dy.DataTypeFloat64(1) )
 
 def boolean(value : int):
+    """
+        create a constant signal of DataTypeBoolean
+    """
     return dy.const(value, dy.DataTypeBoolean(1) )
 
+#
+# static functions
+#
 
+def unwrap_angle(angle, normalize_around_zero = False):
+    """
+        Unwrap an angle
+
+        Unrap and normalize the input angle to the range 
+
+          1) [0, 2*pi[     in case normalize_around_zero == false
+          2) [-pi, pi]     in case normalize_around_zero == true
+    """
+
+    def normalize_aruond_zero(angle):
+        """
+            Normalize an angle
+
+            Normalize an angle to a range [-pi, pi]
+
+            Important: the assumed range for the input is - 2*pi <= angle <= 2*p
+        """
+
+        tmp = angle            + dy.conditional_overwrite( dy.float64(0), angle <= float64(-math.pi), 2*math.pi )
+        normalized_angle = tmp + dy.conditional_overwrite( dy.float64(0), angle > float64(math.pi), -2*math.pi )
+
+        return normalized_angle
+
+    #
+    #
+    angle_ = dy.fmod(angle, dy.float64(2*math.pi) )
+
+    unwrapped_angle = angle_ + dy.conditional_overwrite( dy.float64(0), angle_ < float64(0), 2*math.pi )
+
+    if normalize_around_zero:
+        return normalize_aruond_zero(unwrapped_angle)
+    else:
+        return unwrapped_angle
+
+
+
+
+
+def saturate(u, lower_limit, uppper_limit):
+    """
+        saturate the input signal
+    """
+
+    y = dy.conditional_overwrite( u, u < float64(lower_limit), lower_limit )
+    y = dy.conditional_overwrite( y, y > float64(uppper_limit), uppper_limit )
+
+    return y
 
 #
 # Counters
@@ -37,6 +101,9 @@ class Counter():
         return self.counter_signal_
 
 
+#
+# dynamic functions
+#
 
 def counter():
     """

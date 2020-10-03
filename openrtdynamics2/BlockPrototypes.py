@@ -510,7 +510,13 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         lines = ''
         if language == 'c++':
             
-            code_compute_output = self._subsystem_prototype.generate_code_output_list(language, self._subsystem_prototype.outputs)
+            # code_compute_output = self._subsystem_prototype.generate_code_output_list(language, self._subsystem_prototype.outputs)
+
+
+
+
+            code_compute_output = cgh.embed_subsystem(language, system_prototype=self._subsystem_prototype, ouput_signals_name=cgh.signal_list_to_name_list(signals), calculate_outputs = True, update_states = False )
+
 
             if self.prevent_output_computation:
 
@@ -537,7 +543,7 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
             # the subsystems outputs are only computed when triggered
             lines += cgh.generate_if_else(language, 
-                condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input, 1 ) ], 
+                condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input.name, 1 ) ], 
                 action_list=[ code_compute_state_update ])
 
         return lines
@@ -1395,7 +1401,6 @@ def acos(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputs[0] )
 
 
-
 #
 # static functinos that map 2 --> 1
 #
@@ -1420,6 +1425,13 @@ def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
 def pow(base : SignalUserTemplate, power : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_2To1(get_simulation_context(), base.unwrap, power.unwrap, 'pow').outputs[0] )
 
+def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
+    """
+        modulo function for floating point values
+
+        This function returns the remainder of dividing x/y.
+    """
+    return wrap_signal( StaticFnByName_2To1(get_simulation_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
 
 
 
