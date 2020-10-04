@@ -182,22 +182,10 @@ def compile_single_system(system, reduce_uneeded_code = False):
     # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
     # finally concatenare the execution lines
 
-    # 
-
     # start with following signals to be computed
-    #dependencySignals = executionLineToCalculateOutputs.dependencySignals
-    dependencySignalsSimulationInputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
+    simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
     blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
     dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
-
-    # get the simulation-input signals in dependencySignals TODO: collapse this
-    simulationInputSignalsToCalculateOutputs = []
-    for s in dependencySignalsSimulationInputs:
-
-        # # if isinstance(s, SimulationInputSignal):
-        # if s.is_crossing_system_boundary(system):
-            
-        simulationInputSignalsToCalculateOutputs.append(s)
 
     # counter for the order (i.e. step through all delays present in the system)
     order = 0
@@ -252,7 +240,7 @@ def compile_single_system(system, reduce_uneeded_code = False):
     blocksWhoseStatesToUpdate_All = []
 
     # find out which singnals must be further computed to allow a state-update of the blocks
-    dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+    dependencySignals__ = dependencySignalsThroughStates + simulationInputSignalsToCalculateOutputs
 
     dependency_signals_through_states_that_are_already_computed = set()
     
