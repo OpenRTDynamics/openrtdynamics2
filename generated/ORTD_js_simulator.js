@@ -135,8 +135,12 @@ class PlotPlotly extends Plot {
             yaxis: {
               title: ylabel,
               showline: true
-            }
+            },
+            paper_bgcolor: 'rgba(128, 128, 128, 0 )',
+            plot_bgcolor:  'rgba(0.0, 0, 0, 0)'
           }
+
+          console.log(this.layout)
     }
 
     show() {
