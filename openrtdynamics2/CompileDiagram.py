@@ -286,8 +286,10 @@ def compile_single_system(system, reduce_uneeded_code = False):
         # list of commands for state update: 'commandsToExecuteForStateUpdate'
         
         #
-        # TODO: ensure somehow that variables are reserved for the inputs to the blocks
-        #       whose states are updated
+        # TODO (DONE): ensure somehow that variables are reserved for the inputs to the blocks
+        #              whose states are updated
+        #  executionLineForCurrentOrder.dependencySignalsSimulationInputs contains a list of input needed to update
+        #  the states.
         #
 
         signals_from_system_states = signalsToCache
@@ -340,6 +342,19 @@ def compile_single_system(system, reduce_uneeded_code = False):
         dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
         blocksToUpdateStates = executionLineForCurrentOrder.blocksToUpdateStates
         dependencySignalsThroughStates = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+
+        # TODO: handle special case in which a simulation input is requried for the state update of a block
+        #       and was before found to be required to calculate the outpus of sth. 
+        # instead of printing 'has already been calculated in a previous traversion' create an input to the update() function
+        #
+        # --- signals needed *indirectly* for s30 (through state update) --
+        # -> S osc_excitement
+        # -> S s22
+        # --- signals needed for s30 --
+        # -> S osc_excitement
+        # .  has already been calculated in a previous traversion
+
 
         # find out which singnals must be further computed to allow a state-update of the blocks
         dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs

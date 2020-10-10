@@ -4,6 +4,7 @@ import openrtdynamics2.lang as dy
 
 import os
 import json
+import numpy as np
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -122,7 +123,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'memory_ringbuf' # 
+testname = 'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -449,7 +450,7 @@ if testname == 'dtf_lowpass_1_order_V2':
     input_signals_mapping = {}
 
 
-if testname == 'dtf_filter':
+if testname == 'transfer_function_discrete':
 
     # b = [  1, 1     ] # num
     # a = [     -0.9   ] # den
@@ -488,14 +489,14 @@ if testname == 'dtf_filter':
     # calc response of the closed loop
     T = kp*L2 / ( 1 + kp*L2 )
 
-    # convert the transfer function T to the representation needed for dy.dtf_filter
+    # convert the transfer function T to the representation needed for dy.transfer_function_discrete
     b, a = get_zm1_coeff(T)
 
     # system input
     u = dy.float64(1.0)
 
     # implement the transfer function
-    y = dy.dtf_filter(u, num_coeff=b, den_coeff=a ).set_name('y')
+    y = dy.transfer_function_discrete(u, num_coeff=b, den_coeff=a ).set_name('y')
     
 
     output_signals = [ y ]
@@ -655,32 +656,74 @@ if testname == 'inline_subsystem':
 
 
 
+
+
+
+
+
+
+if testname == 'inline_ifsubsystem_oscillator':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    activation_sample = dy.system_input( baseDatatype ).set_name('activation_sample').set_properties({ "range" : [0, 100], "default_value" : 20 })
+    U = dy.system_input( baseDatatype ).set_name('osc_excitement').set_properties({ "range" : [0, 4.0], "default_value" : 0.5 })
+
+    with dy.sub_if( (dy.signal_ramp(0) > activation_sample) * (dy.signal_ramp(100) < activation_sample), prevent_output_computation=False ) as system:
+
+        x = dy.signal()
+        v = dy.signal()
+
+        acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
+
+        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+        x << euler_integrator( v, Ts=0.1, name="intX")
+        
+        system.set_outputs([ x, v ])
+
+    output_x = system.outputs[0]
+    output_v = system.outputs[1]
+
+    # main simulation ouput
+    output_signals = [ output_x, output_v ]
+
+    input_signals_mapping = {}
+
+
+
+
+
 if testname == 'inline_ifsubsystem':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    switch = dy.system_input( baseDatatype ).set_name('switch_condition')   # if this was named 'switch' c++ fails beucause it is a reserved keyword there
-    input = dy.system_input( baseDatatype ).set_name('input')
+    switch = dy.system_input( baseDatatype ).set_name('switch_condition').set_properties({ "range" : [0, 200], "default_value" : 10 }) 
+    input_signal = dy.system_input( baseDatatype ).set_name('input')
 
 
     ramp = dy.signal_ramp(10).set_name('ramp')
 
     activated = ramp > switch
-
+    activated.set_name( 'activated' )
 
     with dy.sub_if( activated ) as system:
 
         # the signal 'input' is automatically detected to be an input to the subsystem
 
         tmp = dy.float64(2.5).set_name('const25')
-        output = input * tmp 
+
+        
+
+        output = input_signal * tmp + dy.counter()
 
         output.set_name('output_of_if')
         
-        output = system.add_output(output)
+        # output = system.add_output(output)
+        # output.set_name("embedder_output")
 
-        output.set_name("embedder_output")
+        system.set_outputs([ output ])
 
+    output = system.outputs[0]
 
     # optional y = output
     y = dy.float64(10.0) * output
@@ -692,46 +735,11 @@ if testname == 'inline_ifsubsystem':
 
 
 
-
-
-
-
-
-if testname == 'inline_ifsubsystem_oscillator':
-    
-    baseDatatype = dy.DataTypeFloat64(1) 
-
-    activation_sample = dy.system_input( baseDatatype ).set_name('activation_sample')
-    U = dy.system_input( baseDatatype ).set_name('osc_excitement')
-
-    with dy.sub_if( (dy.signal_ramp(0) > activation_sample) * (dy.signal_ramp(100) < activation_sample), prevent_output_computation=False ) as system:
-
-        x = dy.signal()
-        v = dy.signal()
-
-        acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
-
-        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-        x << euler_integrator( v, Ts=0.1, name="intX")
-
-        output_x = system.add_output(x)
-        output_v = system.add_output(v)
-
-    # main simulation ouput
-    output_signals = [ output_x, output_v ]
-
-    input_signals_mapping = {}
-
-
-
-
-
-
 if testname == 'system_switch':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    active_system = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('active_system')
+    active_system = dy.system_input( dy.DataTypeInt32(1) ).set_name('active_system')
     U = dy.system_input( baseDatatype ).set_name('osc_excitement')
 
     with dy.sub_switch( "switch1", active_system ) as switch:
@@ -944,7 +952,7 @@ if testname == 'nested_state_machine':
 
         with switch.new_subsystem('state_A') as system:
 
-            # implement a dummy system the produces zero values for x and v
+            # implement a dummy system that produces zero values for x and v
             output = dy.float64(0.0).set_name('output')
 
             counter = dy.counter().set_name('counter')
@@ -983,7 +991,6 @@ if testname == 'nested_state_machine':
 
 if testname == 'memory':
 
-    import numpy as np
     import math
 
     #vector = np.linspace(-1.11, 2.22, 400)
@@ -1030,6 +1037,18 @@ if testname == 'memory_ringbuf':
     output_signals = [ value_to_write, looked_up_element, rolling_index ]
     input_signals_mapping = {}
 
+if testname == 'play':
+
+    vector = np.linspace(0.1,0.9,20)
+
+    play1, index = dy.play( sequence_array=vector, reset=dy.signal_impulse(k_event=50), reset_on_end=False, prevent_initial_playback=True )
+
+    play2, index = dy.play( sequence_array=vector, reset=dy.signal_impulse(k_event=50), reset_on_end=False, prevent_initial_playback=False )
+
+    play3, index = dy.play( sequence_array=vector, reset_on_end=True )
+
+    output_signals = [ play1, play2, play3 ]
+    input_signals_mapping = {}
 
 
 if testname == 'generic_cpp_static':

@@ -161,7 +161,7 @@ class sub_if:
 
         # create the embeeder prototype
         embeddedingBlockPrototype = dy.TruggeredSubsystem( sim=dy.get_simulation_context(), 
-                control_input=self._condition_signal, 
+                control_input=si.unwrap( self._condition_signal ), 
                 subsystem_prototype=self._subsystem_block_prototype,
                 prevent_output_computation = self._prevent_output_computation)
 

@@ -174,14 +174,16 @@ class TraverseGraph:
 
 class ExecutionLine():
     """
-        contains a list 'signalOrder' of signals to be computed in the given order.
+        This is a data structure
+        
+        It contains a list 'signalOrder' of signals to be computed in the given order.
         The computation of these signals depends on a list of signals given by
         'dependencySignals'.
     """
 
     def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
         self.signalOrder = signalOrder
-        # self.dependencySignals = dependencySignals
+        self.dependencySignals = dependencySignals  # TODO: check if this is still needed.
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
         self.blocksToUpdateStates = blocksToUpdateStates
         self.dependencySignalsThroughStates = dependencySignalsThroughStates
@@ -189,10 +191,10 @@ class ExecutionLine():
     def printExecutionLine(self):
         print("------ print of execution line -----")
 
-        print(Fore.RED + "dependent sources:")
+        print(Fore.RED + "dependent sources of any kind:")
 
-        # for s in self.dependencySignals:
-        #     print("  - " + s.name )
+        for s in self.dependencySignals:
+            print("  - " + s.name )
 
         print(Fore.RED + "dependent sources (simulation inputs):")
                 
@@ -218,7 +220,6 @@ class ExecutionLine():
     def getSignalsToExecute(self):
         l = []
 
-        #l.extend( self.dependencySignals )
         l.extend( self.signalOrder )
 
         return l
@@ -229,7 +230,7 @@ class ExecutionLine():
         # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
         # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
 
-        # TODO: use sets to merge..
+        # TODO: to optimize: use sets to merge
 
         # for s in executionLineToAppend.dependencySignals:
         #     if not s in self.dependencySignals and not s in self.signalOrder:
@@ -252,7 +253,7 @@ class ExecutionLine():
 
         for s in executionLineToAppend.signalOrder:
             # TODO: (for optimization purposes) 
-            # check if there comcon blocks in the list. (only in case a block has more than one
+            # check if there common blocks in the list. (only in case a block has more than one
             # output signals and one of these signals is in the list executionLineToAppend.signalOrder
             # and another one in self.signalOrder  )
 
@@ -280,10 +281,6 @@ class ExecutionLine():
 
 
 
-# NOTE: Simulation inputs might come twiche!
-
-
-
 
 class BuildExecutionPath:
     """
@@ -302,7 +299,9 @@ class BuildExecutionPath:
 
         # the list of signals to compute in correct order 
         self.execution_order = []
-        # self.execution_order_without_targets = []
+
+        # the list of simulation input signals required for the computation
+        self.dependencySignalsSimulationInputs = []
 
         # For each signgal self.execution_order there might be a blocks that
         # has an internal memory. It is required to build a list of those blocks
@@ -316,6 +315,7 @@ class BuildExecutionPath:
         self.level = 0
 
     def __del__(self):
+        # reset the grap markers stored in the signals
         self.resetMarkers()
 
 
@@ -349,7 +349,7 @@ class BuildExecutionPath:
 
         print("getExecutionLine on level " + str(self.level) )
 
-        # reset the lists
+        # reset the lists TODO: use sets instead to avoid duplication?
         self.execution_order = []
         self.dependencySignals = []
         self.dependencySignalsThroughStates = []
@@ -400,13 +400,24 @@ class BuildExecutionPath:
             # this case must be an error..                  
             raise BaseException('not implemented or internal error: unexpected type of signal ' + startSignal.name)
 
+        # check if the signal is a system input signal
+        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
 
-
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not comuted)
+        #  and not isinstance(startSignal, SimulationInputSignal)
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
             # - a previously computed signal has been reached
 
             print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
             self.dependencySignals.append( startSignal )
+
+            # in case startSignal is a simulation input, still add it to the list of simulation input dependiencies
+            # though it has already been computed
+            if is_crossing_simulation_border:
+                print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
+
+                # also note down that this is a (actually used) simulation input
+                self.dependencySignalsSimulationInputs.append( startSignal )
 
             return
 
@@ -414,12 +425,6 @@ class BuildExecutionPath:
 
             print(Style.DIM + tabs + "has already been calculated in this traversion") 
             return
-
-
-
-        # check if the signal is a system input signal
-        # is_simulation_input           = isinstance(startSignal, SimulationInputSignal)
-        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
 
         if is_crossing_simulation_border:
             # signal is an input to the simulation

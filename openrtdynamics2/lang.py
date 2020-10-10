@@ -19,7 +19,7 @@ def signal():
 def system_input(datatype):
     # intoduce a system input 
     return si.SimulationInputSignalUser(get_simulation_context(), datatype)
-    
+
 
 def export_graph(filename, system = None):
 

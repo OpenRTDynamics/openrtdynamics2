@@ -541,7 +541,7 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
             code_compute_state_update = self._subsystem_prototype.generate_code_update(language)
 
-            # the subsystems outputs are only computed when triggered
+            # the subsystems update is on only performed when triggered
             lines += cgh.generate_if_else(language, 
                 condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input.name, 1 ) ], 
                 action_list=[ code_compute_state_update ])
