@@ -48,6 +48,7 @@
 
 
 
+/* https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/ */
 
 input[type=range].mm {
     width: 100%;
