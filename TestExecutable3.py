@@ -123,7 +123,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'inline_ifsubsystem_oscillator' # 
+testname = 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -587,6 +587,8 @@ if testname == 'test_triggered_subsystem_2':
 
 
 if testname == 'test_forloop_subsystem':
+    # TODO: obsolete
+
     import TestLibray as TestLibray
     libraryEntries.append( TestLibray.oscillator )
 
@@ -655,6 +657,40 @@ if testname == 'inline_subsystem':
 
 
 
+
+
+
+if testname == 'loop_until':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    #loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 100], "default_value" : 20 })
+    U = dy.system_input( baseDatatype ).set_name('osc_excitement').set_properties({ "range" : [0, 4.0], "default_value" : 0.5 })
+    subsample_period = dy.system_input( baseDatatype ).set_name('subsample_period').set_properties({ "range" : [0, 25], "default_value" : 10 })
+
+    with dy.sub_loop( dy.int32(50) ) as system:
+
+        x = dy.signal()
+        v = dy.signal()
+
+        acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
+
+        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
+        x << euler_integrator( v, Ts=0.1, name="intX")
+        
+        system.set_outputs([ x, v ])
+        #system.loop_until( dy.counter() >= loop_iterations )
+        system.loop_yield( dy.signal_periodic_impulse(period=subsample_period, phase=2) )
+
+    output_x = system.outputs[0]
+    output_v = system.outputs[1]
+
+    #pulses = dy.signal_periodic_impulse(period=10, phase=2)
+
+    # main simulation ouput
+    output_signals = [ output_x ]
+
+    input_signals_mapping = {}
 
 
 
@@ -1090,6 +1126,26 @@ if testname == 'generic_cpp_static':
     
     input_signals_mapping = {}
     output_signals = None
+
+
+
+
+
+if testname == 'signal_periodic_impulse':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    phase = dy.system_input( baseDatatype ).set_name('phase').set_properties({ "range" : [0, 25], "default_value" : 0 })
+    period = dy.system_input( baseDatatype ).set_name('period').set_properties({ "range" : [0, 25], "default_value" : 10 })
+
+    pulses = dy.signal_periodic_impulse(period=period, phase=phase)
+
+    # main simulation ouput
+    output_signals = [ pulses ]
+
+    input_signals_mapping = {}
+
+
 
 if testname == 'vanderpol':
     # https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
