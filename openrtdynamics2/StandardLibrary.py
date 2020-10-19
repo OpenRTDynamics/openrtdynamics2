@@ -8,23 +8,40 @@ import numpy as np
 # constants
 #
 
-def int32(value : int):
+def int32(value):
     """
-        create a constant signal of DataTypeInt32
+        cast anything to DataTypeInt32
     """
-    return dy.const(value, dy.DataTypeInt32(1) )
 
-def float64(value : float):
+    if isinstance(  value, dy.SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeInt32(1) )
+
+def float64(value):
     """
-        create a constant signal of DataTypeFloat64
+        cast anything to DataTypeFloat64
     """
-    return dy.const(value, dy.DataTypeFloat64(1) )
+    if isinstance(  value, dy.SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeFloat64(1) )
+
 
 def boolean(value : int):
     """
-        create a constant signal of DataTypeBoolean
+        cast anything to DataTypeBoolean
     """
-    return dy.const(value, dy.DataTypeBoolean(1) )
+    if isinstance(  value, dy.SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeBoolean(1) )
 
 #
 # static functions
@@ -138,17 +155,19 @@ def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None,
         stepwidth = dy.int32(1)
 
     counter = dy.signal()
+
     reached_upper_limit = counter >= dy.int32(upper_limit)
+
 
     # increase the counter until the end is reached
     new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
 
     if reset is not None:
         # reset in case this is requested
-        new_counter = dy.conditional_overwrite(new_counter, reset, 0)
+        new_counter = dy.conditional_overwrite(new_counter, reset, initial_state)
 
     if reset_on_limit:
-        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, 0)
+        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, initial_state)
 
     # introduce a state variable for the counter
     counter << dy.delay( new_counter, initial_state=initial_state )
@@ -227,6 +246,23 @@ def signal_impulse(k_event : int):
     pulse_signal = dy.int32(k_event) == k
 
     return pulse_signal
+
+def signal_periodic_impulse(period, phase):
+    """
+        signal generator for periodic pulses
+
+        generates a sequence of pulses
+
+        period - singal or constant describing the period in samples at which the pulses are generated
+        phase  - singal or constant describing the phase in samples at which the pulses are generated
+    """
+
+    k = counter_limited( upper_limit=period - dy.int32(1), reset_on_limit=True )
+    pulse_signal = dy.int32(phase) == k
+
+    return pulse_signal
+
+
 
 
 def play( sequence_array, reset=None, reset_on_end:bool=False, prevent_initial_playback:bool=False ):
