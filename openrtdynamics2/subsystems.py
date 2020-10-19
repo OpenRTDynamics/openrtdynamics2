@@ -122,9 +122,6 @@ class sub_if:
         # outputs (links to the subsystem outputs) to be used by the user
         self._output_links = None
 
-    # def add_output(self, output_signal : dy.SignalUserTemplate):
-    #     self._outputs_of_embeded_subsystem.append(output_signal)
-    #     return None
 
     def set_outputs(self, signals):
         self._outputs_of_embeded_subsystem = signals.copy()
@@ -146,7 +143,7 @@ class sub_if:
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( dy.unwrap_list( self._outputs_of_embeded_subsystem ) )
 
-        # create generic subsystem block prototype DEBUG: self._subsystem_block_prototype.outputs[0] is 's16', warum?
+        # create generic subsystem block prototype
         self._subsystem_block_prototype = dy.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
                                                     manifest=None, inputSignals=None, 
                                                     embedded_subsystem=embedded_subsystem,
@@ -179,12 +176,114 @@ class sub_if:
     def outputs(self):
 
         if self._output_links is None:
-            BaseException("Please close the switch subsystem before querying its outputs")
+            BaseException("Please close the subsystem before querying its outputs")
         
         return self._output_links
     
 
 
+
+
+
+
+class sub_loop:
+    """
+
+    """
+
+
+    def __init__(self, max_iterations : dy.SignalUserTemplate = None, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = dy.generate_subsystem_name()
+
+        self._max_iterations_signal = max_iterations
+
+        # control outputs of the embedded subsystem
+        self._until_signal = None
+        self._yield_signal = None
+
+        # 
+        self._outputs_of_embeded_subsystem = []
+
+        # outputs (links to the subsystem outputs) to be used by the user
+        self._output_links = None
+
+
+    def set_outputs(self, signals):
+        self._outputs_of_embeded_subsystem = dy.unwrap_list( signals.copy() )
+
+    def loop_until(self, condition_signal):
+        self._until_signal = condition_signal.unwrap
+
+    def loop_yield(self, condition_signal):
+        self._yield_signal = condition_signal.unwrap
+
+    def __enter__(self):
+
+        print("enter loop subsystem " + self._subsystem_name )
+        self._system = dy.enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+
+        print("leave loop subsystem " + self._subsystem_name )
+
+        embedded_subsystem = dy.get_simulation_context()
+
+        # collect all outputs
+        all_output_signals = []
+        all_output_signals.extend(self._outputs_of_embeded_subsystem)
+        if self._until_signal is not None:
+            all_output_signals.append(self._until_signal)
+        if self._yield_signal is not None:
+            all_output_signals.append(self._yield_signal)
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs(  all_output_signals  )
+
+        # create generic subsystem block prototype
+        self._subsystem_block_prototype = dy.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=len(all_output_signals) )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+        #
+        # now in the system in which the embeder block (including the logic) shall be placed.
+        #
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = dy.LoopUntilSubsystem( sim=dy.get_simulation_context(), 
+                max_iteriations=si.unwrap( self._max_iterations_signal ), 
+                subsystem_prototype=self._subsystem_block_prototype,
+                until_signal=self._until_signal,
+                yield_signal=self._yield_signal)
+
+
+                # subsystem_prototypes=subsystem_prototypes, 
+                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+        # connect the additional (control) outputs
+        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+
+    @property
+    def outputs(self):
+
+        if self._output_links is None:
+            BaseException("Please close the subsystem before querying its outputs")
+        
+        return self._output_links
+    
 
 
 
