@@ -17,13 +17,12 @@ class GenericSubsystem(BlockPrototype):
         Include a sub-system by passing a manifest
 
         - sim - the simulation this block is embedded into
-        - additionalInputs - the inputs used to control the embedding block (e.g. flags that trigger if/else) (i.e. not forwarded to the embedded system)
 
         parameters required only in case the subsystem is already defined (e.g. loaded from a library):
 
-        - manifest     - the manifest of the subsystem to include (optional, might be handed over by init())
-        - inputSignals - the inputs to the subsystem 
-        - N_outputs    - prepare a number of nOutputs (optional in case a manifest is given)
+        - manifest           - the manifest of the subsystem to include (optional, might be handed over by init())
+        - inputSignals       - the inputs to the subsystem 
+        - N_outputs          - prepare a number of nOutputs (optional in case a manifest is given)
         - embedded_subsystem - the system to embed (optional in case a manifest to an already compiled subsystem is given, NOT IMPLEMENTED)
 
         Note: the number of outputs must be defined either by N_outputs or by a manifest
@@ -382,17 +381,17 @@ class SingleSubsystemEmbedder(BlockPrototype):
         self._number_of_control_outputs = number_of_control_outputs
 
         self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
-        self._number_of_normal_outputs = len(self._subsystem_prototype.outputs)
+        self._number_of_normal_outputs = len(self._subsystem_prototype.outputs) - number_of_control_outputs
 
-        if self._number_of_normal_outputs + number_of_control_outputs != self._total_number_of_subsystem_outputs:
-            raise BaseException("given number of total subsystem outputs does not match")
+        if self._number_of_normal_outputs < 0:
+            raise BaseException("The number of control outputs is higher than the toal number of outputs provided by the subsystem.")
 
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
 
 
 
         # now call the constructor for block prototypes and make input and output signals available
-        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
+        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_normal_outputs )
 
 
 
@@ -404,14 +403,29 @@ class SingleSubsystemEmbedder(BlockPrototype):
         # will be filled in on compile_callback_all_subsystems_compiled()
         self._list_of_all_inputs = None
 
-        # inherit output datatypes of this block from the embeded subsystem DEBUG: s15 <-- s17 shall be linked
+
+        # output sigal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
+        self._output_signal_mapping = {} # (TODO: extend/add to MultiSubsystemEmbedder)
+
+        # inherit output datatypes of this block from the embeded subsystem
         for i in range(0, self._number_of_normal_outputs ):
+
+            # fill in mapping table
+            self._output_signal_mapping[ self.outputs[i] ] = self._subsystem_prototype.outputs[i]
 
             output_signal_of_embedding_block = self.outputs[i]
             output_signal_of_subsystem = self._subsystem_prototype.outputs[i] # reference_outputs[i]
             output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
 
-        # NOTE: datatypes for additional outputs are untouched
+            #output_signal_of_embedding_block.set_data_link( output_signal_of_subsystem )
+
+        # build a list of control signals (TODO: add to MultiSubsystemEmbedder)
+        self._control_signals_from_embeded_system = []
+        
+        # iterate over the control outputs of the embedded subsystem
+        for i in range(self._number_of_normal_outputs, self._number_of_normal_outputs + self._number_of_control_outputs ):
+            self._control_signals_from_embeded_system.append( self._subsystem_prototype.outputs[i] )
+
 
     @property
     def additional_outputs(self):
@@ -452,6 +466,14 @@ class SingleSubsystemEmbedder(BlockPrototype):
 
         return self._list_of_all_inputs
 
+
+    def helper_get_output_signal_mapping_to_subsystem(self, signals_to_calculate):
+
+        mapped_subsystem_output_signals = []
+        for s in signals_to_calculate:
+            mapped_subsystem_output_signals.append( self._output_signal_mapping[s] )
+
+        return mapped_subsystem_output_signals
     
     def generate_code_defStates(self, language):
         if language == 'c++':
@@ -547,6 +569,131 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
                 action_list=[ code_compute_state_update ])
 
         return lines
+
+
+
+
+
+
+class LoopUntilSubsystem(SingleSubsystemEmbedder):
+    """
+        Embed a loop sub-system
+
+    """
+
+    def __init__(self, sim : Simulation, max_iteriations : Signal, 
+                    subsystem_prototype : GenericSubsystem, 
+                    until_signal : Signal = None, yield_signal : Signal = None ):
+        
+        self._control_input = max_iteriations
+        self._until_signal = until_signal
+        self._yield_signal = yield_signal
+
+        number_of_control_outputs = 0
+        if self._until_signal is not None:
+            number_of_control_outputs += 1
+
+        if self._yield_signal is not None:
+            number_of_control_outputs += 1
+
+        if number_of_control_outputs >= 2:
+            raise BaseException('LoopUntilSubsystem: yield and until not supported at the same time')
+
+
+        SingleSubsystemEmbedder.__init__(self, sim, 
+                                        control_inputs=[self._control_input], 
+                                        subsystem_prototype=subsystem_prototype, 
+                                        number_of_control_outputs=number_of_control_outputs )
+
+
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+
+        lines = ''
+        if language == 'c++':
+
+            # output signal mapping lookup
+            ouput_signals_of_subsystem = self.helper_get_output_signal_mapping_to_subsystem(signals_to_calculate=signals)
+
+
+            ouput_signals_names = cgh.signal_list_to_name_list(signals)
+            ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signals_of_subsystem)
+            
+
+            loop_break_condition = []
+
+            control_output_index = 0
+
+            if self._until_signal is not None:
+                # define tmp-var for self._until_signal instead of a block output
+                lines += cgh.defineVariables( [self._until_signal] )
+
+                # add list of signals to assign
+                ouput_signals_names.append( self._until_signal.name )
+                ouput_signal_names_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index].name )
+            
+                # add break condition
+                loop_break_condition.append( self._until_signal.name )
+
+                control_output_index += 1
+
+
+            if self._yield_signal is not None:
+                # define tmp-var for self._yield_signal instead of a block output
+                lines += cgh.defineVariables( [self._yield_signal] )
+
+                # add list of signals to assign
+                ouput_signals_names.append( self._yield_signal.name )
+                ouput_signal_names_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index].name )
+
+                # add break condition
+                loop_break_condition.append( self._yield_signal.name )
+
+                control_output_index += 1
+
+
+
+            # self.outputs                      - all outputs of the embeding block
+            # self._subsystem_prototype.outputs - all outputs of the subsystem that are initialily present
+            # self._subsystem_prototype.compileResult.outputSignals - all outputs of the subsystem that are present after compilation
+            # signals - outputs out of self.outputs that need to be computed
+
+
+            calc_outputs = cgh.embed_subsystem2(language, 
+                        system_prototype=self._subsystem_prototype, 
+                        ouput_signals_name=ouput_signals_names, 
+                        ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
+                        calculate_outputs = True, update_states = False )
+
+            update_states = cgh.embed_subsystem2(language, 
+                        system_prototype=self._subsystem_prototype, 
+                        calculate_outputs = False, update_states = True )
+
+            lines += cgh.generate_do_until_loop( language, '1000', calc_outputs + update_states, loop_break_condition, '' )
+
+
+        return lines
+
+    def generate_code_update(self, language):
+
+        lines = ''
+        if language == 'c++':
+
+            if self._until_signal is not None:
+                #pass    
+                lines += self._subsystem_prototype.generate_code_reset(language)
+
+
+        return lines
+
+
+
+
+
+
+
+
+
 
 
 
