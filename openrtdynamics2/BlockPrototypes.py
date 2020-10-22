@@ -368,6 +368,16 @@ class SingleSubsystemEmbedder(BlockPrototype):
 
         Picture drawn by http://asciiflow.com/
 
+
+
+        lists of output signals
+        -----------------------
+
+        self.outputs                                           - all outputs of the embeding block
+        self._subsystem_prototype.outputs                      - all outputs of the subsystem that are initialily present
+        self._subsystem_prototype.compileResult.outputSignals  - all outputs of the subsystem that are present after compilation
+        signals (parameter for generate_code_output_list)      - outputs out of self.outputs that need to be computed
+
     """
     def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, number_of_control_outputs : int = 0 ):
 
@@ -596,9 +606,6 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
         if self._yield_signal is not None:
             number_of_control_outputs += 1
 
-        if number_of_control_outputs >= 2:
-            raise BaseException('LoopUntilSubsystem: yield and until not supported at the same time')
-
 
         SingleSubsystemEmbedder.__init__(self, sim, 
                                         control_inputs=[self._control_input], 
@@ -652,13 +659,6 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 control_output_index += 1
 
 
-
-            # self.outputs                      - all outputs of the embeding block
-            # self._subsystem_prototype.outputs - all outputs of the subsystem that are initialily present
-            # self._subsystem_prototype.compileResult.outputSignals - all outputs of the subsystem that are present after compilation
-            # signals - outputs out of self.outputs that need to be computed
-
-
             calc_outputs = cgh.embed_subsystem2(language, 
                         system_prototype=self._subsystem_prototype, 
                         ouput_signals_name=ouput_signals_names, 
@@ -669,8 +669,18 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                         system_prototype=self._subsystem_prototype, 
                         calculate_outputs = False, update_states = True )
 
-            lines += cgh.generate_do_until_loop( language, '1000', calc_outputs + update_states, loop_break_condition, '' )
+            code = ''
+            code +=  calc_outputs 
 
+            if self._yield_signal is not None:
+                code += cgh.generate_loop_break(language, condition=self._yield_signal.name)
+
+            code += update_states
+
+            if self._until_signal is not None:
+                code += cgh.generate_loop_break(language, condition=self._until_signal.name)
+
+            lines += cgh.generate_loop( language, max_iterations= '1000', code_to_exec=code  )
 
         return lines
 

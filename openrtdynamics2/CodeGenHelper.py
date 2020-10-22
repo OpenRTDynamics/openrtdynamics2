@@ -237,13 +237,35 @@ def generate_if_else(language, condition_list, action_list):
 #     return lines
 
 
-def generate_do_until_loop( language, max_iterations, code_inner_loop, until_conditions, code_after_check  ):
+# def generate_do_until_loop( language, max_iterations, code_inner_loop, until_conditions, code_after_check  ):
+
+#     abort_code = generate_if_else(language, condition_list=until_conditions, action_list=['break;'])
+
+#     lines = 'for (int i = 0; i < ' + max_iterations + '; ++i) ' + brackets_no_newline( brackets_no_newline(code_inner_loop) + abort_code + brackets_no_newline(code_after_check) ) + ';\n'
+#     return lines
 
 
-    abort_code = generate_if_else(language, condition_list=until_conditions, action_list=['break;'])
+
+def generate_loop_break(language, condition):
+    """
+        break a loop (to be used with generate_loop)
+
+        condition  - the condition to break the loop
+    """
+    abort_code = generate_if_else(language, condition_list=[condition], action_list=['break;'])
+
+    return abort_code
 
 
-    lines = 'for (int i = 0; i < ' + max_iterations + '; ++i) ' + brackets_no_newline( brackets_no_newline(code_inner_loop) + abort_code + brackets_no_newline(code_after_check) ) + ';\n'
+def generate_loop( language, max_iterations, code_to_exec  ):
+    """
+        generate a loop
+
+        - max_iterations - the maximal number of loop iterations
+        - code_to_exec   - the code to execute in the loop
+    """
+
+    lines = 'for (int i = 0; i < ' + max_iterations + '; ++i) ' + brackets_no_newline( code_to_exec ) + ';\n'
     return lines
 
 
