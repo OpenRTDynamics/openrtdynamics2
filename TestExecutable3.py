@@ -123,7 +123,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'loop_until' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
+testname = 'loop_yield_until' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -198,28 +198,31 @@ if testname == 'test_oscillator':
     input_signals_mapping = {}
     input_signals_mapping[ U ] = 1.0
 
-if testname == 'test_oscillator_with_modulation':
 
+if testname == 'oscillator_modulation_example':
+    
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    U = dy.system_input( baseDatatype ).set_name('extU')
-    damping = dy.system_input( baseDatatype ).set_name('dampling')
-    spring = dy.system_input( baseDatatype ).set_name('spring')
+    #loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 100], "default_value" : 20 })
+    U = dy.system_input( baseDatatype ).set_name('osc_excitement').set_properties({ "range" : [0, 4.0], "default_value" : 0.0 })
+    osc_pos_feedback_gain = dy.system_input( baseDatatype ).set_name('osc_pos_feedback_gain').set_properties({ "range" : [0, 0.1], "default_value" : 0.0025 })
+    osc_vel_feedback_gain = dy.system_input( baseDatatype ).set_name('osc_vel_feedback_gain').set_properties({ "range" : [0, 0.5], "default_value" : 0.018 })
 
+    # model
     x = dy.signal()
     v = dy.signal()
 
-    acc = U - damping * v - spring * x # TODO: make this work
+    acc = U - osc_vel_feedback_gain * v - osc_pos_feedback_gain * x
 
-    v << euler_integrator( acc, Ts=0.1, name="intV")
-    x << euler_integrator( v, Ts=0.1, name="intX")
-
-    # define the outputs of the simulation
+    v << dy.euler_integrator( acc, Ts=0.1, initial_state=-1.0 )
+    x << dy.euler_integrator( v, Ts=0.1 )
+    
+    # main simulation ouput
     output_signals = [ x, v ]
 
-    # specify what the input signals shall be in the runtime
     input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+
+
 
 if testname == 'test_oscillator_controlled':
 
@@ -297,12 +300,12 @@ if testname == 'test_oscillator_controlled':
     v.set_name('v')
     output_signals = [ x,v ]
 
-    # specify what the input signals shall be in the runtime
-    input_signals_mapping = {}
-    input_signals_mapping[ reference ] = 1.0
-    input_signals_mapping[ Kp ] = 0.3
-    input_signals_mapping[ Kd ] = 0.3
-    input_signals_mapping[ Ki ] = 0.3
+    # # specify what the input signals shall be in the runtime
+    # input_signals_mapping = {}
+    # input_signals_mapping[ reference ] = 1.0
+    # input_signals_mapping[ Kp ] = 0.3
+    # input_signals_mapping[ Kd ] = 0.3
+    # input_signals_mapping[ Ki ] = 0.3
 
 if testname == 'basic':
 
@@ -313,74 +316,77 @@ if testname == 'basic':
 
     output_signals = [ x1 ]
 
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+    # input_signals_mapping = {}
+    # input_signals_mapping[ U ] = 1.0
     
-if testname == 'test_oscillator_from_lib':
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat64(1) 
-    U = dy.system_input( baseDatatype ).set_name('input')
+    # TODO: remove library support as it is not ready for now
 
-    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+# if testname == 'test_oscillator_from_lib':
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
 
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
+#     baseDatatype = dy.DataTypeFloat64(1) 
+#     U = dy.system_input( baseDatatype ).set_name('input')
 
-    x = dy.delay( output_signals[0] ).set_name('x_delay')
-    v = dy.delay( output_signals[1] ).set_name('v_delay')
+#     output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
 
-
-    output_signals = [ x, v ]
-
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+#     x = dy.delay( output_signals[0] ).set_name('x_delay')
+#     v = dy.delay( output_signals[1] ).set_name('v_delay')
 
 
-if testname == 'test_oscillator_from_lib':
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat64(1) 
-    U = dy.system_input( baseDatatype ).set_name('input')
+#     output_signals = [ x, v ]
 
-    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
-
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
-
-    x = output_signals[0].set_name('x')
-    v = output_signals[1].set_name('v')
-
-    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
-    output_signals = [ x ]
-
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
 
 
-if testname == 'test_triggered_oscillator_from_lib':
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
+# if testname == 'test_oscillator_from_lib':
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
 
-    baseDatatype = dy.DataTypeFloat64(1) 
-    U = dy.system_input( baseDatatype ).set_name('input')
+#     baseDatatype = dy.DataTypeFloat64(1) 
+#     U = dy.system_input( baseDatatype ).set_name('input')
 
-    output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+#     output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
 
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
 
-    x = output_signals[0].set_name('x')
-    v = output_signals[1].set_name('v')
+#     x = output_signals[0].set_name('x')
+#     v = output_signals[1].set_name('v')
 
-    # NOTE: intentionally only x is the output. v is intentionally unused in this test.
-    output_signals = [ x ]
+#     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
+#     output_signals = [ x ]
 
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
+
+
+# if testname == 'test_triggered_oscillator_from_lib':
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
+
+#     baseDatatype = dy.DataTypeFloat64(1) 
+#     U = dy.system_input( baseDatatype ).set_name('input')
+
+#     output_signals = dy.generic_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U} )
+
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
+
+#     x = output_signals[0].set_name('x')
+#     v = output_signals[1].set_name('v')
+
+#     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
+#     output_signals = [ x ]
+
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
 
 
 
@@ -395,16 +401,16 @@ if testname == 'test_comparison':
     # NOTE: intentionally only x is the output. v is intentionally unused in this test.
     output_signals = [ isGreater ]
 
-    input_signals_mapping = {}
-    input_signals_mapping[ u1 ] = 1.0
-    input_signals_mapping[ u2 ] = 1.1
+    # input_signals_mapping = {}
+    # input_signals_mapping[ u1 ] = 1.0
+    # input_signals_mapping[ u2 ] = 1.1
 
 
 if testname == 'test_step':
     y = dy.float64(3) * dy.signal_step(10) + dy.float64(-5) * dy.signal_step(40) + dy.float64(2) * dy.signal_step(70) 
 
     output_signals = [ y ]
-    input_signals_mapping = {}
+
 
 if testname == 'test_ramp':
     y1 = dy.float64(3) * dy.signal_ramp(10) - dy.float64(2) * dy.signal_ramp(70) 
@@ -413,7 +419,6 @@ if testname == 'test_ramp':
     y1.set_name('y1')
 
     output_signals = [ y1, y2 ]
-    input_signals_mapping = {}
 
 
 
@@ -423,7 +428,6 @@ if testname == 'test_datatype_convertion':
     y = dy.convert(y, dy.DataTypeFloat64(1) )
     
     output_signals = [ y ]
-    input_signals_mapping = {}
 
 
 if testname == 'dtf_lowpass_1_order':
@@ -433,7 +437,6 @@ if testname == 'dtf_lowpass_1_order':
     y = dy.dtf_lowpass_1_order(u, z_infinity=0.95 )
     
     output_signals = [ y ]
-    input_signals_mapping = {}
 
 
 if testname == 'dtf_lowpass_1_order_V2':
@@ -447,7 +450,6 @@ if testname == 'dtf_lowpass_1_order_V2':
     y5 = dy.dtf_lowpass_1_order(y4, z_infinity=0.97 ).set_name('_5th_order')
     
     output_signals = [ y1, y2, y3, y4, y5 ]
-    input_signals_mapping = {}
 
 
 if testname == 'transfer_function_discrete':
@@ -500,7 +502,6 @@ if testname == 'transfer_function_discrete':
     
 
     output_signals = [ y ]
-    input_signals_mapping = {}
 
 
 if testname == 'switchNto1':
@@ -514,106 +515,106 @@ if testname == 'switchNto1':
     y = dy.switchNto1( state=switch_state, inputs=[u1,u2,u3,u4] )
     
     output_signals = [ y ]
-    input_signals_mapping = {}
-
-
-
-
-if testname == 'test_triggered_subsystem':
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
-
-    baseDatatype = dy.DataTypeFloat64(1) 
-
-    u1 = dy.system_input( baseDatatype ).set_name('u1')
-    u2 = dy.system_input( baseDatatype ).set_name('u2')
-    isGreater = dy.comparison(left = u1, right = u2, operator = '>' ).set_name('isGreater')
-
-
-    U = dy.system_input( baseDatatype ).set_name('input')
-
-    output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
-
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
-
-    x = output_signals[0].set_name('x')
-    v = output_signals[1].set_name('v')
-
-    x = dy.delay( output_signals[0] ).set_name('x_delay')
-    v = dy.delay( output_signals[1] ).set_name('v_delay')
-
-    output_signals = [ x, v ]
-
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
-
-
-if testname == 'test_triggered_subsystem_2':
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
-
-    baseDatatype = dy.DataTypeFloat64(1) 
-
-    i_activate = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_activate')
-
-    i = dy.counter()
-
-#    isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).set_name('isGreater')
-    isGreater = i_activate < i 
-    isGreater.set_name('isGreater')
-
-
-    U = dy.system_input( baseDatatype ).set_name('input')
-
-    output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
-
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
-
-    x = output_signals[0].set_name('x')
-    v = output_signals[1].set_name('v')
-
-    x = dy.delay( output_signals[0] ).set_name('x_delay')
-    v = dy.delay( output_signals[1] ).set_name('v_delay')
-
-    output_signals = [ x, v ]
-
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
 
 
 
 
 
-if testname == 'test_forloop_subsystem':
-    # TODO: obsolete
+# if testname == 'test_triggered_subsystem':
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
 
-    import TestLibray as TestLibray
-    libraryEntries.append( TestLibray.oscillator )
+#     baseDatatype = dy.DataTypeFloat64(1) 
 
-    baseDatatype = dy.DataTypeFloat64(1) 
+#     u1 = dy.system_input( baseDatatype ).set_name('u1')
+#     u2 = dy.system_input( baseDatatype ).set_name('u2')
+#     isGreater = dy.comparison(left = u1, right = u2, operator = '>' ).set_name('isGreater')
 
-    i_max = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_max')
+
+#     U = dy.system_input( baseDatatype ).set_name('input')
+
+#     output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
+
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
+
+#     x = output_signals[0].set_name('x')
+#     v = output_signals[1].set_name('v')
+
+#     x = dy.delay( output_signals[0] ).set_name('x_delay')
+#     v = dy.delay( output_signals[1] ).set_name('v_delay')
+
+#     output_signals = [ x, v ]
+
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
 
 
-    U = dy.system_input( baseDatatype ).set_name('input')
+# if testname == 'test_triggered_subsystem_2':
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
 
-    output_signals = dy.for_loop_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, i_max=i_max )
+#     baseDatatype = dy.DataTypeFloat64(1) 
 
-    output_signals[0].set_name('x')
-    output_signals[1].set_name('v')
+#     i_activate = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_activate')
 
-    x = output_signals[0].set_name('x')
-    v = output_signals[1].set_name('v')
+#     i = dy.counter()
 
-    x = dy.delay( output_signals[0] ).set_name('x_delay')
-    v = dy.delay( output_signals[1] ).set_name('v_delay')
+# #    isGreater = dy.comparison(left = i_activate, right = i, operator = '<' ).set_name('isGreater')
+#     isGreater = i_activate < i 
+#     isGreater.set_name('isGreater')
 
-    output_signals = [ x, v ]
 
-    input_signals_mapping = {}
-    input_signals_mapping[ U ] = 1.0
+#     U = dy.system_input( baseDatatype ).set_name('input')
+
+#     output_signals = dy.triggered_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, trigger=isGreater )
+
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
+
+#     x = output_signals[0].set_name('x')
+#     v = output_signals[1].set_name('v')
+
+#     x = dy.delay( output_signals[0] ).set_name('x_delay')
+#     v = dy.delay( output_signals[1] ).set_name('v_delay')
+
+#     output_signals = [ x, v ]
+
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
+
+
+
+
+
+# if testname == 'test_forloop_subsystem':
+#     # TODO: obsolete
+
+#     import TestLibray as TestLibray
+#     libraryEntries.append( TestLibray.oscillator )
+
+#     baseDatatype = dy.DataTypeFloat64(1) 
+
+#     i_max = dy.system_input( dy.DataTypeuler_integrator32(1) ).set_name('i_max')
+
+
+#     U = dy.system_input( baseDatatype ).set_name('input')
+
+#     output_signals = dy.for_loop_subsystem( manifest=TestLibray.oscillator.manifest, inputSignals={'u' : U}, i_max=i_max )
+
+#     output_signals[0].set_name('x')
+#     output_signals[1].set_name('v')
+
+#     x = output_signals[0].set_name('x')
+#     v = output_signals[1].set_name('v')
+
+#     x = dy.delay( output_signals[0] ).set_name('x_delay')
+#     v = dy.delay( output_signals[1] ).set_name('v_delay')
+
+#     output_signals = [ x, v ]
+
+#     input_signals_mapping = {}
+#     input_signals_mapping[ U ] = 1.0
 
 
     
@@ -653,8 +654,41 @@ if testname == 'inline_subsystem':
 #    output_signals = [ output ]
     output_signals = [ y ]
 
-    input_signals_mapping = {}
 
+
+
+
+
+
+
+if testname == 'loop_yield':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    #loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 100], "default_value" : 20 })
+    U = dy.system_input( baseDatatype ).set_name('osc_excitement').set_properties({ "range" : [0, 4.0], "default_value" : 0.0 })
+    osc_pos_feedback_gain = dy.system_input( baseDatatype ).set_name('osc_pos_feedback_gain').set_properties({ "range" : [0, 0.1], "default_value" : 0.0025 })
+    osc_vel_feedback_gain = dy.system_input( baseDatatype ).set_name('osc_vel_feedback_gain').set_properties({ "range" : [0, 0.5], "default_value" : 0.018 })
+    subsample_period = dy.system_input( baseDatatype ).set_name('subsample_period').set_properties({ "range" : [0, 25], "default_value" : 10 })
+
+    with dy.sub_loop( max_iterations=1000 ) as system:
+
+        x = dy.signal()
+        v = dy.signal()
+
+        acc = U - osc_vel_feedback_gain * v - osc_pos_feedback_gain * x
+
+        v << dy.euler_integrator( acc, Ts=0.1, initial_state=-1.0 )
+        x << dy.euler_integrator( v, Ts=0.1 )
+        
+        system.set_outputs([ x, v ])
+        system.loop_yield( dy.signal_periodic_impulse(period=subsample_period, phase=2) )
+
+    output_x = system.outputs[0]
+    output_v = system.outputs[1]
+
+    # main simulation ouput
+    output_signals = [ output_x, output_v ]
 
 
 
@@ -664,33 +698,41 @@ if testname == 'loop_until':
     
     baseDatatype = dy.DataTypeFloat64(1) 
 
-    #loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 100], "default_value" : 20 })
-    U = dy.system_input( baseDatatype ).set_name('osc_excitement').set_properties({ "range" : [0, 4.0], "default_value" : 0.5 })
-    subsample_period = dy.system_input( baseDatatype ).set_name('subsample_period').set_properties({ "range" : [0, 25], "default_value" : 10 })
+    loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 100], "default_value" : 20 })
 
-    with dy.sub_loop( dy.int32(50) ) as system:
-
-        x = dy.signal()
-        v = dy.signal()
-
-        acc = dy.add( [ U, v, x ], [ 1, -0.1, -0.1 ] ).set_blockname('acc').set_name('acc')
-
-        v << euler_integrator( acc, Ts=0.1, name="intV", initial_state=-1.0 )
-        x << euler_integrator( v, Ts=0.1, name="intX")
+    with dy.sub_loop( max_iterations=80 ) as system:
         
-        system.set_outputs([ x, v ])
-        #system.loop_until( dy.counter() >= loop_iterations )
-        system.loop_yield( dy.signal_periodic_impulse(period=subsample_period, phase=2) )
+        system.set_outputs([ dy.counter() ])
 
-    output_x = system.outputs[0]
-    output_v = system.outputs[1]
+        system.loop_until( dy.counter() >= loop_iterations )
 
-    #pulses = dy.signal_periodic_impulse(period=10, phase=2)
+    counter = system.outputs[0]
 
     # main simulation ouput
-    output_signals = [ output_x ]
+    output_signals = [ counter ]
 
-    input_signals_mapping = {}
+
+
+
+if testname == 'loop_yield_until':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    loop_iterations = dy.system_input( baseDatatype ).set_name('loop_iterations').set_properties({ "range" : [0, 500], "default_value" : 100 })
+    subsample_period = dy.system_input( baseDatatype ).set_name('subsample_period').set_properties({ "range" : [0, 25], "default_value" : 10 })
+
+    with dy.sub_loop( max_iterations=80 ) as system:
+        
+        system.set_outputs([ dy.counter() ])
+
+        system.loop_yield( dy.signal_periodic_impulse(period=subsample_period, phase=0) )
+        system.loop_until( dy.counter() >= loop_iterations )
+
+    counter = system.outputs[0]
+
+    # main simulation ouput
+    output_signals = [ counter ]
+
 
 
 
@@ -723,7 +765,7 @@ if testname == 'inline_ifsubsystem_oscillator':
     # main simulation ouput
     output_signals = [ output_x, output_v ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -767,7 +809,7 @@ if testname == 'inline_ifsubsystem':
     # main simulation ouput
     output_signals = [ y, ramp ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -816,7 +858,7 @@ if testname == 'system_switch':
     # main simulation ouput
     output_signals = [ output_x, output_v ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -875,7 +917,7 @@ if testname == 'system_state_machine':
     # main simulation ouput
     output_signals = [ output_x, output_v, state, counter ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -943,7 +985,7 @@ if testname == 'system_state_machine2':
     # main simulation ouput
     output_signals = [ output_x, output_v, state_control, counter ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -966,7 +1008,7 @@ if testname == 'system_state_machine_pwm':
     # main simulation ouput
     output_signals = [ output, state_control ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -1023,7 +1065,7 @@ if testname == 'nested_state_machine':
     # main simulation ouput
     output_signals = [ signal, output, state_control ]
 
-    input_signals_mapping = {}
+
 
 if testname == 'memory':
 
@@ -1044,7 +1086,7 @@ if testname == 'memory':
 
     output_signals = [ looked_up_element, looked_up_element_delayed ]
 
-    input_signals_mapping = {}
+
 
 
 if testname == 'memory_machine':
@@ -1057,7 +1099,7 @@ if testname == 'memory_machine':
     position_index << dy.delay( next_position )
 
     output_signals = [ position_index, next_position ]
-    input_signals_mapping = {}
+
 
 if testname == 'memory_ringbuf':
 
@@ -1071,7 +1113,6 @@ if testname == 'memory_ringbuf':
     looked_up_element = dy.memory_read( memory=data, index=rolling_index ).set_name('looked_up_element')
 
     output_signals = [ value_to_write, looked_up_element, rolling_index ]
-    input_signals_mapping = {}
 
 if testname == 'play':
 
@@ -1084,7 +1125,7 @@ if testname == 'play':
     play3, index = dy.play( sequence_array=vector, reset_on_end=True )
 
     output_signals = [ play1, play2, play3 ]
-    input_signals_mapping = {}
+
 
 
 if testname == 'generic_cpp_static':
@@ -1124,7 +1165,6 @@ if testname == 'generic_cpp_static':
 
     dy.set_primary_outputs( [ output1, output2, output3 ], ['output1', 'output2', 'output3'] )
     
-    input_signals_mapping = {}
     output_signals = None
 
 
@@ -1143,7 +1183,7 @@ if testname == 'signal_periodic_impulse':
     # main simulation ouput
     output_signals = [ pulses ]
 
-    input_signals_mapping = {}
+
 
 
 
@@ -1172,6 +1212,7 @@ compile_results = dy.compile_current_system()
 
 
 # Build an executable based on a template
+input_signals_mapping = {}
 runtime_template = dy.WasmRuntime(input_signals_mapping=input_signals_mapping)
 runtime_template.set_compile_results(compile_results)
 

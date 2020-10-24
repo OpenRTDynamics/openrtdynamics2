@@ -192,14 +192,14 @@ class sub_loop:
     """
 
 
-    def __init__(self, max_iterations : dy.SignalUserTemplate = None, subsystem_name = None ):
+    def __init__(self, max_iterations : int, subsystem_name = None ):
 
         if subsystem_name is not None:
             self._subsystem_name = subsystem_name
         else:
             self._subsystem_name = dy.generate_subsystem_name()
 
-        self._max_iterations_signal = max_iterations
+        self._max_iterations = max_iterations
 
         # control outputs of the embedded subsystem
         self._until_signal = None
@@ -261,7 +261,7 @@ class sub_loop:
 
         # create the embeeder prototype
         embeddedingBlockPrototype = dy.LoopUntilSubsystem( sim=dy.get_simulation_context(), 
-                max_iteriations=si.unwrap( self._max_iterations_signal ), 
+                max_iteriations=self._max_iterations, 
                 subsystem_prototype=self._subsystem_block_prototype,
                 until_signal=self._until_signal,
                 yield_signal=self._yield_signal)

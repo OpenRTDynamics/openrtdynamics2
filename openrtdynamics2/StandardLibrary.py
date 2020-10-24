@@ -257,7 +257,7 @@ def signal_periodic_impulse(period, phase):
         phase  - singal or constant describing the phase in samples at which the pulses are generated
     """
 
-    k = counter_limited( upper_limit=period - dy.int32(1), reset_on_limit=True )
+    k = counter_limited( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
     pulse_signal = dy.int32(phase) == k
 
     return pulse_signal
@@ -325,16 +325,16 @@ def sum(u : dy.Signal):
 
     return y
 
-def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+def euler_integrator( u : dy.Signal, Ts : float, initial_state = 0.0):
     """
         Euler (forward) integrator
 
-        y[k+1] = y[k] + sampling_rate * u[k]
+        y[k+1] = y[k] + Ts * u[k]
     """
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    i = dy.add( [ yFb, u ], [ 1, Ts ] )
     y = dy.delay( i, initial_state )
 
     yFb << y

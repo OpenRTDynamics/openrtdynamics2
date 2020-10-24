@@ -232,27 +232,21 @@ def generate_if_else(language, condition_list, action_list):
 
 
 
-# def generate_do_until_loop( language, code_inner_loop, until_condition ):
-#     lines = 'do ' + brackets_no_newline(code_inner_loop) + ' while(!(' + until_condition + '));\n'
-#     return lines
 
 
-# def generate_do_until_loop( language, max_iterations, code_inner_loop, until_conditions, code_after_check  ):
-
-#     abort_code = generate_if_else(language, condition_list=until_conditions, action_list=['break;'])
-
-#     lines = 'for (int i = 0; i < ' + max_iterations + '; ++i) ' + brackets_no_newline( brackets_no_newline(code_inner_loop) + abort_code + brackets_no_newline(code_after_check) ) + ';\n'
-#     return lines
-
-
-
-def generate_loop_break(language, condition):
+def generate_loop_break(language, condition, code_before_break = None):
     """
         break a loop (to be used with generate_loop)
 
         condition  - the condition to break the loop
     """
-    abort_code = generate_if_else(language, condition_list=[condition], action_list=['break;'])
+    code_to_run = ''
+    if code_before_break is not None:
+        code_to_run += code_before_break + '\n'
+
+    code_to_run += 'break;'
+
+    abort_code = generate_if_else(language, condition_list=[condition], action_list=[ code_to_run ])
 
     return abort_code
 

@@ -591,11 +591,11 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : Simulation, max_iteriations : Signal, 
+    def __init__(self, sim : Simulation, max_iteriations : int, 
                     subsystem_prototype : GenericSubsystem, 
                     until_signal : Signal = None, yield_signal : Signal = None ):
         
-        self._control_input = max_iteriations
+        self.max_iter = max_iteriations
         self._until_signal = until_signal
         self._yield_signal = yield_signal
 
@@ -608,11 +608,14 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
 
         SingleSubsystemEmbedder.__init__(self, sim, 
-                                        control_inputs=[self._control_input], 
+                                        control_inputs=[],   # TODO: add N_iter signal here 
                                         subsystem_prototype=subsystem_prototype, 
                                         number_of_control_outputs=number_of_control_outputs )
 
 
+    # def config_request_define_state_update_input_dependencies(self, outputSignal):
+ 
+    #     return [self._until_signal]
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
@@ -671,16 +674,16 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
             code = ''
             code +=  calc_outputs 
+            code += update_states
 
             if self._yield_signal is not None:
                 code += cgh.generate_loop_break(language, condition=self._yield_signal.name)
 
-            code += update_states
-
             if self._until_signal is not None:
-                code += cgh.generate_loop_break(language, condition=self._until_signal.name)
+                code_reset_subsystem = self._subsystem_prototype.generate_code_reset(language)
+                code += cgh.generate_loop_break(language, condition=self._until_signal.name, code_before_break=code_reset_subsystem)
 
-            lines += cgh.generate_loop( language, max_iterations= '1000', code_to_exec=code  )
+            lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code  )
 
         return lines
 
@@ -690,8 +693,8 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
         if language == 'c++':
 
             if self._until_signal is not None:
-                #pass    
-                lines += self._subsystem_prototype.generate_code_reset(language)
+                pass    
+                #lines += self._subsystem_prototype.generate_code_reset(language)
 
 
         return lines
@@ -1185,51 +1188,51 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
 
 
-class ForLoopSubsystem(GenericSubsystem):
-    """
-        Include a triggered sub-system
-    """
-    def __init__(self, sim : Simulation, manifest, inputSignals, i_max : Signal ):
+# class ForLoopSubsystem(GenericSubsystem):
+#     """
+#         Include a triggered sub-system
+#     """
+#     def __init__(self, sim : Simulation, manifest, inputSignals, i_max : Signal ):
 
-        # TODO: add this signal to the blocks inputs
-        self.i_max_signal = i_max
+#         # TODO: add this signal to the blocks inputs
+#         self.i_max_signal = i_max
 
-        GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ i_max ] )
+#         GenericSubsystem.__init__(self, sim=sim, manifest=manifest, inputSignals=inputSignals, additionalInputs=[ i_max ] )
 
-    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+#     def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
-        # NOTE: This is a simplified variant so far.. no dependence on the given 'outputSignal'
-        #       (Every output depends on every signal in dependingInputs)
+#         # NOTE: This is a simplified variant so far.. no dependence on the given 'outputSignal'
+#         #       (Every output depends on every signal in dependingInputs)
 
-        dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
+#         dependingInputs = GenericSubsystem.config_request_define_feedforward_input_dependencies(self, outputSignal)
 
-        # NOTE: important here to make a copy of the list returned by GenericSubsystem.
-        #       otherwise the original list would be modified by append.
-        dependingInputsOuter = dependingInputs.copy()
+#         # NOTE: important here to make a copy of the list returned by GenericSubsystem.
+#         #       otherwise the original list would be modified by append.
+#         dependingInputsOuter = dependingInputs.copy()
         
-        dependingInputsOuter.append( self.i_max_signal )
+#         dependingInputsOuter.append( self.i_max_signal )
 
-        return dependingInputsOuter
+#         return dependingInputsOuter
         
 
-    def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
-        lines = 'for (int i = 0; i < '  +  self.i_max_signal.name + '; ++i) {\n'
-        lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
-        lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
-        lines += '}\n'
+#     def generate_code_call_OutputFunction(self, instanceVarname, manifest, language):
+#         lines = 'for (int i = 0; i < '  +  self.i_max_signal.name + '; ++i) {\n'
+#         lines += GenericSubsystem.generate_code_call_OutputFunction(self, instanceVarname, manifest, language)
+#         lines += GenericSubsystem.generate_code_call_UpdateFunction(self, instanceVarname, manifest, language)
+#         lines += '}\n'
 
-        return lines
+#         return lines
 
-    def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
-        # lines = 'if (' +  self.triggerSignal.name + ') {\n'
-        # lines += '}\n'
+#     def generate_code_call_UpdateFunction(self, instanceVarname, manifest, language):
+#         # lines = 'if (' +  self.triggerSignal.name + ') {\n'
+#         # lines += '}\n'
 
-        lines = ''
+#         lines = ''
 
-        return lines
+#         return lines
         
-def for_loop_subsystem( manifest, inputSignals : List[SignalUserTemplate], i_max : SignalUserTemplate ):
-    return wrap_signal_list( ForLoopSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals ), unwrap( i_max ) ).outputSignals )
+# def for_loop_subsystem( manifest, inputSignals : List[SignalUserTemplate], i_max : SignalUserTemplate ):
+#     return wrap_signal_list( ForLoopSubsystem( get_simulation_context(), manifest, unwrap_hash( inputSignals ), unwrap( i_max ) ).outputSignals )
 
         
 
