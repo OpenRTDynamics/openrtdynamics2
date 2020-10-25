@@ -64,13 +64,7 @@ psi = dy.signal()
 
 # lookup lateral distance to path
 index_closest, distance, index_start = lookup_closest_point( N_path, path_distance_storage, path_x_storage, path_y_storage, x, y )
-
-# 
-x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
-
-# add sign information to the distance
-Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
-
+closest_distance_cmp = distance
 #
 # track the evolution of x/y along the given path
 #
@@ -88,30 +82,28 @@ def tracker(path, x, y):
 
     with dy.sub_loop( max_iterations=1000 ) as system:
 
-        # Delta_index = dy.signal()
+        index_increment = dy.int32(1) # positive increment assuming positive velocity
 
-        Delta_index = dy.sum( dy.int32(1), initial_state=-1 )
+        Delta_index = dy.sum(index_increment, initial_state=-1 )
+        Delta_index_previous_step = Delta_index - index_increment
 
         x_test = dy.memory_read( memory=path['X'], index=index_track + Delta_index ) 
         y_test = dy.memory_read( memory=path['Y'], index=index_track + Delta_index )
 
         distance = distance_between( x_test, y_test, x, y )
 
+        distance_previous_step = dy.delay(distance, initial_state=100000)
+        minimal_distance_reached = distance_previous_step < distance
+
+        # introduce names
         distance.set_name('tracker_distance')
-
-        minimal_distance_reached = dy.delay(distance, initial_state=100000) < distance
-
-        # minimal_distance_reached = Delta_index > dy.int32(5)
-
         minimal_distance_reached.set_name('minimal_distance_reached')
 
-        #system.loop_yield( minimal_distance_reached )
+        # break condition
         system.loop_until( minimal_distance_reached )
 
-
-        # Delta_index << dy.sum( dy.int32(1), initial_state=-1 )
-        
-        system.set_outputs([ Delta_index, distance ])
+        # return        
+        system.set_outputs([ Delta_index_previous_step, distance_previous_step ])
 
 
     Delta_index = system.outputs[0].set_name('tracker_Delta_index')
@@ -121,12 +113,22 @@ def tracker(path, x, y):
 
     index_track << dy.delay(index_track_next, initial_state=1)
 
-
     return index_track, Delta_index, distance
 
 
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 # tracked_index = dy.int32(0)
+
+
+# 
+#x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
+x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=tracked_index )
+
+# add sign information to the distance
+#Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
+Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
+
+
 
 #
 # controller
@@ -183,11 +185,11 @@ y << y_
 psi << psi_
 
 # main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering, tracked_index, Delta_index, closest_distance ], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'closest_distance'])
+dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering, tracked_index, Delta_index, closest_distance, closest_distance_cmp ], 
+        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'closest_distance', 'closest_distance_cmp'])
 
 #
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
 
 # print the sourcecode (main.cpp)
 #print(Style.DIM + sourcecode)

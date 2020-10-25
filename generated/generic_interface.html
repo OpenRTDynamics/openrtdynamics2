@@ -34,8 +34,12 @@ openrtdynamics
         <div class='parameter_editor'></div>
 
         <plot type="chartjs" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
-        <plot type="chartjs" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
-        <plot type="chartjs" x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        
+        <plot type="chartjs" x="time"  y="closest_distance closest_distance_cmp Delta_l__"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        <!-- <plot type="chartjs" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
+        <plot type="chartjs" x="time"  y="lookup_index tracked_index Delta_index"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
     </div>
 
     <div class="realtime_simulator" id='realtime_simulator_gui_container'>
