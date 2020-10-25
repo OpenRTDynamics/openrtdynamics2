@@ -1755,6 +1755,73 @@ def delay(u : SignalUserTemplate, initial_state = None):
 
 
 
+class Flipflop(BlockPrototype):
+    def __init__(self, sim : Simulation, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False ):
+
+        self._nodelay = nodelay
+        self._activate_trigger = activate_trigger
+        self._disable_trigger  = disable_trigger
+        self._initial_state    = initial_state
+
+        BlockPrototype.__init__(self, sim, [ activate_trigger, disable_trigger ], 1)
+
+    def config_request_define_output_types(self, inputTypes):
+
+        return [ DataTypeBoolean(1) ]        
+
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+        # return a list of input signals on which the given output signal depends on
+
+        if self._nodelay:
+            # (direct feedtrough) dependence on all inputs
+            return self.inputs
+        else:
+            # no direct feedthrough
+            return []
+
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return self.inputs  # all inputs
+
+    def generate_code_defStates(self, language):
+        if language == 'c++':
+            return self.outputs[0].datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_state' )  + ';\n'
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            
+            state_varname = self.getUniqueVarnamePrefix() + '_state'
+
+            lines = signals[0].name + ' = ' + state_varname + ';\n'
+            if self._nodelay:
+                lines += signals[0].name + ' = ' + self.inputs[0].name + ' ? true : ' + signals[0].name + ';\n'
+                lines += signals[0].name + ' = ' + self.inputs[1].name + ' ? false : ' + signals[0].name + ';\n'
+
+            return lines
+
+    def generate_code_update(self, language):
+        if language == 'c++':
+
+            state_varname = self.getUniqueVarnamePrefix() + '_state'
+            lines = state_varname + ' = ' + self.inputs[0].name + ' ? true : ' + state_varname + ';\n'
+            lines += state_varname + ' = ' + self.inputs[1].name + ' ? false : ' + state_varname + ';\n'
+            return lines
+
+    def generate_code_reset(self, language):
+        if language == 'c++':
+
+            if self._initial_state:
+                # get the zero element for the given datatype
+                initial_state_str = 'true'
+            else:
+                initial_state_str = 'false'
+
+            return self.getUniqueVarnamePrefix() + '_state' + ' = ' + initial_state_str + ';\n'
+
+
+def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state = False):
+    return wrap_signal( Flipflop(get_simulation_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state ).outputs[0] )
+
 
 
 
