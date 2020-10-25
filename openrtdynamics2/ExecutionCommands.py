@@ -20,9 +20,16 @@ class ExecutionCommand(object):
         # the nesting level (by default 0)
         self.treeLevel_ = 0
 
+        # list of subcommands (filled in by derived classes)
+        self.executionCommands = []
+
         # the upper level execution command within the execution tree
         # None by default
         self.contextCommand = None
+
+        # object to define the tracing infrastructure (e.g. printf)
+        # in case of None, tracing is deactivated
+        self._tracing_infrastructure = None
 
     @property
     def treeLevel(self):
@@ -32,6 +39,12 @@ class ExecutionCommand(object):
     def setContext(self, context ):
         self.contextCommand = context
         self.treeLevel_ = context.treeLevel + 1
+
+    def set_tracing_infrastructure(self, tracing_infrastructure):
+        self._tracing_infrastructure = tracing_infrastructure
+
+        for cmd in self.executionCommands:
+            cmd.set_tracing_infrastructure( tracing_infrastructure )
 
     def generate_code_init(self, language):
         # 
@@ -467,26 +480,41 @@ class PutAPIFunction(ExecutionCommand):
                 # ------ define the API-function ------
                 #
                 if len(self.outputSignals) > 0:
-                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signal_list_to_names_string( self.outputSignals )  #  ' '.join( cgh.signal_list_to_name_list( self.outputSignals ) )
+                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signal_list_to_names_string( self.outputSignals )
                 else:
-                    lines += '// API-function' + self._nameAPI
+                    lines += '// API-function ' + self._nameAPI
 
                 lines += '\n'
 
                 # innerLines will be put into the functions
-                functionLines = ''
+                function_code = ''
+
+                # place tracing (begin)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string='ENTR: ' + self.contextCommand.API_name + '/' + self.nameAPI, 
+                                                    signals=self.inputSignals)
+
+                    function_code += '\n'
                 
                 # put the local variables
                 for c in self.executionCommands:
-                    functionLines += c.generate_code(language, 'localvar')
+                    function_code += c.generate_code(language, 'localvar')
                 
-                functionLines += '\n'
+                function_code += '\n'
 
                 # put the code
                 for c in self.executionCommands:
-                    functionLines += c.generate_code(language, 'code')
+                    function_code += c.generate_code(language, 'code')
 
-                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, functionLines )
+                # place tracing (end)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string='EXIT: ' + self.contextCommand.API_name + '/' + self.nameAPI, 
+                                                    signals=self.outputSignals)
+
+                    function_code += '\n'
+
+                # generate the function
+                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
 
                 #
                 # ------ end of 'define the API-function' ------

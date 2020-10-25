@@ -14,7 +14,7 @@ class PutRuntimeCppHelper:
         generates code for the runtime evironment
     """
 
-    def __init__(self, compile_results : CompileResults = None ):
+    def __init__(self, compile_results : CompileResults = None, enable_tracing=False ):
         ExecutionCommand.__init__(self)  # TODO: what is this?
 
         if compile_results is not None:
@@ -28,6 +28,8 @@ class PutRuntimeCppHelper:
         # list of inlcuded system
         self._includedSystems = []
 
+        self._enable_tracing = enable_tracing
+
     def set_compile_results(self, compile_results : CompileResults ):
         self.compileResults = compile_results
         self.mainSimulation = compile_results.commandToExecute
@@ -38,6 +40,11 @@ class PutRuntimeCppHelper:
     def code_gen(self):
 
         simulationCode = ''
+
+        # enable tracing for all execution commands
+        if self._enable_tracing:
+            # TODO: instead of putting True create an obj with a tracing infrastruture. So far printf is used automatically
+            self.mainSimulation.command_to_put_main_system.set_tracing_infrastructure(True)
 
         # combine (concatenate) the code from the library entries
         for include in self._includedSystems:
@@ -279,12 +286,13 @@ class WasmRuntime(PutRuntimeCppHelper):
 
     """
 
-    def __init__(self, input_signals_mapping = {} ):
+    def __init__(self, input_signals_mapping = {}, enable_tracing = False ):
 
-        PutRuntimeCppHelper.__init__(self)
+        PutRuntimeCppHelper.__init__(self, enable_tracing=enable_tracing)
 
         self.input_signals_mapping = input_signals_mapping
         self.initCodeTemplate()
+        self._enable_tracing = enable_tracing
 
         
     def code_gen(self):
