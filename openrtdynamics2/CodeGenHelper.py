@@ -152,7 +152,7 @@ def signalListHelper_printfPattern(signals):
     for s in signals:
 
         # e.g. %f
-        printfPatterns.append( s.getDatatype().cppPrintfPattern )
+        printfPatterns.append( s.datatype.cppPrintfPattern )
     
     return printfPatterns
 
@@ -415,3 +415,34 @@ def call_function_from_varnames(fn_name, input_names, output_names):
     return lines
 
 
+
+
+#
+# I/O
+#
+
+def create_printf(intro_string, signals):
+    """
+        generate a code for showing the values of the given signals using printf
+
+        intro_string - a string that is place at the begin of the output
+        signals      - a list of signals whose values to print
+
+        NOTE: signals with a datatype that did not define a printf pattern will be ignored. 
+    """
+
+    signals_ok_to_print = []
+    for s in signals:
+
+        if s.datatype.cppPrintfPattern is not None:
+            signals_ok_to_print.append( s )
+
+    format_str = signalListHelper_printfPattern_string(signals_ok_to_print)
+    parameter_str = signal_list_to_names_string(signals_ok_to_print)
+
+    if not 0 == len(signals_ok_to_print):
+        code = 'printf("' + intro_string + ':   (' + parameter_str + ') = (' + format_str + ')\\n", ' + parameter_str + ');' + '\n'
+    else:
+        code = 'printf("' + intro_string +  '\\n");' + '\n'
+
+    return code
