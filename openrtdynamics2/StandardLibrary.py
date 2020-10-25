@@ -313,7 +313,7 @@ def diff(u : dy.Signal):
 
     return y
 
-def sum(u : dy.Signal):
+def sum(u : dy.Signal, initial_state=0):
     """
         Accumulative sum
 
@@ -321,7 +321,7 @@ def sum(u : dy.Signal):
     """
 
     y = dy.signal()    
-    y << dy.delay(y + u)
+    y << dy.delay(y + u, initial_state=initial_state)
 
     return y
 
