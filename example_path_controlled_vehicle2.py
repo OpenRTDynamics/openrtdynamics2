@@ -62,9 +62,6 @@ x   = dy.signal()
 y   = dy.signal()
 psi = dy.signal()
 
-# lookup lateral distance to path
-index_closest, distance, index_start = lookup_closest_point( N_path, path_distance_storage, path_x_storage, path_y_storage, x, y )
-closest_distance_cmp = distance
 #
 # track the evolution of x/y along the given path
 #
@@ -117,15 +114,12 @@ def tracker(path, x, y):
 
 
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
-# tracked_index = dy.int32(0)
 
 
 # 
-#x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
 x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=tracked_index )
 
 # add sign information to the distance
-#Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
 Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
 
 
@@ -141,7 +135,6 @@ Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = 
 steering = psi_r - psi + Delta_u
 steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True) 
 
-# steering = dy.difference_angle(psi_r , psi) + Delta_u
 
 #
 # The model of the vehicle
@@ -150,7 +143,8 @@ steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 
 #
 disturbance_transient = np.concatenate(( cosra(50, 0, 1.0), co(10, 1.0), cosra(50, 1.0, 0) ))
-steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == sample_disturbance, prevent_initial_playback=True)
+steering_disturbance, i = dy.play(disturbance_transient, start_trigger=dy.counter() == sample_disturbance, auto_start=False)
+#steering_disturbance, i = dy.play(disturbance_transient, auto_start=False)
 
 # apply disturbance to the steering input
 disturbed_steering = steering + steering_disturbance * disturbance_amplitude
@@ -185,8 +179,8 @@ y << y_
 psi << psi_
 
 # main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering, tracked_index, Delta_index, closest_distance, closest_distance_cmp ], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'closest_distance', 'closest_distance_cmp'])
+dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, steering_disturbance, disturbed_steering, tracked_index, Delta_index], 
+        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index'])
 
 #
 sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
