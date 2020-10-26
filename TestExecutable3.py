@@ -113,7 +113,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'loop_yield_until' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
+testname = 'play2' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -904,7 +904,7 @@ if testname == 'memory_ringbuf':
 
     vector = [ 2.2, 2.1, 2.3, 2.6, 2.3, 2.8, 2.3, 2.4, 2.9, 2.0 ]
 
-    rolling_index = dy.counter_limited( upper_limit=len(vector)-1, stepwidth=dy.int32(1), initial_state=1, reset_on_limit=True)
+    rolling_index = dy.counter_triggered( upper_limit=len(vector)-1, stepwidth=dy.int32(1), initial_state=1, reset_on_limit=True)
     write_index = dy.delay(rolling_index)
     value_to_write = dy.signal_sinus(N_period=150)
 
@@ -926,6 +926,16 @@ if testname == 'play':
     output_signals = [ play1, play2, play3 ]
 
 
+if testname == 'play2':
+
+    vector = np.linspace(0.1,0.9,20)
+
+    sample_start_trigger = dy.convert(dy.system_input( dy.DataTypeFloat64(1) ).set_name('sample_start_trigger').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
+
+    playback, i = dy.play(vector, start_trigger=dy.counter() == sample_start_trigger, auto_start=False)
+    
+
+    output_signals = [ playback ]
 
 if testname == 'generic_cpp_static':
 
@@ -981,6 +991,22 @@ if testname == 'signal_periodic_impulse':
 
     # main simulation ouput
     output_signals = [ pulses ]
+
+
+if testname == 'flipflop':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    phase = dy.convert( dy.system_input( baseDatatype ).set_name('phase').set_properties({ "range" : [0, 25], "default_value" : 0 }) , target_type=dy.DataTypeInt32(1) )
+    period = dy.convert( dy.system_input( baseDatatype ).set_name('period').set_properties({ "range" : [0, 25], "default_value" : 10 }) , target_type=dy.DataTypeInt32(1) )
+
+    pulses1 = dy.signal_periodic_impulse(period=period, phase=0)
+    pulses2 = dy.signal_periodic_impulse(period=period, phase=phase)
+
+    state = dy.flipflop(activate_trigger=pulses1, disable_trigger=pulses2, initial_state = False)
+
+    # main simulation ouput
+    output_signals = [ state, pulses1, pulses2 ]
 
 
 

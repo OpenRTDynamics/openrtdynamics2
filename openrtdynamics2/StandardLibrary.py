@@ -149,8 +149,54 @@ def counter():
     return tmp
 
 
-def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False ):
+# def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False ):
     
+#     if stepwidth is None:
+#         stepwidth = dy.int32(1)
+
+#     counter = dy.signal()
+
+#     reached_upper_limit = counter >= dy.int32(upper_limit)
+
+
+#     # increase the counter until the end is reached
+#     new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
+
+#     if reset is not None:
+#         # reset in case this is requested
+#         new_counter = dy.conditional_overwrite(new_counter, reset, initial_state)
+
+#     if reset_on_limit:
+#         new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, initial_state)
+
+#     # introduce a state variable for the counter
+#     counter << dy.delay( new_counter, initial_state=initial_state )
+
+#     return counter
+
+
+
+
+def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
+    """
+        A generic counter
+
+        Features:
+        .) upper limit
+        .) triggerable start/pause
+        .) resetable
+        .) dynamic adjustable step-size
+
+        upper_limit              - the upper limit of the counter
+        initial_state            - the state after reset
+        reset                    - reset the playback and start from the beginning
+        reset_on_limit           - reset conting once the upper limit is reached
+        start_trigger            - event to start playback
+        pause_trigger            - event to pause playback
+        auto_start               - start playback automatically 
+
+    """
+
     if stepwidth is None:
         stepwidth = dy.int32(1)
 
@@ -158,6 +204,14 @@ def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None,
 
     reached_upper_limit = counter >= dy.int32(upper_limit)
 
+    if start_trigger is None:
+        start_trigger = dy.boolean(0)
+
+    # state for pause/counting
+    paused =  dy.flipflop(activate_trigger=reached_upper_limit, disable_trigger=start_trigger, initial_state = not auto_start).set_name('paused')
+
+    # prevent counter increase
+    stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name('stepwidth')
 
     # increase the counter until the end is reached
     new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
@@ -264,17 +318,21 @@ def signal_periodic_impulse(period, phase):
 
 
 
-
-def play( sequence_array, reset=None, reset_on_end:bool=False, prevent_initial_playback:bool=False ):
+def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
     """
-        playback of a sequence
+        playback of a sequence (TODO: update)
 
         returns sample, playback_index
 
         sequence_array           - the sequence given as a list of values
         reset                    - reset the playback and start from the beginning
         reset_on_end             - reset playback once the end is reached (repetitive playback)
-        prevent_initial_playback - await a reset until playback is started 
+        start_trigger            - event to start playback
+        pause_trigger            - event to pause playback
+        auto_start               - start playback automatically 
+
+
+        return values
 
         sample                   - the value obtained from sequence_array
         playback_index           - the current position of playback (index of the currently issued sequence element)
@@ -282,12 +340,16 @@ def play( sequence_array, reset=None, reset_on_end:bool=False, prevent_initial_p
 
     sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
 
-    if prevent_initial_playback:
-        initial_counter_state = np.size(sequence_array)
-    else:
-        initial_counter_state = 0
+    # if prevent_initial_playback:
+    #     initial_counter_state = np.size(sequence_array)
+    # else:
+        
 
-    playback_index = counter_limited( upper_limit=np.size(sequence_array)-1, stepwidth=dy.int32(1), initial_state=initial_counter_state, reset=reset, reset_on_limit=reset_on_end)
+    playback_index = counter_triggered( upper_limit=np.size(sequence_array)-1, 
+                                        stepwidth=stepwidth, initial_state=initial_state, 
+                                        reset=reset, reset_on_limit=reset_on_end, 
+                                        start_trigger=start_trigger, pause_trigger=pause_trigger, 
+                                        auto_start=auto_start)
 
     # sample the given data
     sample = dy.memory_read(sequence_array_storage, playback_index)
