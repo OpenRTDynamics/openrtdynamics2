@@ -1372,19 +1372,19 @@ def logic_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
     """
         logical and
 
-        u1 & u2
+        u1 && u2
     """
 
-    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' && ').outputs[0] )
 
 def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
     """
         logical or
     
-        u1 | u2
+        u1 || u2
     """
 
-    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' || ').outputs[0] )
 
 
 def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
@@ -1397,7 +1397,26 @@ def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
     return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' ^ ').outputs[0] )
 
 
-def logic_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
+def bitwise_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    """
+        bitwise and
+
+        u1 & u2
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
+
+def bitwise_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    """
+        bitwise or
+    
+        u1 | u2
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
+
+
+def bitwise_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
     """
         logical shift left
     
@@ -1407,7 +1426,7 @@ def logic_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
     return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u,shift] ), operator=' << ').outputs[0] )
 
 
-def logic_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
+def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
     """
         logical shift left
     
@@ -1635,6 +1654,34 @@ def asin(u : SignalUserTemplate ):
 
 def acos(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputs[0] )
+
+
+
+
+
+class Operator0(StaticFn_1To1):
+    def __init__(self, sim : Simulation, u : Signal, operator_str : str ):
+
+        self._operator_str = operator_str
+
+        StaticFn_1To1.__init__(self, sim, u)
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            return signals[0].name + ' = ' + str(self._operator_str) + self.inputs[0].name +  ';\n'
+
+
+def logic_not(u : SignalUserTemplate ):
+    """
+        logic negation
+    """
+    return wrap_signal( Operator0(get_simulation_context(), u.unwrap, '!').outputs[0] )
+
+def bitwise_not(u : SignalUserTemplate ):
+    return wrap_signal( Operator0(get_simulation_context(), u.unwrap, '~').outputs[0] )
+
+
+
 
 
 #
