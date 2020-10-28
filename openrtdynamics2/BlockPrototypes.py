@@ -1364,6 +1364,75 @@ def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
     return wrap_signal( Operator1(get_simulation_context(), unwrap_list( inputSignals ), operator).outputs[0] )
 
 
+#
+# logic operators
+#
+
+def logic_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    """
+        logical and
+
+        u1 & u2
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
+
+def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    """
+        logical or
+    
+        u1 | u2
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
+
+
+def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    """
+        exclusive logical or (xor)
+    
+        u1 ^ u2
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' ^ ').outputs[0] )
+
+
+def logic_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
+    """
+        logical shift left
+    
+        u << shift
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u,shift] ), operator=' << ').outputs[0] )
+
+
+def logic_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
+    """
+        logical shift left
+    
+        u >> shift
+    """
+
+    return wrap_signal( Operator1(get_simulation_context(), inputSignals=unwrap_list( [u,shift] ), operator=' >> ').outputs[0] )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1390,6 +1459,13 @@ class ComparisionOperator(StaticFn_NTo1):
 
 def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
     return wrap_signal( ComparisionOperator(get_simulation_context(), left.unwrap, right.unwrap, operator).outputs[0] )
+
+
+
+
+
+
+
 
 
 
@@ -1592,6 +1668,7 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
         This function returns the remainder of dividing x/y.
     """
     return wrap_signal( StaticFnByName_2To1(get_simulation_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
+
 
 
 
