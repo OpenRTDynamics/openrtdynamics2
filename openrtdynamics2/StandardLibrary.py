@@ -149,31 +149,6 @@ def counter():
     return tmp
 
 
-# def counter_limited( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False ):
-    
-#     if stepwidth is None:
-#         stepwidth = dy.int32(1)
-
-#     counter = dy.signal()
-
-#     reached_upper_limit = counter >= dy.int32(upper_limit)
-
-
-#     # increase the counter until the end is reached
-#     new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
-
-#     if reset is not None:
-#         # reset in case this is requested
-#         new_counter = dy.conditional_overwrite(new_counter, reset, initial_state)
-
-#     if reset_on_limit:
-#         new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, initial_state)
-
-#     # introduce a state variable for the counter
-#     counter << dy.delay( new_counter, initial_state=initial_state )
-
-#     return counter
-
 
 
 
@@ -207,8 +182,14 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     if start_trigger is None:
         start_trigger = dy.boolean(0)
 
+    # 
+    if pause_trigger is not None: 
+        activate_trigger = dy.logic_or(reached_upper_limit, pause_trigger)
+    else:
+        activate_trigger = reached_upper_limit
+
     # state for pause/counting
-    paused =  dy.flipflop(activate_trigger=reached_upper_limit, disable_trigger=start_trigger, initial_state = not auto_start).set_name('paused')
+    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start).set_name('paused')
 
     # prevent counter increase
     stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name('stepwidth')
@@ -253,7 +234,7 @@ def signal_sinus(N_period : int = 100, phi = None):
     if phi is None:
         phi = dy.float64(0.0)
 
-    i = dy.counter_limited( upper_limit=N_period-1, reset_on_limit=True )
+    i = dy.counter_triggered( upper_limit=N_period-1, reset_on_limit=True )
     y = dy.sin( i * dy.float64(1/N_period * 2*math.pi) + phi )
 
     return y
@@ -311,7 +292,7 @@ def signal_periodic_impulse(period, phase):
         phase  - singal or constant describing the phase in samples at which the pulses are generated
     """
 
-    k = counter_limited( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
+    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
     pulse_signal = dy.int32(phase) == k
 
     return pulse_signal

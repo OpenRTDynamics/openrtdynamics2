@@ -113,7 +113,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'play2' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
+testname = 'play' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -915,22 +915,26 @@ if testname == 'memory_ringbuf':
 
 if testname == 'play':
 
+    sample_start_trigger = dy.convert(dy.system_input( dy.DataTypeFloat64(1) ).set_name('sample_start_trigger').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
+    sample_stop_trigger = dy.convert(dy.system_input( dy.DataTypeFloat64(1) ).set_name('sample_stop_trigger').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
+
     vector = np.linspace(0.1,0.9,20)
 
-    play1, index = dy.play( sequence_array=vector, reset=dy.signal_impulse(k_event=50), reset_on_end=False, prevent_initial_playback=True )
+    play1, index = dy.play( sequence_array=vector, start_trigger=dy.signal_impulse(k_event=50), pause_trigger=dy.signal_impulse(k_event=50+30), reset_on_end=False, auto_start=False )
 
-    play2, index = dy.play( sequence_array=vector, reset=dy.signal_impulse(k_event=50), reset_on_end=False, prevent_initial_playback=False )
+    play2, index = dy.play( sequence_array=vector, reset=dy.signal_impulse(k_event=50), reset_on_end=False, auto_start=True )
 
-    play3, index = dy.play( sequence_array=vector, reset_on_end=True )
+    play3, index = dy.play( sequence_array=vector, start_trigger=dy.counter() == sample_start_trigger, pause_trigger=dy.counter() == sample_stop_trigger, reset_on_end=True )
+
 
     output_signals = [ play1, play2, play3 ]
 
 
 if testname == 'play2':
 
-    vector = np.linspace(0.1,0.9,20)
-
     sample_start_trigger = dy.convert(dy.system_input( dy.DataTypeFloat64(1) ).set_name('sample_start_trigger').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
+
+    vector = np.linspace(0.1,0.9,20)
 
     playback, i = dy.play(vector, start_trigger=dy.counter() == sample_start_trigger, auto_start=False)
     
