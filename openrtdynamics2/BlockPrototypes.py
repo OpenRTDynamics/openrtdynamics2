@@ -1575,7 +1575,10 @@ class ConditionalOverwrite(StaticFn_NTo1):
 
         self.new_value = new_value
 
-        StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
+        if isinstance( self.new_value, Signal ): 
+            StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition, new_value])
+        else:
+            StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
 
     def config_request_define_output_types(self, inputTypes):
 
@@ -1585,9 +1588,13 @@ class ConditionalOverwrite(StaticFn_NTo1):
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
-#            lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
 
-            action_overwrite = self.outputs[0].name + ' = ' + str( self.new_value ) + ';'
+            if isinstance( self.new_value, Signal ): 
+                action_overwrite = self.outputs[0].name + ' = ' + self.inputSignals[2].name + ';'
+
+            else:                
+                action_overwrite = self.outputs[0].name + ' = ' + str( self.new_value ) + ';'
+
             action_keep = self.outputs[0].name + ' = ' + self.inputs[0].name + ';'
 
             lines = cgh.generate_if_else( language, condition_list=[ self.inputSignals[1].name ], action_list=[ action_overwrite, action_keep ] )
@@ -1595,6 +1602,10 @@ class ConditionalOverwrite(StaticFn_NTo1):
 
 
 def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
+
+    if isinstance(new_value, SignalUserTemplate):
+        new_value = new_value.unwrap
+
     return wrap_signal( ConditionalOverwrite(get_simulation_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
 
 
@@ -1871,7 +1882,7 @@ class Delay(BlockPrototype):
             return self.getUniqueVarnamePrefix() + '_mem' + ' = ' + initial_state_str + ';\n'
 
 
-def delay(u : SignalUserTemplate, initial_state = None):
+def delay__(u : SignalUserTemplate, initial_state = None):
     return wrap_signal( Delay(get_simulation_context(), u.unwrap, initial_state ).outputs[0] )
 
 

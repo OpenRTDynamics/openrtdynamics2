@@ -43,6 +43,37 @@ def boolean(value : int):
         # create a new constant
         return dy.const(value, dy.DataTypeBoolean(1) )
 
+
+
+#
+# Delay - the basis for all dynamic elements
+#
+def delay(u , initial_state = None):
+    """
+        unit delay
+
+        delay the input u by one sampling instant
+
+        y[k+1] = u[k], y[0] = initial_state
+
+        u             - the input signal to delay
+        initial_state - the initial state (signal or constant value)
+    """
+
+    if not isinstance( initial_state, dy.SignalUserTemplate ):
+        return dy.delay__( u, initial_state )
+
+    else:
+
+        event_on_first_sample = dy.counter() == int32(1)  # TODO: introduce a function dy.init_impulse()
+
+        delayed_input = dy.delay__( u, None )
+        delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
+
+        return delayed_input
+
+
+
 #
 # static functions
 #
@@ -222,7 +253,9 @@ def signal_sinus(N_period : int = 100, phi = None):
 
         The output is computed as follows:
 
-        y = sin( 1 / N_period * 2 * pi) + phi )
+        y = sin( k * (1 / N_period * 2 * pi) + phi )
+
+        k - is the sampling index
 
         N_period - period in sampling instants (type: constant integer)
         phi      - phase shift (signal)
