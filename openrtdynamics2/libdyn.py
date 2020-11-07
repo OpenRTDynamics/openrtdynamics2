@@ -322,6 +322,12 @@ class Simulation:
         # for block in self.BlocksArray:
         #     block.verifyInputSignals(ignore_signals_with_datatype_inheritance=False)
 
+    @property
+    def signal_with_unresolved_datatypes(self):
+        return self.datatypePropagation.signalsWithUnderminedTypes
+
+
+    
 
         
 
