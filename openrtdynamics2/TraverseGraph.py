@@ -5,33 +5,14 @@ from typing import Dict, List
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
-class Node:
-    def __init__(self, block : Block):
-        self.block = block
-
-    # return a list of linked nodes
-    def getLinks(self):  
-        pass
 
 
-            
+#
+# NOTE: this is not used 
+#
+class TraverseSignalFlowGraph:
 
-
-
-
-class TraverseGraph:
-    # TODO: rename to TraverseBlocks
-
-    # NOTE: THis is currently not needed but might be userd in the future for sth...
-
-    def __init__(self): #blockList : List[ Block ]
-
-        # # build a list of nodes
-        # self.nodeList = []
-
-        # for block in blockList:
-
-        #     self.nodeList.append( Node(block) )
+    def __init__(self):
 
         # the list of reachable blocks
         self.reachableBlocks = []
@@ -92,16 +73,6 @@ class TraverseGraph:
 
                 # recursion
                 self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
-
-
-
-
-
-
-
-
-
-
 
 
     # Start backward traversion starting from the given startBlock
@@ -182,11 +153,11 @@ class ExecutionLine():
     """
 
     def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
-        self.signalOrder = signalOrder
-        self.dependencySignals = dependencySignals  # TODO: check if this is still needed.
+        self.signalOrder                       = signalOrder
+        self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
-        self.blocksToUpdateStates = blocksToUpdateStates
-        self.dependencySignalsThroughStates = dependencySignalsThroughStates
+        self.blocksToUpdateStates              = blocksToUpdateStates
+        self.dependencySignalsThroughStates    = dependencySignalsThroughStates
 
     def printExecutionLine(self):
         print("------ print of execution line -----")
@@ -389,6 +360,19 @@ class BuildExecutionPath:
 
     # Start backward traversion starting from the given startSignal
     def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
+
+        #
+        # check if the datatype of startSignal is defined
+        #
+
+        if startSignal.datatype is None:
+            raise BaseException('Unknown datatype for signal ' + startSignal.name + ': no datatype has been specified or could be determined automatically.')
+
+
+        #
+        #
+        #
+
         
         tabs = ''
         for i in range(0, depthCounter):
