@@ -65,7 +65,7 @@ def delay(u , initial_state = None):
 
     else:
 
-        event_on_first_sample = dy.counter() == int32(1)  # TODO: introduce a function dy.init_impulse()
+        event_on_first_sample = dy.counter() == int32(0)  # TODO: introduce a function dy.init_impulse()
 
         delayed_input = dy.delay__( u, None )
         delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
@@ -131,6 +131,7 @@ def saturate(u, lower_limit, uppper_limit):
 # Counters
 #
 
+# TODO: mark as private
 class Counter():
     """
         This class is meant to store the counter output signal as it might be used
@@ -158,6 +159,7 @@ def counter():
         Basic counter
 
         The integer output is increasing with each sampling instant by 1.
+        Counting starts at zero.
     """
 
     if not 'counter' in dy.get_simulation_context().components:
@@ -389,17 +391,53 @@ def diff(u : dy.Signal):
 
     return y
 
-def sum(u : dy.Signal, initial_state=0):
+def sum(u : dy.Signal, initial_state=0, no_delay=False):
     """
         Accumulative sum
 
-        y[k+1] = y[k] + u[k]
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return value is either
+
+            y[k]   by default or when no_delay == False
+        or
+
+            y[k+1] in case no_delay == True .
     """
 
-    y = dy.signal()    
-    y << dy.delay(y + u, initial_state=initial_state)
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
 
-    return y
+    y_k << dy.delay(y_kp1, initial_state=initial_state)
+
+    if no_delay:
+        return y_kp1
+    else:
+        return y_k
+
+def sum2(u : dy.Signal, initial_state=0):
+    """
+        Accumulative sum
+
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return values are
+
+            y[k], y[k+1]
+    """
+
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
+
+    y_k << dy.delay(y_kp1, initial_state=initial_state)
+
+    return y_k, y_kp1
 
 def euler_integrator( u : dy.Signal, Ts : float, initial_state = 0.0):
     """
