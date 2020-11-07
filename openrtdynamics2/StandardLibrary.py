@@ -455,10 +455,17 @@ def euler_integrator( u : dy.Signal, Ts : float, initial_state = 0.0):
 
     return y
 
-def dtf_lowpass_1_order(u : dy.Signal, z_infinity : float):
+def dtf_lowpass_1_order(u : dy.Signal, z_infinity):
+    """
+        First-order discrete-time low pass filter
+
+                 1 - z_infinity
+        H (z) =  --------------
+                 z - z_infinity
+    """
 
     zinf = dy.float64( z_infinity )
-    zinf_ = dy.float64( 1 - z_infinity )
+    zinf_ = dy.float64( 1 ) - zinf
 
     y_delayed = dy.signal()
     y =  zinf * y_delayed + zinf_ * u
