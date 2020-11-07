@@ -29,11 +29,11 @@ wheelbase = 3.0
 # create storage for the reference path:
 # distance on path (D), position (X/Y), path orientation (PSI), curvature (K)
 path = {}
-path['D'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['D'] )
-path['X'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['X'] )
-path['Y'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['Y'] )
+path['D']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['D'] )
+path['X']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['X'] )
+path['Y']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['Y'] )
 path['PSI'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['PSI'] )
-path['K'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['K'] )
+path['K']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['K'] )
 
 path['samples'] = example_data.Nmax
 
@@ -45,17 +45,29 @@ psi = dy.signal()
 # track the evolution of the closest point on the path to the vehicles position
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 
+Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=5.0)
+
+
 # get the reference
-x_r, y_r, psi_r = sample_path(path, index=tracked_index )
+x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index )
+
+x_r_ahead, y_r_ahead, psi_r_ahead, K_r_ahead = sample_path(path, index=tracked_index + Delta_index_ahead )
 
 # add sign information to the distance
 Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
 
+# reference for the lateral distance
+# Delata_l_r = dy.float64(0.0)
+#Delta_l_r = z_tf( K_r_ahead, z * (1-0.9) / (z-0.9) ) # * dy.float64( 0.1 )
+
+Delta_l_r = dy.diff( dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(K_r_ahead, 0.97), 0.97 ) ) * dy.float64( -700.0 )
+
 # feedback control
-Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
+Delta_u = dy.PID_controller(r=Delta_l_r, y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
 # path tracking
 steering = psi_r - psi + Delta_u
+#steering = psi_r_ahead - psi + Delta_u
 steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True) 
 
 #
@@ -81,8 +93,8 @@ y << y_
 psi << psi_
 
 # main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, steering_disturbance, disturbed_steering, tracked_index, Delta_index], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index'])
+dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, steering_disturbance, disturbed_steering, tracked_index, Delta_index, Delta_index_ahead, distance_residual, Delta_index_ahead_i1, K_r_ahead, Delta_l_r], 
+        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
 
 # generate code
 sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
