@@ -1,8 +1,6 @@
 from typing import Dict, List
-#from Signal import *
 from .Signal import *
 from openrtdynamics2 import Block
-#from Block import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -153,8 +151,6 @@ class DatatypePropagation:
 
         while True:
 
-            # 5.4.2020 DEBUG: look for 'ox' and why they did not get a datatype
-
             signals_with_updated_determined_types_current = self.signalsWithUpdatedDeterminedTypes
             signals_with_updated_proposed_types_current = self.signalsWithUpdatedProposedTypes
 
@@ -199,73 +195,6 @@ class DatatypePropagation:
                 break
 
 
-    # def update_types_iterate_old(self):
-
-    #     print("DatatypePropagation: update types " )
-
-    #     # while-loop around the following (think about when it is finished.. e.g. )
-    #     # signalsWithProposedTypes and signalsWithUpdatedProposedTypes are empty
-    #     # or nothing chanegs any more (no notifications arrive within a loop-cycle)
-
-    #     while True:
-
-    #         # during the call of .config_request_define_output_types() the lists might be updated
-    #         # by hereby triggered calls to the notify_* funcrions of this class
-    #         # Hence, make copies of these lists before
-
-    #         signalsWithUpdatedDeterminedTypes = self.signalsWithUpdatedDeterminedTypes
-    #         signalsWithUpdatedProposedTypes = self.signalsWithUpdatedProposedTypes
-
-    #         # clear that list as it is about to be processed now
-    #         self.signalsWithUpdatedDeterminedTypes = [] 
-    #         self.signalsWithUpdatedProposedTypes = [] 
-
-    #         # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
-    #         self.signalsWithDeterminedTypes.extend( signalsWithUpdatedDeterminedTypes )
-    #         self.signalsWithProposedTypes.extend( signalsWithUpdatedProposedTypes )
-
-    #         # a counter that counts the number of signal datatype updates within this loop
-    #         # Please note, that this counter is increased in external functions
-    #         # triggered by the calls 'destBlock.config_request_define_output_types()'
-    #         updateCounterBefore = self.updateCounter
-
-    #         # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
-    #         for s in signalsWithUpdatedDeterminedTypes:
-    #             # ask all blocks connected to s to update their output type proposal or fix their type
-
-    #             # ask each block connected to the signal s to update its output type (proposals)
-    #             for destBlock in s.getDestinationBlocks():
-
-    #                 destBlock.config_request_define_output_types()
-
-
-    #         # forward the datatype proposals to the connected blocks
-    #         for s in self.signalsWithUpdatedProposedTypes:
-    #             # ask all blocks connected to s to update their output type proposal or fix their type
-                
-    #             # ask each block connected to the signal s to update its output type (proposals)
-    #             for destBlock in s.getDestinationBlocks():
-
-    #                 destBlock.config_request_define_output_types()
-
-    #         if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedProposedTypes) == 0:
-
-    #             print("resolved all datatypes as far as possible in this update-run")
-
-    #             print("signals with fixed types:")
-    #             for s in self.signalsWithDeterminedTypes:
-    #                 print('  - ' + s.toStr())
-
-    #             print("signals with proposed types:")
-    #             for s in self.signalsWithProposedTypes:
-    #                 print('  - ' + s.toStr())
-
-    #             print("signals with undetermined types:")
-    #             for s in self.signalsWithUnderminedTypes:
-    #                 print('  - ' + s.toStr())
-
-    #             # leave the - while True - loop
-    #             break
 
 
     def fixateTypes(self):
