@@ -1583,7 +1583,12 @@ class ConditionalOverwrite(StaticFn_NTo1):
     def config_request_define_output_types(self, inputTypes):
 
         # just inherit the input type
-        return [ inputTypes[0] ]
+        if isinstance( self.new_value, Signal ): 
+            return [ common_numeric_type( inputTypes ) ]
+
+        else:
+            return [ inputTypes[0] ]
+
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 

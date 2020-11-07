@@ -299,7 +299,7 @@ class StaticFn_NTo1(BlockPrototype):
             # look for an already defined input type and inherit that type.
             #
 
-            self.outputType = computeResultingNumericType(inputTypes)
+            self.outputType = common_numeric_type(inputTypes)
 
         # return a proposal for an output type. 
         return [self.outputType]

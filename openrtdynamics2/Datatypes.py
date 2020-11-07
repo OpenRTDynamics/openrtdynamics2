@@ -202,12 +202,13 @@ def areAllTypesDefined( datatypes : List[ DataType ] ):
     return True
 
 
-def computeResultingNumericType( datatypes : List[ DataTypeNumeric ] ):
+def common_numeric_type( datatypes : List[ DataTypeNumeric ] ):
     """
-        return the type with the highest numerical precission
+        return the type with the highest numerical precission among the given datatypes
     """
     returnType = DataTypeInt32(1)
 
+    # TODO: stupid implementation only valid to choose among int32 and float64
     for t in datatypes:
         # ignore undefined types
         if t is not None:
