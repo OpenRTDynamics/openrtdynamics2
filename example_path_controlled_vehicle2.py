@@ -23,6 +23,10 @@ k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties(
 disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -45, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
 sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
 
+z_inf            = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.97, "title" : "z_inf" })
+distance_ahead   = dy.system_input( baseDatatype ).set_name('distance_ahead').set_properties({ "range" : [0, 20.0], "default_value" : 5.0, "title" : "distance ahead" })
+lateral_gain     = dy.system_input( baseDatatype ).set_name('lateral_gain').set_properties({ "range" : [-1000.0, 1000.0], "default_value" : 5.0, "title" : "lateral_gain" })
+
 # parameters
 wheelbase = 3.0
 
@@ -45,7 +49,7 @@ psi = dy.signal()
 # track the evolution of the closest point on the path to the vehicles position
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 
-Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=5.0)
+Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=distance_ahead)
 
 
 # get the reference
@@ -60,7 +64,11 @@ Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
 # Delata_l_r = dy.float64(0.0)
 #Delta_l_r = z_tf( K_r_ahead, z * (1-0.9) / (z-0.9) ) # * dy.float64( 0.1 )
 
-Delta_l_r = dy.diff( dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(K_r_ahead, 0.97), 0.97 ) ) * dy.float64( -700.0 )
+z_inf
+
+Delta_l_r = dy.diff( dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(K_r_ahead, z_inf), z_inf ) ) * lateral_gain # dy.float64( -700.0 )
+
+#Delta_l_r = dy.diff( dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(K_r_ahead, 0.97), 0.97 ) ) * dy.float64( -700.0 )
 
 # feedback control
 Delta_u = dy.PID_controller(r=Delta_l_r, y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
