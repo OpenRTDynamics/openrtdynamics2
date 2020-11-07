@@ -1,7 +1,7 @@
 from .libdyn import *
 from .Signal import *
 from .Block import *
-from .TraverseGraph import *
+from .TraverseSignalFlowGraph import *
 from . import  CodeGenHelper as cgh
 
 from typing import Dict, List

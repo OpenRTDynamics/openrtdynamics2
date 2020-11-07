@@ -54,7 +54,7 @@ class Block:
         # initialize the empty list of output signals
         self.OutputSignals = []
 
-        # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
+        # used by TraverseSignalFlowGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
 
 

@@ -34,7 +34,7 @@ class Signal(object):
         # the list of signals to which the datatype of this signal is inherited
         self._inherit_datatype_to_list = []
 
-        # used by TraverseGraph as a helper variable to perform a marking of the graph nodes
+        # used by TraverseSignalFlowGraph as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = -1
 
         # inherit the datatype for this anonymous signals from the signal refered to by inherit_datatype_of_signal

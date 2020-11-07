@@ -1,6 +1,6 @@
 from .libdyn import *
 from .BlockPrototypes import *
-from .TraverseGraph import *
+from .TraverseSignalFlowGraph import *
 from .Signal import *
 from .ExecutionCommands import *
 from .SystemManifest import *
@@ -190,7 +190,6 @@ def compile_single_system(system, reduce_uneeded_code = False):
     # counter for the order (i.e. step through all delays present in the system)
     order = 0
 
-
     # execution line per order
     commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, 
                                                                 executionLineToCalculateOutputs, 
@@ -333,15 +332,12 @@ def compile_single_system(system, reduce_uneeded_code = False):
         sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
         commandsToExecuteForStateUpdate.append( sUpCmd )
 
-        #print("added command(s) to perform state update:")
-        #sUpCmd.printExecution()
-
         # get the dependendy singals of the current order
         # TODO important: remove the signals that are already computable from this list
         #dependencySignals = executionLineForCurrentOrder.dependencySignals
         dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
-        blocksToUpdateStates = executionLineForCurrentOrder.blocksToUpdateStates
-        dependencySignalsThroughStates = executionLineForCurrentOrder.dependencySignalsThroughStates
+        blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
+        dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
 
 
         # TODO: handle special case in which a simulation input is requried for the state update of a block
@@ -406,20 +402,17 @@ def compile_single_system(system, reduce_uneeded_code = False):
     allinputs.update( simulationInputSignalsToCalculateOutputs )
     allinputs = list(allinputs)
 
-
-
     # build the manifest for the compiled system
     manifest = SystemManifest( commandToExecute_system )
 
     compleResults = CompileResults( manifest, commandToExecute_system)
 
-    compleResults.inputSignals = allinputs
-    compleResults.simulationInputSignalsToUpdateStates = simulationInputSignalsToUpdateStates
+    compleResults.inputSignals                             = allinputs
+    compleResults.simulationInputSignalsToUpdateStates     = simulationInputSignalsToUpdateStates
     compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
-    compleResults.outputSignals = outputSignals
+    compleResults.outputSignals                            = outputSignals
 
     
-
     #
     return compleResults
 
