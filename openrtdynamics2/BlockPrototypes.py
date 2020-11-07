@@ -1666,6 +1666,8 @@ def asin(u : SignalUserTemplate ):
 def acos(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'acos').outputs[0] )
 
+def abs(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(get_simulation_context(), u.unwrap, 'abs').outputs[0] )
 
 
 
