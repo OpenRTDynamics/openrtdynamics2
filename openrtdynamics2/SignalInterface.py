@@ -41,6 +41,11 @@ class SignalUserTemplate(object):
         self.wrapped_signal_.set_properties(p)
         return self
 
+    def set_datatype(self, datatype):
+        # call setDatatype_nonotitication to prevent the (untested) automatic update of the datatypes
+        self.wrapped_signal_.setDatatype_nonotitication(datatype)
+        return self
+
     def set_name(self, name):
         self.wrapped_signal_.set_name(name)
         return self

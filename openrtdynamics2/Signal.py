@@ -390,7 +390,7 @@ class UndeterminedSignal(Signal):
             raise BaseException("An anonymous signal can only be connected to a block output.")
 
         # build a link to the already existing signal 'to'
-        print("== Created a signal link " +  to.name + " == "+   self.name +  "")
+        # print("== Created a signal link " +  to.name + " == "+   self.name +  "")
 
         # merge the list of detination blocks
         for b in self.destinationBlocks:
@@ -399,6 +399,10 @@ class UndeterminedSignal(Signal):
         # merge self.destinationBlocks into to.destinationBlocks
         for p in self.destinationPorts:
             to.destinationPorts.append(p)
+
+        # merge datatype
+        if self.datatype is not None and not to.datatype:
+            to.setDatatype_nonotitication(self.datatype)
 
         # merge name
         if self.nameProposal is not None and not to.nameIsDefault:
