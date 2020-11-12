@@ -255,12 +255,33 @@ def global_lookup_distance_index( path_distance_storage, path_x_storage, path_y_
 
 def sample_path(path, index):
 
-    y_r = dy.memory_read( memory=path['Y'], index=index ) 
-    x_r = dy.memory_read( memory=path['X'], index=index ) 
+    y_r   = dy.memory_read( memory=path['Y'], index=index ) 
+    x_r   = dy.memory_read( memory=path['X'], index=index ) 
     psi_r = dy.memory_read( memory=path['PSI'], index=index )
-    K_r = dy.memory_read( memory=path['K'], index=index )
+    K_r   = dy.memory_read( memory=path['K'], index=index )
 
     return x_r, y_r, psi_r, K_r
+
+
+
+
+def sample_path_finite_difference(path, index):
+
+    y1 = dy.memory_read( memory=path['Y'], index=index ) 
+    y2 = dy.memory_read( memory=path['Y'], index=index + dy.int32(1) )
+
+    x1 = dy.memory_read( memory=path['X'], index=index ) 
+    x2 = dy.memory_read( memory=path['X'], index=index + dy.int32(1) )
+
+    Delta_x = x2 - x1
+    Delta_y = y2 - y1
+
+    psi_r = dy.atan2(Delta_y, Delta_x)
+    x_r = x1
+    y_r = y1
+
+    return x_r, y_r, psi_r
+
 
 
 def distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y ):

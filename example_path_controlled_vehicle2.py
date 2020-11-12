@@ -60,7 +60,18 @@ Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ah
 
 
 # get the reference
-x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(2) )
+x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index )
+
+
+x_r_km1, y_r_km1, psi_r_km1, K_r_km1 = sample_path(path, index=tracked_index - dy.int32(-1) )
+x_r_kp1, y_r_kp1, psi_r_kp1, K_r_kp1 = sample_path(path, index=tracked_index - dy.int32( 1) )
+
+distance_km1 = distance_between( x_r_km1, y_r_km1, x, y )
+distance_kp1 = distance_between( x_r_kp1, y_r_kp1, x, y )
+
+# x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index )
+
+
 
 if advanced_control:
     x_r_ahead, y_r_ahead, psi_r_ahead, K_r_ahead = sample_path(path, index=tracked_index + Delta_index_ahead )
@@ -119,8 +130,8 @@ psi << psi_
 # main simulation ouput
 if advanced_control:
 
-    dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, steering_disturbance, disturbed_steering, tracked_index, Delta_index, Delta_index_ahead, distance_residual, Delta_index_ahead_i1, K_r_ahead, Delta_l_r], 
-            ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
+    dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, distance_km1, distance_kp1, steering_disturbance, disturbed_steering, tracked_index, Delta_index, Delta_index_ahead, distance_residual, Delta_index_ahead_i1, K_r_ahead, Delta_l_r], 
+            ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'distance_km1', 'distance_kp1', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
 
 # generate code
 sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
