@@ -292,7 +292,6 @@ class WasmRuntime(PutRuntimeCppHelper):
 
         self.input_signals_mapping = input_signals_mapping
         self.initCodeTemplate()
-        self._enable_tracing = enable_tracing
 
         
     def code_gen(self):

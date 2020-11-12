@@ -52,7 +52,6 @@ class ExecutionCommand(object):
 
     def generate_code_destruct(self, language):
         raise BaseException('generate_code_destruct unimplemented')
-        pass
 
     def generate_code(self, language, flag):
 
