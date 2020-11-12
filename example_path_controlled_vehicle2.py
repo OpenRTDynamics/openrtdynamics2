@@ -20,9 +20,9 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 # define simulation inputs
 velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
-k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.112, "title" : "controller gain" })
+k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0*0.112, "title" : "controller gain" })
 
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -45, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
 sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
 
 
@@ -60,7 +60,7 @@ Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ah
 
 
 # get the reference
-x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index )
+x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(2) )
 
 if advanced_control:
     x_r_ahead, y_r_ahead, psi_r_ahead, K_r_ahead = sample_path(path, index=tracked_index + Delta_index_ahead )
