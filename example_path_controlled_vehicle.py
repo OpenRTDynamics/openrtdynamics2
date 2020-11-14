@@ -60,7 +60,7 @@ psi = dy.signal()
 index_closest, distance, index_start = lookup_closest_point( N_path, path_distance_storage, path_x_storage, path_y_storage, x, y )
 
 # 
-x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest )
+x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest + dy.int32(0) )
 
 # add sign information to the distance
 Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
@@ -120,6 +120,32 @@ x_, y_, psi_ = discrete_time_bicycle_model(disturbed_steering, velocity)
 x << x_
 y << y_
 psi << psi_
+
+
+
+
+# x   = dy.signal()
+# y   = dy.signal()
+# psi = dy.signal()
+
+# # bicycle model
+# x_dot   = velocity * dy.cos( disturbed_steering + psi )
+# y_dot   = velocity * dy.sin( disturbed_steering + psi )
+# psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbed_steering )
+
+# # integrators
+# sampling_rate = 0.01
+# x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
+# y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
+# psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
+
+
+
+
+
+
+
+
 
 # main simulation ouput
 dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering ], 

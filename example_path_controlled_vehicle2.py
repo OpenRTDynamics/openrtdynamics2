@@ -9,7 +9,7 @@ from vehicle_lib.vehicle_lib import *
 import vehicle_lib.example_data as example_data
 
 # cfg
-advanced_control = True
+advanced_control = False
 
 #
 # A vehicle controlled to follow a given path 
@@ -55,26 +55,42 @@ psi = dy.signal()
 # track the evolution of the closest point on the path to the vehicles position
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 
-#if advanced_control:
-Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=distance_ahead)
+if advanced_control:
+    Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=distance_ahead)
+
+    dy.append_primay_ouput(distance_residual, 'distance_residual')
+    dy.append_primay_ouput(Delta_index_ahead_i1, 'Delta_index_ahead_i1')
+    dy.append_primay_ouput(Delta_index_ahead, 'Delta_index_ahead')
+
+# verify
+index_closest_compare, distance_compare, index_start_compare = lookup_closest_point( N=path['samples'], path_distance_storage=path['D'], path_x_storage=path['X'], path_y_storage=path['Y'], x=x, y=y )
+dy.append_primay_ouput(index_closest_compare, 'index_closest_compare')
 
 
 # get the reference
 x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index )
 
+#
+# verify the data
+#
+if False:
+    x_r_km1, y_r_km1, psi_r_km1, K_r_km1 = sample_path(path, index=tracked_index - dy.int32(-1) )
+    x_r_kp1, y_r_kp1, psi_r_kp1, K_r_kp1 = sample_path(path, index=tracked_index - dy.int32( 1) )
 
-x_r_km1, y_r_km1, psi_r_km1, K_r_km1 = sample_path(path, index=tracked_index - dy.int32(-1) )
-x_r_kp1, y_r_kp1, psi_r_kp1, K_r_kp1 = sample_path(path, index=tracked_index - dy.int32( 1) )
+    distance_km1 = distance_between( x_r_km1, y_r_km1, x, y )
+    distance_kp1 = distance_between( x_r_kp1, y_r_kp1, x, y )
 
-distance_km1 = distance_between( x_r_km1, y_r_km1, x, y )
-distance_kp1 = distance_between( x_r_kp1, y_r_kp1, x, y )
+    dy.append_primay_ouput(distance_km1, 'distance_km1')
+    dy.append_primay_ouput(distance_kp1, 'distance_kp1')
 
-# x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index )
+    # x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index )
 
 
 
 if advanced_control:
     x_r_ahead, y_r_ahead, psi_r_ahead, K_r_ahead = sample_path(path, index=tracked_index + Delta_index_ahead )
+
+    dy.append_primay_ouput(K_r_ahead, 'K_r_ahead')
 
 # add sign information to the distance
 Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
@@ -95,15 +111,15 @@ if advanced_control:
 else:
     Delta_l_r = dy.float64(0.0)
 
+dy.append_primay_ouput(Delta_l_r, 'Delta_l_r')
 
 
 # feedback control
 Delta_u = dy.PID_controller(r=Delta_l_r, y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
 # path tracking
-steering = psi_r - psi + Delta_u
-#steering = psi_r_ahead - psi + Delta_u
-steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True) 
+steering =  psi_r - psi + Delta_u
+steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 
 #
 # The model of the vehicle including a disturbance
@@ -127,11 +143,51 @@ x << x_
 y << y_
 psi << psi_
 
-# main simulation ouput
-if advanced_control:
 
-    dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, distance_km1, distance_kp1, steering_disturbance, disturbed_steering, tracked_index, Delta_index, Delta_index_ahead, distance_residual, Delta_index_ahead_i1, K_r_ahead, Delta_l_r], 
-            ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'distance_km1', 'distance_kp1', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
+
+
+
+
+# # bicycle model
+# x_dot   = velocity * dy.cos( disturbed_steering + psi )
+# y_dot   = velocity * dy.sin( disturbed_steering + psi )
+# psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbed_steering )
+
+# # integrators
+# sampling_rate = 0.01
+# x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
+# y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
+# psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
+
+
+
+
+
+
+dy.append_primay_ouput(x, 'x')
+dy.append_primay_ouput(y, 'y')
+dy.append_primay_ouput(psi, 'psi')
+
+dy.append_primay_ouput(steering, 'steering')
+
+dy.append_primay_ouput(x_r, 'x_r')
+dy.append_primay_ouput(y_r, 'y_r')
+dy.append_primay_ouput(psi_r, 'psi_r')
+
+dy.append_primay_ouput(Delta_l, 'Delta_l')
+
+dy.append_primay_ouput(steering_disturbance, 'steering_disturbance')
+dy.append_primay_ouput(disturbed_steering, 'disturbed_steering')
+dy.append_primay_ouput(tracked_index, 'tracked_index')
+dy.append_primay_ouput(Delta_index, 'Delta_index')
+
+
+
+
+# main simulation ouput
+# if advanced_control:
+#     dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, distance_km1, distance_kp1, steering_disturbance, disturbed_steering, tracked_index, Delta_index, Delta_index_ahead, distance_residual, Delta_index_ahead_i1, K_r_ahead, Delta_l_r], 
+#             ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'distance_km1', 'distance_kp1', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
 
 # generate code
 sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
