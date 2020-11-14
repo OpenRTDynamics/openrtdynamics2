@@ -65,6 +65,18 @@ def ra(time, val1, val2, Ts=1.0):
 
 
 
+def import_path_data(data):
+    # distance on path (D), position (X/Y), path orientation (PSI), curvature (K)
+    path = {}
+    path['D']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['D'] )
+    path['X']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['X'] )
+    path['Y']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['Y'] )
+    path['PSI'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['PSI'] )
+    path['K']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['K'] )
+
+    path['samples'] = data.Nmax
+
+    return path
 
 def discrete_time_bicycle_model(delta, v, wheelbase):
     x   = dy.signal()
@@ -130,7 +142,7 @@ def tracker(path, x, y):
 
     index_track << dy.delay(index_track_next, initial_state=1)
 
-    return index_track, Delta_index, distance
+    return index_track_next, Delta_index, distance
 
 
 

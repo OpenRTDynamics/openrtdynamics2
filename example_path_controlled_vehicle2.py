@@ -19,17 +19,22 @@ system = dy.enter_system()
 baseDatatype = dy.DataTypeFloat64(1) 
 
 # define simulation inputs
-velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
-k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0*0.112, "title" : "controller gain" })
+if not advanced_control:
+    velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
+    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.112, "title" : "controller gain" })
+    disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 45.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+    sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
 
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
-sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
 
-
-distance_ahead   = dy.system_input( baseDatatype ).set_name('distance_ahead').set_properties({ "range" : [0, 20.0], "default_value" : 5.0, "title" : "distance ahead" })
 
 if advanced_control:
+    velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
+    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0*0.112, "title" : "controller gain" })
 
+    disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+    sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
+
+    distance_ahead   = dy.system_input( baseDatatype ).set_name('distance_ahead').set_properties({ "range" : [0, 20.0], "default_value" : 5.0, "title" : "distance ahead" })
     z_inf            = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.981, "title" : "z_inf" })
     lateral_gain     = dy.system_input( baseDatatype ).set_name('lateral_gain').set_properties({ "range" : [-4000.0, 4000.0], "default_value" : 5.0, "title" : "lateral_gain" })
 
@@ -37,15 +42,7 @@ if advanced_control:
 wheelbase = 3.0
 
 # create storage for the reference path:
-# distance on path (D), position (X/Y), path orientation (PSI), curvature (K)
-path = {}
-path['D']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['D'] )
-path['X']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['X'] )
-path['Y']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['Y'] )
-path['PSI'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['PSI'] )
-path['K']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=example_data.output['K'] )
-
-path['samples'] = example_data.Nmax
+path = import_path_data(example_data)
 
 # create placeholders for the plant output signals
 x   = dy.signal()
@@ -63,12 +60,15 @@ if advanced_control:
     dy.append_primay_ouput(Delta_index_ahead, 'Delta_index_ahead')
 
 # verify
-index_closest_compare, distance_compare, index_start_compare = lookup_closest_point( N=path['samples'], path_distance_storage=path['D'], path_x_storage=path['X'], path_y_storage=path['Y'], x=x, y=y )
-dy.append_primay_ouput(index_closest_compare, 'index_closest_compare')
+if False:
+    index_closest_compare, distance_compare, index_start_compare = lookup_closest_point( N=path['samples'], path_distance_storage=path['D'], path_x_storage=path['X'], path_y_storage=path['Y'], x=x, y=y )
+    dy.append_primay_ouput(index_closest_compare, 'index_closest_compare')
 
 
 # get the reference
-x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index )
+x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # new sampling
+# x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index ) # old sampling
+
 
 #
 # verify the data
@@ -82,9 +82,6 @@ if False:
 
     dy.append_primay_ouput(distance_km1, 'distance_km1')
     dy.append_primay_ouput(distance_kp1, 'distance_kp1')
-
-    # x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index )
-
 
 
 if advanced_control:
