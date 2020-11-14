@@ -95,8 +95,12 @@ class Simulation:
     def addBlock(self, blk : Block):
         self.BlocksArray.append(blk)
 
+    # TODO: remove this?
     def set_primary_outputs(self, outputSignals):
         self._output_signals = outputSignals
+
+    def append_primay_ouput(self, outputSignals):
+        self._output_signals.append(outputSignals)
     
     @property
     def primary_outputs(self):

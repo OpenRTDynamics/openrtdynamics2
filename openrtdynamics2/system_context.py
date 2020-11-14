@@ -89,3 +89,10 @@ def set_primary_outputs(output_signals, names = None):
 
     get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
+def append_primay_ouput(output_signal, export_name : str = None):
+
+    if export_name is not None:
+        output_signal.set_name_raw(export_name)
+
+    get_simulation_context().append_primay_ouput(output_signal.unwrap)
+    

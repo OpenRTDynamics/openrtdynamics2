@@ -324,8 +324,6 @@ class PlotManager {
                     plot = new PlotPlotly(graphDiv)
                 }
 
-                this.plots.push(plot)
-
                 if (graphDiv.hasAttribute('x') && graphDiv.hasAttribute('y')) {
 
                     var x_names = graphDiv.getAttribute('x').split(" ")
@@ -333,13 +331,26 @@ class PlotManager {
 
                     // TODO: handle unknown names
                     if (x_names.length == 1) {
+                        // Create plot(s) over one x-variable (e.g. a time-series plot)
+
                         var x_name = x_names[0]
+                        if (x_name != "time" && !manifest.io.outputs.calculate_output.names.includes(x_name)) {
+                            console.log(x_name, 'is not part of the systems outputs')
+                            continue
+                        }
 
                         y_names.forEach(function (y_name) {
-                            plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
+                            // check if y_name is in part of the system outpus manifest.io.outputs.calculate_output.names
+                            if ( !manifest.io.outputs.calculate_output.names.includes( y_name )) {
+                                console.log(y_name, 'is not part of the systems outputs')
+                            } else {
+                                plot.add_trace( arrays_for_output_signals_array, x_name, y_name, y_name )
+                            }
+
                         })
             
                     } else if ( x_names.length == y_names.length ) {
+                        // create scatterplot(s)
 
                         for (var j=0; j < x_names.length; ++j) {
                             plot.add_trace( arrays_for_output_signals_array, x_names[j], y_names[j], x_names[j] + '/' + y_names[j] )
@@ -380,6 +391,8 @@ class PlotManager {
 
                 // new
                 plot.set_descriptions( title, xlabel, ylabel )
+
+                this.plots.push(plot)
 
                 // new
                 plot.show()
@@ -667,8 +680,11 @@ class simulationInstance {
             var outputs = this.instance.calcResults_1(inputs_calcOutputs);
             this.instance.updateStates(inputs_updateStates);
     
-            t = t + sampling_time;
-            this.arrays_for_output_signals_array["time"][i] = t
+            if (!this.manifest.io.outputs.calculate_output.names.includes("time")) {
+                // add a signal 'time' in case it is not already present as a system output
+                t = t + sampling_time;
+                this.arrays_for_output_signals_array["time"][i] = t    
+            }
     
             for ( const outputName of this.manifest.io.outputs.calculate_output.names ) {
                 this.arrays_for_output_signals_array[outputName][i] = outputs[outputName];
