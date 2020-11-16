@@ -30,7 +30,7 @@ X = A[:,0]
 Y = A[:,1]
 
 # run simulation
-Nmax, output, sim_results = pg.generate_path(X=X, Y=Y, N=300000, wheelbase=1.0, Delta_d_reference=0.1, lr=2.0)
+Nmax, output, sim_results = pg.generate_path(X=X, Y=Y, N=300000, wheelbase=1.0, Delta_d_reference=0.05, lr=2.0)
 
 
 # pg.plot_generator_result( X, Y, output )

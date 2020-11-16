@@ -3,44 +3,41 @@ import numpy as np
 import openrtdynamics2.lang as dy
 
 
-import control as cntr
+# import control as cntr
 
 
 
 
-# some transfer function calcus 
-z = cntr.TransferFunction([1,0], [1], True)
+# # some transfer function calcus 
+# z = cntr.TransferFunction([1,0], [1], True)
 
 
-def z_tf(u, H):
+# def z_tf(u, H):
 
-    def get_zm1_coeff(L):
+#     def get_zm1_coeff(L):
     
-        numcf = L.num[0][0]
-        dencf = L.den[0][0]
+#         numcf = L.num[0][0]
+#         dencf = L.den[0][0]
         
-        N = len(dencf)-1
-        M = len(numcf)-1
+#         N = len(dencf)-1
+#         M = len(numcf)-1
 
-        # convert to normalized z^-1 representation
-        a0 = dencf[0]
+#         # convert to normalized z^-1 representation
+#         a0 = dencf[0]
         
-        numcf_ = np.concatenate( [np.zeros(N-M), numcf] ) / a0
-        dencf_ = dencf[1:] / a0
+#         numcf_ = np.concatenate( [np.zeros(N-M), numcf] ) / a0
+#         dencf_ = dencf[1:] / a0
         
-        return numcf_, dencf_
+#         return numcf_, dencf_
 
 
-    # convert the transfer function T to the representation needed for dy.transfer_function_discrete
-    b, a = get_zm1_coeff(H)
+#     # convert the transfer function T to the representation needed for dy.transfer_function_discrete
+#     b, a = get_zm1_coeff(H)
 
-    # system input
-    u = dy.float64(1.0)
+#     # implement the transfer function
+#     y = dy.transfer_function_discrete(u, num_coeff=b, den_coeff=a )
 
-    # implement the transfer function
-    y = dy.transfer_function_discrete(u, num_coeff=b, den_coeff=a )
-
-    return y
+#     return y
 
 
 

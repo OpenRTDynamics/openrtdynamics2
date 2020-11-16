@@ -36,13 +36,13 @@ openrtdynamics
         <plot type="chartjs" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
 
 
-        <plot type="chartjs" x="time"  y="Delta_l_r K_r_ahead"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="Delta_l Delta_l_r l_dot_r K_r_ahead Delta_l_filt Delta_l_model"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
         
         
-        <plot type="chartjs" x="time"  y="Delta_l distance_km1 distance_kp1 distance_residual"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="steering Delta_u"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
 
         <!-- <plot type="chartjs" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
-        <plot type="chartjs" x="time"  y="tracked_index Delta_index Delta_index_ahead Delta_index_ahead_i1 index_closest_compare"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="tracked_index Delta_index Delta_index_ahead"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
 
 
     </div>

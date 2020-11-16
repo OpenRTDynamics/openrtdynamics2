@@ -1,4 +1,5 @@
 import openrtdynamics2.lang as dy
+from openrtdynamics2.dsp import *
 
 import os
 # 
@@ -9,7 +10,7 @@ from vehicle_lib.vehicle_lib import *
 import vehicle_lib.example_data as example_data
 
 # cfg
-advanced_control = False
+advanced_control = True
 
 #
 # A vehicle controlled to follow a given path 
@@ -21,15 +22,16 @@ baseDatatype = dy.DataTypeFloat64(1)
 # define simulation inputs
 if not advanced_control:
     velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
-    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.112, "title" : "controller gain" })
+    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.24, "title" : "controller gain" })
     disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 45.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
     sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
 
+    z_inf_compensator      = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.9, "title" : "z_inf_compensator" })
 
 
 if advanced_control:
     velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
-    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0*0.112, "title" : "controller gain" })
+    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.24, "title" : "controller gain" })
 
     disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
     sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
@@ -38,8 +40,12 @@ if advanced_control:
     z_inf            = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.981, "title" : "z_inf" })
     lateral_gain     = dy.system_input( baseDatatype ).set_name('lateral_gain').set_properties({ "range" : [-4000.0, 4000.0], "default_value" : 5.0, "title" : "lateral_gain" })
 
+    z_inf_compensator      = dy.system_input( baseDatatype ).set_name('z_inf_compensator').set_properties({ "range" : [0, 1.0], "default_value" : 0.9, "title" : "z_inf_compensator" })
+
+
 # parameters
 wheelbase = 3.0
+Ts=0.01
 
 # create storage for the reference path:
 path = import_path_data(example_data)
@@ -112,11 +118,39 @@ dy.append_primay_ouput(Delta_l_r, 'Delta_l_r')
 
 
 # feedback control
-Delta_u = dy.PID_controller(r=Delta_l_r, y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
+Delta_l_filt = dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(Delta_l, z_inf_compensator), z_inf_compensator )
+l_dot_r = dy.PID_controller(r=Delta_l_r, y=Delta_l_filt, Ts=Ts, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
+
+dy.append_primay_ouput(Delta_l_filt, 'Delta_l_filt')
+
+# model of lateral distance
+z_inf_compensator_ = 0.9
+
+# L_Delta_l = 0.24 * Ts/(z-1) * ((1 - z_inf_compensator_) / (z - z_inf_compensator_)) * ((1 - z_inf_compensator_) / (z - z_inf_compensator_))
+# T_Delta_l = L_Delta_l / ( 1 + L_Delta_l )
+# Delta_l_model = z_tf( Delta_l_r, T_Delta_l ) # * dy.float64( 0.1 )
+
+
+
+L_Delta_l = Ts/(z-1) 
+
+Delta_l_model = z_tf( l_dot_r, L_Delta_l )
+
+
+
+
+dy.append_primay_ouput(Delta_l_model, 'Delta_l_model')
+
 
 # path tracking
+# resulting lateral model u --> Delta_l : 1/s
+Delta_u = dy.asin( dy.saturate(l_dot_r / velocity, -0.99, 0.99) )
 steering =  psi_r - psi + Delta_u
 steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
+
+dy.append_primay_ouput(Delta_u, 'Delta_u')
+dy.append_primay_ouput(l_dot_r, 'l_dot_r')
+
 
 #
 # The model of the vehicle including a disturbance
@@ -140,21 +174,6 @@ x << x_
 y << y_
 psi << psi_
 
-
-
-
-
-
-# # bicycle model
-# x_dot   = velocity * dy.cos( disturbed_steering + psi )
-# y_dot   = velocity * dy.sin( disturbed_steering + psi )
-# psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbed_steering )
-
-# # integrators
-# sampling_rate = 0.01
-# x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
-# y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
-# psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
 
 
 

@@ -1,160 +1,116 @@
-import openrtdynamics2.lang as dy
-
 import os
-import json
-from colorama import init, Fore, Back, Style
-init(autoreset=True)
-
 import math
 import numpy as np
 
-from vehicle_lib.vehicle_lib import *
-from vehicle_lib.path_generation import *
+import openrtdynamics2.lang as dy
+from openrtdynamics2.dsp import *
 
+from vehicle_lib.vehicle_lib import *
 import vehicle_lib.example_data as example_data
 
+# cfg
+advanced_control = True
 
 #
-# Solving a state space model of a vehicle
+# A vehicle controlled to follow a given path 
 #
-# 
-#
+
 system = dy.enter_system()
 baseDatatype = dy.DataTypeFloat64(1) 
 
-
-
-
-
-# define system inputs
-velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 50], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
+# define simulation inputs
+velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
 k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.112, "title" : "controller gain" })
+disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 45.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
 
-disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -45, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
-sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 0, "title" : "time of disturbance" }), target_type=dy.DataTypeInt32(1) )
-
+# parameters
 wheelbase = 3.0
 
-#
-# define the path
-#
+# create storage for the reference path:
+path = import_path_data(example_data)
 
-Td = 0.1
-path_x = example_data.output['X'] # np.concatenate(( ra(360, 0, 80, Ts=Td),  )) 
-path_y = example_data.output['Y'] # np.concatenate(( co(50, 0, Ts=Td), cosra(100, 0, 1, Ts=Td), co(50, 1, Ts=Td), cosra(100, 1, 0, Ts=Td), co(60,0, Ts=Td) ))
-path_distance = example_data.output['D'] #  np.concatenate((np.zeros(1), np.cumsum( np.sqrt( np.square( np.diff(path_x) ) + np.square( np.diff(path_y) ) ) ) ))
-N_path = example_data.Nmax # np.size(path_x)
-
-path_x_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_x )
-path_y_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_y )
-path_distance_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=path_distance )
-
-
-
-# create placeholder for the plant output signal
+# create placeholders for the plant output signals
 x   = dy.signal()
 y   = dy.signal()
 psi = dy.signal()
 
-# lookup lateral distance to path
-index_closest, distance, index_start = lookup_closest_point( N_path, path_distance_storage, path_x_storage, path_y_storage, x, y )
+# track the evolution of the closest point on the path to the vehicles position
+tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 
-# 
-x_r, y_r, psi_r = sample_path(path_distance_storage, path_x_storage, path_y_storage, index=index_closest + dy.int32(0) )
+# get the reference
+x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # new sampling
 
 # add sign information to the distance
-Delta_l = distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y )
+Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
+
+# reference for the lateral distance
+Delta_l_r = dy.float64(0.0)
+
+dy.append_primay_ouput(Delta_l_r, 'Delta_l_r')
 
 
-
-#
-# controller
-#
-
-# feedback
-Delta_u = dy.PID_controller(r=dy.float64(0.0), y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
+# feedback control
+l_dot_r = dy.PID_controller(r=Delta_l_r, y=Delta_l, Ts=0.01, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
 # path tracking
-steering = psi_r - psi + Delta_u
-steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True) 
+# resulting lateral model u --> Delta_l : 1/s
+Delta_u = dy.asin( dy.saturate(l_dot_r / velocity, -0.99, 0.99) )
+steering =  psi_r - psi + Delta_u
+steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 
-# steering = dy.difference_angle(psi_r , psi) + Delta_u
+dy.append_primay_ouput(Delta_u, 'Delta_u')
+dy.append_primay_ouput(l_dot_r, 'l_dot_r')
+
 
 #
-# The model of the vehicle
+# The model of the vehicle including a disturbance
 #
 
-
-#
+# model the disturbance
 disturbance_transient = np.concatenate(( cosra(50, 0, 1.0), co(10, 1.0), cosra(50, 1.0, 0) ))
-steering_disturbance, i = dy.play(disturbance_transient, reset=dy.counter() == sample_disturbance, prevent_initial_playback=True)
+steering_disturbance, i = dy.play(disturbance_transient, start_trigger=dy.counter() == sample_disturbance, auto_start=False)
 
 # apply disturbance to the steering input
 disturbed_steering = steering + steering_disturbance * disturbance_amplitude
 
-#
+# steering angle limit
 disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
 
+# the model of the vehicle
+x_, y_, psi_ = discrete_time_bicycle_model(disturbed_steering, velocity, wheelbase)
 
-def discrete_time_bicycle_model(delta, v):
-    x   = dy.signal()
-    y   = dy.signal()
-    psi = dy.signal()
-
-    # bicycle model
-    x_dot   = v * dy.cos( delta + psi )
-    y_dot   = v * dy.sin( delta + psi )
-    psi_dot = v / dy.float64(wheelbase) * dy.sin( delta )
-
-    # integrators
-    sampling_rate = 0.01
-    x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
-    y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
-    psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
-
-    return x, y, psi
-
-
-x_, y_, psi_ = discrete_time_bicycle_model(disturbed_steering, velocity)
-
+# close the feedback loops
 x << x_
 y << y_
 psi << psi_
 
 
 
+#
+# outputs
+#
 
-# x   = dy.signal()
-# y   = dy.signal()
-# psi = dy.signal()
+dy.append_primay_ouput(x, 'x')
+dy.append_primay_ouput(y, 'y')
+dy.append_primay_ouput(psi, 'psi')
 
-# # bicycle model
-# x_dot   = velocity * dy.cos( disturbed_steering + psi )
-# y_dot   = velocity * dy.sin( disturbed_steering + psi )
-# psi_dot = velocity / dy.float64(wheelbase) * dy.sin( disturbed_steering )
+dy.append_primay_ouput(steering, 'steering')
 
-# # integrators
-# sampling_rate = 0.01
-# x    << dy.euler_integrator(x_dot,   sampling_rate, 0.0)
-# y    << dy.euler_integrator(y_dot,   sampling_rate, 0.0)
-# psi  << dy.euler_integrator(psi_dot, sampling_rate, 0.0)
+dy.append_primay_ouput(x_r, 'x_r')
+dy.append_primay_ouput(y_r, 'y_r')
+dy.append_primay_ouput(psi_r, 'psi_r')
 
+dy.append_primay_ouput(Delta_l, 'Delta_l')
 
-
-
-
-
-
+dy.append_primay_ouput(steering_disturbance, 'steering_disturbance')
+dy.append_primay_ouput(disturbed_steering, 'disturbed_steering')
+dy.append_primay_ouput(tracked_index, 'tracked_index')
+dy.append_primay_ouput(Delta_index, 'Delta_index')
 
 
-# main simulation ouput
-dy.set_primary_outputs([ x, y, x_r, y_r, psi, psi_r, steering, Delta_l, index_start, steering_disturbance, disturbed_steering ], 
-        ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l__', 'lookup_index', 'steering_disturbance', 'disturbed_steering'])
+# generate code
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
 
 #
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
-
-# print the sourcecode (main.cpp)
-#print(Style.DIM + sourcecode)
-
 dy.clear()
