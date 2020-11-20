@@ -113,7 +113,7 @@ def generate_signal_PWM( period, modulator ):
 
 
 #testname = 'system_state_machine_pwm' # 
-testname = 'delay_init' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
+testname = 'rate_limit' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -1027,6 +1027,34 @@ if testname == 'delay_init':
     # main simulation ouput
     output_signals = [ signal ]
 
+
+
+if testname == 'rate_limit':
+    
+    baseDatatype = dy.DataTypeFloat64(1) 
+
+    lower_limit1 = dy.system_input( baseDatatype ).set_name('lower_limit1').set_properties({ "range" : [-5, 0], "default_value" : -1 })
+    uppper_limit1 = dy.system_input( baseDatatype ).set_name('uppper_limit1').set_properties({ "range" : [0,  5], "default_value" : 1 })
+
+    gain = dy.system_input( baseDatatype ).set_name('gain').set_properties({ "range" : [0, 0.1], "default_value" : 0.03 })
+
+    z_inf = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 0.999], "default_value" : 0.9 })
+
+    step = dy.signal_step( 50 )
+
+    # v1
+    rate_limit_1 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, uppper_limit=uppper_limit1, initial_state = 0 )
+
+    # v2
+    rate_limit_2 = dy.rate_limit_2nd( step, 0.01, lower_limit1, uppper_limit1, gain=gain, initial_state=0 )
+
+    # v3
+    rate_limit_3 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, uppper_limit=uppper_limit1, initial_state = 0 )
+    rate_limit_3 = dy.dtf_lowpass_1_order(rate_limit_3, z_inf)
+
+
+    # main simulation ouput
+    output_signals = [ rate_limit_1, rate_limit_2, rate_limit_3 ]
 
 
 if testname == 'vanderpol':

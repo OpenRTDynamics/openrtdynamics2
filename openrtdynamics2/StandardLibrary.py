@@ -127,6 +127,43 @@ def saturate(u, lower_limit, uppper_limit):
 
     return y
 
+
+def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
+    """
+        rate limiter
+
+        Ts           - sampling time
+        lower_limit  - lower rate limit
+        upper_limit  - upper rate limit
+    """
+
+    Ts_ = float64(Ts)
+
+    y = dy.signal()
+
+    omega = u - y
+    omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
+    y << euler_integrator( omega_sat, 1, initial_state=initial_state)
+
+    return y
+
+
+def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
+
+    Ts_ = float64(Ts)
+
+    y = dy.signal()
+
+    e = ( u - y )
+    omega = dy.tan( u - y ) * dy.float64(gain)
+    omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
+
+    y << euler_integrator(  omega_sat, 1, initial_state=initial_state)
+
+    return y
+
+
+
 #
 # Counters
 #
