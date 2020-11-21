@@ -120,6 +120,11 @@ def unwrap_angle(angle, normalize_around_zero = False):
 def saturate(u, lower_limit, uppper_limit):
     """
         saturate the input signal
+
+        The output is the saturated input
+
+        lower_limit   - lower bound for the output 
+        uppper_limit  - upper bound for the output
     """
 
     y = dy.conditional_overwrite( u, u < float64(lower_limit), lower_limit )
@@ -132,7 +137,7 @@ def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
     """
         rate limiter
 
-        Ts           - sampling time
+        Ts           - sampling time (constant)
         lower_limit  - lower rate limit
         upper_limit  - upper rate limit
     """
@@ -247,7 +252,7 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
     counter = dy.signal()
 
-    reached_upper_limit = counter >= dy.int32(upper_limit)
+    reached_upper_limit = counter > dy.int32(upper_limit)
 
     if start_trigger is None:
         start_trigger = dy.boolean(0)
@@ -256,7 +261,12 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     if pause_trigger is not None: 
         activate_trigger = dy.logic_or(reached_upper_limit, pause_trigger)
     else:
-        activate_trigger = reached_upper_limit
+        if not auto_start:
+            activate_trigger = reached_upper_limit
+        else:
+            # when auto_start is active, continue counting after reset on reached_upper_limit
+            activate_trigger = dy.boolean(0)
+
 
     # state for pause/counting
     paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start).set_name('paused')
@@ -280,7 +290,42 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     return counter
 
 
+def toggle(trigger, initial_state=False):
 
+    state = dy.signal()
+
+    state << dy.flipflop( dy.logic_and( dy.logic_not( state ), trigger ),  dy.logic_and( dy.logic_not( trigger ), state ), 
+                            initial_state=initial_state, 
+                            nodelay=False)
+
+    return state
+
+
+
+def toggle(trigger, initial_state=False):
+
+    state = dy.signal()
+
+    activate   = dy.logic_and( dy.logic_not( state ), trigger )
+    deactivate = dy.logic_and( trigger , state)
+
+    tmp = dy.flipflop( activate, deactivate, 
+                            initial_state = 0, 
+                            nodelay=False )
+
+    state << tmp
+
+    return state, activate, deactivate
+    
+def signal_square(period, phase):
+
+    trigger = signal_periodic_impulse(period, phase)
+
+    state, activate, deactivate = toggle(trigger)
+
+    return state, activate, deactivate
+
+    #return trigger
 
 #
 # signal generators
@@ -311,7 +356,7 @@ def signal_sinus(N_period : int = 100, phi = None):
 
     return y
 
-def signal_step(k_step : int):
+def signal_step(k_step):
     """
         Signal generator for a step signal
 
@@ -322,7 +367,7 @@ def signal_step(k_step : int):
 
     return y
 
-def signal_ramp(k_start : int):
+def signal_ramp(k_start):
     """
         Signal generator for a ramp signal
 
@@ -337,7 +382,7 @@ def signal_ramp(k_start : int):
     return activation * linearRise
 
 
-def signal_impulse(k_event : int):
+def signal_impulse(k_event):
     """
         Pulse signal generator
 
@@ -476,7 +521,7 @@ def sum2(u : dy.Signal, initial_state=0):
 
     return y_k, y_kp1
 
-def euler_integrator( u : dy.Signal, Ts : float, initial_state = 0.0):
+def euler_integrator( u : dy.Signal, Ts, initial_state = 0.0):
     """
         Euler (forward) integrator
 
@@ -485,7 +530,11 @@ def euler_integrator( u : dy.Signal, Ts : float, initial_state = 0.0):
 
     yFb = dy.signal()
 
-    i = dy.add( [ yFb, u ], [ 1, Ts ] )
+    if not isinstance( Ts, dy.SignalUserTemplate ): 
+        i = dy.add( [ yFb, u ], [ 1, Ts ] )
+    else:
+        i = yFb + Ts * u
+
     y = dy.delay( i, initial_state )
 
     yFb << y

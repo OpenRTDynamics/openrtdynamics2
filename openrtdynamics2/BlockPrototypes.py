@@ -1961,8 +1961,12 @@ class Flipflop(BlockPrototype):
             return self.getUniqueVarnamePrefix() + '_state' + ' = ' + initial_state_str + ';\n'
 
 
-def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state = False):
-    return wrap_signal( Flipflop(get_simulation_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state ).outputs[0] )
+def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False):
+    """
+        TODO..
+    """
+    
+    return wrap_signal( Flipflop(get_simulation_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, nodelay=nodelay ).outputs[0] )
 
 
 
