@@ -10,7 +10,7 @@ from vehicle_lib.vehicle_lib import *
 import vehicle_lib.example_data as example_data
 
 # cfg
-advanced_control = True
+advanced_control = False
 
 #
 # A vehicle controlled to follow a given path 
@@ -58,6 +58,12 @@ psi = dy.signal()
 # track the evolution of the closest point on the path to the vehicles position
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 
+second_closest_distance, index_second_star = find_second_closest( path, x, y, index_star=tracked_index )
+interpolated_closest_distance = compute_distance_from_linear_interpolation( second_closest_distance, closest_distance  )
+
+dy.append_primay_ouput(interpolated_closest_distance, 'interpolated_closest_distance')
+dy.append_primay_ouput(second_closest_distance, 'second_closest_distance')
+
 if advanced_control:
     Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=distance_ahead)
 
@@ -74,6 +80,19 @@ if False:
 # get the reference
 x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # new sampling
 # x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index ) # old sampling
+
+
+# compute nominal steering and steering angle from curvature
+delta_from_K, delta_dot_from_K = compute_nominal_steering_from_curvature( Ts=Ts, l_r=wheelbase, v=velocity, K_r=K_r )
+
+dy.append_primay_ouput( delta_from_K,     'delta_from_K'     )
+dy.append_primay_ouput( delta_dot_from_K, 'delta_dot_from_K' )
+
+# compute nominal steering and carbody orientation from path heading
+delta_from_heading, psi_from_heading = compute_nominal_steering_from_path_heading( Ts=Ts, l_r=wheelbase, v=velocity, psi_r=psi_r )
+
+dy.append_primay_ouput( delta_from_heading, 'delta_from_heading' )
+dy.append_primay_ouput( psi_from_heading,   'psi_from_heading' )
 
 
 #

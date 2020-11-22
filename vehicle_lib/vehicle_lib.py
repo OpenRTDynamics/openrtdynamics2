@@ -3,48 +3,6 @@ import numpy as np
 import openrtdynamics2.lang as dy
 
 
-# import control as cntr
-
-
-
-
-# # some transfer function calcus 
-# z = cntr.TransferFunction([1,0], [1], True)
-
-
-# def z_tf(u, H):
-
-#     def get_zm1_coeff(L):
-    
-#         numcf = L.num[0][0]
-#         dencf = L.den[0][0]
-        
-#         N = len(dencf)-1
-#         M = len(numcf)-1
-
-#         # convert to normalized z^-1 representation
-#         a0 = dencf[0]
-        
-#         numcf_ = np.concatenate( [np.zeros(N-M), numcf] ) / a0
-#         dencf_ = dencf[1:] / a0
-        
-#         return numcf_, dencf_
-
-
-#     # convert the transfer function T to the representation needed for dy.transfer_function_discrete
-#     b, a = get_zm1_coeff(H)
-
-#     # implement the transfer function
-#     y = dy.transfer_function_discrete(u, num_coeff=b, den_coeff=a )
-
-#     return y
-
-
-
-
-
-
-
 
 # nice functions to create paths
 def co(time, val, Ts=1.0):
@@ -142,6 +100,44 @@ def tracker(path, x, y):
     return index_track_next, Delta_index, distance
 
 
+
+
+def find_second_closest( path, x, y, index_star ):
+        
+    one = dy.int32(1)
+
+    ip1 = index_star + one
+    x_test_ip1 = dy.memory_read( memory=path['X'], index=ip1 ) 
+    y_test_ip1 = dy.memory_read( memory=path['Y'], index=ip1 )
+    distance_ip1 = distance_between( x, y, x_test_ip1, y_test_ip1 )
+
+    im1 = index_star - one
+    x_test_im1 = dy.memory_read( memory=path['X'], index=im1 ) 
+    y_test_im1 = dy.memory_read( memory=path['Y'], index=im1 )
+    distance_im1 = distance_between( x, y, x_test_im1, y_test_im1 )
+    
+    which = distance_ip1 > distance_im1
+
+    second_clostest_distance = distance_ip1
+    second_clostest_distance = dy.conditional_overwrite( second_clostest_distance, condition=which, new_value=distance_im1 )
+
+    index_second_star = ip1
+    index_second_star = dy.conditional_overwrite( index_second_star, condition=which, new_value=im1 )
+
+    return second_clostest_distance, index_second_star
+
+
+
+def compute_distance_from_linear_interpolation( d1, d2 ):
+
+    # TODO: rework.. formula not ok
+
+    one = dy.float64(1)
+
+    p = one / ( one/(d1*d1) + one/(d2*d2) )
+    h = dy.sqrt( p )
+
+    return h
 
 
 
@@ -379,6 +375,44 @@ def distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y ):
 
     return Delta_l
 
+
+def compute_nominal_steering_from_curvature( Ts : float, l_r : float, v, K_r ):
+    """
+        compute the nominal steering angle and rate from given path heading and curvature
+        signals.
+    """
+
+    psi_dot = dy.signal()
+
+    delta_dot = v * K_r - psi_dot
+    delta = dy.euler_integrator( delta_dot, Ts )
+    psi_dot << (v / dy.float64(l_r) * dy.sin(delta))
+
+    return delta, delta_dot
+
+def compute_nominal_steering_from_path_heading( Ts : float, l_r : float, v, psi_r ):
+
+    psi = dy.signal()
+
+    delta = psi_r - psi 
+    psi_dot = v / dy.float64(l_r) * dy.sin(delta)
+
+    psi << dy.euler_integrator( psi_dot, Ts )
+
+    return delta, psi
+
+def compute_lateral_accelearation( v, v_dot, delta, delta_dot, psi_dot ):
+
+    a_l = v_dot * dy.sin( delta ) + v * ( delta_dot + psi_dot ) * dy.cos( delta )
+
+    return a_l
+
+def compute_steering_constraints( v, v_dot, psi_dot, delta, a_l_min, a_l_max ):
+
+    delta_lower_bound = ( a_l_max - v_dot * dy.sin(delta) ) / ( v * dy.cos(delta) ) - psi_dot
+    delta_upper_bound = ( a_l_min - v_dot * dy.sin(delta) ) / ( v * dy.cos(delta) ) - psi_dot
+
+    return delta_lower_bound, delta_upper_bound
 
 
 
