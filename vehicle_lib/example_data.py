@@ -34,3 +34,22 @@ Nmax, output, sim_results = pg.generate_path(X=X, Y=Y, N=300000, wheelbase=1.0, 
 
 
 # pg.plot_generator_result( X, Y, output )
+
+
+
+# save path to a file
+import json
+
+output_ = {}
+output_['D']   = output['D'].tolist()
+output_['X']   = output['X'].tolist()
+output_['Y']   = output['Y'].tolist()
+output_['PSI']           = output['PSI'].tolist()
+output_['K']             = output['K'].tolist()
+output_['DELTA_vehilce'] = output['DELTA_vehilce'].tolist()
+
+
+with open('track_data.json', 'w') as outfile:
+    json.dump(output_, outfile)
+
+

@@ -21,9 +21,9 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 # define simulation inputs
 if not advanced_control:
-    velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 23.75, "title" : "vehicle velocity" })
-    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.24, "title" : "controller gain" })
-    disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : 45.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
+    velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 7.2, "title" : "vehicle velocity" })
+    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.612, "title" : "controller gain" })
+    disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -11.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
     sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
 
     z_inf_compensator      = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.9, "title" : "z_inf_compensator" })
@@ -49,6 +49,8 @@ Ts=0.01
 
 # create storage for the reference path:
 path = import_path_data(example_data)
+
+
 
 # create placeholders for the plant output signals
 x   = dy.signal()
@@ -82,17 +84,6 @@ x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # 
 # x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index ) # old sampling
 
 
-# compute nominal steering and steering angle from curvature
-delta_from_K, delta_dot_from_K = compute_nominal_steering_from_curvature( Ts=Ts, l_r=wheelbase, v=velocity, K_r=K_r )
-
-dy.append_primay_ouput( delta_from_K,     'delta_from_K'     )
-dy.append_primay_ouput( delta_dot_from_K, 'delta_dot_from_K' )
-
-# compute nominal steering and carbody orientation from path heading
-delta_from_heading, psi_from_heading = compute_nominal_steering_from_path_heading( Ts=Ts, l_r=wheelbase, v=velocity, psi_r=psi_r )
-
-dy.append_primay_ouput( delta_from_heading, 'delta_from_heading' )
-dy.append_primay_ouput( psi_from_heading,   'psi_from_heading' )
 
 
 #
@@ -170,6 +161,46 @@ steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 dy.append_primay_ouput(Delta_u, 'Delta_u')
 dy.append_primay_ouput(l_dot_r, 'l_dot_r')
 
+
+#
+# safety function
+#
+
+
+
+# compute nominal steering and steering angle from curvature
+delta_from_K, delta_dot_from_K, psi_dot_from_K = compute_nominal_steering_from_curvature( Ts=Ts, l_r=wheelbase, v=velocity, K_r=K_r )
+
+dy.append_primay_ouput( delta_from_K,     'delta_from_K'     )
+dy.append_primay_ouput( delta_dot_from_K, 'delta_dot_from_K' )
+
+# compute nominal steering and carbody orientation from path heading
+delta_from_heading, psi_from_heading, psi_dot_from_heading = compute_nominal_steering_from_path_heading( Ts=Ts, l_r=wheelbase, v=velocity, psi_r=psi_r )
+
+dy.append_primay_ouput( delta_from_heading, 'delta_from_heading' )
+dy.append_primay_ouput( psi_from_heading,   'psi_from_heading' )
+
+# compute the nominal acceleration and the boundaries for the steering rate
+a_l_nominal = compute_accelearation( v=velocity, v_dot=dy.float64(0), delta=delta_from_K, delta_dot=delta_dot_from_K, psi_dot=psi_dot_from_K )
+
+a_l_min = a_l_nominal - dy.float64(1.5)
+a_l_max = a_l_nominal + dy.float64(1.5)
+
+dy.append_primay_ouput( a_l_nominal,   'a_l_nominal' )
+
+dy.append_primay_ouput( a_l_min,   'a_l_min' )
+dy.append_primay_ouput( a_l_max,   'a_l_max' )
+
+# psi_dot_from_K --> psi_dot (real vehicle)
+delta_dot_min, delta_dot_max = compute_steering_constraints( v=velocity, v_dot=dy.float64(0), psi_dot=psi_dot_from_K, delta=steering, a_l_min=a_l_min, a_l_max=a_l_max )
+
+dy.append_primay_ouput( delta_dot_min,   'delta_dot_min' )
+dy.append_primay_ouput( delta_dot_max,   'delta_dot_max' )
+
+# estimate steering rate of the real vehicle
+delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering ) / dy.float64(Ts), 0.8)
+
+dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
 
 #
 # The model of the vehicle including a disturbance

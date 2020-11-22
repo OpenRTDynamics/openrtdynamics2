@@ -35,14 +35,21 @@ openrtdynamics
 
         <plot type="chartjs" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
 
+        <plot type="chartjs" x="time"  y="a_l_nominal a_l_min a_l_max"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        <plot type="chartjs" x="time"  y="delta_dot_from_K delta_dot_min delta_dot_max delta_dot_hat"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
 
         <plot type="chartjs" x="time"  y="Delta_l Delta_l_r l_dot_r K_r_ahead Delta_l_filt Delta_l_model interpolated_closest_distance second_closest_distance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
         
         
-        <plot type="chartjs" x="time"  y="steering Delta_u delta_from_K delta_dot_from_K delta_from_heading psi_from_heading"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <plot type="chartjs" x="time"  y="steering Delta_u delta_from_K delta_from_heading psi_from_heading"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
 
-        <!-- <plot type="chartjs" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
+
+        
+
         <plot type="chartjs" x="time"  y="tracked_index Delta_index Delta_index_ahead"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+
 
 
     </div>

@@ -388,7 +388,7 @@ def compute_nominal_steering_from_curvature( Ts : float, l_r : float, v, K_r ):
     delta = dy.euler_integrator( delta_dot, Ts )
     psi_dot << (v / dy.float64(l_r) * dy.sin(delta))
 
-    return delta, delta_dot
+    return delta, delta_dot, psi_dot
 
 def compute_nominal_steering_from_path_heading( Ts : float, l_r : float, v, psi_r ):
 
@@ -399,9 +399,9 @@ def compute_nominal_steering_from_path_heading( Ts : float, l_r : float, v, psi_
 
     psi << dy.euler_integrator( psi_dot, Ts )
 
-    return delta, psi
+    return delta, psi, psi_dot
 
-def compute_lateral_accelearation( v, v_dot, delta, delta_dot, psi_dot ):
+def compute_accelearation( v, v_dot, delta, delta_dot, psi_dot ):
 
     a_l = v_dot * dy.sin( delta ) + v * ( delta_dot + psi_dot ) * dy.cos( delta )
 
