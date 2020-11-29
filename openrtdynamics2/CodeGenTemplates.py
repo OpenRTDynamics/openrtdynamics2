@@ -6,7 +6,7 @@ from .SystemLibrary import *
 import subprocess
 import os
 import json
-
+from pathlib import Path
 
 
 class PutRuntimeCppHelper:
@@ -360,18 +360,19 @@ class WasmRuntime(PutRuntimeCppHelper):
 
 
     def write_code(self, folder):
+
         PutRuntimeCppHelper.writeFiles(self, folder)
 
         self.codeFolder = folder
 
-        f = open(os.path.join( folder + "main.cpp"), "w")
+        f = open( Path( folder ) / "main.cpp", "w")
         f.write( self.sourceCode )
         f.close()
 
 
     def build(self):
 
-        buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder + "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder + "main.js" )
+        buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder , "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder , "main.js" )
         print("Running compiler: " + buildCommand)
 
         returnCode = os.system(buildCommand)

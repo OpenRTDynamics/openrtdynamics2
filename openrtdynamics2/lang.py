@@ -96,8 +96,14 @@ def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
     sourcecode, manifest = template.code_gen()
 
     if folder is not None:
+
+        # check of path exists - in case no, create it
+        Path(folder).mkdir(parents=True, exist_ok=True)
+
+        print("Code generation folder", folder)
+
         # write generated code into a folder and build
-        template.write_code("generated/")
+        template.write_code(folder)
 
         if build:
             template.build()
