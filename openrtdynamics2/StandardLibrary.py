@@ -461,14 +461,19 @@ def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_
 # Filters
 #
 
-def diff(u : dy.Signal):
+def diff(u : dy.Signal, initial_state = None):
     """
         Discrete difference
 
         y = u[k] - u[k-1] 
+
+        initial state
+
+        u[0] = initial_state   in case initial_state is not None
+        u[0] = 0               otherwise
     """
 
-    i = dy.delay( u )
+    i = dy.delay( u, initial_state )
     y = dy.add( [ i, u ], [ -1, 1 ] )
 
     return y
