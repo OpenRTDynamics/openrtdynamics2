@@ -22,7 +22,10 @@
 
     $( "#reload_trigger_vehicle" ).click(function() {
 
-        var files = { manifest : 'simulation_manifest.json', wasm : 'main.wasm', jscode : 'main.js' }
+        // load the simulator and its interface
+        folder = 'build'
+
+        var files = { manifest : folder + '/simulation_manifest.json', wasm : folder + '/main.wasm', jscode : folder + '/main.js' }
         var ret = openrtdynamics.loadCompiledSimulator(files);
         simulator_gui_container = document.getElementById('simulator_gui_container_vehicle')
         openrtdynamics.setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});

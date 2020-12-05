@@ -267,7 +267,7 @@ dy.append_primay_ouput(Delta_index, 'Delta_index')
 #             ['x', 'y', 'x_r', 'y_r', 'psi', 'psi_r', 'steering', 'Delta_l', 'distance_km1', 'distance_kp1', 'steering_disturbance', 'disturbed_steering', 'tracked_index', 'Delta_index', 'Delta_index_ahead', 'distance_residual', 'Delta_index_ahead_i1', 'K_r_ahead', 'Delta_l_r'])
 
 # generate code
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="generated/", build=True)
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(enable_tracing=False), folder="html/build/", build=True)
 
 #
 dy.clear()

@@ -1132,7 +1132,7 @@ print(json.dumps(manifest, indent=4, sort_keys=True))
 
 
 # write generated code into a folder and build
-runtime_template.write_code("generated/")
+runtime_template.write_code("html/build/")
 runtime_template.build()
 
 # run the code (in case the runtime template supports it)

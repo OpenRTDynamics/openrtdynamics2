@@ -107,3 +107,6 @@ venv.bak/
 .DS_Store
 a.out
 node_modules
+
+ortd_js/openrtdynamics.js
+html/build
