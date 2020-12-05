@@ -2,12 +2,16 @@ import openrtdynamics2.lang as dy
 from openrtdynamics2.dsp import *
 
 import os
-# 
+import json 
 import math
 import numpy as np
 
 from vehicle_lib.vehicle_lib import *
-import vehicle_lib.example_data as example_data
+#import vehicle_lib.example_data as example_data
+
+# load track data
+with open("track_data/simple_track.json", "r") as read_file:
+    track_data = json.load(read_file)
 
 # cfg
 advanced_control = False
@@ -48,7 +52,7 @@ wheelbase = 3.0
 Ts=0.01
 
 # create storage for the reference path:
-path = import_path_data(example_data)
+path = import_path_data(track_data)
 
 
 
@@ -80,11 +84,18 @@ if False:
 
 
 # get the reference
-x_r, y_r, psi_r, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # new sampling
-# x_r, y_r, psi_r = sample_path_finite_difference(path, index=tracked_index ) # old sampling
+x_r, y_r, psi_rr, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  # new sampling
+# x_r, y_r, psi_rr = sample_path_finite_difference(path, index=tracked_index ) # old sampling
 
 
 
+
+
+# compute the noise-reduced path orientation Psi_r from curvature
+psi_r, psi_r_dot = compute_path_orientation_from_curvature( Ts, velocity, psi_rr, K_r, L=1.0 ) 
+
+dy.append_primay_ouput(psi_rr,     'psi_rr')
+dy.append_primay_ouput(psi_r_dot, 'psi_r_dot')
 
 #
 # verify the data
@@ -198,7 +209,7 @@ dy.append_primay_ouput( delta_dot_min,   'delta_dot_min' )
 dy.append_primay_ouput( delta_dot_max,   'delta_dot_max' )
 
 # estimate steering rate of the real vehicle
-delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering ) / dy.float64(Ts), 0.8)
+delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering, initial_state=steering ) / dy.float64(Ts), 0.1)
 
 dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
 

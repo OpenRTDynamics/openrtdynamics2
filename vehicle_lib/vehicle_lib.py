@@ -23,13 +23,13 @@ def ra(time, val1, val2, Ts=1.0):
 def import_path_data(data):
     # distance on path (D), position (X/Y), path orientation (PSI), curvature (K)
     path = {}
-    path['D']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['D'] )
-    path['X']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['X'] )
-    path['Y']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['Y'] )
-    path['PSI'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['PSI'] )
-    path['K']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data.output['K'] )
+    path['D']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data['D'] )
+    path['X']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data['X'] )
+    path['Y']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data['Y'] )
+    path['PSI'] = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data['PSI'] )
+    path['K']   = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=data['K'] )
 
-    path['samples'] = data.Nmax
+    path['samples'] = len( data['D'] )
 
     return path
 
@@ -130,89 +130,12 @@ def find_second_closest( path, x, y, index_star ):
 
 def compute_distance_from_linear_interpolation( d1, d2 ):
 
-    # TODO: rework.. formula not ok
+    # TODO: implement
 
-    one = dy.float64(1)
+    zero = dy.float64(0)
 
-    p = one / ( one/(d1*d1) + one/(d2*d2) )
-    h = dy.sqrt( p )
+    return zero
 
-    return h
-
-
-
-def lookup_closest_point( N, path_distance_storage, path_x_storage, path_y_storage, x, y ):
-    """
-        brute force implementation for finding a clostest point
-    """
-    #
-    source_code = """
-        // int N = 360;
-        int N = *(&path_distance_storage + 1) - path_distance_storage;
-
-        int i = 0;
-        double min_distance_to_path = 1000000;
-        int min_index = 0;
-
-        for (i = 0; i < N; ++i ) {
-            double dx = path_x_storage[i] - x_;
-            double dy = path_y_storage[i] - y_;
-            double distance_to_path = sqrt( dx * dx + dy * dy );
-
-            if ( distance_to_path < min_distance_to_path ) {
-                min_distance_to_path = distance_to_path;
-                min_index = i;
-            }
-        }
-
-        double dx_p1, dy_p1, dx_p2, dy_p2, distance_to_path_p1, distance_to_path_p2;
-
-        dx_p1 = path_x_storage[min_index + 1] - x_;
-        dy_p1 = path_y_storage[min_index + 1] - y_;
-        distance_to_path_p1 = sqrt( dx_p1 * dx_p1 + dy_p1 * dy_p1 );
-
-        dx_p2 = path_x_storage[min_index - 1] - x_;
-        dy_p2 = path_y_storage[min_index - 1] - y_;
-        distance_to_path_p2 = sqrt( dx_p2 * dx_p2 + dy_p2 * dy_p2 );
-
-        int interval_start, interval_stop;
-        if (distance_to_path_p1 < distance_to_path_p2) {
-            // minimal distance in interval [min_index, min_index + 1]
-            interval_start = min_index;
-            interval_stop  = min_index + 1;
-        } else {
-            // minimal distance in interval [min_index - 1, min_index]
-            interval_start = min_index - 1;
-            interval_stop  = min_index;
-        }
-
-        // linear interpolation
-        double dx = path_x_storage[interval_stop] - path_x_storage[interval_start] ;
-        double dy = path_y_storage[interval_stop] - path_y_storage[interval_start] ;
-
-
-
-        index_start   = interval_start;
-        index_closest = min_index;
-        distance      = min_distance_to_path;
-
-    """
-    array_type = dy.DataTypeArray( N, datatype=dy.DataTypeFloat64(1) )
-    outputs = dy.generic_cpp_static(input_signals=[ path_distance_storage, path_x_storage, path_y_storage, x, y ], 
-                                    input_names=[ 'path_distance_storage', 'path_x_storage', 'path_y_storage', 'x_', 'y_' ], 
-                                    input_types=[ array_type, array_type, array_type, dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
-                                    output_names=[ 'index_closest', 'index_start', 'distance'],
-                                    output_types=[ dy.DataTypeInt32(1), dy.DataTypeInt32(1), dy.DataTypeFloat64(1) ],
-                                    cpp_source_code = source_code )
-
-    index_start = outputs[0]
-    index_closest = outputs[1]
-    distance     = outputs[2]
-
-    return index_closest, distance, index_start
-
-
-# index_closest, distance, index_start = lookup_closest_point( N, path_distance_storage, path_x_storage, path_y_storage, x, y )
 
 
 def tracker_distance_ahead(path, current_index, distance_ahead):
@@ -376,6 +299,35 @@ def distance_to_Delta_l( distance, psi_r, x_r, y_r, x, y ):
     return Delta_l
 
 
+
+def compute_path_orientation_from_curvature( Ts : float, velocity, psi_rr, K_r, L ):
+    """
+        compute the noise-reduced path orientation Psi_r from curvature
+
+        Ts       - the sampling time
+        velocity - the driving velocity 
+        psi_rr   - noisy (e.g., due to sampling) path orientation
+        K_r      - path curvature
+        L        - gain for fusion using internal observer
+
+        returns 
+        
+        psi_r_reconst     - the noise-reduced path orientation
+        psi_r_reconst_dot - the time derivative
+    """
+
+    eps = dy.signal()
+
+    psi_r_reconst_dot = velocity * (K_r + eps)
+    psi_r_reconst = dy.euler_integrator( u=psi_r_reconst_dot, Ts=Ts, initial_state=psi_rr )
+
+    # observer to compensate for integration error
+    eps << (psi_rr - psi_r_reconst) * dy.float64(L)
+
+    return psi_r_reconst, psi_r_reconst_dot
+
+
+
 def compute_nominal_steering_from_curvature( Ts : float, l_r : float, v, K_r ):
     """
         compute the nominal steering angle and rate from given path heading and curvature
@@ -414,5 +366,78 @@ def compute_steering_constraints( v, v_dot, psi_dot, delta, a_l_min, a_l_max ):
 
     return delta_lower_bound, delta_upper_bound
 
+
+
+
+
+def lookup_closest_point( N, path_distance_storage, path_x_storage, path_y_storage, x, y ):
+    """
+        brute force implementation for finding a clostest point
+    """
+    #
+    source_code = """
+        // int N = 360;
+        int N = *(&path_distance_storage + 1) - path_distance_storage;
+
+        int i = 0;
+        double min_distance_to_path = 1000000;
+        int min_index = 0;
+
+        for (i = 0; i < N; ++i ) {
+            double dx = path_x_storage[i] - x_;
+            double dy = path_y_storage[i] - y_;
+            double distance_to_path = sqrt( dx * dx + dy * dy );
+
+            if ( distance_to_path < min_distance_to_path ) {
+                min_distance_to_path = distance_to_path;
+                min_index = i;
+            }
+        }
+
+        double dx_p1, dy_p1, dx_p2, dy_p2, distance_to_path_p1, distance_to_path_p2;
+
+        dx_p1 = path_x_storage[min_index + 1] - x_;
+        dy_p1 = path_y_storage[min_index + 1] - y_;
+        distance_to_path_p1 = sqrt( dx_p1 * dx_p1 + dy_p1 * dy_p1 );
+
+        dx_p2 = path_x_storage[min_index - 1] - x_;
+        dy_p2 = path_y_storage[min_index - 1] - y_;
+        distance_to_path_p2 = sqrt( dx_p2 * dx_p2 + dy_p2 * dy_p2 );
+
+        int interval_start, interval_stop;
+        if (distance_to_path_p1 < distance_to_path_p2) {
+            // minimal distance in interval [min_index, min_index + 1]
+            interval_start = min_index;
+            interval_stop  = min_index + 1;
+        } else {
+            // minimal distance in interval [min_index - 1, min_index]
+            interval_start = min_index - 1;
+            interval_stop  = min_index;
+        }
+
+        // linear interpolation
+        double dx = path_x_storage[interval_stop] - path_x_storage[interval_start] ;
+        double dy = path_y_storage[interval_stop] - path_y_storage[interval_start] ;
+
+
+
+        index_start   = interval_start;
+        index_closest = min_index;
+        distance      = min_distance_to_path;
+
+    """
+    array_type = dy.DataTypeArray( N, datatype=dy.DataTypeFloat64(1) )
+    outputs = dy.generic_cpp_static(input_signals=[ path_distance_storage, path_x_storage, path_y_storage, x, y ], 
+                                    input_names=[ 'path_distance_storage', 'path_x_storage', 'path_y_storage', 'x_', 'y_' ], 
+                                    input_types=[ array_type, array_type, array_type, dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+                                    output_names=[ 'index_closest', 'index_start', 'distance'],
+                                    output_types=[ dy.DataTypeInt32(1), dy.DataTypeInt32(1), dy.DataTypeFloat64(1) ],
+                                    cpp_source_code = source_code )
+
+    index_start = outputs[0]
+    index_closest = outputs[1]
+    distance     = outputs[2]
+
+    return index_closest, distance, index_start
 
 
