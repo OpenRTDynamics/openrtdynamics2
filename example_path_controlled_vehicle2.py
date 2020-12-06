@@ -51,15 +51,22 @@ if advanced_control:
 wheelbase = 3.0
 Ts=0.01
 
+# driving with constant velocity
+v_dot=dy.float64(0)
+
+
 # create storage for the reference path:
 path = import_path_data(track_data)
 
 
 
 # create placeholders for the plant output signals
-x   = dy.signal()
-y   = dy.signal()
-psi = dy.signal()
+x       = dy.signal()
+y       = dy.signal()
+psi     = dy.signal()
+psi_dot = dy.signal()
+delta   = dy.signal()
+a_lat   = dy.signal()
 
 # track the evolution of the closest point on the path to the vehicles position
 tracked_index, Delta_index, closest_distance = tracker(path, x, y)
@@ -92,6 +99,9 @@ x_r, y_r, psi_rr, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  #
 
 
 # compute the noise-reduced path orientation Psi_r from curvature
+#
+# NOTE: velocity: should be the projection of the vehicle velocity on the path?
+#
 psi_r, psi_r_dot = compute_path_orientation_from_curvature( Ts, velocity, psi_rr, K_r, L=1.0 ) 
 
 dy.append_primay_ouput(psi_rr,     'psi_rr')
@@ -176,6 +186,7 @@ dy.append_primay_ouput(l_dot_r, 'l_dot_r')
 #
 # safety function
 #
+# velocity: should be the projection of the vehicle velocity on the path?
 
 
 
@@ -192,26 +203,43 @@ dy.append_primay_ouput( delta_from_heading, 'delta_from_heading' )
 dy.append_primay_ouput( psi_from_heading,   'psi_from_heading' )
 
 # compute the nominal acceleration and the boundaries for the steering rate
-a_l_nominal = compute_accelearation( v=velocity, v_dot=dy.float64(0), delta=delta_from_K, delta_dot=delta_dot_from_K, psi_dot=psi_dot_from_K )
+a_lat_nominal, a_long_nominal = compute_accelearation( velocity, v_dot, delta=delta_from_K, delta_dot=delta_dot_from_K, psi_dot=psi_dot_from_K )
 
-a_l_min = a_l_nominal - dy.float64(1.5)
-a_l_max = a_l_nominal + dy.float64(1.5)
+a_lat_min = a_lat_nominal - dy.float64(1.5)
+a_lat_max = a_lat_nominal + dy.float64(1.5)
 
-dy.append_primay_ouput( a_l_nominal,   'a_l_nominal' )
+dy.append_primay_ouput( a_lat_nominal,   'a_lat_nominal' )
 
-dy.append_primay_ouput( a_l_min,   'a_l_min' )
-dy.append_primay_ouput( a_l_max,   'a_l_max' )
+dy.append_primay_ouput( a_lat_min,   'a_lat_min' )
+dy.append_primay_ouput( a_lat_max,   'a_lat_max' )
 
-# psi_dot_from_K --> psi_dot (real vehicle)
-delta_dot_min, delta_dot_max = compute_steering_constraints( v=velocity, v_dot=dy.float64(0), psi_dot=psi_dot_from_K, delta=steering, a_l_min=a_l_min, a_l_max=a_l_max )
+# compute boundaries for the steering command to ensure constraints on lateral acceleration and velocity
+# Question: for delta and psi_dot use the nominal (psi_dot_from_K, delta_from_K) or measured (psi_dot, delta)
+
+# delta_min, delta_max, delta_dot_min, delta_dot_max = compute_steering_constraints( velocity, v_dot, psi_dot=psi_dot, delta=delta, a_l_min=a_lat_min, a_l_max=a_lat_max )
+delta_min, delta_max, delta_dot_min, delta_dot_max = compute_steering_constraints( velocity, v_dot, psi_dot=psi_dot_from_K, delta=delta_from_K, a_l_min=a_lat_min, a_l_max=a_lat_max )
+
 
 dy.append_primay_ouput( delta_dot_min,   'delta_dot_min' )
 dy.append_primay_ouput( delta_dot_max,   'delta_dot_max' )
 
 # estimate steering rate of the real vehicle
-delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering, initial_state=steering ) / dy.float64(Ts), 0.1)
+# delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering, initial_state=steering ) / dy.float64(Ts), 0.1)
+# dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
 
+delta_dot_hat_nosat = dy.diff( steering, initial_state=steering ) / dy.float64(Ts)
+dy.append_primay_ouput( delta_dot_hat_nosat,   'delta_dot_hat_nosat' )
+
+#
+# apply saturation to the steering control variable
+#
+
+steering = dy.saturate(steering, delta_min, delta_max)
+steering = dy.rate_limit( steering, Ts, delta_dot_min, delta_dot_max, initial_state=steering )
+
+delta_dot_hat = dy.diff( steering, initial_state=steering ) / dy.float64(Ts)
 dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
+
 
 #
 # The model of the vehicle including a disturbance
@@ -219,23 +247,29 @@ dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
 
 # model the disturbance
 disturbance_transient = np.concatenate(( cosra(50, 0, 1.0), co(10, 1.0), cosra(50, 1.0, 0) ))
-steering_disturbance, i = dy.play(disturbance_transient, start_trigger=dy.counter() == sample_disturbance, auto_start=False)
 
-# apply disturbance to the steering input
-disturbed_steering = steering + steering_disturbance * disturbance_amplitude
+steering_disturbance, _ = dy.play(disturbance_transient, start_trigger=dy.counter() == sample_disturbance, auto_start=False)
+steering_disturbance = steering_disturbance * disturbance_amplitude
 
-# steering angle limit
-disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
+# # apply disturbance to the steering input
+# disturbed_steering = steering + steering_disturbance * disturbance_amplitude
+
+# # steering angle limit (model-intern)
+# disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
 
 # the model of the vehicle
-x_, y_, psi_ = discrete_time_bicycle_model(disturbed_steering, velocity, wheelbase)
+# x_, y_, psi_, x_dot, y_dot, psi_dot = discrete_time_bicycle_model(disturbed_steering, velocity, Ts, wheelbase)
+
+x_, y_, psi_, delta_, _delta_dot, a_lat_, _a_long, _x_dot, _y_dot, psi_dot_ = lateral_vehicle_model(steering, velocity, v_dot, Ts, wheelbase, delta_disturbance=steering_disturbance)
+
 
 # close the feedback loops
-x << x_
-y << y_
-psi << psi_
-
-
+x       << x_
+y       << y_
+psi     << psi_
+psi_dot << psi_dot_
+delta   << delta_
+a_lat   << a_lat_
 
 
 
@@ -254,7 +288,7 @@ dy.append_primay_ouput(psi_r, 'psi_r')
 dy.append_primay_ouput(Delta_l, 'Delta_l')
 
 dy.append_primay_ouput(steering_disturbance, 'steering_disturbance')
-dy.append_primay_ouput(disturbed_steering, 'disturbed_steering')
+# dy.append_primay_ouput(disturbed_steering, 'disturbed_steering')
 dy.append_primay_ouput(tracked_index, 'tracked_index')
 dy.append_primay_ouput(Delta_index, 'Delta_index')
 
