@@ -13,12 +13,45 @@ import os
 
 
 def signal():
+    """
+        Create a new signal for defining a closed-loop
+    """
+
     # return an anonymous signal
     return si.SignalUser(get_simulation_context())
 
-def system_input(datatype):
-    # intoduce a system input 
-    return si.SimulationInputSignalUser(get_simulation_context(), datatype)
+
+
+def system_input(datatype, name : str = None, default_value=None, value_range=None, title : str = ""):
+    """
+        Introduce a new system input signal
+
+        datatype      - the datatype of the signal
+        name          - the name of the signal
+        default_value - the default value the will be applied to the system input by default
+        value_range   - the availble numeric range for the signal the form [min, max]  
+        title         - the description of the signal
+    """
+
+    signal = si.SimulationInputSignalUser(get_simulation_context(), datatype)
+
+    if name is not None:
+        signal.set_name(name)
+
+    properties = {}
+
+    if default_value is not None:
+        properties['default_value'] = default_value
+
+    if value_range is not None:
+        properties['range'] = value_range
+
+    if title is not None:
+        properties['title'] = title
+
+    signal.set_properties(properties)
+
+    return signal 
 
 
 def export_graph(filename, system = None):
