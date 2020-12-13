@@ -46,6 +46,20 @@ def boolean(value : int):
 
 
 #
+#
+#
+
+def initial_event():
+    """
+        Fires an event of the first time instant after the reset of the system
+    """
+
+    # TODO: introduce caching like done for counter()
+
+    return dy.counter() == int32(0)
+
+
+#
 # Delay - the basis for all dynamic elements
 #
 def delay(u , initial_state = None):
@@ -65,14 +79,37 @@ def delay(u , initial_state = None):
 
     else:
 
-        event_on_first_sample = dy.counter() == int32(0)  # TODO: introduce a function dy.init_impulse()
+        event_on_first_sample = initial_event()
 
         delayed_input = dy.delay__( u, None )
         delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
 
         return delayed_input
 
+def sample_and_hold(u, event, initial_state = None):
+    """
+        sample & hold
 
+        Samples the input when event is true and hold this value for the proceeding time instants. 
+
+        u             - the input
+        event         - the trigger signal to perform the sampling
+        initial_state - the initial output
+
+        return values
+
+        the sampled input
+
+    """
+
+    # NOTE: this could be implemented in a more comp. efficient way directly in C in BlockPrototypes.py
+
+    y = dy.signal()
+
+    delayed_y = delay( y, initial_state )
+    y << dy.conditional_overwrite( delayed_y, event, u )
+
+    return y
 
 #
 # static functions
@@ -656,6 +693,14 @@ def transfer_function_discrete(u : dy.Signal, num_coeff : List[float], den_coeff
 #
 
 def PID_controller(r, y, Ts, kp, ki = None, kd = None):
+    """
+        discrete-time PID-controller
+
+        r           - the reference signal
+        y           - the measured plant output
+        Ts          - the sampling time
+        kp, ki, kd  - the controller parameters (proportional, integral, differential)
+    """
     Ts = dy.float64(Ts)
 
     # control error
