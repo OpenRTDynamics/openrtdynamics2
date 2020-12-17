@@ -154,7 +154,7 @@ def unwrap_angle(angle, normalize_around_zero = False):
 
 
 
-def saturate(u, lower_limit, uppper_limit):
+def saturate(u, lower_limit = None, uppper_limit = None):
     """
         saturate the input signal
 
@@ -164,8 +164,13 @@ def saturate(u, lower_limit, uppper_limit):
         uppper_limit  - upper bound for the output
     """
 
-    y = dy.conditional_overwrite( u, u < float64(lower_limit), lower_limit )
-    y = dy.conditional_overwrite( y, y > float64(uppper_limit), uppper_limit )
+    y = u
+
+    if lower_limit is not None:
+        y = dy.conditional_overwrite( y, y < float64(lower_limit), lower_limit )
+    
+    if uppper_limit is not None:
+        y = dy.conditional_overwrite( y, y > float64(uppper_limit), uppper_limit )
 
     return y
 
