@@ -433,6 +433,12 @@ class PutAPIFunction(ExecutionCommand):
         self._nameAPI = nameAPI
         self._generate_wrappper_functions = generate_wrappper_functions
 
+        # check if there are no common signal names in in/output
+        for so in self.outputSignals:
+            for si in self.inputSignals:
+                if so.name == si.name:
+                    raise BaseException('the systems in-/outputs have a common signal name: ' + si.name + '. This is not supported in code generation. Please use a different signal name for the output or the input.')
+
         for e in executionCommands:
             e.setContext(self)
 
