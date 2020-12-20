@@ -1,18 +1,22 @@
-from .libdyn import *
-from .Signal import *
-from .Block import *
-from .system_context import *
-from .BlockInterface import *
+from .libdyn import Simulation
+from . import Datatypes as dt
+#from .Signal import *
+#from .Block import *
+from .system_context import get_simulation_context
+
+from . import BlockInterface as bi
+
 from .SignalInterface import *
 
 from . import CodeGenHelper as cgh
 
+# TODO: rename to atomic_blocks
 
 #
 # Subsystem prototypes
 #
 
-class GenericSubsystem(BlockPrototype):
+class GenericSubsystem(bi.BlockPrototype):
     """
         Include a sub-system by passing a manifest
 
@@ -50,7 +54,7 @@ class GenericSubsystem(BlockPrototype):
         self.compileResult = None
 
         # init super class
-        BlockPrototype.__init__(self, self.sim, N_outputs = self.Noutputs)
+        bi.BlockPrototype.__init__(self, self.sim, N_outputs = self.Noutputs)
 
         # Note: the inputSignals are not defined when subsystems are pre-defined in the code
         # but are automatically placed and connected by the compiler during compilation
@@ -329,7 +333,7 @@ def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
 
 
 
-class SingleSubsystemEmbedder(BlockPrototype):
+class SingleSubsystemEmbedder(bi.BlockPrototype):
     """
         Prototype for a block that includes one sub-system
           (this is class to be derived, e.g. by XX, XX)
@@ -401,7 +405,7 @@ class SingleSubsystemEmbedder(BlockPrototype):
 
 
         # now call the constructor for block prototypes and make input and output signals available
-        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_normal_outputs )
+        bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_normal_outputs )
 
 
 
@@ -721,7 +725,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
 
 
-class MultiSubsystemEmbedder(BlockPrototype):
+class MultiSubsystemEmbedder(bi.BlockPrototype):
     """
         Prototype for a block that includes multiple sub-systems whose outputs are joint in a switching manner
           (this is class to be derived, e.g. by StatemachineSwichSubsystems, SwichSubsystems)
@@ -761,7 +765,7 @@ class MultiSubsystemEmbedder(BlockPrototype):
 
 
         # now call the constructor for block prototypes and make input and output signals available
-        BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
+        bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
 
 
 
@@ -980,7 +984,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
                                         number_of_control_outputs = 1 )
 
         # how to add more outputs?
-        self.state_output.setDatatype( DataTypeInt32(1) )
+        self.state_output.setDatatype( dt.DataTypeInt32(1) )
 
         # this output signals must be compted in any way
         # also in case it is not used by other blocks
@@ -1097,13 +1101,13 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 # Sources
 #
 
-class Const(StaticSource_To1):
+class Const(bi.StaticSource_To1):
     def __init__(self, sim : Simulation, constant, datatype ):
 
         self.constant = constant
 
         # call super
-        StaticSource_To1.__init__(self, sim, datatype)
+        bi.StaticSource_To1.__init__(self, sim, datatype)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
@@ -1119,12 +1123,12 @@ def const(constant, datatype ):
 # Multiply by constant
 #
 
-class Gain(StaticFn_1To1):
+class Gain(bi.StaticFn_1To1):
     def __init__(self, sim : Simulation, u : Signal, factor : float ):
 
         self._factor = factor
 
-        StaticFn_1To1.__init__(self, sim, u)
+        bi.StaticFn_1To1.__init__(self, sim, u)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
@@ -1138,12 +1142,12 @@ def gain(u : SignalUserTemplate, gain : float ):
 # Cast to given datatype
 #
 
-class ConvertDatatype(StaticFn_1To1):
-    def __init__(self, sim : Simulation, u : Signal, target_type : DataType ):
+class ConvertDatatype(bi.StaticFn_1To1):
+    def __init__(self, sim : Simulation, u : Signal, target_type : dt.DataType ):
 
         self._target_type = target_type
 
-        StaticFn_1To1.__init__(self, sim, u)
+        bi.StaticFn_1To1.__init__(self, sim, u)
 
     def config_request_define_output_types(self, inputTypes):
         return [ self._target_type ]  
@@ -1153,7 +1157,7 @@ class ConvertDatatype(StaticFn_1To1):
             # TODO: only = is used and the c++ compiler decides how to convert...
             return signals[0].name + ' = ' + self.inputs[0].name + ';\n'
 
-def convert(u : SignalUserTemplate, target_type : DataType ):
+def convert(u : SignalUserTemplate, target_type : dt.DataType ):
     return wrap_signal( ConvertDatatype(get_simulation_context(), u.unwrap, target_type).outputs[0] )
 
 
@@ -1162,7 +1166,7 @@ def convert(u : SignalUserTemplate, target_type : DataType ):
 # Basic operators
 #
 
-class Add(StaticFn_NTo1):
+class Add(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
 
         # feasibility checks
@@ -1170,7 +1174,7 @@ class Add(StaticFn_NTo1):
             raise("len(inp_list) must be equal to len(factors)")
 
         self.factors = factors
-        StaticFn_NTo1.__init__(self, sim, inputSignals)
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
@@ -1191,11 +1195,11 @@ def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
     return wrap_signal( Add(get_simulation_context(), unwrap_list( inputSignals ), factors).outputs[0] )
 
 
-class Operator1(StaticFn_NTo1):
+class Operator1(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, inputSignals : List[Signal], operator : str ):
 
         self.operator = operator
-        StaticFn_NTo1.__init__(self, sim, inputSignals)
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
@@ -1308,17 +1312,17 @@ def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
 
 
 
-class ComparisionOperator(StaticFn_NTo1):
+class ComparisionOperator(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, left : Signal, right : Signal, operator : str ):
 
         self.operator = operator
 
-        StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
 
     def config_request_define_output_types(self, inputTypes):
 
         # return a proposal for an output type. 
-        return [ DataTypeBoolean(1) ]
+        return [ dt.DataTypeBoolean(1) ]
 
     # def generate_code_output(self, language, signal : Signal):
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
@@ -1344,7 +1348,7 @@ def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator :
 
 
 
-class SwitchNto1(StaticFn_NTo1):
+class SwitchNto1(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, state : Signal, inputs : List [Signal] ):
 
         self.inputs = inputs
@@ -1353,13 +1357,13 @@ class SwitchNto1(StaticFn_NTo1):
         inputSignals = [state]
         inputSignals.extend(inputs)
 
-        StaticFn_NTo1.__init__(self, sim, inputSignals )
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals )
 
     def config_request_define_output_types(self, inputTypes):
 
         # check weather the trigger input is int32
         if inputTypes[0] is not None:
-            if DataTypeInt32(1).isEqualTo( inputTypes[0] ) == 0:
+            if dt.DataTypeInt32(1).isEqualTo( inputTypes[0] ) == 0:
                 raise BaseException('state input must be of type Int32')  
 
         # determine a guess for the output datatype
@@ -1422,21 +1426,21 @@ def switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate ):
 
 
 
-class ConditionalOverwrite(StaticFn_NTo1):
+class ConditionalOverwrite(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, signal : Signal, condition : Signal, new_value ):
 
         self.new_value = new_value
 
         if isinstance( self.new_value, Signal ): 
-            StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition, new_value])
+            bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition, new_value])
         else:
-            StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
+            bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [signal, condition])
 
     def config_request_define_output_types(self, inputTypes):
 
         # just inherit the input type
         if isinstance( self.new_value, Signal ): 
-            return [ common_numeric_type( inputTypes ) ]
+            return [ dt.common_numeric_type( inputTypes ) ]
 
         else:
             return [ inputTypes[0] ]
@@ -1489,12 +1493,12 @@ def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTem
 # Static functions that map 1 --> 1
 #
 
-class StaticFnByName_1To1(StaticFn_1To1):
+class StaticFnByName_1To1(bi.StaticFn_1To1):
     def __init__(self, sim : Simulation, u : Signal, functionName : str ):
 
         self._functionName = functionName
 
-        StaticFn_1To1.__init__(self, sim, u)
+        bi.StaticFn_1To1.__init__(self, sim, u)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
@@ -1529,12 +1533,12 @@ def abs(u : SignalUserTemplate ):
 
 
 
-class Operator0(StaticFn_1To1):
+class Operator0(bi.StaticFn_1To1):
     def __init__(self, sim : Simulation, u : Signal, operator_str : str ):
 
         self._operator_str = operator_str
 
-        StaticFn_1To1.__init__(self, sim, u)
+        bi.StaticFn_1To1.__init__(self, sim, u)
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
@@ -1558,12 +1562,12 @@ def bitwise_not(u : SignalUserTemplate ):
 # static functinos that map 2 --> 1
 #
 
-class StaticFnByName_2To1(StaticFn_NTo1):
+class StaticFnByName_2To1(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, left : Signal, right : Signal, function_name : str ):
 
         self._function_name = function_name
 
-        StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [left, right])
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
@@ -1594,7 +1598,7 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
 
 
 
-class GenericCppStatic(BlockPrototype):
+class GenericCppStatic(bi.BlockPrototype):
     def __init__(self, sim : Simulation, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
 
         Ninputs = len(input_names)
@@ -1615,7 +1619,7 @@ class GenericCppStatic(BlockPrototype):
         self._output_types = output_types
         self._cpp_source_code = cpp_source_code
 
-        BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
+        bi.BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
 
         self._static_function_name = 'fn_static_' + str(self.id)
 
@@ -1692,11 +1696,11 @@ def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : L
 
 
 
-class Delay(BlockPrototype):
+class Delay(bi.BlockPrototype):
     def __init__(self, sim : Simulation, u : Signal, initial_state = None ):
 
         self._initial_state = initial_state
-        BlockPrototype.__init__(self, sim, [ u ], 1)
+        bi.BlockPrototype.__init__(self, sim, [ u ], 1)
 
     def config_request_define_output_types(self, inputTypes):
 
@@ -1749,7 +1753,7 @@ def delay__(u : SignalUserTemplate, initial_state = None):
 
 
 
-class Flipflop(BlockPrototype):
+class Flipflop(bi.BlockPrototype):
     def __init__(self, sim : Simulation, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False ):
 
         self._nodelay = nodelay
@@ -1757,11 +1761,11 @@ class Flipflop(BlockPrototype):
         self._disable_trigger  = disable_trigger
         self._initial_state    = initial_state
 
-        BlockPrototype.__init__(self, sim, [ activate_trigger, disable_trigger ], 1)
+        bi.BlockPrototype.__init__(self, sim, [ activate_trigger, disable_trigger ], 1)
 
     def config_request_define_output_types(self, inputTypes):
 
-        return [ DataTypeBoolean(1) ]        
+        return [ dt.DataTypeBoolean(1) ]        
 
     def config_request_define_feedforward_input_dependencies(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
@@ -1832,12 +1836,12 @@ def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state 
 # memory / array to store / read values
 #
 
-class Memory(BlockPrototype):
+class Memory(bi.BlockPrototype):
     def __init__(self, sim : Simulation, datatype, constant_array, write_index : Signal = None, value : Signal = None ):
 
         self._constant_array = constant_array
         self._length         = len(constant_array)
-        self._array_datatype = DataTypeArray( self._length, datatype )
+        self._array_datatype = dt.DataTypeArray( self._length, datatype )
 
         if write_index is None:
             self._static = True
@@ -1848,9 +1852,9 @@ class Memory(BlockPrototype):
 
         # call super
         if self._static:
-            BlockPrototype.__init__(self, sim, inputSignals = [], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
+            bi.BlockPrototype.__init__(self, sim, inputSignals = [], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
         else:
-            BlockPrototype.__init__(self, sim, inputSignals = [write_index, value], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
+            bi.BlockPrototype.__init__(self, sim, inputSignals = [write_index, value], N_outputs = 1, output_datatype_list = [self._array_datatype]  )
 
         # indicate that the output of this port is passed by reference in c++
         self.outputs[0].set_is_referencing_memory(True)
@@ -1941,7 +1945,7 @@ def memory(datatype, constant_array, write_index : SignalUserTemplate = None, va
 
 
 
-class MemoryRead(StaticFn_NTo1):
+class MemoryRead(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, memory : Signal, index : Signal ):
 
         if 'memory_length' not in memory.properties_internal:
@@ -1951,7 +1955,7 @@ class MemoryRead(StaticFn_NTo1):
 
         # print(' ############# reading a memory of length', self._length)
 
-        StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
+        bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
 
     def config_request_define_output_types(self, inputTypes):
         # returt the datatype of the array elements

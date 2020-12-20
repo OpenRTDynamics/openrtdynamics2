@@ -4,6 +4,8 @@ from typing import Dict, List
 from . import lang as dy
 import numpy as np
 
+from .BlockPrototypes import *
+
 #
 # constants
 #

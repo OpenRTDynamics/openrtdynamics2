@@ -1,5 +1,3 @@
-
-# from BlockPrototypes import Operator1
 from typing import Dict, List
 
 from . import lang as dy
@@ -133,22 +131,22 @@ class SignalUser(SignalUserTemplate):
 
 
 
-#
-# TODO: is this still needed?
-#
-class SubsystemOutputLinkUser(SignalUser):
-    """
-        A signal that serves as a placeholder for a subsystem output to be used in the embedding
-        system. A datatype must be specified.
+# #
+# # TODO: is this still needed?
+# #
+# class SubsystemOutputLinkUser(SignalUser):
+#     """
+#         A signal that serves as a placeholder for a subsystem output to be used in the embedding
+#         system. A datatype must be specified.
 
-        Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
-        from the subsystem blocks. 
-    """
+#         Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
+#         from the subsystem blocks. 
+#     """
 
-    def __init__(self, sim, original_signal : Signal):
-        self._original_signal = original_signal
+#     def __init__(self, sim, original_signal : Signal):
+#         self._original_signal = original_signal
 
-        SignalUser.__init__(self, sim)
+#         SignalUser.__init__(self, sim)
 
 
 

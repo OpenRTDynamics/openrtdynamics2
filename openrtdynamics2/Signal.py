@@ -452,20 +452,20 @@ class UndeterminedSignal(Signal):
 
 
 
-# TODO: remove this and related...
-class SubsystemOutputLink(UndeterminedSignal):
-    """
-        A signal that serves as a placeholder for a subsystem output to be used in the embedding
-        system. A datatype must be specified.
+# # TODO: remove this and related...
+# class SubsystemOutputLink(UndeterminedSignal):
+#     """
+#         A signal that serves as a placeholder for a subsystem output to be used in the embedding
+#         system. A datatype must be specified.
 
-        Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
-        from the subsystem blocks. 
-    """
+#         Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
+#         from the subsystem blocks. 
+#     """
 
-    def __init__(self, sim, original_signal : Signal):
-        self._original_signal = original_signal
+#     def __init__(self, sim, original_signal : Signal):
+#         self._original_signal = original_signal
 
-        UndeterminedSignal.__init__(self, sim)
+#         UndeterminedSignal.__init__(self, sim)
 
 
 
