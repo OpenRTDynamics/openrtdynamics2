@@ -321,9 +321,11 @@ def compile_single_system(system, reduce_uneeded_code = False):
                 blocksWhoseStatesToUpdate.append( blk )
                 blocksWhoseStatesToUpdate_All.append( blk )
 
-                print("    (added) " + blk.toStr())
+                # added  blk.toStr
             else:
-                print("    (already added) " + blk.toStr())
+                #
+                # already added blk.toStr()
+                pass
 
 
 

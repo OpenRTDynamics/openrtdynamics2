@@ -189,25 +189,25 @@ def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
     y = dy.signal()
 
     omega = u - y
-    omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
+    omega_sat = saturate(omega, float64(lower_limit) * Ts_, float64(uppper_limit) * Ts_)
     y << euler_integrator( omega_sat, 1, initial_state=initial_state)
 
     return y
 
 
-def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
+# def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
 
-    Ts_ = float64(Ts)
+#     Ts_ = float64(Ts)
 
-    y = dy.signal()
+#     y = dy.signal()
 
-    e = ( u - y )
-    omega = dy.tan( u - y ) * dy.float64(gain)
-    omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
+#     e = ( u - y )
+#     omega = dy.tan( u - y ) * dy.float64(gain)
+#     omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
 
-    y << euler_integrator(  omega_sat, 1, initial_state=initial_state)
+#     y << euler_integrator(  omega_sat, 1, initial_state=initial_state)
 
-    return y
+#     return y
 
 
 
@@ -216,7 +216,7 @@ def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
 #
 
 # TODO: mark as private
-class Counter():
+class __Counter():
     """
         This class is meant to store the counter output signal as it might be used
         by more than one destination block. The instance of this class is per simulation
@@ -257,7 +257,7 @@ def counter():
         tmp.set_name('shared_couter')
 
         # store the output signal of the counter as it might be used again. 
-        dy.get_simulation_context().components['counter'] = Counter(tmp)
+        dy.get_simulation_context().components['counter'] = __Counter(tmp)
 
     else:
         # use the output of an already created counter
@@ -332,15 +332,15 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     return counter
 
 
-def toggle(trigger, initial_state=False):
+# def toggle(trigger, initial_state=False):
 
-    state = dy.signal()
+#     state = dy.signal()
 
-    state << dy.flipflop( dy.logic_and( dy.logic_not( state ), trigger ),  dy.logic_and( dy.logic_not( trigger ), state ), 
-                            initial_state=initial_state, 
-                            nodelay=False)
+#     state << dy.flipflop( dy.logic_and( dy.logic_not( state ), trigger ),  dy.logic_and( dy.logic_not( trigger ), state ), 
+#                             initial_state=initial_state, 
+#                             nodelay=False)
 
-    return state
+#     return state
 
 
 

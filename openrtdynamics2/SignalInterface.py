@@ -126,7 +126,6 @@ class SignalUser(SignalUserTemplate):
     # only ananymous signal
     def __lshift__(self, other): 
         # close a feedback loop by connecting the signals self and other        
-        print("EDITOR: closing loop: " + self.name + ' <--> ' + other.name )
         self.unwrap.setequal(other.unwrap)
         
         return other

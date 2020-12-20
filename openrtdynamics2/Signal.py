@@ -187,13 +187,15 @@ class Signal(object):
         if self.datatype is not None:
             ret += " (" + self.datatype.toStr() + ")"
         else:
-            ret += " (undef datatype)"
+            # ret += " (undef datatype)"
+            pass
 
 
         if self.lookupSource().proposedDatatype is not None:
-            ret += " proposal: (" + self.lookupSource().proposedDatatype.toStr() + ")"
+            ret += " type proposal: (" + self.lookupSource().proposedDatatype.toStr() + ")"
         else:
-            ret += "proposal: (undef datatype)"
+            # ret += "proposal: (undef datatype)"
+            pass
 
         if self.lookupSource().inherit_datatype_of_signal is not None:
             ret = ret + 'type inherit from ' + self.lookupSource().inherit_datatype_of_signal.name

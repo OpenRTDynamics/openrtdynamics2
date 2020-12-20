@@ -58,15 +58,12 @@ class sub:
 
     def __enter__(self):
 
-        print("enterq subsystem " + self._subsystem_name )
         dy.enter_subsystem(self._subsystem_name )
 
         return self
 
 
     def __exit__(self, type, value, traceback):
-
-        print("leave subsystem " + self._subsystem_name )
 
         # set the outputs of the system
         dy.get_simulation_context().set_primary_outputs( dy.unwrap_list( self._outputs_of_embeded_subsystem ) )
@@ -127,16 +124,12 @@ class sub_if:
         self._outputs_of_embeded_subsystem = signals.copy()
 
     def __enter__(self):
-
-        print("enter triggered subsystem " + self._subsystem_name )
         self._system = dy.enter_subsystem(self._subsystem_name )
 
         return self
 
 
     def __exit__(self, type, value, traceback):
-
-        print("leave triggered subsystem " + self._subsystem_name )
 
         embedded_subsystem = dy.get_simulation_context()
 
@@ -223,15 +216,12 @@ class sub_loop:
 
     def __enter__(self):
 
-        print("enter loop subsystem " + self._subsystem_name )
         self._system = dy.enter_subsystem(self._subsystem_name )
 
         return self
 
 
     def __exit__(self, type, value, traceback):
-
-        print("leave loop subsystem " + self._subsystem_name )
 
         embedded_subsystem = dy.get_simulation_context()
 
@@ -437,15 +427,13 @@ class SwitchedSubsystemPrototype:
         if self._outputs_of_embeded_subsystem is None:
             self._outputs_of_embeded_subsystem = signals.copy()
         else:
-            raise BaseException("tried to overwrite previously set outputs")
+            raise BaseException("tried to overwrite previously set output")
 
 
 
 
 
     def __enter__(self):
-
-        #print("enter system " + self._subsystem_name)
         self._system = dy.enter_subsystem(self._subsystem_name )
 
         return self
@@ -573,8 +561,6 @@ class state_sub(SwitchedSubsystemPrototype):
         """
         self._output_signals = signals
         self._state_signal = state_signal
-
-        # SwitchedSubsystemPrototype.set_switched_outputs(self, signals +  [state_signal] )
 
         self.set_switched_outputs_prototype( signals +  [state_signal] )
 

@@ -71,10 +71,10 @@ class DataType(object):
         return True
 
     def show(self):
-        print("Datatype: type=" + self.toStr())
+        print("datatype: type=" + self.toStr())
 
     def toStr(self):
-        return "type=" + str(self.type) + " size=" + str(self.size) + ' (' + self.cppDataType + ')'
+        return self.cppDataType + " [" + str(self.size) + "]"
 
     @property
     def cppDataType(self):

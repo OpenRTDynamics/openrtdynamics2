@@ -8,7 +8,6 @@ from .BlockPrototypes import *
 from .StandardLibrary import *
 from .subsystems import *
 
-import json
 import os
 
 

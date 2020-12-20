@@ -50,8 +50,6 @@ class DatatypePropagation:
             # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
             return
 
-        # print("DatatypePropagation: new/updated signal " + signal.toStr() )
-
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
 
         if signal.getDatatype() is None:
@@ -70,9 +68,6 @@ class DatatypePropagation:
 
     def notify_updateOfProposedDatatype(self, signal : Signal):
         # a proposal for the datatype of signal was updated
-
-        print("DatatypePropagation: datatype proposol for signal updated " + signal.toStr( ))
-
 
         # add to ..
         self.signalsWithUpdatedProposedTypes.append( signal )
@@ -108,8 +103,7 @@ class DatatypePropagation:
             if signal.inherit_datatype_to_list is not None:
                 for to_signal in signal.inherit_datatype_to_list:
                     
-                    print("inherit proposed datatype " + signal.toStr() + " --> " + to_signal.toStr() )
-
+                    # inherit proposed datatype  signal.toStr()  -->  to_signal.toStr()
                     to_signal.setProposedDatatype( signal.proposed_datatype )
 
                     # put on the list of signals with already fixed datatypes
@@ -147,7 +141,6 @@ class DatatypePropagation:
 
 
     def update_types_iterate(self):
-        print("DatatypePropagation: update types " )
 
         while True:
 
@@ -212,7 +205,7 @@ class DatatypePropagation:
         # turn the proposal datatypes into fixed types
         for s in list(self.signalsWithProposedTypes):
 
-            print('  - turning proposed type into fixed - ' + s.toStr())
+            # print('  - turning proposed type into fixed - ' + s.toStr())
 
             # fixate datatype of s
             s.fixDatatype()
