@@ -25,12 +25,16 @@ baseDatatype = dy.DataTypeFloat64(1)
 
 # define simulation inputs
 if not advanced_control:
-    velocity       = dy.system_input( baseDatatype ).set_name('velocity').set_properties({ "range" : [0, 25], "unit" : "m/s", "default_value" : 7.2, "title" : "vehicle velocity" })
-    k_p            = dy.system_input( baseDatatype ).set_name('k_p').set_properties({ "range" : [0, 4.0], "default_value" : 0.612, "title" : "controller gain" })
-    disturbance_amplitude  = dy.system_input( baseDatatype ).set_name('disturbance_amplitude').set_properties({ "range" : [-45, 45], "unit" : "degrees", "default_value" : -11.0, "title" : "disturbance amplitude" })     * dy.float64(math.pi / 180.0)
-    sample_disturbance     = dy.convert(dy.system_input( baseDatatype ).set_name('sample_disturbance').set_properties({ "range" : [0, 300], "unit" : "samples", "default_value" : 50, "title" : "disturbance position" }), target_type=dy.DataTypeInt32(1) )
 
-    z_inf_compensator      = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 1.0], "default_value" : 0.9, "title" : "z_inf_compensator" })
+
+    velocity               = dy.system_input( dy.DataTypeFloat64(1), name='velocity',              default_value=7.2,   value_range=[0, 25],   title="vehicle velocity")
+    k_p                    = dy.system_input( dy.DataTypeFloat64(1), name='k_p',                   default_value=0.612, value_range=[0, 4.0],  title="controller gain")
+    disturbance_amplitude  = dy.system_input( dy.DataTypeFloat64(1), name='disturbance_amplitude', default_value=-11.0, value_range=[-45, 45], title="disturbance amplitude") * dy.float64(math.pi / 180.0)
+    sample_disturbance     = dy.system_input( dy.DataTypeInt32(1),   name='sample_disturbance',    default_value=50,    value_range=[0, 300],  title="disturbance position")
+    z_inf_compensator      = dy.system_input( dy.DataTypeFloat64(1), name='z_inf',                 default_value=0.9,   value_range=[0, 1.0],  title="z_inf_compensator")
+
+
+
 
 
 if advanced_control:
@@ -150,7 +154,7 @@ dy.append_primay_ouput(Delta_l_r, 'Delta_l_r')
 
 # feedback control
 Delta_l_filt = dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(Delta_l, z_inf_compensator), z_inf_compensator )
-l_dot_r = dy.PID_controller(r=Delta_l_r, y=Delta_l_filt, Ts=Ts, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
+u = dy.PID_controller(r=Delta_l_r, y=Delta_l_filt, Ts=Ts, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
 dy.append_primay_ouput(Delta_l_filt, 'Delta_l_filt')
 
@@ -165,7 +169,7 @@ z_inf_compensator_ = 0.9
 
 L_Delta_l = Ts/(z-1) 
 
-Delta_l_model = z_tf( l_dot_r, L_Delta_l )
+Delta_l_model = z_tf( u, L_Delta_l )
 
 
 
@@ -175,12 +179,12 @@ dy.append_primay_ouput(Delta_l_model, 'Delta_l_model')
 
 # path tracking
 # resulting lateral model u --> Delta_l : 1/s
-Delta_u = dy.asin( dy.saturate(l_dot_r / velocity, -0.99, 0.99) )
+Delta_u = dy.asin( dy.saturate(u / velocity, -0.99, 0.99) )
 steering =  psi_r - psi + Delta_u
 steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 
 dy.append_primay_ouput(Delta_u, 'Delta_u')
-dy.append_primay_ouput(l_dot_r, 'l_dot_r')
+dy.append_primay_ouput(u, 'l_dot_r')
 
 
 #

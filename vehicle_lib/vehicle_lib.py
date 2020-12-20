@@ -211,11 +211,9 @@ def tracker_distance_ahead(path, current_index, distance_ahead):
 
 
         # J_star(k) - the smallest J found so far
-        J_star = dy.signal()  #.set_datatype( dy.DataTypeFloat64(1) )
+        J_star = dy.signal()
         
         # inc- / decrease the search index
-        #Delta_index = dy.sum(search_index_increment, initial_state=0, no_delay=True )
-
         Delta_index_prev_it, Delta_index = dy.sum2(search_index_increment, initial_state=0 )
 
         Delta_index.set_name('Delta_index')
@@ -234,7 +232,6 @@ def tracker_distance_ahead(path, current_index, distance_ahead):
 
         # loop break condition
         system.loop_until( dy.logic_not( step_caused_improvment ) )
-        #system.loop_until( dy.int32(1) == dy.int32(0) )
 
         # return the results computed in the loop        
         system.set_outputs([ Delta_index_prev_it, J_to_verify, J_star ])
