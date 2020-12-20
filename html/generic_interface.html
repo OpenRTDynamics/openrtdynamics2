@@ -1,0 +1,132 @@
+<!doctype html>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="openrtdynamics.js"></script>
+
+
+<html>
+
+    <div id="reload_trigger_vehicle">
+        Click here to (re)load from a fixed folder (vehicle config)
+    </div>
+
+    <div id="reload_trigger">
+        Click here to (re)load from a fixed folder (generic)
+    </div>
+
+    <div id="remote_compile_trigger">
+        Click here to compile source on remote (generic)
+    </div>
+
+
+
+    <textarea id="compile_service_url" name="compile_service_url">
+http://localhost:3000/compile/
+    </textarea>
+
+    <textarea id="secret_token" name="secret_token">
+openrtdynamics
+    </textarea>
+
+
+    <div id='simulator_gui_container_vehicle'>
+        <div class='parameter_editor'></div>
+
+        <plot type="chartjs" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="400" height="200"></plot>
+
+        <plot type="chartjs" x="time"  y="psi_r psi_rr psi_r_dot"                        title="path orientation"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+
+        <plot type="chartjs" x="time"  y="a_lat_nominal a_lat_min a_lat_max"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        <plot type="chartjs" x="time"  y="delta_dot_from_K delta_dot_min delta_dot_max delta_dot_hat delta_dot_hat_nosat"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+        <plot type="chartjs" x="time"  y="Delta_l Delta_l_r l_dot_r K_r_ahead Delta_l_filt Delta_l_model interpolated_closest_distance second_closest_distance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        
+        
+        <plot type="chartjs" x="time"  y="steering Delta_u delta_from_K delta_from_heading psi_from_heading"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+
+        
+
+        <plot type="chartjs" x="time"  y="tracked_index Delta_index Delta_index_ahead"                        title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+
+
+
+
+    </div>
+
+    <div class="realtime_simulator" id='realtime_simulator_gui_container'>
+        <div class='parameter_editor'></div>
+
+        <div class="plotxy"  title="x/y"           xlabel="x"         ylabel="y"     width="400" height="200">
+            <span class="line" x="x1 x2"  ></span>
+        </div>
+    </div>
+
+
+    <div id='simulator_gui_container'>
+        <div class='parameter_editor'></div>
+        <plot type="chartjs" title="lookup" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+No simulation loaded
+    </div>
+        
+                     
+
+    manifest
+    <textarea id="manifest" name="manifest">
+
+    </textarea>
+
+    source code
+    <textarea id="source_code" name="source_code">
+
+    </textarea>
+
+
+    <div id="input_container"></div>
+
+<script>
+
+
+
+    $( "#reload_trigger_vehicle" ).click(function() {
+        // load the simulator and its interface
+        folder = 'build'
+
+        var files = { manifest : folder + '/simulation_manifest.json', wasm : folder + '/main.wasm', jscode : folder + '/main.js' }
+        var ret = openrtdynamics.loadCompiledSimulator(files);
+        simulator_gui_container = document.getElementById('simulator_gui_container_vehicle')
+        openrtdynamics.setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});
+    });
+
+    $( "#reload_trigger" ).click(function() {
+
+        folder = 'build'
+
+        var files = { manifest : folder + '/simulation_manifest.json', wasm : folder + '/main.wasm', jscode : folder + '/main.js' }
+        var ret = openrtdynamics.loadCompiledSimulator(files);
+        simulator_gui_container = document.getElementById('simulator_gui_container')
+        openrtdynamics.setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 300, sampling_time : 0.01} );
+    });
+
+    $( "#remote_compile_trigger" ).click(function() {
+
+        simulator_gui_container = document.getElementById('simulator_gui_container')
+
+        code = document.getElementById("source_code").value
+        manifest = document.getElementById("manifest").value
+        compile_service_url = document.getElementById("compile_service_url").value
+        secret_token = document.getElementById("secret_token").value
+
+        openrtdynamics.setup_simulation_gui( simulator_gui_container, compile_service_url, secret_token, manifest, code, {number_of_samples : 300, sampling_time : 0.01} )
+        
+
+    });
+
+</script>
+
+    <link rel="stylesheet" href="input_gui.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</html>

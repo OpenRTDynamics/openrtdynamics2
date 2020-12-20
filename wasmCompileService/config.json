@@ -1,0 +1,5 @@
+{
+    "emcc_binary" : "/Users/chr/git/emsdk/fastcomp/emscripten/emcc",
+    "node_port" : "3000",
+    "password" : "secret_token"
+}

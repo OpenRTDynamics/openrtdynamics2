@@ -1,0 +1,24 @@
+{
+  "name": "openrtdynamics-js",
+  "version": "1.0.0",
+  "description": "Openrtdynamics web libraries",
+  "main": "ORTD_js_simulator.js",
+  "license": "MIT",
+  "author": {
+    "name": "Christian Klauer",
+    "email": "chr.klauer@gmail.com",
+    "url": "https://openrtdynamics.github.io"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "browserify": "^14.5.0",
+    "uglify-js": "^3.3.4"
+  },
+  "scripts": {
+    "build": "browserify InputGUI.js ORTD_js_simulator.js -s openrtdynamics -o openrtdynamics.js"
+  },
+  "keywords": [
+    "ORTD"
+  ]
+}

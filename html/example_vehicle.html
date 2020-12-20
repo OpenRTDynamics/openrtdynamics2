@@ -1,0 +1,40 @@
+<!doctype html>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="openrtdynamics.js"></script>
+
+
+<html>
+
+    <div id="reload_trigger_vehicle">
+        Click here to (re)load
+    </div>
+
+    <div id='simulator_gui_container_vehicle'>
+        <div class='parameter_editor'></div>
+
+        <plot type="plotly" x="x x_r" y="y y_r"                                             title="x/y"         xlabel="x"         ylabel="y"     width="800" height="200"></plot>
+        <plot type="plotly" x="time"  y="psi_r steering Delta_l__ steering_disturbance"     title="time series" xlabel="time [s]"  ylabel="value" width="400" height="200"></plot>
+        <!-- <plot type="plotly" x="time"  y="lookup_index"                                      title="lookup"      xlabel="time [s]"  ylabel="value" width="400" height="200"></plot> -->
+    </div>
+
+<script>
+
+    $( "#reload_trigger_vehicle" ).click(function() {
+
+        // load the simulator and its interface
+        folder = 'build'
+
+        var files = { manifest : folder + '/simulation_manifest.json', wasm : folder + '/main.wasm', jscode : folder + '/main.js' }
+        var ret = openrtdynamics.loadCompiledSimulator(files);
+        simulator_gui_container = document.getElementById('simulator_gui_container_vehicle')
+        openrtdynamics.setup_simulation_gui_from_promises( simulator_gui_container, ret, {number_of_samples : 500, sampling_time : 0.01});
+    });
+
+</script>
+
+    <script src="input_gui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+</html>

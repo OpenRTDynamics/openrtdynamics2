@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+.vscode
+.DS_Store
+a.out
+node_modules
+
+ortd_js/openrtdynamics.js
+html/build

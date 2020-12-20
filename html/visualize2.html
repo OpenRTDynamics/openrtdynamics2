@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .link {
+        stroke: #000;
+        stroke-width: 1.5px;
+    }
+
+    .linklabelholder {
+        stroke: #007700;
+    }
+
+    .node {
+        cursor: move;
+        fill: #ccc;
+        stroke: #000;
+        stroke-width: 1.5px;
+    }
+
+    .node text {
+        stroke: rgb(170, 13, 13);
+        cursor: pointer;
+    }
+
+    .node.fixed {
+        fill: #f00;
+    }
+</style>
+
+<body>
+    <!-- <script src="//d3js.org/d3.v3.min.js"></script> -->
+    <script src="js/d3.v3.min.js"></script>
+    <script>
+
+        var width = 960,
+            height = 500;
+
+        var force = d3.layout.force()
+            .size([width, height])
+            .charge(-1000)
+            .linkDistance(100)
+            .on("tick", tick);
+
+        var drag = force.drag()
+            .on("dragstart", dragstart);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var link = svg.selectAll(".link"),
+            node = svg.selectAll(".node");
+        linkText = svg.selectAll(".linklabelholder")
+
+        d3.json("graph.json", function (error, graph) {
+            if (error) throw error;
+
+            // for each link build references to the nodes
+            graph.links.forEach(function (link) {
+
+                console.log('consider link : ' + link.name);
+                console.log(link);
+
+                link.target = graph.nodes[graph.nodes_hash[link.target_key].nodes_array_index]
+                link.source = graph.nodes[graph.nodes_hash[link.source_key].nodes_array_index]
+
+                // // optimize this lookup
+                // graph.nodes.forEach ( function(eachNode) {
+                //     if ( link.target_key == eachNode.id ) {
+                //         link.target = eachNode;
+                //     }
+                //     if ( link.source_key == eachNode.id ) {
+                //         link.source = eachNode;
+                //     }
+                // });
+
+                console.log(link);
+
+            });
+
+            console.log(graph)
+
+            force
+                .nodes(graph.nodes)
+                .links(graph.links)
+                // .force("link", d3.forceLink().id(function(d) { return d.id; }))
+                .start();
+
+            link = link.data(graph.links)
+                .enter().append("line")
+                .attr("class", "link");
+
+            // make a svg-group for the node 
+            node = node.data(graph.nodes)
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .call(drag)
+
+            node.append("circle")
+
+                //                .attr("class", "node")
+                .attr("r", 12)
+                .on("dblclick", dblclick)
+
+
+            node.append("text")
+                .attr("dx", 12)
+                .attr("dy", ".35em")
+                .text(function (d) { return d.name })
+
+
+                ;
+
+
+
+
+
+            linkText = linkText.data(graph.links)
+                .enter()
+
+                .append("text")
+                .attr("class", "linklabelholder")
+                //  .attr("dx", 12)
+                // .attr("dy", ".35em")
+                .text(function (d) { return d.name });
+        });
+
+        function tick() {
+            link.attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; });
+
+            // node.attr("cx", function (d) { return d.x; })
+            //     .attr("cy", function (d) { return d.y; });
+
+
+            node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+            linkText.attr("transform", function (d) {
+                lx = d.target.x + 0.7 * (d.source.x - d.target.x);
+                ly = d.target.y + 0.7 * (d.source.y - d.target.y);
+
+                return "translate(" + lx + "," + ly + ")";
+            });
+        }
+
+        function dblclick(d) {
+            d3.select(this).classed("fixed", d.fixed = false);
+        }
+
+        function dragstart(d) {
+            d3.select(this).classed("fixed", d.fixed = true);
+        }
+
+    </script>

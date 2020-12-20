@@ -1,0 +1,5 @@
+{
+    "emcc_binary" : "/usr/src/app/emsdk/upstream/emscripten/emcc",
+    "node_port" : "3000",
+    "secret_token" : "openrtdynamics"
+}

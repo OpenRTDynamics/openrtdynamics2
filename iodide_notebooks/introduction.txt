@@ -1,0 +1,413 @@
+%% py
+
+import micropip
+micropip.install('openrtdynamics2')
+micropip.install('colorama')
+from colorama import init,  Fore, Back, Style
+import openrtdynamics2.lang as dy
+import math
+
+%% fetch
+
+js: http://localhost:3000/js/ORTD_js_simulator.js
+// js: https://ortdcompile.christianklauer.com/js/ORTD_js_simulator.js
+// js: http://localhost:8000/ORTD_js_simulator.js
+js: https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js
+js: https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
+js: https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.36.1/plotly.min.js
+js: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js
+css: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/default.min.css
+
+%% js
+//var compile_service_url = "http://localhost:3000/compile"
+var compile_service_url = "https://ortdcompile.christianklauer.com/compile"
+var secret_token = "openrtdynamics"
+
+
+%% py
+#
+# Enter a new system
+#
+system = dy.enter_system('simulation')
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define system inputs
+input_signal    = dy.system_input( baseDatatype ).set_name('input')
+
+# define a chain of discrete-time low pass filters (poles are specified in z-domain)
+chain_output1 = dy.dtf_lowpass_1_order(input_signal,   z_infinity=0.9 )
+chain_output2 = dy.dtf_lowpass_1_order(chain_output1,  z_infinity=0.9 )
+chain_output3 = dy.dtf_lowpass_1_order(chain_output2,  z_infinity=0.9 )
+
+# main simulation ouput
+dy.set_primary_outputs([ chain_output1, chain_output2, chain_output3 ], [ 'chain_output1', 'chain_output2', 'chain_output3' ] )
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.clear()
+
+%% md
+
+<div id='simulator_low_pass'>
+No simulation loaded
+</div>
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_low_pass'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode, {number_of_samples : 300, sampling_time : 0.01} )
+
+
+
+
+
+
+
+
+%% py
+#
+# Enter a new system
+#
+system = dy.enter_system('simulation')
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define system inputs
+reference       = dy.system_input( baseDatatype ).set_name('reference')
+k_p             = dy.system_input( baseDatatype ).set_name('k_p')       * dy.float64(0.05)
+
+# create placeholder for the plant output signal
+controlled_variable = dy.signal()
+
+# P-controller
+control_error = reference - controlled_variable
+control_variable = k_p * control_error
+
+# plant
+plant_output = dy.dtf_lowpass_1_order(control_variable, z_infinity=0.98 )
+plant_output = dy.delay(plant_output, 0.0)
+
+# close feedback loop
+controlled_variable << plant_output
+
+# main simulation ouput
+dy.set_primary_outputs([ plant_output, control_error, control_variable ], [ 'plant_output', 'control_error', 'control_variable' ])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.clear()
+
+
+
+%% md
+
+<div id='simulator_PI_control'>
+No simulation loaded
+</div>
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_PI_control'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode, {number_of_samples : 300, sampling_time : 0.01} )
+
+
+
+
+
+
+
+
+
+%% py
+#
+# Solving a state space model of a pendulum using Euler-forward integration
+#
+# https://en.wikipedia.org/wiki/State-space_representation#Pendulum_example
+#
+system = dy.enter_system('simulation')
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define a function that implements a discrete-time integrator
+def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+
+    yFb = dy.signal()
+
+    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    y = dy.delay( i, initial_state )
+
+    yFb << y
+
+    return y
+
+
+ofs = dy.float64(0.01)
+
+# define system inputs
+friction       = dy.system_input( baseDatatype ).set_name('friction')   * dy.float64(0.05) + ofs
+mass           = dy.system_input( baseDatatype ).set_name('mass')       * dy.float64(0.01) + ofs
+length         = dy.system_input( baseDatatype ).set_name('length')     * dy.float64(0.01) + ofs
+
+
+# length = dy.float64(0.3)
+g = dy.float64(9.81)
+
+# create placeholder for the plant output signal
+angle = dy.signal()
+angular_velocity = dy.signal()
+
+
+angular_acceleration =  dy.float64(0) - g / length * dy.sin(angle) - (friction / (mass * length) ) * angular_velocity
+
+
+sampling_rate = 0.01
+angular_velocity_ = euler_integrator(angular_acceleration, sampling_rate, 0.0)
+angle_            = euler_integrator(angular_velocity_,    sampling_rate, 30.0 / 180.0 * math.pi)
+
+angle             << angle_
+angular_velocity  << angular_velocity_
+
+# main simulation ouput
+dy.set_primary_outputs([ angle, angular_velocity ], [ 'angle', 'angular_velocity' ])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.clear()
+
+
+
+%% md
+
+<div id='simulator_pendulum'>
+No simulation loaded
+</div>
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_pendulum'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode, {number_of_samples : 300, sampling_time : 0.01} )
+
+
+
+
+%% py
+#
+# Solving a state space model of a vehicle
+#
+# 
+#
+system = dy.enter_system()
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define a function that implements a discrete-time integrator
+def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+
+    yFb = dy.signal()
+
+    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    y = dy.delay( i, initial_state )
+
+    yFb << y
+
+    return y
+
+
+ofs = dy.float64(0.01)
+
+# define system inputs
+steering       = dy.system_input( baseDatatype ).set_name('steering')   * dy.float64( 1 / 180.0 * math.pi ) - dy.float64( 30 / 180.0 * math.pi)
+velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.1)
+
+wheelbase = 3.0
+
+# create placeholder for the plant output signal
+x   = dy.signal()
+y   = dy.signal()
+psi = dy.signal()
+
+
+
+x_dot   = velocity * dy.cos( steering + psi )
+y_dot   = velocity * dy.sin( steering + psi )
+psi_dot = velocity / dy.float64(wheelbase) * dy.sin( steering )
+
+
+
+# integrators
+sampling_rate = 0.01
+x    << euler_integrator(x_dot,   sampling_rate, 0.0)
+y    << euler_integrator(y_dot,   sampling_rate, 0.0)
+psi  << euler_integrator(psi_dot, sampling_rate, 0.0)
+
+# main simulation ouput
+dy.set_primary_outputs([ x, y, psi ], ['x','y','psi'])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.clear()
+
+
+
+%% md
+
+<div id='simulator_vehicle'>
+<div class='parameter_editor'></div>
+
+<div class="plot_plotly" x="x"    y="y" title="x/y"           xlabel="x"         ylabel="y"     width="200" height="100"></div>
+<div class="plot_plotly" x="time" y="psi" title="time series" xlabel="time [s]"  ylabel="angle radians" width="200" height="100"></div>
+</div>
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_vehicle'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode, {number_of_samples : 300, sampling_time : 0.01} )
+
+
+
+
+
+
+%% py
+#
+# define a PWM signal generator
+#
+
+def generate_signal_PWM( period, modulator ):
+
+    number_of_samples_to_stay_in_A = period * modulator
+    number_of_samples_to_stay_in_B = period * ( dy.float64(1) - modulator )
+
+    number_of_samples_to_stay_in_A.set_name('number_of_samples_to_stay_in_A')
+    number_of_samples_to_stay_in_B.set_name('number_of_samples_to_stay_in_B')
+
+    with dy.sub_statemachine( "statemachine1" ) as switch:
+
+        with switch.new_subsystem('state_on') as system:
+
+            on = dy.float64(1.0).set_name('on')
+
+            counter = dy.counter().set_name('counter')
+            timeout = ( counter >= number_of_samples_to_stay_in_A ).set_name('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=1 ).set_name('next_state')
+
+            system.set_switched_outputs([ on ], next_state)
+
+
+        with switch.new_subsystem('state_off') as system:
+
+            off = dy.float64(0.0).set_name('off')
+
+            counter = dy.counter().set_name('counter')
+            timeout = ( counter >= number_of_samples_to_stay_in_B ).set_name('timeout')
+            next_state = dy.conditional_overwrite(signal=dy.int32(-1), condition=timeout, new_value=0 ).set_name('next_state')
+
+            system.set_switched_outputs([ off ], next_state)
+
+
+    # define the outputs
+    pwm = switch.outputs[0].set_name("pwm")
+    state_control = switch.state.set_name('state_control')
+
+    return pwm, state_control
+
+
+%% py
+#
+# Solving a state space model of a vehicle
+#
+# 
+#
+system = dy.enter_system()
+baseDatatype = dy.DataTypeFloat64(1) 
+
+# define a function that implements a discrete-time integrator
+def euler_integrator( u : dy.Signal, sampling_rate : float, initial_state = 0.0):
+
+    yFb = dy.signal()
+
+    i = dy.add( [ yFb, u ], [ 1, sampling_rate ] )
+    y = dy.delay( i, initial_state )
+
+    yFb << y
+
+    return y
+
+
+# define system inputs
+velocity       = dy.system_input( baseDatatype ).set_name('velocity')   * dy.float64(0.2)
+k_p            = dy.system_input( baseDatatype ).set_name('k_p')        * dy.float64(0.05)
+
+wheelbase = 3.0
+
+# generate a step-wise reference signal
+pwm_signal, state_control = generate_signal_PWM( period=dy.float64(200), modulator=dy.float64(0.5) )
+
+pwm_signal_filtered = dy.dtf_lowpass_1_order(pwm_signal,            z_infinity=0.9 )
+pwm_signal_filtered = dy.dtf_lowpass_1_order(pwm_signal_filtered,   z_infinity=0.9 )
+
+reference = (pwm_signal_filtered - dy.float64(0.5)) * dy.float64(1.0)
+
+
+
+# create placeholder for the plant output signal
+x   = dy.signal()
+y   = dy.signal()
+psi = dy.signal()
+
+# controller error
+error = reference - y
+
+steering = dy.float64(0.0) + k_p * error - psi
+
+
+
+x_dot   = velocity * dy.cos( steering + psi )
+y_dot   = velocity * dy.sin( steering + psi )
+psi_dot = velocity / dy.float64(wheelbase) * dy.sin( steering )
+
+
+
+# integrators
+sampling_rate = 0.01
+x    << euler_integrator(x_dot,   sampling_rate, 0.0)
+y    << euler_integrator(y_dot,   sampling_rate, 0.0)
+psi  << euler_integrator(psi_dot, sampling_rate, 0.0)
+
+# main simulation ouput
+dy.set_primary_outputs([ x, y, psi, reference, steering, error ], ['x', 'y', 'psi', 'refrence', 'steering', 'error'])
+
+# compile
+sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+
+# reset
+dy.clear()
+
+
+
+%% md
+
+Controlled vehicle
+<div id='simulator_controlled_vehicle'>
+<div class='parameter_editor'></div>
+
+<div class="plot_plotly" x="x"    y="refrence y" title="x/y"           xlabel="x"         ylabel="y"     width="200" height="100"></div>
+<div class="plot_plotly" x="time" y="steering psi" title="time series" xlabel="time [s]"  ylabel="angle radians" width="200" height="100"></div>
+<div class="plot_plotly" x="time" y="refrence y" title="time series" xlabel="time [s]"  ylabel="value" width="200" height="100"></div>
+</div>
+
+
+%% js
+var manifest = pyodide.pyimport("manifest")
+var sourcecode = pyodide.pyimport("sourcecode")
+
+setup_simulation_gui( document.getElementById('simulator_controlled_vehicle'), compile_service_url, secret_token, JSON.stringify(manifest), sourcecode, {number_of_samples : 600, sampling_time : 0.01} )
