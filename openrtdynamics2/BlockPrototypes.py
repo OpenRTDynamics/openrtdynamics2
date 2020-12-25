@@ -1,13 +1,9 @@
 from .libdyn import Simulation
 from . import Datatypes as dt
-#from .Signal import *
-#from .Block import *
+
 from .system_context import get_simulation_context
-
 from . import BlockInterface as bi
-
 from .SignalInterface import *
-
 from . import CodeGenHelper as cgh
 
 # TODO: rename to atomic_blocks

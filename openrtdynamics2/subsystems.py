@@ -1,6 +1,3 @@
-
-
-# from BlockPrototypes import Operator1
 from typing import Dict, List
 
 from . import lang as dy

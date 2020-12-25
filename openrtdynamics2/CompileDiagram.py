@@ -4,7 +4,6 @@ from .TraverseSignalFlowGraph import *
 from .Signal import *
 from .ExecutionCommands import *
 from .SystemManifest import *
-#from .CodeGenTemplates import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
