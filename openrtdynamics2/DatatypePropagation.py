@@ -82,8 +82,6 @@ class DatatypePropagation:
 
         def inherit_fixed_datatype(signal):
 
-            print()
-
             # inherit the type of signal to the signals that inherit from
             if signal.inherit_datatype_to_list is not None:
                 for to_signal in signal.inherit_datatype_to_list:
@@ -96,8 +94,6 @@ class DatatypePropagation:
                     # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
 
         def inherit_proposed_datatype(signal):
-
-            print()
 
             # inherit the type of signal to the signals that inherit from
             if signal.inherit_datatype_to_list is not None:

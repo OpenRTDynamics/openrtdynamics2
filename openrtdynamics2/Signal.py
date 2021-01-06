@@ -331,7 +331,8 @@ def resolveUndeterminedSignals(signals : List[Signal], ignore_signals_with_datat
 
                 # there is an anonymous signal in the list. However, its datatype is foreseen to be inherited
 
-                print("  --------- ignoring anonymous signal "  + signal.toStr() + " as its datatype will be inherited -------  ")
+                # print("  --------- ignoring anonymous signal "  + signal.toStr() + " as its datatype will be inherited -------  ")
+                pass
 
             else:
 
@@ -348,7 +349,7 @@ class UndeterminedSignal(Signal):
         A signal that serves as a placeholder and will be connected later on by
         calling connect(). As long as no connection to a real source is present
         the blocks that are connected to this signal are colleted in a list. Once
-        this signal is conneted, the source's signal lists are merged.
+        this signal is connected, the source's signal lists are merged.
 
         NOTE: undetermined singlas must be connected to a block's output i.e. they
         cannot be simulation inputs
