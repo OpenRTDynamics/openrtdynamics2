@@ -61,7 +61,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
             block.blockPrototype.compile_callback_all_subsystems_compiled()
 
         #
-        print("Now compiling (dept level = " + str(level) + "): " + system.name )
+        print("compiling system " + system.name + " (level " + str(level) + ")... " )
 
         # compile the system
 
@@ -114,15 +114,10 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-def compile_single_system(system, reduce_uneeded_code = False):
+def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=0):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
-
-
-    print()
-    print(Style.BRIGHT + "-------- replacing all anonymous signals  --------")
-    print()
 
     # prepare (input filter of the given signals)
     resolveUndeterminedSignals(outputSignals)
@@ -146,9 +141,7 @@ def compile_single_system(system, reduce_uneeded_code = False):
     E=BuildExecutionPath()
 
 
-    print()
-    print(Style.BRIGHT + "-------- Find dependencies for calcularing the outputs  --------")
-    print()
+    print("determining the computation order...")
 
 
     # collect all execution lines with:
@@ -163,7 +156,9 @@ def compile_single_system(system, reduce_uneeded_code = False):
     for s in list(signals_to_compute):
 
         elForOutputS = E.getExecutionLine( s )
-        elForOutputS.printExecutionLine()
+
+        if enable_print > 1:
+            elForOutputS.printExecutionLine()
 
         # merge all lines into one
         # TODO use sets inside 'appendExecutionLine' some block are present twiche
@@ -172,9 +167,7 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
 
 
-    print()
-    print(Style.BRIGHT + "-------- Build all execution paths  --------")
-    print()
+    print("building execution paths...")
 
     # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
     # element. Also collect the newly appearing dependency signals in a list and also 
@@ -245,16 +238,19 @@ def compile_single_system(system, reduce_uneeded_code = False):
 
     while True:
 
-        print("--------- Computing order "+ str(order) + " --------")
+        if enable_print > 0:
+            print("--------- Computing order "+ str(order) + " --------")
         
         # backwards jump over the blocks that compute dependencySignals through their states.
         # The result is dependencySignals__ which are the inputs to these blocks
-        print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
+        if enable_print > 0:
+            print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
 
         # print the list of signals
-        print("-- dependencySignalsThroughStates signals __ --")
-        for s in dependencySignalsThroughStates:
-            print("  - " + s.name)
+        if enable_print > 0:
+            print("-- dependencySignalsThroughStates signals __ --")
+            for s in dependencySignalsThroughStates:
+                print("  - " + s.name)
 
         # collect all executions lines build in this order in:
         executionLinesForCurrentOrder = []
@@ -303,7 +299,8 @@ def compile_single_system(system, reduce_uneeded_code = False):
         # create commands for the blocks that have dependencySignals as outputs
         #
 
-        print("state update of blocks that yield the following output signals:")
+        if enable_print > 0:
+            print("state update of blocks that yield the following output signals:")
 
 
 
@@ -362,12 +359,12 @@ def compile_single_system(system, reduce_uneeded_code = False):
         # iterate
         order = order + 1
         if len(dependencySignals__) == 0:
-            print(Fore.GREEN + "All dependencies are resolved")
+            print(Fore.GREEN + "All dependencies are resolved.")
 
             break
 
         if order == 1000:
-            print(Fore.GREEN + "Maxmimum iteration limit reached -- this is likely a bug or your simulation is very complex")
+            raise BaseException(Fore.GREEN + "Maximal number of iterations reached -- this is likely because of an algebraic loop or your simulation is very complex")
             break
 
 

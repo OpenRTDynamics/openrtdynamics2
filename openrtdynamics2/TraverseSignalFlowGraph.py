@@ -257,11 +257,13 @@ class BuildExecutionPath:
     """
         Find out the order in which signals have to be computed such that a given signal
         'signalToCalculte'can be calculated. This means finding out all dependencies of
-        'signalToCalculte'. For each callc to 'getExecutionLine' only the signals that
-        were not already marked as a dependeny in previous calls are returned.
+        'signalToCalculte'. For each call to 'getExecutionLine' only the signals that
+        were not already marked as a dependency in previous calls are returned.
         Each call to 'getExecutionLine' gives an instance 'ExecutionLine'
     """
-    def __init__(self): #blockList : List[ Block ]
+    def __init__(self, show_print:int=0):
+
+        self._show_print = show_print
 
         # list of signals the computation depends on (the tips of the execution tree)
         self.dependencySignals = []
@@ -318,7 +320,8 @@ class BuildExecutionPath:
         #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
         #       were not already calculated
 
-        print("getExecutionLine on level " + str(self.level) )
+        if self._show_print > 0:
+            print("getExecutionLine on level " + str(self.level) )
 
         # reset the lists TODO: use sets instead to avoid duplication?
         self.execution_order = []
@@ -392,13 +395,17 @@ class BuildExecutionPath:
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
             # - a previously computed signal has been reached
 
-            print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
+
             self.dependencySignals.append( startSignal )
 
             # in case startSignal is a simulation input, still add it to the list of simulation input dependiencies
             # though it has already been computed
             if is_crossing_simulation_border:
-                print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
+
+                if self._show_print > 1:
+                    print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
 
                 # also note down that this is a (actually used) simulation input
                 self.dependencySignalsSimulationInputs.append( startSignal )
@@ -407,14 +414,17 @@ class BuildExecutionPath:
 
         if startSignal.graphTraversionMarkerMarkIsVisited():
 
-            print(Style.DIM + tabs + "has already been calculated in this traversion") 
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in this traversion") 
+
             return
 
         if is_crossing_simulation_border:
             # signal is an input to the simulation
             # add to the list of dependent inputs
 
-            print(Fore.YELLOW + tabs + "  --> crosses system bounds")
+            if self._show_print > 1:
+                print(Fore.YELLOW + tabs + "  --> crosses system bounds")
 
             # startSignal is at the top of the tree, so add it to the dependiencies
             self.dependencySignals.append( startSignal )
@@ -422,7 +432,8 @@ class BuildExecutionPath:
             # also note down that this is a (actually used) simulation input
             self.dependencySignalsSimulationInputs.append( startSignal )
 
-            print(Style.DIM + tabs + "added input dependency " + startSignal.toStr())
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "added input dependency " + startSignal.toStr())
 
             # mark the node/signal as being visited (meaning computed)
             self.place_marker_for_current_level(startSignal)
@@ -440,7 +451,9 @@ class BuildExecutionPath:
 
         inputsToUpdateStatesTmp = blocksPrototype.config_request_define_state_update_input_dependencies( startSignal )
         if inputsToUpdateStatesTmp is not None:
-            print(tabs + "--- signals needed *indirectly* for " + startSignal.name + " (through state update) --" )
+
+            if self._show_print > 1:
+                print(tabs + "--- signals needed *indirectly* to compute " + startSignal.name + " (through state update) --" )
 
             # 
             self.blocksToUpdateStates.append( block )
@@ -451,15 +464,18 @@ class BuildExecutionPath:
             # add the signals that are required to perform the state update
             self.dependencySignalsThroughStates.extend( inputsToUpdateStatesTmp )
 
-            for signal in inputsToUpdateStatesTmp:
-                print(Fore.MAGENTA + tabs + "-> S " + signal.name )
+            if self._show_print > 1:
+                for signal in inputsToUpdateStatesTmp:
+                    print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
 
         #
         # find out the links to other signals but only these ones that are 
         # needed to calculate 'startSignal'
         #
-        print(tabs + "--- signals needed for " + startSignal.name + " --" )
+
+        if self._show_print > 1:
+            print(tabs + "--- signals needed for " + startSignal.name + " --" )
 
         dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(startSignal)
 
@@ -468,7 +484,8 @@ class BuildExecutionPath:
 
         if len(dependingSignals) == 0:
             # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
-            print(Style.DIM + tabs + "  (no signals needed) "  )
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "  (no signals needed) "  )
 
             # block startSignal.getSourceBlock() --> startSignal is a starting point
 
@@ -476,7 +493,9 @@ class BuildExecutionPath:
             self.dependencySignals.append( startSignal )
 
             #
-            print(Style.DIM + tabs + "added " + startSignal.toStr())
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "added " + startSignal.toStr())
+    
             self.execution_order.append( startSignal )
 
             # mark the node/signal as being visited (meaning computed)
@@ -493,7 +512,8 @@ class BuildExecutionPath:
 
         for signal in dependingSignals:
 
-            print(Fore.MAGENTA + tabs + "-> S " + signal.name )
+            if self._show_print > 1:
+                print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
             self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
 
@@ -507,7 +527,9 @@ class BuildExecutionPath:
         #       from this list. However, it is still in the list of dependencySignals.
         #
 
-        print(Style.DIM + tabs + "added " + startSignal.toStr())
+        if self._show_print > 1:
+            print(Style.DIM + tabs + "added " + startSignal.toStr())
+
         self.execution_order.append( startSignal )
 
         # mark the node/signal as being visited (meaning computed)

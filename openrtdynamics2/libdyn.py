@@ -15,9 +15,11 @@ class Simulation:
         
         if upperLevelSim is None:
             # This system is a main system (no upper-level systems)
-            print("New system (top-level system)")
+            # print("New system (top-level system)")
+            pass
         else:
-            print("New system as a subsystem of " + upperLevelSim.getName())
+            # print("New system as a subsystem of " + upperLevelSim.getName())
+            pass
 
         self.UpperLevelSim = upperLevelSim
         self._name = name
@@ -296,7 +298,7 @@ class Simulation:
         # Build an input-interface for the ORTD interpreter
         # inform of a "inlist" structure
 
-        print("External input signals:")
+        print("external input signals:")
         
         for ExtInSig in self.ExternalConnectionsArray:
             ExtInSig.getDatatype().Show()
@@ -313,7 +315,7 @@ class Simulation:
             block.verifyInputSignals(ignore_signals_with_datatype_inheritance)
 
     def propagate_datatypes(self):
-        print("Propagating datatypes...")
+        print("propagating datatypes...")
 
         self.resolve_anonymous_signals(ignore_signals_with_datatype_inheritance=True)
 

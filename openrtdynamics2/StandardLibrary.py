@@ -271,7 +271,7 @@ def counter():
 
 
 
-def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
+def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True, no_delay:bool=False ):
     """
         A generic counter
 
@@ -283,12 +283,12 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
         upper_limit              - the upper limit of the counter
         initial_state            - the state after reset
-        reset                    - reset the playback and start from the beginning
-        reset_on_limit           - reset conting once the upper limit is reached
-        start_trigger            - event to start playback
-        pause_trigger            - event to pause playback
-        auto_start               - start playback automatically 
-
+        reset                    - reset the counter
+        reset_on_limit           - reset counter once the upper limit is reached
+        start_trigger            - event to start counting
+        pause_trigger            - event to pause counting
+        auto_start               - start counting automatically
+        no_delay                 - when True the new value of the counter is returned without delay 
     """
 
     if stepwidth is None:
@@ -331,7 +331,10 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     # introduce a state variable for the counter
     counter << dy.delay( new_counter, initial_state=initial_state )
 
-    return counter
+    if not no_delay:
+        return counter
+    else:
+        return new_counter
 
 
 # def toggle(trigger, initial_state=False):

@@ -581,8 +581,7 @@ class PutAPIFunction(ExecutionCommand):
                     lines += indent(functionLines, '  ')
                     
                     lines += '}\n\n'
-                else:
-                    print()
+
 
 
         return lines

@@ -10,7 +10,9 @@ init(autoreset=True)
 class DatatypePropagation:
 
 
-    def __init__(self, sim ):
+    def __init__(self, sim, show_print:int=0 ):
+        # show_print 0: show nothing, 1: how some print, 2: show all
+        self._show_print = show_print
 
         self.signalsWithDeterminedTypes = set()
         self.signalsWithProposedTypes = set()
@@ -86,7 +88,8 @@ class DatatypePropagation:
             if signal.inherit_datatype_to_list is not None:
                 for to_signal in signal.inherit_datatype_to_list:
                     
-                    print("inherit fixed datatype " + signal.toStr() + " --> " + to_signal.toStr() )
+                    if self._show_print > 1:
+                        print("inherit fixed datatype " + signal.toStr() + " --> " + to_signal.toStr() )
 
                     to_signal.setDatatype( signal.datatype )
 
@@ -161,24 +164,26 @@ class DatatypePropagation:
             # check if there is sth. left to to
             if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedDeterminedTypes) == 0 and len(self.signalsWithUpdatedProposedTypes) == 0:
 
-                print("resolved all datatypes as far as possible in this update-run")
+                if self._show_print > 0:
+                    print("resolved all datatypes as far as possible in this update-run")
 
-                print(Fore.GREEN + "signals with fixed types:")
-                for s in list(self.signalsWithDeterminedTypes):
-                    print('  - ' + s.toStr())
+                    if self._show_print > 1:
+                        print(Fore.GREEN + "signals with fixed types:")
+                        for s in list(self.signalsWithDeterminedTypes):
+                            print('  - ' + s.toStr())
 
-                print(Fore.YELLOW + "signals with proposed types:")
-                for s in list(self.signalsWithProposedTypes):
-                    print('  - ' + s.toStr())
+                        print(Fore.YELLOW + "signals with proposed types:")
+                        for s in list(self.signalsWithProposedTypes):
+                            print('  - ' + s.toStr())
 
-                if len(self.signalsWithUnderminedTypes) > 0:
+                        if len(self.signalsWithUnderminedTypes) > 0:
 
-                    print(Fore.RED + "signals with undetermined types:")
-                    for s in self.signalsWithUnderminedTypes:
-                        print('  - ' + s.toStr())
-                
-                else:
-                    print(Fore.GREEN + "no undetermined types are left")
+                            print(Fore.RED + "signals with undetermined types:")
+                            for s in self.signalsWithUnderminedTypes:
+                                print('  - ' + s.toStr())
+                        
+                        else:
+                            print(Fore.GREEN + "no undetermined types are left")
 
                 # leave the - while True - loop
                 break
@@ -209,9 +214,11 @@ class DatatypePropagation:
             # remove from
             self.signalsWithUnderminedTypes.remove( s )
 
-        print("signals with undetermined types:")  # TODO: investigate why this list contains some leftovers...
-        for s in self.signalsWithUnderminedTypes:
-            print('  - ' + s.toStr())
+            
+        if self._show_print > 1:
+            print("signals with undetermined types:")  # TODO: investigate why this list contains some leftovers...
+            for s in self.signalsWithUnderminedTypes:
+                print('  - ' + s.toStr())
 
         # TODO: notify the fixation of the datatypes using compile_callback_all_datatypes_defined() of the block prototypes
 

@@ -85,9 +85,6 @@ def compile_system(system = None):
     if system is None:
         system = get_simulation_context() 
 
-    print()
-    print(Style.BRIGHT + "-------- Compile connections (determine datatypes) --------")
-    print()
 
     system.propagate_datatypes()
 
@@ -134,7 +131,7 @@ def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
         # check of path exists - in case no, create it
         Path(folder).mkdir(parents=True, exist_ok=True)
 
-        print("Code generation folder", folder)
+        print("Generated code will be written to " + str(folder) + ' .')
 
         # write generated code into a folder and build
         template.write_code(folder)
