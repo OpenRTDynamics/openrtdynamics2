@@ -30,7 +30,7 @@ def system_input(datatype, name : str = None, default_value=None, value_range=No
         datatype      - the datatype of the signal
         name          - the name of the signal
         default_value - the default value the will be applied to the system input by default
-        value_range   - the availble numeric range for the signal the form [min, max]  
+        value_range   - the available numeric range for the signal the form [min, max]  
         title         - the description of the signal
     """
 

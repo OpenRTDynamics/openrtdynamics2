@@ -9,21 +9,62 @@ import json
 from pathlib import Path
 
 
+def generate_algorithm_code( compile_results, enable_tracing=False, included_systems={} ):
+    """
+        generate code for the given compile result
+
+        compile_results  - the compilation results of the a system
+        enable_tracing   - include debuging
+        included_systems - unused so far
+    """
+
+    main_command = compile_results.commandToExecute
+
+    algorithm_code = ''
+
+    # enable tracing for all execution commands
+    if enable_tracing:
+        # TODO: instead of putting True create an obj with a tracing infrastruture. So far printf is used automatically
+        main_command.command_to_put_main_system.set_tracing_infrastructure(True)
+
+    # combine (concatenate) the code from the library entries
+    for include in included_systems:
+        algorithm_code += include.sourceCode
+
+    # build the code for the implementation
+    main_command.generate_code_init('c++')
+    algorithm_code += main_command.generate_code('c++', 'code')
+    main_command.generate_code_destruct('c++')
+
+    # the manifest containts meta-information about the simulation and its interface
+    # i.e. input and output signals names and datatypes
+    manifest = compile_results.manifest.export_json()
+
+    return manifest, algorithm_code
+
+
+
+
 class PutRuntimeCppHelper:
     """
-        generates code for the runtime evironment
+        generates code for the runtime environment
     """
 
-    def __init__(self, compile_results : CompileResults = None, enable_tracing=False ):
+    def __init__(self, enable_tracing=False ):
         ExecutionCommand.__init__(self)  # TODO: what is this?
 
-        if compile_results is not None:
-            self.compileResults = compile_results
-            self.mainSimulation = compile_results.commandToExecute
+        # if compile_results is not None:
+        #     self.compileResults = compile_results
+        #     self.main_command = compile_results.commandToExecute
 
-        else:
-            self.compileResults = None
-            self.mainSimulation = None
+        # else:
+
+        # those are set via set_compile_results after a system is compiled
+        self.compileResults = None
+        self.main_command = None
+
+        #
+        self._algorithm_code = None
 
         # list of inlcuded system
         self._includedSystems = []
@@ -32,38 +73,29 @@ class PutRuntimeCppHelper:
 
     def set_compile_results(self, compile_results : CompileResults ):
         self.compileResults = compile_results
-        self.mainSimulation = compile_results.commandToExecute
+        self.main_command = compile_results.commandToExecute
 
     def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system
 
+    def get_algorithm_code(self):
+        """
+            Return only the code that implement the system and all sub systems
+        """
+        return self._algorithm_code
+
+
+
     def code_gen(self):
 
-        simulationCode = ''
+        # generate code for the algorithm
+        self.manifest, self._algorithm_code = generate_algorithm_code(self.compileResults, self._enable_tracing, self._includedSystems)
 
-        # enable tracing for all execution commands
-        if self._enable_tracing:
-            # TODO: instead of putting True create an obj with a tracing infrastruture. So far printf is used automatically
-            self.mainSimulation.command_to_put_main_system.set_tracing_infrastructure(True)
-
-        # combine (concatenate) the code from the library entries
-        for include in self._includedSystems:
-            simulationCode += include.sourceCode
-
-        # build the code for the implementation
-        self.mainSimulation.generate_code_init('c++')
-        simulationCode += self.mainSimulation.generate_code('c++', 'code')
-        self.mainSimulation.generate_code_destruct('c++')
-
-        # the manifest containts meta-information about the simulation and its interface
-        # i.e. input and output signals names and datatypes
-        
-        self.manifest = self.compileResults.manifest.export_json()
         
         # TODO: iterate over all functions present in the API of the system
         # NOTE: Currently only the main functions are used: output, update, and reset
         #
-        API_functions = self.mainSimulation.command_to_put_main_system.API_functions
+        API_functions = self.main_command.command_to_put_main_system.API_functions
 
         #
         # make strings 
@@ -79,35 +111,28 @@ class PutRuntimeCppHelper:
 
         # for the output signals
         # input1_NamesCSVList; list of output signals. e.g. 'y1, y2, y3' 
-        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals )
+        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.outputSignals )
 
         # the inputs to the output command
         # input1_NamesCSVList: list of output signals. e.g. 'y1, y2, y3' 
-        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
+        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.inputSignals )
 
         # the inputs to the update command
         # input2_NamesCSVList list of output signals. e.g. 'u1, u2, u3' 
-        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.mainSimulation.command_to_put_main_system.updateCommand.inputSignals )
+        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.updateCommand.inputSignals )
 
         # all inputs
         # merge the list of inputs for the calcoutput and stateupdate function
-        allInputs = list(set(self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals + self.mainSimulation.command_to_put_main_system.updateCommand.inputSignals))
+        allInputs = list(set(self.main_command.command_to_put_main_system.outputCommand.inputSignals + self.main_command.command_to_put_main_system.updateCommand.inputSignals))
         inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
 
         # the names of input and output signals of the outputCommand combined
-
-        # old variant
-        #
-        # calcOutputsArgsList = signal_list_to_name_list( self.mainSimulation.outputCommand.outputSignals )
-        # calcOutputsArgsList.extend(  signal_list_to_name_list( self.mainSimulation.outputCommand.inputSignals ) )
-        # calcOutputsArgs = ', '.join( calcOutputsArgsList )
-
-        calcOutputsArgs = cgh.signal_list_to_name_list( self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals + self.mainSimulation.command_to_put_main_system.outputCommand.inputSignals )
+        calcOutputsArgs = cgh.signal_list_to_name_list( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  
-                                                    mainSimulationName = self.mainSimulation.command_to_put_main_system.API_name,
-                                                    simulationCode=simulationCode,
+                                                    mainSimulationName = self.main_command.command_to_put_main_system.API_name,
+                                                    algorithmCode=self._algorithm_code,
 
                                                     input1_NamesVarDef=input1_NamesVarDef,
                                                     input1_NamesCSVList=input1_NamesCSVList,
@@ -146,7 +171,9 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         generates code for the runtime evironment
     """
 
-    def __init__(self, input_signals_mapping = {} ):
+    def __init__(self, i_max : int, input_signals_mapping = {} ):
+
+        self._i_max = i_max
 
         PutRuntimeCppHelper.__init__(self)
 
@@ -154,7 +181,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         self.initCodeTemplate()
 
         
-    def code_gen(self, iMax : int):
+    def code_gen(self):
 
         # call helper to fill in some generic elements into the template
         PutRuntimeCppHelper.code_gen(self)
@@ -170,7 +197,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
 
-        self.sourceCode = Template(self.template).safe_substitute( iMax=iMax,
+        self.sourceCode = Template(self.template).safe_substitute( iMax=self._i_max,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
         return self.sourceCode, self.manifest
@@ -196,7 +223,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 
         # parse csv data
         data = [ ]
-        outputs = range(0, len(self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals) )
+        outputs = range(0, len(self.main_command.command_to_put_main_system.outputCommand.outputSignals) )
 
         for o in outputs:
             data.append( [] )
@@ -210,7 +237,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         # put data into a key-array
         dataStruct = { }
         o = 0
-        for s in self.mainSimulation.command_to_put_main_system.outputCommand.outputSignals:
+        for s in self.main_command.command_to_put_main_system.outputCommand.outputSignals:
             dataStruct[ s.name ] = data[o]
 
             o = o + 1
@@ -233,7 +260,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
 // implementation of $mainSimulationName
 //
 
-$simulationCode
+$algorithmCode
 
 //
 // main
@@ -280,43 +307,29 @@ int main () {
 
 class WasmRuntime(PutRuntimeCppHelper):
     """
-        generates code for the Webassemble runtime evironment
+        generates code for the Webassemble runtime environment
 
         https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 
     """
 
-    def __init__(self, input_signals_mapping = {}, enable_tracing = False ):
+    def __init__(self, enable_tracing = False ):
 
         PutRuntimeCppHelper.__init__(self, enable_tracing=enable_tracing)
 
-        self.input_signals_mapping = input_signals_mapping
         self.initCodeTemplate()
 
         
     def code_gen(self):
 
-
-        #
-        # make strings 
-        # 
-
-        # constant inputs
-        inputConstAssignments = []
-        for signal, value in self.input_signals_mapping.items():
-            inputConstAssignments.append( signal.name + ' = ' + str(value) )
-
-        inputConstAssignment = '; '.join( inputConstAssignments ) + ';'
-
-
         # build I/O structs
-        ioExport = self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.outputCommand)
-        ioExport += self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.updateCommand)
+        ioExport = self.generate_code_writeIO(self.main_command.command_to_put_main_system.outputCommand)
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.updateCommand)
 
-        ioExport += self.generate_code_writeIO(self.mainSimulation.command_to_put_main_system.resetCommand)
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.resetCommand)
 
         self.template = Template(self.template).safe_substitute( ioExport=ioExport,
-                                                                 inputConstAssignment=inputConstAssignment    ) 
+                                                                 inputConstAssignment=''    ) 
 
         # call helper to fill in some generic elements into the template
         PutRuntimeCppHelper.code_gen(self)
@@ -336,7 +349,7 @@ class WasmRuntime(PutRuntimeCppHelper):
             structPrefix = 'Outputs_'
             signals = command_API.outputSignals
 
-        mainSimulationName = self.mainSimulation.command_to_put_main_system.API_name
+        mainSimulationName = self.main_command.command_to_put_main_system.API_name
 
         lines = ''
 
@@ -398,7 +411,7 @@ using namespace emscripten;
 // implementation of $mainSimulationName
 //
 
-$simulationCode
+$algorithmCode
 
 // Binding code
 EMSCRIPTEN_BINDINGS(my_class_example) {
