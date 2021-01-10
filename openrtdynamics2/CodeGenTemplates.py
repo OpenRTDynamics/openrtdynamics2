@@ -18,7 +18,7 @@ def generate_algorithm_code( compile_results, enable_tracing=False, included_sys
         included_systems - unused so far
     """
 
-    main_command = compile_results.commandToExecute
+    main_command = compile_results.command_to_execute
 
     algorithm_code = ''
 
@@ -55,7 +55,7 @@ class PutRuntimeCppHelper:
 
         # if compile_results is not None:
         #     self.compileResults = compile_results
-        #     self.main_command = compile_results.commandToExecute
+        #     self.main_command = compile_results.command_to_execute
 
         # else:
 
@@ -73,7 +73,7 @@ class PutRuntimeCppHelper:
 
     def set_compile_results(self, compile_results : CompileResults ):
         self.compileResults = compile_results
-        self.main_command = compile_results.commandToExecute
+        self.main_command = compile_results.command_to_execute
 
     def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system

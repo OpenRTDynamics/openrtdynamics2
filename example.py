@@ -88,7 +88,11 @@ state_control = switch.state.set_name('state_control')
 dy.set_primary_outputs([ output_x, output_v, state_control, counter ])
 
 
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+#sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+
+code_gen_template = dy.WasmRuntime()
+sourcecode, manifest = dy.generate_code(template=code_gen_template, folder="generated/", build=True)
+
 
 # print the sourcecode (main.cpp)
-print(Style.DIM + sourcecode)
+print(Style.DIM + code_gen_template.get_algorithm_code())

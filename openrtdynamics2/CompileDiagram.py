@@ -16,8 +16,8 @@ class CompileResults(object):
         (excluding subsystems)
     """
     
-    def __init__(self, manifest, commandToExecute):
-        self._commandToExecute = commandToExecute
+    def __init__(self, manifest, command_to_execute):
+        self._command_to_execute = command_to_execute
         self._manifest = manifest
 
     @property
@@ -25,11 +25,11 @@ class CompileResults(object):
         return self._manifest
 
     @property
-    def commandToExecute(self):
-        return self._commandToExecute
+    def command_to_execute(self):
+        return self._command_to_execute
 
     def set_command_to_execute(self, command_to_execute):
-        self._commandToExecute = command_to_execute 
+        self._command_to_execute = command_to_execute 
 
 
 
@@ -54,7 +54,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         for subSystem in system.subsystems:
             compileResult = self.traverseSubSystems(subSystem, level=level+1)
 
-            command_list_for_all_subsystems.append( compileResult.commandToExecute )
+            command_list_for_all_subsystems.append( compileResult.command_to_execute )
 
         # notify each block about the compilation of all subsystems in the system
         for block in system.blocks:
@@ -77,11 +77,11 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         # # produre commands for building/executing
         # command_list_for_all_subsystems = []
         # for subsystem in system.subsystems:
-        #     command_list_for_all_subsystems.append( subsystem.commandToExecute )
+        #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
 
 
         # replace the execution command by one that wraps all subsystems along with the main system
-        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.commandToExecute, commands_to_put_subsystems=command_list_for_all_subsystems )
+        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.command_to_execute, commands_to_put_subsystems=command_list_for_all_subsystems )
         compile_result.set_command_to_execute( execution_command )
 
         # store the compilation result in the system's structure (TODO: is this needed?)
@@ -389,7 +389,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
 
 
     # define the interfacing class
-    commandToExecute_system = PutSystem(    system = system,
+    command_to_execute_system = PutSystem(    system = system,
                                                     resetCommand = commandToResetStates, 
                                                     updateCommand = commandToUpdateStates,
                                                     outputCommand = commandToPublishTheResults
@@ -401,9 +401,9 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
     allinputs = list(allinputs)
 
     # build the manifest for the compiled system
-    manifest = SystemManifest( commandToExecute_system )
+    manifest = SystemManifest( command_to_execute_system )
 
-    compleResults = CompileResults( manifest, commandToExecute_system)
+    compleResults = CompileResults( manifest, command_to_execute_system)
 
     compleResults.inputSignals                             = allinputs
     compleResults.simulationInputSignalsToUpdateStates     = simulationInputSignalsToUpdateStates

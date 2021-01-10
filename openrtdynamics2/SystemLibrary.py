@@ -15,7 +15,7 @@ class SystemLibraryEntry(object):
     def __init__(self, compileResults : CompileResults ):
 
         self.compileResults = compileResults
-        self.mainSimulation = compileResults.commandToExecute
+        self.mainSimulation = compileResults.command_to_execute
 
         self.generate_code()
 

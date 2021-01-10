@@ -1097,8 +1097,7 @@ compile_results = dy.compile_current_system()
 
 
 # Build an executable based on a template
-input_signals_mapping = {}
-runtime_template = dy.WasmRuntime(input_signals_mapping=input_signals_mapping)
+runtime_template = dy.WasmRuntime()
 runtime_template.set_compile_results(compile_results)
 
 #runtime_template = dy.PutBasicRuntimeCpp(input_signals_mapping=input_signals_mapping)
@@ -1114,7 +1113,7 @@ runtime_template.include_systems( library_entries )
 dy.show_execution_lines(compile_results)
 
 #
-# generate c++ cpde
+# generate c++ code
 #
 
 print()
