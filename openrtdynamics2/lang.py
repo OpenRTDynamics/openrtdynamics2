@@ -124,7 +124,7 @@ def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
 
     # Build an executable based on a template
     template.set_compile_results( compile_results )
-    sourcecode, manifest = template.code_gen()
+    code_gen_results = template.code_gen()
 
     if folder is not None:
 
@@ -140,4 +140,4 @@ def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
             template.build()
 
 
-    return sourcecode, manifest
+    return code_gen_results

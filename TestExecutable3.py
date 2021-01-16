@@ -1120,7 +1120,9 @@ print()
 print(Style.BRIGHT + "-------- Code generation  --------")
 print()
 
-sourcecode, manifest = runtime_template.code_gen()
+code_gen_results = runtime_template.code_gen()
+sourcecode, manifest = code_gen_results['sourcecode'], code_gen_results['manifest']
+
 
 print(Style.DIM + sourcecode)
 

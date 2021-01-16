@@ -694,11 +694,12 @@ class PutSystem(ExecutionCommand):
                 # define the generic step functions
                 #
 
-                all_input_signals = list(set(self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+                config_pass_by_reference = True
+
+                all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
                 all_output_signals = self.outputCommand.outputSignals
 
                 # introduce a structure that combines all system inputs
-                # self.outputCommand.inputSignals and self.updateCommand.inputSignals
                 innerLines += '// all system inputs and outputs combined\n'
                 innerLines += cgh.define_structure('Inputs', all_input_signals)
                 innerLines += cgh.define_structure('Outputs', all_output_signals)
@@ -708,26 +709,47 @@ class PutSystem(ExecutionCommand):
                 #
 
                 function_code = ''
-                function_code += cgh.define_struct_var( 'Outputs', 'outputs'  ) + '\n'
+                if not config_pass_by_reference:
+                    function_code += cgh.define_struct_var( 'Outputs', 'outputs'  ) + '\n'
+
+                # call to reset function
+                function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname='inputs', output_struct_varname='outputs')
 
                 # call to output function (1)
-                function_code += codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+                function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
 
                 # call to update function
-                function_code += codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+                function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+
+                # conditional update / output
+                function_code += cgh.generate_if_else(language, condition_list=['reset_states'], action_list=[function_code_reset_states] )
+                function_code += cgh.generate_if_else(language, condition_list=['calculate_outputs==1'], action_list=[function_code_calc_output] )
+                function_code += cgh.generate_if_else(language, condition_list=['update_states'], action_list=[function_code_update_states] )
+
 
 
                 function_code += '\n'
-                function_code += 'return outputs;\n'
+
+                if not config_pass_by_reference:
+                    function_code += 'return outputs;\n'
 
                 #
                 innerLines += '// main step function \n'
-                innerLines += cgh.cpp_define_generic_function( 
-                    fn_name='step', 
-                    return_cpp_type_str = 'Outputs', 
-                    arg_list_str = 'Inputs' + ' inputs', 
-                    code = function_code
-                )
+
+                if config_pass_by_reference:
+                    innerLines += cgh.cpp_define_generic_function( 
+                        fn_name='step', 
+                        return_cpp_type_str = 'void', 
+                        arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                        code = function_code
+                    )
+                else:
+                    innerLines += cgh.cpp_define_generic_function( 
+                        fn_name='step', 
+                        return_cpp_type_str = 'Outputs', 
+                        arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                        code = function_code
+                    )
 
 
 

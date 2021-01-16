@@ -91,8 +91,29 @@ dy.set_primary_outputs([ output_x, output_v, state_control, counter ])
 #sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
 
 code_gen_template = dy.WasmRuntime()
-sourcecode, manifest = dy.generate_code(template=code_gen_template, folder="generated/", build=True)
-
+code_gen_results = dy.generate_code(template=code_gen_template, folder="generated/", build=True)
+sourcecode, manifest = code_gen_results['sourcecode'], code_gen_results['manifest']
 
 # print the sourcecode (main.cpp)
-print(Style.DIM + code_gen_template.get_algorithm_code())
+#print(Style.DIM + code_gen_template.get_algorithm_code())
+
+algorithm_sourcecode = code_gen_template.get_algorithm_code()
+
+from pygments import highlight
+from pygments.style import Style
+from pygments.token import Token
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import Terminal256Formatter, TerminalFormatter
+
+
+import pygments.styles as styles
+
+
+lexer = get_lexer_by_name("c++", stripall=True)
+
+formatter = Terminal256Formatter(style='default')
+#formatter = TerminalFormatter()
+
+
+print( highlight(algorithm_sourcecode, lexer, formatter) )
+

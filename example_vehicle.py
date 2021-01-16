@@ -113,7 +113,9 @@ dy.set_primary_outputs([ x, y, psi, reference, steering, error ], ['x', 'y', 'ps
 
 
 
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+code_gen_results = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+sourcecode, manifest = code_gen_results['sourcecode'], code_gen_results['manifest']
+
 
 # print the sourcecode (main.cpp)
 print(Style.DIM + sourcecode)

@@ -150,7 +150,7 @@ class PutRuntimeCppHelper:
                                                     calcOutputsArgs=calcOutputsArgs )
 
 
-        return self.template, self.manifest
+        return {'sourcecode' : self.template, 'manifest' : self.manifest, 'algorithm_sourcecode' : self._algorithm_code }
 
     def writeFiles(self, folder):
 
@@ -184,7 +184,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
     def code_gen(self):
 
         # call helper to fill in some generic elements into the template
-        PutRuntimeCppHelper.code_gen(self)
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
 
         #
         # make strings 
@@ -200,7 +200,8 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         self.sourceCode = Template(self.template).safe_substitute( iMax=self._i_max,
                                                                  inputConstAssignment=inputConstAssignment    ) 
 
-        return self.sourceCode, self.manifest
+        code_gen_results['sourcecode'] = self.sourceCode
+        return code_gen_results
 
     def write_code(self, folder):
         PutRuntimeCppHelper.writeFiles(self, folder)
@@ -332,10 +333,12 @@ class WasmRuntime(PutRuntimeCppHelper):
                                                                  inputConstAssignment=''    ) 
 
         # call helper to fill in some generic elements into the template
-        PutRuntimeCppHelper.code_gen(self)
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
 
         self.sourceCode = self.template
-        return self.template, self.manifest
+
+        code_gen_results['sourcecode'] = self.sourceCode
+        return code_gen_results
 
 
 
