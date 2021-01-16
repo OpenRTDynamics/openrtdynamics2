@@ -12,7 +12,31 @@ from textwrap import *
 from string import Template
 
 
+#
+# Code generation helper functions
+#
 
+
+def codegen_call_to_API_function_with_strutures(API_function_command, input_struct_varname, output_struct_varname):
+    """
+        help in code generation: create a function call to an API function (e.g. for calculating outputs or
+        updateting states). Input and output parameters are taken from strutures with the given names. 
+    """
+    arguments_string = cgh.build_function_arguments_for_signal_io_with_struct(
+        input_signals = API_function_command.inputSignals, 
+        output_signals = API_function_command.outputSignals, 
+        input_struct_varname = input_struct_varname, 
+        output_struct_varname = output_struct_varname
+    )
+    return cgh.call_function_with_argument_str(fn_name=API_function_command._nameAPI, arguments_str=arguments_string)
+
+
+
+
+
+#
+# The execution command prototype
+#
 
 class ExecutionCommand(object):
     def __init__(self):
@@ -58,6 +82,13 @@ class ExecutionCommand(object):
         lines = ''
 
         return lines
+
+
+
+
+#
+# The execution commands
+#
 
 
 # rename to CommandCalculateSignalValues
@@ -538,18 +569,11 @@ class PutAPIFunction(ExecutionCommand):
                     # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
                     #
 
-                    arguments_string = cgh.build_function_arguments_for_signal_io_with_struct(
-                        input_signals = self.inputSignals, 
-                        output_signals = self.outputSignals, 
-                        input_struct_varname = 'inputs', 
-                        output_struct_varname = 'outputs'
-                    )
-
                     function_code = ''
                     function_code += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
                     # call to wrapped function
-                    function_code += cgh.call_function_with_argument_str(fn_name=self._nameAPI, arguments_str=arguments_string)
+                    function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname='inputs', output_struct_varname='outputs')
 
                     function_code += '\n'
                     function_code += 'return outputs;\n'
@@ -566,9 +590,6 @@ class PutAPIFunction(ExecutionCommand):
 
 
         return lines
-
-
-
 
 
 
@@ -674,10 +695,48 @@ class PutSystem(ExecutionCommand):
                 for c in self.executionCommands:
                     innerLines += c.generate_code(language, 'code')
 
+
+                #
+                # define the generic step functions
+                #
+
+                all_input_signals = list(set(self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+                all_output_signals = self.outputCommand.outputSignals
+
                 # introduce a structure that combines all system inputs
                 # self.outputCommand.inputSignals and self.updateCommand.inputSignals
-                innerLines += '// all system inputs combined\n'
-                innerLines += cgh.define_structure('Inputs', list(set(self.updateCommand.inputSignals + self.outputCommand.inputSignals)))
+                innerLines += '// all system inputs and outputs combined\n'
+                innerLines += cgh.define_structure('Inputs', all_input_signals)
+                innerLines += cgh.define_structure('Outputs', all_output_signals)
+
+                #
+                # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
+                #
+
+                function_code = ''
+                function_code += cgh.defineStructVar( 'Outputs', 'outputs'  ) + '\n'
+
+                # call to output function (1)
+                function_code += codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+
+                # call to update function
+                function_code += codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+
+
+                function_code += '\n'
+                function_code += 'return outputs;\n'
+
+                #
+                innerLines += '// main step function \n'
+                innerLines += cgh.cpp_define_generic_function( 
+                    fn_name='step', 
+                    return_cpp_type_str = 'Outputs', 
+                    arg_list_str = 'Inputs' + ' inputs', 
+                    code = function_code
+                )
+
+
+
 
                 # define the API-function (finish)
                 lines += cgh.indent(innerLines)
