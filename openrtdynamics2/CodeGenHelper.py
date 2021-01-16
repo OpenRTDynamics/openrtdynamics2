@@ -132,7 +132,7 @@ def generate_compare_equality_to_constant( language, signal_name, constant ):
 
 
 
-def defineVariableLine( signal, make_a_reference = False ):
+def define_variable_line( signal, make_a_reference = False ):
     """
         create a sting containing e.g.
 
@@ -187,7 +187,7 @@ def define_structure( name, signals ):
     return 'struct ' + name + brackets_no_newline( defineVariables( signals )  ) + ';\n'
     
 
-def defineStructVar( structName, structVarname ):
+def define_struct_var( structName, structVarname ):
     return structName + ' ' + structVarname + ';\n'
 
 def fillStruct( structName, structVarname, signals ):
@@ -197,7 +197,7 @@ def fillStruct( structName, structVarname, signals ):
 
     lines = ''
 
-    lines += defineStructVar( structName, structVarname )
+    lines += define_struct_var( structName, structVarname )
 
 
     for s in signals:
@@ -205,7 +205,7 @@ def fillStruct( structName, structVarname, signals ):
 
     return lines
 
-def getStructElements( structVarname, signals ):
+def get_struct_elements( structVarname, signals ):
     # get list of e.g. 'outputs.y1', 'outputs.y2'
 
     structElements = []
@@ -220,8 +220,8 @@ def build_function_arguments_for_signal_io_with_struct(input_signals, output_sig
     # build arguments for function call
     if len(output_signals) > 0 or len(input_signals) > 0:
 
-        output_arguments = getStructElements( output_struct_varname, output_signals )
-        input_arguments = getStructElements( input_struct_varname, input_signals )
+        output_arguments = get_struct_elements( output_struct_varname, output_signals )
+        input_arguments = get_struct_elements( input_struct_varname, input_signals )
 
         arguments_string = ''
         if len(output_arguments) > 0:

@@ -28,7 +28,7 @@ def codegen_call_to_API_function_with_strutures(API_function_command, input_stru
         input_struct_varname = input_struct_varname, 
         output_struct_varname = output_struct_varname
     )
-    return cgh.call_function_with_argument_str(fn_name=API_function_command._nameAPI, arguments_str=arguments_string)
+    return cgh.call_function_with_argument_str(fn_name=API_function_command.API_name, arguments_str=arguments_string)
 
 
 
@@ -113,7 +113,7 @@ class CommandCalculateOutputs(ExecutionCommand):
         self._signals_from_system_states      = signals_from_system_states
         self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
-    def printExecution(self):
+    def print_execution(self):
         signalListStr = '['
 
         if self.targetSignals is not None:
@@ -169,13 +169,11 @@ class CommandCalculateOutputs(ExecutionCommand):
                     if not s in self._signals_from_system_states:
 
                         if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
-                            # only implement caching for intermediate computaion results.
+                            # only implement caching for intermediate computation results.
                             # I.e. exclude the simulation input signals
 
-                            # print('create local variable for signal ' + s.name + ' / ' + s.toStr() )
-
                             if not s.is_referencing_memory:
-                                lines += cgh.defineVariableLine( s )
+                                lines += cgh.define_variable_line( s )
 
 
 
@@ -223,7 +221,7 @@ class CommandResetStates(ExecutionCommand):
 
         self.blockList = blockList
         
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: reset states of:")
 
@@ -268,7 +266,7 @@ class CommandUpdateStates(ExecutionCommand):
 
         self.blockList = blockList
         
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: update states of:")
 
@@ -333,7 +331,7 @@ class CommandCacheOutputs(ExecutionCommand):
     def get_cachedSignals(self):
         return self.signals
 
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
 
@@ -401,7 +399,7 @@ class CommandRestoreCache(ExecutionCommand):
 
         self.signals = cacheCommand.get_cachedSignals()
         
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):")
 
@@ -475,11 +473,10 @@ class PutAPIFunction(ExecutionCommand):
 
 
     @property
-    def nameAPI(self):
+    def API_name(self):
         return self._nameAPI
-
         
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: API outputs are:")
         for s in self.outputSignals:
@@ -488,7 +485,7 @@ class PutAPIFunction(ExecutionCommand):
         print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
         
         for c in self.executionCommands:
-            c.printExecution()
+            c.print_execution()
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
@@ -570,7 +567,7 @@ class PutAPIFunction(ExecutionCommand):
                     #
 
                     function_code = ''
-                    function_code += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+                    function_code += cgh.define_struct_var( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
                     # call to wrapped function
                     function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname='inputs', output_struct_varname='outputs')
@@ -607,9 +604,9 @@ class PutSystem(ExecutionCommand):
         self.updateCommand = updateCommand
         self.outputCommand = outputCommand
 
-        self._api_function_names = {'calculate_output' : self.outputCommand.nameAPI,
-                         'state_update' : self.updateCommand.nameAPI,
-                         'reset' : self.resetCommand.nameAPI }
+        self._api_function_names = {'calculate_output' : self.outputCommand.API_name,
+                         'state_update' : self.updateCommand.API_name,
+                         'reset' : self.resetCommand.API_name }
 
         self._api_functions = {'calculate_output' : self.outputCommand,
                          'state_update' : self.updateCommand,
@@ -624,9 +621,6 @@ class PutSystem(ExecutionCommand):
 
 
 
-    # def getAPI_name(self):
-    #     return self.nameAPI
-
     @property
     def API_name(self):
         return self.nameAPI
@@ -639,12 +633,12 @@ class PutSystem(ExecutionCommand):
     def API_functions(self):
         return self._api_functions
 
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API (" + self.nameAPI + "):")
         
         for c in self.executionCommands:
-            c.printExecution()
+            c.print_execution()
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         
@@ -714,7 +708,7 @@ class PutSystem(ExecutionCommand):
                 #
 
                 function_code = ''
-                function_code += cgh.defineStructVar( 'Outputs', 'outputs'  ) + '\n'
+                function_code += cgh.define_struct_var( 'Outputs', 'outputs'  ) + '\n'
 
                 # call to output function (1)
                 function_code += codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
@@ -767,12 +761,12 @@ class PutSystemAndSubsystems(ExecutionCommand):
     def command_to_put_main_system(self):
         return self._command_to_put_main_system
 
-    def printExecution(self):
+    def print_execution(self):
 
         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: System with the API (" + self._command_to_put_main_system.API_name + " along with subsystems):")
         
         for c in self.executionCommands:
-            c.printExecution()
+            c.print_execution()
 
         print(Style.BRIGHT + Fore.YELLOW + "}")
         

@@ -354,7 +354,7 @@ class WasmRuntime(PutRuntimeCppHelper):
         lines = ''
 
         # Inputs
-        structname = structPrefix + command_API.nameAPI 
+        structname = structPrefix + command_API.API_name 
 
         lines += 'value_object<' + mainSimulationName + '::' + structname + '>("' + mainSimulationName + '__' + structname + '")\n'
 

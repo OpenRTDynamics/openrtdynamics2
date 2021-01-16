@@ -291,7 +291,7 @@ class GenericSubsystem(bi.BlockPrototype):
             #
 
             for s in self.outputs:
-                lines += cgh.defineVariableLine( s ) 
+                lines += cgh.define_variable_line( s ) 
 
                 if s not in signals:
                     lines += '// NOTE: unused output signal' + s.name + '\n'

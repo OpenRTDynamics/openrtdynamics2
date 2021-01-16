@@ -111,7 +111,7 @@ def show_execution_lines(compile_results):
     print(Style.BRIGHT + "-------- List all execution lines and commands  --------")
     print()
 
-    compile_results.command_to_execute.printExecution()
+    compile_results.command_to_execute.print_execution()
 
 
 
