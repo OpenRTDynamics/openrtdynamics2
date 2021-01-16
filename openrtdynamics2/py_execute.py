@@ -57,6 +57,9 @@ class SystemInstance:
         
         
     def reset_states(self):
+        """
+            reset all internal states of the system and all subsystems
+        """
         self._sim.step( self.outputs, self.inputs, 0, False, True )
 
     def calculate_outputs(self):
@@ -65,6 +68,18 @@ class SystemInstance:
 
     def update_states(self):
         self._sim.step( self.outputs, self.inputs, 0, True, False )
+
+    def step(self):
+        """
+            perform one step and return the system outputs
+
+            Please note: the inputs must be via the member variable inputs before.
+        """
+        res = self.calculate_outputs()
+        self.update_states()
+
+        return res
+
         
     @property
     def instance(self):
