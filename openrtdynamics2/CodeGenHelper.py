@@ -161,14 +161,39 @@ def signalListHelper_printfPattern_string(signals):
 
 
 
+
+# brackets
+def brackets(code):
+    return '{\n' + indent(code) + '\n}\n'
+
+def brackets_no_newline(code):
+    return '{\n' + indent(code) + '\n}'
+
+
+
 #
 #
 #
+
+
+def define_structure( name, signals ):
+    """
+        define a structure given a name given a list of signals
+    """
+#    tmp = defineVariables( signals )
+#    tmp = indent(tmp, '  ')
+#    return f'struct { name }  {{\n{ tmp }}};\n\n'
+
+    return 'struct ' + name + brackets_no_newline( defineVariables( signals )  ) + ';\n'
+    
 
 def defineStructVar( structName, structVarname ):
     return structName + ' ' + structVarname + ';\n'
 
 def fillStruct( structName, structVarname, signals ):
+    """
+        define an instance of a structure and assign values to the elements
+    """
 
     lines = ''
 
@@ -190,13 +215,6 @@ def getStructElements( structVarname, signals ):
 
     return structElements
 
-
-
-def brackets(code):
-    return '{\n' + indent(code) + '\n}\n'
-
-def brackets_no_newline(code):
-    return '{\n' + indent(code) + '\n}'
 
 #
 # control flow

@@ -1909,7 +1909,7 @@ class Memory(bi.BlockPrototype):
     def generate_code_reset(self, language):
         if language == 'c++':
             # TODO
-            return '// WARNIG: reset of memeory not implemented\n'
+            return '// WARNIG: reset of memory not implemented\n'
 
 
 

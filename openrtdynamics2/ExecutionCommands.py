@@ -118,7 +118,7 @@ class CommandCalculateOutputs(ExecutionCommand):
                         # if s is output signal of system 
                         if s in self._output_signals:
 
-                            # s is a system output: the code that generates the source to calculate s shall not reserve memeory for s
+                            # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
 
                             signals_reduced_set.remove( s )
 
@@ -527,27 +527,22 @@ class PutAPIFunction(ExecutionCommand):
 
                 if self._generate_wrappper_functions:
 
-                    # put structs to hold I/O signals
-                    lines += '// output data structure for ' + self._nameAPI + '\n'
-                    tmp = cgh.defineVariables( self.outputSignals )
-                    tmp = indent(tmp, '  ')
-                    lines += f'struct Outputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
+                    # put data strutures to hold I/O signals
+                    lines += '// output signals of  ' + self._nameAPI + '\n'
+                    lines += cgh.define_structure('Outputs_' + self._nameAPI , self.outputSignals)  
 
-                    lines += '// input data structure for ' + self._nameAPI + '\n'
-                    tmp = cgh.defineVariables( self.inputSignals )
-                    tmp = indent(tmp, '  ')
-                    lines += f'struct Inputs_{ self._nameAPI }  {{\n{ tmp }}};\n\n'
-
+                    lines += '// input signals of ' + self._nameAPI + '\n'
+                    lines += cgh.define_structure('Inputs_' + self._nameAPI , self.inputSignals)  
 
                     #
-                    # put a wrapper function that offers a 'nicer' API using structs for in- and output signals
+                    # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
                     #
 
                     # put function header
                     lines += '// wrapper function for ' + self._nameAPI + '\n'
                     lines += 'Outputs_' + self._nameAPI + ' ' + self._nameAPI + '__ (Inputs_' + self._nameAPI + ' inputs)\n'
 
-                    if len(self.outputSignals) > 0 or len(self.inputSignals):
+                    if len(self.outputSignals) > 0 or len(self.inputSignals) > 0:
 
                         outputArguments = cgh.getStructElements( 'outputs' , self.outputSignals )
                         inputArguments = cgh.getStructElements( 'inputs' , self.inputSignals )
