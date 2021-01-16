@@ -215,6 +215,29 @@ def getStructElements( structVarname, signals ):
 
     return structElements
 
+def build_function_arguments_for_signal_io_with_struct(input_signals, output_signals, input_struct_varname, output_struct_varname):
+
+    # build arguments for function call
+    if len(output_signals) > 0 or len(input_signals) > 0:
+
+        output_arguments = getStructElements( output_struct_varname, output_signals )
+        input_arguments = getStructElements( input_struct_varname, input_signals )
+
+        arguments_string = ''
+        if len(output_arguments) > 0:
+            arguments_string += ', '.join( output_arguments )
+
+        if len(output_arguments) > 0 and len(input_arguments) > 0:
+            arguments_string += ',   '                    
+
+        if len(input_arguments) > 0:
+            arguments_string += ', '.join( input_arguments )
+
+    else:
+        arguments_string = ''
+
+    return arguments_string
+
 
 #
 # control flow
@@ -370,6 +393,19 @@ def embed_subsystem2(language, system_prototype, ouput_signals_name=None, ouput_
 
 
 
+def cpp_define_generic_function(fn_name, return_cpp_type_str, arg_list_str, code):
+    """
+        generate code for a c++ generic c++ function
+    """
+    lines = ''
+    lines += return_cpp_type_str + ' ' + fn_name + '(' + arg_list_str + ') {\n'
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += '}\n'
+
+    return lines
 
 
 def cpp_define_function(fn_name, input_signals, output_signals, code):
@@ -381,8 +417,6 @@ def cpp_define_function(fn_name, input_signals, output_signals, code):
 
     # put the parameter list e.g. double & y1, double & y2, u1, u2
     elements = []
-    # for s in output_signals:
-    #     elements.append( s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) )
         
     elements.extend( define_variable_list( output_signals, make_a_reference=True ) )
     elements.extend( define_variable_list( input_signals ) )
@@ -432,7 +466,8 @@ def call_function_from_varnames(fn_name, input_names, output_names):
 
     return lines
 
-
+def call_function_with_argument_str(fn_name, arguments_str):
+    return fn_name + '(' + arguments_str + ');\n'
 
 
 #

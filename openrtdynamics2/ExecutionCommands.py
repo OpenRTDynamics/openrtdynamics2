@@ -538,44 +538,30 @@ class PutAPIFunction(ExecutionCommand):
                     # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
                     #
 
-                    # put function header
+                    arguments_string = cgh.build_function_arguments_for_signal_io_with_struct(
+                        input_signals = self.inputSignals, 
+                        output_signals = self.outputSignals, 
+                        input_struct_varname = 'inputs', 
+                        output_struct_varname = 'outputs'
+                    )
+
+                    function_code = ''
+                    function_code += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+
+                    # call to wrapped function
+                    function_code += cgh.call_function_with_argument_str(fn_name=self._nameAPI, arguments_str=arguments_string)
+
+                    function_code += '\n'
+                    function_code += 'return outputs;\n'
+
+                    #
                     lines += '// wrapper function for ' + self._nameAPI + '\n'
-                    lines += 'Outputs_' + self._nameAPI + ' ' + self._nameAPI + '__ (Inputs_' + self._nameAPI + ' inputs)\n'
-
-                    if len(self.outputSignals) > 0 or len(self.inputSignals) > 0:
-
-                        outputArguments = cgh.getStructElements( 'outputs' , self.outputSignals )
-                        inputArguments = cgh.getStructElements( 'inputs' , self.inputSignals )
-
-                        argumentsString = ''
-                        if len(outputArguments) > 0:
-                            argumentsString += ', '.join( outputArguments )
-
-                        if len(outputArguments) > 0 and len(inputArguments) > 0:
-                            argumentsString += '   ,   '                    
-
-                        if len(inputArguments) > 0:
-                            argumentsString += ', '.join( inputArguments )
-
-                    else:
-                        argumentsString = ''
-
-                    lines += '{\n'
-
-                    functionLines = ''
-                    functionLines += cgh.defineStructVar( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
-
-                    functionLines += '// call to wrapped function\n'
-                    functionLines += self._nameAPI + '(' + argumentsString + ');\n'
-
-
-                    functionLines += '\n'
-                    functionLines += '// return the signals in a struct\n'
-                    functionLines += 'return outputs;\n'
-
-                    lines += indent(functionLines, '  ')
-                    
-                    lines += '}\n\n'
+                    lines += cgh.cpp_define_generic_function( 
+                        fn_name=self._nameAPI + '__', 
+                        return_cpp_type_str = 'Outputs_' + self._nameAPI, 
+                        arg_list_str = 'Inputs_' + self._nameAPI + ' inputs', 
+                        code = function_code
+                    )
 
 
 
@@ -688,11 +674,14 @@ class PutSystem(ExecutionCommand):
                 for c in self.executionCommands:
                     innerLines += c.generate_code(language, 'code')
 
-                lines += cgh.indent(innerLines)
+                # introduce a structure that combines all system inputs
+                # self.outputCommand.inputSignals and self.updateCommand.inputSignals
+                innerLines += '// all system inputs combined\n'
+                innerLines += cgh.define_structure('Inputs', list(set(self.updateCommand.inputSignals + self.outputCommand.inputSignals)))
 
                 # define the API-function (finish)
+                lines += cgh.indent(innerLines)
                 lines += '};\n\n'
-
 
         return lines
 
