@@ -41,7 +41,7 @@ class SystemInstance:
         """
     
         import cppyy
-        
+
         #
         # Issue: https://bitbucket.org/wlav/cppyy/issues/295/q-reset-interpreter-or-multiple-instances
         #
@@ -143,7 +143,7 @@ def run_batch_simulation(system_instance, input_data, N, output_keys=None, reset
         val = input_data[k]
 
         if hasattr(inputs, k):
-            if type(val) == float or type(val) == int:
+            if type(val) == float or type(val) == int or np.size( val ) == 1:
                 setattr(inputs, k, val)
                 # print('set const value', val, ' for ', k)
             else:

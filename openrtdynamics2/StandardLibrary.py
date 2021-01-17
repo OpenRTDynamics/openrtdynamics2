@@ -463,6 +463,54 @@ def signal_periodic_impulse(period, phase):
 
 
 
+def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, counter=None, reset=None ):
+    """
+        signal generator for a step-wise changeing signal
+
+        time_instance_indices - an array of sampling instants at which the signal changes its values
+        values                - an array of values; must have one more element than time_instance_indices
+        time_scale            - multiplies all elements of time_instance_indices by the given factor (optional)
+        counter               - an alternative sample counter (optional)
+        reset                 - boolean signal to reset the sequence (optional)
+
+        Example
+        -------
+
+        time_instance_indices = [      50, 100, 150, 250, 300, 350, 400,  450, 500  ]
+        values                = [ 0, -1.0,   0, 1.0,  0, -1.0, 0,   0.2, -0.2, 0   ]
+
+        v = step_wise_sequence( time_instance_indices, values )
+    """
+    
+    if len(values) - 1 != len(time_instance_indices):
+        raise BaseException( "len(values) - 1 != len(time_instance_indices)" )
+
+    if counter is None:
+        counter = dy.counter()
+
+    indices_mem = dy.memory(datatype=dy.DataTypeInt32(1),   constant_array=time_instance_indices )
+    values_mem  = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=values )
+
+    current_index = dy.signal()
+
+    current_time_index_to_check = dy.memory_read( indices_mem, current_index )
+
+    # scale time
+    if time_scale is not None:
+        index_to_check = time_scale * current_time_index_to_check
+    else:
+        index_to_check = current_time_index_to_check
+
+    # check wether to step to the next sample
+    increase_index = dy.int32(0)
+    increase_index = dy.conditional_overwrite(increase_index, counter >= index_to_check, dy.int32(1) )
+    current_index << dy.counter_triggered(upper_limit=len(time_instance_indices), stepwidth=increase_index, reset=reset )
+
+    val = dy.memory_read(values_mem, current_index)
+
+    return val
+
+
 def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
     """
         playback of a sequence (TODO: update)
