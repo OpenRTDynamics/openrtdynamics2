@@ -1,4 +1,3 @@
-import cppyy
 import numpy as np
 
 def fill_default_input_values( manifest, inputs ):
@@ -40,6 +39,12 @@ class SystemInstance:
             Note: internally the c++ interpreter Cling C++ interpreter is used
             that is interfaced by Python via https://pypi.org/project/cppyy/ .
         """
+    
+        import cppyy
+        
+        #
+        # Issue: https://bitbucket.org/wlav/cppyy/issues/295/q-reset-interpreter-or-multiple-instances
+        #
         
         algorithm_sourcecode, manifest = code_gen_results['algorithm_sourcecode'], code_gen_results['manifest']        
         
@@ -69,7 +74,7 @@ class SystemInstance:
     def update_states(self):
         self._sim.step( self.outputs, self.inputs, 0, True, False )
 
-    def step(self):
+    def single_step(self):
         """
             perform one step and return the system outputs
 
@@ -140,7 +145,7 @@ def run_batch_simulation(system_instance, input_data, N, output_keys=None, reset
         if hasattr(inputs, k):
             if type(val) == float or type(val) == int:
                 setattr(inputs, k, val)
-                print('set const value', val, ' for ', k)
+                # print('set const value', val, ' for ', k)
             else:
                 input_data_without_const_values[k] = val
 
@@ -166,3 +171,45 @@ def run_batch_simulation(system_instance, input_data, N, output_keys=None, reset
     return storage
 
 
+def show_required_inputs(testsim):
+    """
+        Print a table containing all input signals as required by the simulator functions
+        of the implemented system.
+
+        system_instance : SystemInstance - the instance of the system
+    """
+
+    from prettytable import PrettyTable
+
+    s_o_1 = testsim.manifest['io']['inputs']['calculate_output']['names']
+    s_u = testsim.manifest['io']['inputs']['state_update']['names']
+    s_r = testsim.manifest['io']['inputs']['reset']['names']
+
+    all_signals = list(set(s_o_1 + s_u + s_r) )
+
+    table_rows = []
+    for k in all_signals:
+
+        o_1, u, r = '', '', ''
+
+        if k in s_o_1:
+            o_1 = 'X'
+
+        if k in s_u:
+            u = 'X'
+
+        if k in s_r:
+            r = 'X'
+
+        row = [ k, o_1, u, r ]
+
+        table_rows.append(row)
+
+
+    x = PrettyTable()
+    x.field_names = ["input signal,  needed for -->", "calc. outputs", "update", "reset"]
+
+    x.add_rows(table_rows)
+
+    print(x)
+    
