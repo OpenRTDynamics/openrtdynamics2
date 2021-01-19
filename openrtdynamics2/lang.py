@@ -5,7 +5,6 @@ from . import SignalInterface as si
 from .CodeGenTemplates import PutRuntimeCppHelper, PutBasicRuntimeCpp, WasmRuntime
 
 from .system_context import *
-#from .BlockPrototypes import *
 from .StandardLibrary import *
 from .subsystems import *
 

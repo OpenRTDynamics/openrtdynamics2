@@ -1,5 +1,8 @@
 import numpy as np
 
+system_instance_counter = 0
+
+
 def fill_default_input_values( manifest, inputs ):
 
     manifest_in_o = manifest['io']['inputs']['calculate_output']
@@ -41,22 +44,42 @@ class SystemInstance:
         """
     
         import cppyy
+        import re
+        import importlib
+
+        global system_instance_counter
 
         #
         # Issue: https://bitbucket.org/wlav/cppyy/issues/295/q-reset-interpreter-or-multiple-instances
         #
+
+        ortd_auto_namespace_id = system_instance_counter
+        system_instance_counter = system_instance_counter + 1
         
         algorithm_sourcecode, manifest = code_gen_results['algorithm_sourcecode'], code_gen_results['manifest']        
+        self._manifest = manifest        
+
+        # replace the standard class name 'simulation' of the system with a unique name
+        cn = 'ortd_system_' + str(ortd_auto_namespace_id)
+        src = re.sub('class simulation', 'class ' + cn, algorithm_sourcecode)
+
+        # send sourcecode to jit-compiler
+        cppyy.cppdef(src)
+
+        # load the module that appears after compiling the source code
+        module = importlib.import_module('cppyy.gbl', cn )
+        cpp_class_of_system = getattr(module, cn)
+
+        #
+        print("loaded c++ class " + cn)
+        self._cpp_class_of_system = cpp_class_of_system
         
-        # TODO: wrap source code into namespace
-        cppyy.cppdef(algorithm_sourcecode)
-        from cppyy.gbl import simulation
-        
-        self._sim = simulation()
-        self._manifest = manifest
-        
-        self.inputs = simulation.Inputs()
-        self.outputs = simulation.Outputs()
+        # create an instance of the system
+        self._sim = cpp_class_of_system()
+
+        # create instances for the in- and output signals        
+        self.inputs = cpp_class_of_system.Inputs()
+        self.outputs = cpp_class_of_system.Outputs()
         
         fill_default_input_values( self._manifest, self.inputs )
         
