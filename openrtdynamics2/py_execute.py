@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Dict, List
 
 system_instance_counter = 0
 
@@ -31,11 +32,14 @@ def fill_default_input_values( manifest, inputs ):
     fill_in(inputs, manifest_in=manifest_in_u)
 
 
-class SystemInstance:
+
+
+
+class CompiledCode:
     
     def __init__(self, code_gen_results):
         """
-            Instantiate a system so that it can be executed 
+            Compile a system so that it can be instanciated and, hence, executed 
         
             code_gen_results  - the returned results of dy.generate_code
 
@@ -71,17 +75,43 @@ class SystemInstance:
         cpp_class_of_system = getattr(module, cn)
 
         #
-        print("loaded c++ class " + cn)
+        # print("loaded c++ class " + cn)
         self._cpp_class_of_system = cpp_class_of_system
+
+    @property
+    def system_class(self):
+        return self._cpp_class_of_system
         
+    @property
+    def manifest(self):
+        return self._manifest
+        
+
+
+
+
+class SystemInstance:
+    
+    def __init__(self, compiled_code : CompiledCode):
+        """
+            Instantiate a system so that it can be executed 
+        
+            compiled_code   - an instance of CompiledCode
+        """
+
+        self._compiled_code = compiled_code
+
+        system_class = compiled_code.system_class
+
+
         # create an instance of the system
-        self._sim = cpp_class_of_system()
+        self._sim = system_class()
 
         # create instances for the in- and output signals        
-        self.inputs = cpp_class_of_system.Inputs()
-        self.outputs = cpp_class_of_system.Outputs()
+        self.inputs = system_class.Inputs()
+        self.outputs = system_class.Outputs()
         
-        fill_default_input_values( self._manifest, self.inputs )
+        fill_default_input_values( compiled_code.manifest, self.inputs )
         
         
     def reset_states(self):
@@ -115,12 +145,12 @@ class SystemInstance:
     
     @property
     def manifest(self):
-        return self._manifest
+        return self._compiled_code.manifest
         
         
         
 
-def run_batch_simulation(system_instance, input_data, N, output_keys=None, reset_system=True ):
+def run_batch_simulation(system_instance : SystemInstance, input_data, N, output_keys=None, reset_system=True ):
     """
         Run a simulation
         
