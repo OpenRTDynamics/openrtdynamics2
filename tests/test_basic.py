@@ -1,6 +1,7 @@
 #from .context import openrtdynamics2
-from .context import dy
+#from .context import dy
 
+import openrtdynamics2.lang as dy
 
 def test_basic_code_gen():
     # create a new system
