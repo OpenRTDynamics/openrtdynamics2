@@ -1,5 +1,5 @@
-from .context import openrtdynamics2
-import openrtdynamics2.lang as dy
+#from .context import openrtdynamics2
+from .context import dy
 
 
 def test_basic_code_gen():
