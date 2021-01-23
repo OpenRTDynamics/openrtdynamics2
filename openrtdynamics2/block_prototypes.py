@@ -1,10 +1,10 @@
 from .libdyn import Simulation
-from . import Datatypes as dt
+from . import datatypes as dt
 
 from .system_context import get_simulation_context
-from . import BlockInterface as bi
-from .SignalInterface import *
-from . import CodeGenHelper as cgh
+from . import block_interface as bi
+from .signal_interface import *
+from . import code_generation_helper as cgh
 
 # TODO: rename to atomic_blocks
 

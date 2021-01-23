@@ -2,10 +2,10 @@ from contextlib import contextmanager
 from typing import Dict, List
 
 from .irpar import irparSet, irparElement, irparElement_container
-from .Signal import *
+from .signals import *
 from .Block import *
 
-from .DatatypePropagation import *
+from .datatype_propagation import *
 
 
 

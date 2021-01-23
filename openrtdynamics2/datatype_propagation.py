@@ -1,5 +1,5 @@
 from typing import Dict, List
-from .Signal import *
+from .signals import *
 from openrtdynamics2 import Block
 
 from colorama import init,  Fore, Back, Style

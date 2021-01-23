@@ -1,9 +1,9 @@
 from typing import Dict, List
 
 from . import lang as dy
-from . import BlockPrototypes as block_prototypes
+from . import block_prototypes as block_prototypes
 
-from .Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 """

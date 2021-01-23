@@ -1,5 +1,5 @@
 from .libdyn import *
-from . import SignalInterface as si
+from . import signal_interface as si
 
 
 current_simulation_context = None

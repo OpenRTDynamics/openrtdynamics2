@@ -1,8 +1,8 @@
 from .libdyn import *
-from .Signal import *
+from .signals import *
 from .Block import *
-from .TraverseSignalFlowGraph import *
-from . import  CodeGenHelper as cgh
+from .graph_traversion import *
+from . import  code_generation_helper as cgh
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style

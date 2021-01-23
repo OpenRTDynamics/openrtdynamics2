@@ -1,11 +1,11 @@
 from . import libdyn
-from . import CompileDiagram as cd
-from . import SignalInterface as si
+from . import diagram_compiler as cd
+from . import signal_interface as si
 
-from .CodeGenTemplates import PutRuntimeCppHelper, PutBasicRuntimeCpp, WasmRuntime
+from .code_generation_templates import PutRuntimeCppHelper, PutBasicRuntimeCpp, WasmRuntime
 
 from .system_context import *
-from .StandardLibrary import *
+from .standard_library import *
 from .subsystems import *
 
 import os

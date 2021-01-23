@@ -1,12 +1,12 @@
 from typing import Dict, List
 
 from . import lang as dy
-from . import BlockPrototypes as block_prototypes
+from . import block_prototypes as block_prototypes
 
-from .CodeGenHelper import *
-from . import SignalInterface as si
+from .code_generation_helper import *
+from . import signal_interface as si
 
-from .Signal import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 

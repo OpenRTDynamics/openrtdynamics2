@@ -4,7 +4,7 @@ from typing import Dict, List
 from . import lang as dy
 import numpy as np
 
-from .BlockPrototypes import *
+from .block_prototypes import *
 
 #
 # constants
@@ -104,7 +104,7 @@ def sample_and_hold(u, event, initial_state = None):
 
     """
 
-    # NOTE: this could be implemented in a more comp. efficient way directly in C in BlockPrototypes.py
+    # NOTE: this could be implemented in a more comp. efficient way directly in C in block_prototypes.py
 
     y = dy.signal()
 

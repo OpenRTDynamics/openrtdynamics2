@@ -1,9 +1,9 @@
 from .libdyn import *
-from .BlockPrototypes import *
-from .TraverseSignalFlowGraph import *
-from .Signal import *
-from .ExecutionCommands import *
-from .SystemManifest import *
+from .block_prototypes import *
+from .graph_traversion import *
+from .signals import *
+from .code_build_commands import *
+from .system_manifest import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)

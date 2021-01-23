@@ -1,4 +1,4 @@
-from .Signal import *
+from .signals import *
 from .Block import *
 
 from typing import Dict, List
@@ -10,7 +10,7 @@ init(autoreset=True)
 #
 # NOTE: this is not used 
 #
-class TraverseSignalFlowGraph:
+class graph_traversion2:
 
     def __init__(self):
 

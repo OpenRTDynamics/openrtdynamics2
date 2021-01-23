@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from .Signal import *
-from .Datatypes import *
+from .signals import *
+from .datatypes import *
 
 import random as random
 
@@ -54,7 +54,7 @@ class Block:
         # initialize the empty list of output signals
         self.OutputSignals = []
 
-        # used by TraverseSignalFlowGraph as a helper variable to perform a marking of the graph nodes
+        # used by graph_traversion as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
 
 

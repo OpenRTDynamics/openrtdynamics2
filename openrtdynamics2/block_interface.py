@@ -2,8 +2,8 @@ from typing import Dict, List
 
 from .libdyn import *
 from .Block import Block
-from .Signal import Signal, BlockOutputSignal
-from . import CodeGenHelper as cgh
+from .signals import Signal, BlockOutputSignal
+from . import code_generation_helper as cgh
 
 
 class BlockPrototype(object):

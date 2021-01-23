@@ -1,6 +1,6 @@
-from .ExecutionCommands import *
-from .SystemManifest import *
-from .CompileDiagram import * 
+from .code_build_commands import *
+from .system_manifest import *
+from .diagram_compiler import * 
 
 import subprocess
 import os
