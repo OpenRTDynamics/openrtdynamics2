@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from openrtdynamics2 import signals as sig
 
+# remove these
 ORTD_DATATYPE_UNCONFIGURED = 0
 ORTD_DATATYPE_FLOAT = (1 | (8 << 5))
 ORTD_DATATYPE_SHORTFLOAT = 4
