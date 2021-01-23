@@ -1,0 +1,7 @@
+numpy
+control
+colorama
+prettytable
+cppyy
+pygments
+
