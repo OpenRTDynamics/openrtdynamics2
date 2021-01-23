@@ -208,7 +208,7 @@ def run_batch_simulation(system_instance : SystemInstance, input_data, N, output
         system_instance.reset_states()
     
     # start simulation
-    for i in range(1,N):
+    for i in range(0,N):
         
         for k in input_data_without_const_values.keys():
             val = input_data_without_const_values[k][i]
