@@ -4,4 +4,4 @@ colorama
 prettytable
 cppyy
 pygments
-
+pytest-notebook
