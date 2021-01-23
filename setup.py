@@ -19,7 +19,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'numpy', 'control', 'colorama', 'prettytable', 'cppyy'
+        'numpy', 'control', 'colorama', 'prettytable', 'cppyy', 'pygments'
     ],
     python_requires='>=3.6',
 )
