@@ -1,6 +1,4 @@
-from context import openrtdynamics2
 import openrtdynamics2.lang as dy
-
 
 # create a new system
 system = dy.enter_system()

@@ -1,5 +1,4 @@
 # OpenRTDynamics 2
-[![CI][ci-badge]][ci-link]
 
 -- Open Real-Time Dynamics 2 - A modelling framework for dynamic systems (http://openrtdynamics.github.io/)
 
