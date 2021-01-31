@@ -1,4 +1,5 @@
-from .libdyn import *
+# from .libdyn import *
+from .libdyn import Simulation
 from . import signal_interface as si
 
 
@@ -56,7 +57,7 @@ def get_simulation_context():
 
 def enter_system(name : str = 'simulation', upper_level_system = None):
     """
-        create a new system
+        create a new system and activate it in the context
     """
     # new simulation
     system = Simulation(upper_level_system, name)
@@ -71,7 +72,7 @@ def enter_system(name : str = 'simulation', upper_level_system = None):
 
 def enter_subsystem(name : str):
     """
-        create a new subsystem in the current system context
+        create a new subsystem in the current system context and activate it in the context
     """
     return enter_system(name, get_simulation_context())
 
@@ -79,6 +80,9 @@ def leave_system():
     return pop_simulation_context()
 
 def clear():
+    """
+        clear the context
+    """
     init_simulation_context()
 
 def set_primary_outputs(output_signals, names = None):
@@ -90,6 +94,9 @@ def set_primary_outputs(output_signals, names = None):
     get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
 def append_primay_ouput(output_signal, export_name : str = None):
+    """
+        add an output to the current system
+    """
 
     if export_name is not None:
         output_signal.set_name_raw(export_name)

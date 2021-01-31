@@ -1,10 +1,13 @@
 import math
 
-from typing import Dict, List
+import typing as t
 from . import lang as dy
+from .signals import Signal
+from .signal_interface import SignalUserTemplate
 import numpy as np
 
-from .block_prototypes import *
+from .block_prototypes import generic_subsystem, const, gain, convert, add, operator1, logic_and, logic_or, logic_xor, bitwise_and, bitwise_or, bitwise_shift_left, bitwise_shift_right, comparison, switchNto1, conditional_overwrite, sqrt, sin, cos, tan, atan, asin, acos, abs, logic_not, bitwise_not, atan2, pow, fmod, generic_cpp_static, flipflop, memory, memory_read, delay__
+
 
 #
 # constants
@@ -15,7 +18,7 @@ def int32(value):
         cast anything to DataTypeInt32
     """
 
-    if isinstance(  value, dy.SignalUserTemplate ):
+    if isinstance(  value, SignalUserTemplate ):
         # already a singal
         return value
     else:
@@ -26,7 +29,7 @@ def float64(value):
     """
         cast anything to DataTypeFloat64
     """
-    if isinstance(  value, dy.SignalUserTemplate ):
+    if isinstance(  value, SignalUserTemplate ):
         # already a singal
         return value
     else:
@@ -38,7 +41,7 @@ def boolean(value : int):
     """
         cast anything to DataTypeBoolean
     """
-    if isinstance(  value, dy.SignalUserTemplate ):
+    if isinstance(  value, SignalUserTemplate ):
         # already a singal
         return value
     else:
@@ -76,7 +79,7 @@ def delay(u , initial_state = None):
         initial_state - the initial state (signal or constant value)
     """
 
-    if not isinstance( initial_state, dy.SignalUserTemplate ):
+    if not isinstance( initial_state, SignalUserTemplate ):
         return dy.delay__( u, initial_state )
 
     else:
@@ -224,7 +227,7 @@ class __Counter():
         by more than one destination block. The instance of this class is per simulation
         and will be stored in the components property of the current get_simulation_context()
     """
-    def __init__(self, counter_signal : dy.Signal):
+    def __init__(self, counter_signal : Signal):
         self.counter_signal_ = counter_signal
         self.hits = 0
     
@@ -556,7 +559,7 @@ def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_
 # Filters
 #
 
-def diff(u : dy.Signal, initial_state = None):
+def diff(u : Signal, initial_state = None):
     """
         Discrete difference
 
@@ -573,7 +576,7 @@ def diff(u : dy.Signal, initial_state = None):
 
     return y
 
-def sum(u : dy.Signal, initial_state=0, no_delay=False):
+def sum(u : Signal, initial_state=0, no_delay=False):
     """
         Accumulative sum
 
@@ -600,7 +603,7 @@ def sum(u : dy.Signal, initial_state=0, no_delay=False):
     else:
         return y_k
 
-def sum2(u : dy.Signal, initial_state=0):
+def sum2(u : Signal, initial_state=0):
     """
         Accumulative sum
 
@@ -621,7 +624,7 @@ def sum2(u : dy.Signal, initial_state=0):
 
     return y_k, y_kp1
 
-def euler_integrator( u : dy.Signal, Ts, initial_state = 0.0):
+def euler_integrator( u : Signal, Ts, initial_state = 0.0):
     """
         Euler (forward) integrator
 
@@ -630,7 +633,7 @@ def euler_integrator( u : dy.Signal, Ts, initial_state = 0.0):
 
     yFb = dy.signal()
 
-    if not isinstance( Ts, dy.SignalUserTemplate ): 
+    if not isinstance( Ts, SignalUserTemplate ): 
         i = dy.add( [ yFb, u ], [ 1, Ts ] )
     else:
         i = yFb + Ts * u
@@ -641,7 +644,7 @@ def euler_integrator( u : dy.Signal, Ts, initial_state = 0.0):
 
     return y
 
-def dtf_lowpass_1_order(u : dy.Signal, z_infinity):
+def dtf_lowpass_1_order(u : Signal, z_infinity):
     """
         First-order discrete-time low pass filter
 
@@ -660,7 +663,7 @@ def dtf_lowpass_1_order(u : dy.Signal, z_infinity):
     
     return y
 
-def transfer_function_discrete(u : dy.Signal, num_coeff : List[float], den_coeff : List[float] ):
+def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff : t.List[float] ):
 
     """
     Discrete time transfer function

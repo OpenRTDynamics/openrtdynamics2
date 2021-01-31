@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 from typing import Dict, List
 
-from .irpar import irparSet, irparElement, irparElement_container
 from .signals import *
 from .Block import *
 
@@ -39,7 +38,7 @@ class Simulation:
 
             # manager to determine datatypes as new blocks are added
             # only for the highest-level system -- subsystems use the 
-            # dataatyüe propagation of the main system
+            # datatype propagation of the main system
             self.datatypePropagation = DatatypePropagation(self)
 
         else:
