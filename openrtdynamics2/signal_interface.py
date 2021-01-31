@@ -7,11 +7,26 @@ from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationIn
 
 
 """
-    This adds a layer around the Signal-class and its derivates.
+    This adds a layer around the signal-class.
     It enhances the ease of use of signals by implementing operators
-    inbetween signals e.g. it becomes possible to add, multiply, ...
+    in-between signals e.g. it becomes possible to add, multiply, ...
     signal variables among each other.
 """
+
+
+def convert_python_constant_val_to_const_signal(val):
+
+    if isinstance(val, SignalUserTemplate):
+        # given value is already a signal
+        return val
+
+    if type(val) == int:  # TODO: check for range and eventually make int64
+        return dy.int32(val)
+
+    if type(val) == float:
+        return dy.float64(val)
+
+    raise BaseException('unable to convert given constant ' + str(val) + ' to a signal object.')
 
 
 class SignalUserTemplate(object):
@@ -66,39 +81,99 @@ class SignalUserTemplate(object):
     #
     # operator overloads
     #
-    def __add__(self, other): 
+
+    def __add__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
 
+    def __radd__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
+
+
     def __sub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
         return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputs[0] )
 
+    def __rsub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='-').outputs[0] )
+
+
     def __mul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
         return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
 
+    def __rmul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
+
+
     def __truediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
         return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputs[0] )
+
+    def __rtruediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='/').outputs[0] )
+
 
     # comparison operators
     def __le__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '<=' ) )
 
+    def __rle__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = '<=' ) )
+
+
+
     def __ge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '>=' ) )
+
+    def __rge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = '>=' ) )
+
 
 
     def __lt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '<' ) )
 
+    def __rlt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = '<' ) )
+
+
+
     def __gt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '>' ) )
+
+    def __rgt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = '>' ) )
+
 
 
     def __eq__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = '==' ) )
+
+    def __req__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '==' ) )
 
     def __ne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
         return ( block_prototypes.comparison(left = self, right = other, operator = '!=' ) )
 
+    def __rne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = '!=' ) )
 
 
 
