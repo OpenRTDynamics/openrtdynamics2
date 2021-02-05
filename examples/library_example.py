@@ -53,7 +53,7 @@ def define_system_oscillator():
     dy.set_primary_outputs(outputSignals)
 
     # compile this system
-    compileResults = dy.compile_current_system()
+    compileResults = dy.compile_system()
 
     # add to library
     lib = dy.SystemLibraryEntry(compileResults)

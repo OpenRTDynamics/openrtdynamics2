@@ -56,7 +56,7 @@ def boolean(value : int):
 
 def initial_event():
     """
-        Fires an event of the first time instant after the reset of the system
+        Fires an event on the first sampling instant after the reset of the system
     """
 
     # TODO: introduce caching like done for counter()

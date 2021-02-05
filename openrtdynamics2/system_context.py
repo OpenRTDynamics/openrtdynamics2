@@ -1,4 +1,3 @@
-# from .libdyn import *
 from .libdyn import Simulation
 from . import signal_interface as si
 

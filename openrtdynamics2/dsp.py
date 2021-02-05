@@ -20,7 +20,7 @@ def z_tf(u, H):
         discrete-time transfer function
 
         u  - the input signal
-        L  - the transfer function
+        H  - the transfer function
     """
 
     def get_zm1_coeff(L):
