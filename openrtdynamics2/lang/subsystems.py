@@ -2,12 +2,10 @@ from typing import Dict, List
 
 from . import lang as dy
 from . import block_prototypes as bp
-
 from .code_generation_helper import *
 from . import signal_interface as si
-
 from .system_context import generate_subsystem_name, enter_subsystem
-from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 

@@ -1,7 +1,7 @@
 from .libdyn import *
 from .block_prototypes import *
 from .graph_traversion import *
-from .signals import *
+from .signal_network.signals import *
 from .code_build_commands import *
 from .system_manifest import *
 

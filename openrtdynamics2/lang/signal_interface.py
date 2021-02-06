@@ -2,8 +2,7 @@ from typing import Dict, List
 
 from . import lang as dy
 from . import block_prototypes as block_prototypes
-
-from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 
 """

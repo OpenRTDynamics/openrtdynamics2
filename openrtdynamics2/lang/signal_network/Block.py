@@ -1,15 +1,12 @@
-from typing import Dict, List
-
 from .signals import *
-from .datatypes import *
 
-import random as random
+from typing import Dict, List
 
 
 
 class Block:
     """
-        This decribes a block that is part of a Simulation
+        This describes a block that is part of a Simulation
      
         BlockPrototype - describes the block's prototype implementation
                          that defined IO, parameters, ...
@@ -23,7 +20,6 @@ class Block:
         self.sim = sim
 
         # create a new unique block id (unique for the system the block is in)
- #       self._id = random.randint(0,1000000) + sim.getNewBlockId()
         self._id = sim.getNewBlockId()
 
         # default names

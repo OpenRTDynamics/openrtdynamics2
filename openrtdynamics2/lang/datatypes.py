@@ -1,6 +1,6 @@
-from typing import Dict, List
+from .signal_network import signals as sig
 
-from . import signals as sig
+from typing import Dict, List
 
 # remove these
 ORTD_DATATYPE_UNCONFIGURED = 0

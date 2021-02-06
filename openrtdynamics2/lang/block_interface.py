@@ -1,8 +1,10 @@
 from typing import Dict, List
 
 from .libdyn import *
-from .Block import Block
-from .signals import Signal, BlockOutputSignal
+from .signal_network.signals import Signal, BlockOutputSignal
+from .signal_network.Block import *
+from .datatypes import common_numeric_type
+
 from . import code_generation_helper as cgh
 
 

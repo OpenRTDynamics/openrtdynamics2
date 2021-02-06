@@ -2,7 +2,7 @@ import math
 
 import typing as t
 from . import lang as dy
-from .signals import Signal
+from .signal_network.signals import Signal
 from .signal_interface import SignalUserTemplate
 import numpy as np
 

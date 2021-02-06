@@ -1,5 +1,5 @@
-from .signals import *
-from .Block import *
+from .signal_network.signals import *
+from .signal_network.Block import *
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style

@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from typing import Dict, List
 
-from .signals import *
-from .Block import *
+from .signal_network.signals import *
+from .signal_network.Block import *
 
 from .datatype_propagation import *
 
