@@ -2,8 +2,8 @@ from typing import Dict, List
 
 from . import lang as dy
 from . import block_prototypes as block_prototypes
-from .signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
-
+from .diagram_core.signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+# from .core_blocks import *
 
 """
     This adds a layer around the signal-class.
@@ -26,6 +26,11 @@ def convert_python_constant_val_to_const_signal(val):
         return dy.float64(val)
 
     raise BaseException('unable to convert given constant ' + str(val) + ' to a signal object.')
+
+
+# internal helper
+def _comparison(left, right, operator : str ):
+    return wrap_signal( block_prototypes.ComparisionOperator(dy.get_simulation_context(), left.unwrap, right.unwrap, operator).outputs[0] )
 
 
 class SignalUserTemplate(object):
@@ -117,62 +122,63 @@ class SignalUserTemplate(object):
         return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='/').outputs[0] )
 
 
-    # comparison operators
+
+    # _comparison operators
     def __le__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '<=' ) )
+        return ( _comparison(left = self, right = other, operator = '<=' ) )
 
     def __rle__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = other, right = self, operator = '<=' ) )
+        return ( _comparison(left = other, right = self, operator = '<=' ) )
 
 
 
     def __ge__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '>=' ) )
+        return ( _comparison(left = self, right = other, operator = '>=' ) )
 
     def __rge__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = other, right = self, operator = '>=' ) )
+        return ( _comparison(left = other, right = self, operator = '>=' ) )
 
 
 
     def __lt__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '<' ) )
+        return ( _comparison(left = self, right = other, operator = '<' ) )
 
     def __rlt__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = other, right = self, operator = '<' ) )
+        return ( _comparison(left = other, right = self, operator = '<' ) )
 
 
 
     def __gt__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '>' ) )
+        return ( _comparison(left = self, right = other, operator = '>' ) )
 
     def __rgt__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = other, right = self, operator = '>' ) )
+        return ( _comparison(left = other, right = self, operator = '>' ) )
 
 
 
     def __eq__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '==' ) )
+        return ( _comparison(left = self, right = other, operator = '==' ) )
 
     def __req__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '==' ) )
+        return ( _comparison(left = self, right = other, operator = '==' ) )
 
     def __ne__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '!=' ) )
+        return ( _comparison(left = self, right = other, operator = '!=' ) )
 
     def __rne__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return ( block_prototypes.comparison(left = self, right = other, operator = '!=' ) )
+        return ( _comparison(left = self, right = other, operator = '!=' ) )
 
 
 

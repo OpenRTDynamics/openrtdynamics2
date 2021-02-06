@@ -2,11 +2,42 @@ import math
 
 import typing as t
 from . import lang as dy
-from .signal_network.signals import Signal
+from .diagram_core.signal_network.signals import Signal
 from .signal_interface import SignalUserTemplate
 import numpy as np
 
-from .block_prototypes import generic_subsystem, const, gain, convert, add, operator1, logic_and, logic_or, logic_xor, bitwise_and, bitwise_or, bitwise_shift_left, bitwise_shift_right, comparison, switchNto1, conditional_overwrite, sqrt, sin, cos, tan, atan, asin, acos, abs, logic_not, bitwise_not, atan2, pow, fmod, generic_cpp_static, flipflop, memory, memory_read, delay__
+from .core_blocks import generic_subsystem, const, gain, convert, add, operator1, logic_and, logic_or, logic_xor, bitwise_and, bitwise_or, bitwise_shift_left, bitwise_shift_right, comparison, switchNto1, conditional_overwrite, sqrt, sin, cos, tan, atan, asin, acos, abs, logic_not, bitwise_not, atan2, pow, fmod, generic_cpp_static, flipflop, memory, memory_read, delay__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #
