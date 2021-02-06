@@ -1,6 +1,6 @@
 from typing import Dict, List
 from .signals import *
-from openrtdynamics2 import Block
+from . import Block as Block
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)

@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from openrtdynamics2 import signals as sig
+from . import signals as sig
 
 # remove these
 ORTD_DATATYPE_UNCONFIGURED = 0
@@ -19,7 +19,7 @@ ORTD_DATATYPE_UINT8 = 11
 
 def extract_datatypes_from_signals(signals : List[sig.Signal]):
     """
-        extract the datatytes for each element of a list of signals and return them in a list 
+        extract the datatypes for each element of a list of signals and return them in a list 
     """
 
     datatypes = []
