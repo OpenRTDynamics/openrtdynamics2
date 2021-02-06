@@ -1364,7 +1364,7 @@ class SwitchNto1(bi.StaticFn_NTo1):
 
         # determine a guess for the output datatype
         # check if all given datatypes are equal
-        autoDatatype = autoDatatype_Nto1(self.outputs[0].getDatatype(), inputTypes[1:-1] )
+        autoDatatype = get_unique_datatype_from_io_typespe_from_io_types(self.outputs[0].getDatatype(), inputTypes[1:-1] )
 
         return [ autoDatatype ]
 

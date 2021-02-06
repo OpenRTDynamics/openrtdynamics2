@@ -1,6 +1,6 @@
 from typing import Dict, List
 from .signal_network.signals import *
-from .signal_network import Block as Block
+from .signal_network import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)

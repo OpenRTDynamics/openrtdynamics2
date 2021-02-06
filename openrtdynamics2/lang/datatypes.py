@@ -1,4 +1,4 @@
-from .signal_network import signals as sig
+#from .signal_network import signals as sig
 
 from typing import Dict, List
 
@@ -17,16 +17,16 @@ ORTD_DATATYPE_INT8 = 10
 ORTD_DATATYPE_UINT8 = 11
 
 
-def extract_datatypes_from_signals(signals : List[sig.Signal]):
-    """
-        extract the datatypes for each element of a list of signals and return them in a list 
-    """
+# def extract_datatypes_from_signals(signals : List[sig.Signal]):
+#     """
+#         extract the datatypes for each element of a list of signals and return them in a list 
+#     """
 
-    datatypes = []
-    for s in signals:
-        datatypes.append( s.getDatatype() )
+#     datatypes = []
+#     for s in signals:
+#         datatypes.append( s.getDatatype() )
 
-    return datatypes
+#     return datatypes
 
 class DataType(object):
     #
@@ -71,7 +71,7 @@ class DataType(object):
         return True
 
     def show(self):
-        print("datatype: type=" + self.toStr())
+        print("datatype (C): " + self.cppDataType)
 
     def toStr(self):
         return self.cppDataType + " [" + str(self.size) + "]"
@@ -191,15 +191,15 @@ class DataTypeInt32(DataTypeNumeric):
         return '0'
 
 
-def areAllTypesDefined( datatypes : List[ DataType ] ):
-    """
-        check of all given types are defined i.e. none of them is None
-    """
-    for t in datatypes:
-        if t is None:
-            return False
+# def areAllTypesDefined( datatypes : List[ DataType ] ):
+#     """
+#         check of all given types are defined i.e. none of them is None
+#     """
+#     for t in datatypes:
+#         if t is None:
+#             return False
 
-    return True
+#     return True
 
 
 def common_numeric_type( datatypes : List[ DataTypeNumeric ] ):
@@ -218,21 +218,21 @@ def common_numeric_type( datatypes : List[ DataTypeNumeric ] ):
     return returnType
         
 
-def autoDatatype_Nto1(outputSignal : DataType, inputSignal : List[DataType] ):
+def get_unique_datatype_from_io_types(datatype_of_output_signal : DataType, datatypes_of_input_signals : List[DataType] ):
     """
-        Verifies that the datatypes for the given signalstype match and returns
-        that that datatype. 
+        Verifies that the datatypes in datatypes_of_input_signals and datatype_of_output_signal match.
+        Undefined datatypes are ignored. Returns the datatype.
     """
     
     referenceDatatype = None
 
     # if the output is defined, use its datatype
-    if outputSignal is not None:
-        referenceDatatype = outputSignal
+    if datatype_of_output_signal is not None:
+        referenceDatatype = datatype_of_output_signal
 
     # otherwise, look for a defined input signal und use its datatype as the reference type
     else:
-        for s in inputSignal:
+        for s in datatypes_of_input_signals:
             if s is not None:
                 referenceDatatype = s
 
@@ -242,9 +242,9 @@ def autoDatatype_Nto1(outputSignal : DataType, inputSignal : List[DataType] ):
     if referenceDatatype is None:
         return None
 
-    # check if all inputs have the refernce type
-    for s in inputSignal:
+    # check if all inputs have the reference type
+    for s in datatypes_of_input_signals:
         if s.isEqualTo( referenceDatatype ) == 0:
-            raise BaseException('Type error: input do not match to the output datatype')
+            raise BaseException('Type error: inputs do not match to the output datatype')
 
     return referenceDatatype
