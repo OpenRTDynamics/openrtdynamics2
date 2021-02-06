@@ -1,6 +1,6 @@
-from .code_build_commands import *
-from .system_manifest import *
-from .diagram_compiler import * 
+from .diagram_core.code_build_commands import *
+from .diagram_core.system_manifest import *
+from .diagram_core.diagram_compiler import * 
 
 import subprocess
 import os

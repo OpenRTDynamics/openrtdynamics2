@@ -4,7 +4,7 @@ from . import lang as dy
 from . import block_prototypes as bp
 from . import signal_interface as si
 from .system_context import generate_subsystem_name, enter_subsystem
-from .signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+from .diagram_core.signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
 
 """
     User interface for subsystems 

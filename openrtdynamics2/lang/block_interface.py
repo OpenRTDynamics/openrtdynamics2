@@ -1,11 +1,11 @@
 from typing import Dict, List
 
-from .libdyn import *
-from .signal_network.signals import Signal, BlockOutputSignal
-from .signal_network.Block import *
-from .datatypes import common_numeric_type
+from .diagram_core.libdyn import *
+from .diagram_core.signal_network.signals import Signal, BlockOutputSignal
+from .diagram_core.signal_network.Block import *
+from .diagram_core.datatypes import common_numeric_type
 
-from . import code_generation_helper as cgh
+from .diagram_core import code_generation_helper as cgh
 
 
 class BlockPrototype(object):

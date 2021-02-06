@@ -1,6 +1,6 @@
-from .code_build_commands import *
-from .system_manifest import *
-from . import diagram_compiler
+from .diagram_core.code_build_commands import *
+from .diagram_core.system_manifest import *
+from .diagram_core import diagram_compiler
 from .libraries import *
 
 import subprocess
@@ -24,7 +24,7 @@ def generate_algorithm_code( compile_results, enable_tracing=False, included_sys
 
     # enable tracing for all execution commands
     if enable_tracing:
-        # TODO: instead of putting True create an obj with a tracing infrastruture. So far printf is used automatically
+        # TODO: instead of putting True create an obj with a tracing infrastructure. So far printf is used automatically
         main_command.command_to_put_main_system.set_tracing_infrastructure(True)
 
     # combine (concatenate) the code from the library entries

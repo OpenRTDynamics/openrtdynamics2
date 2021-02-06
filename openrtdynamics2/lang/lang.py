@@ -4,7 +4,7 @@
 # This file collects all items that are passed to the user of this library
 #
 
-from .datatypes import DataTypeInt32, DataTypeFloat64, DataTypeBoolean, DataTypeArray, DataTypeNumeric
+from .diagram_core.datatypes import DataTypeInt32, DataTypeFloat64, DataTypeBoolean, DataTypeArray, DataTypeNumeric
 from .code_generation_templates import PutRuntimeCppHelper, PutBasicRuntimeCpp, WasmRuntime
 from .system_context import init_simulation_context, get_simulation_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
 from .standard_library import *

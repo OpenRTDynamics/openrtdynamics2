@@ -1,7 +1,7 @@
 # from . import libdyn
 # from .libdyn import Simulation
 
-from . import diagram_compiler as dc
+from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
 
 # from .datatypes import DataTypeInt32, DataTypeFloat64, DataTypeBoolean, DataTypeArray, DataTypeNumeric

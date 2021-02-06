@@ -1,9 +1,10 @@
-from .libdyn import Simulation
-from . import datatypes as dt
+#from .libdyn import Simulation
+from .diagram_core.libdyn import Simulation
+from .diagram_core import datatypes as dt
 
 from .system_context import get_simulation_context
 from . import block_interface as bi
-from .signal_interface import *
+from .diagram_core.signal_interface import *
 from . import code_generation_helper as cgh
 
 # TODO: rename to atomic_blocks
@@ -374,7 +375,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         -----------------------
 
         self.outputs                                           - all outputs of the embeding block
-        self._subsystem_prototype.outputs                      - all outputs of the subsystem that are initialily present
+        self._subsystem_prototype.outputs                      - all outputs of the subsystem that are initially present
         self._subsystem_prototype.compileResult.outputSignals  - all outputs of the subsystem that are present after compilation
         signals (parameter for generate_code_output_list)      - outputs out of self.outputs that need to be computed
 
@@ -394,7 +395,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         self._number_of_normal_outputs = len(self._subsystem_prototype.outputs) - number_of_control_outputs
 
         if self._number_of_normal_outputs < 0:
-            raise BaseException("The number of control outputs is higher than the toal number of outputs provided by the subsystem.")
+            raise BaseException("The number of control outputs is higher than the total number of outputs provided by the subsystem.")
 
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
 

@@ -1,4 +1,4 @@
-from .libdyn import Simulation
+from .diagram_core.libdyn import Simulation
 from . import signal_interface as si
 
 
