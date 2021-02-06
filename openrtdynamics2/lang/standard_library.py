@@ -226,7 +226,7 @@ class __Counter():
     """
         This class is meant to store the counter output signal as it might be used
         by more than one destination block. The instance of this class is per simulation
-        and will be stored in the components property of the current get_simulation_context()
+        and will be stored in the components property of the current get_system_context()
     """
     def __init__(self, counter_signal : Signal):
         self.counter_signal_ = counter_signal
@@ -252,7 +252,7 @@ def counter():
         Counting starts at zero.
     """
 
-    if not 'counter' in dy.get_simulation_context().components:
+    if not 'counter' in dy.get_system_context().components:
         # no counter has been defined in this system so far. Hence, create one.
 
         increase = dy.const(1, dy.DataTypeInt32(1) )
@@ -263,11 +263,11 @@ def counter():
         tmp.set_name('shared_couter')
 
         # store the output signal of the counter as it might be used again. 
-        dy.get_simulation_context().components['counter'] = __Counter(tmp)
+        dy.get_system_context().components['counter'] = __Counter(tmp)
 
     else:
         # use the output of an already created counter
-        tmp = dy.get_simulation_context().components['counter'].output
+        tmp = dy.get_system_context().components['counter'].output
 
     return tmp
 

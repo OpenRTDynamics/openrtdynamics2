@@ -9,7 +9,7 @@ from .datatype_propagation import *
 
 
 # TODO: rename this to System
-class Simulation:
+class System:
     def __init__(self, upperLevelSim, name : str ):
         
         if upperLevelSim is None:

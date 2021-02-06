@@ -215,7 +215,7 @@ class StaticSource_To1(BlockPrototype):
     """
         This defines a static source
     """
-    def __init__(self, sim : Simulation, datatype ):
+    def __init__(self, sim : System, datatype ):
 
         self.outputType = datatype
 
@@ -252,7 +252,7 @@ class DynamicSource_To1(StaticSource_To1):
 
 
 class StaticFn_1To1(BlockPrototype):
-    def __init__(self, sim : Simulation, u : Signal ):
+    def __init__(self, sim : System, u : Signal ):
 
         self.u = u
         self.outputType = None
@@ -286,7 +286,7 @@ class StaticFn_1To1(BlockPrototype):
 
 
 class StaticFn_NTo1(BlockPrototype):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal] ):
+    def __init__(self, sim : System, inputSignals : List[Signal] ):
 
         self.inputSignals = inputSignals
 

@@ -44,7 +44,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
     def compileResults(self):
         return self._compleResults
     
-    def traverseSubSystems(self, system : Simulation, level):
+    def traverseSubSystems(self, system : System, level):
 
         is_top_level_system = system.UpperLevelSim is None
 

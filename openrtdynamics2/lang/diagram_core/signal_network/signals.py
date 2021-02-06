@@ -527,7 +527,7 @@ class BlockOutputSignal(Signal):
 
 class SimulationInputSignal(Signal):
     """
-        A special signal that markes an input to a simulation.
+        A special signal that describes an input to a system.
     """
 
     def __init__(self, sim, datatype = None):

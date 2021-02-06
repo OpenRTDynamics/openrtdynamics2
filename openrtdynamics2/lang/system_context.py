@@ -1,4 +1,4 @@
-from .diagram_core.libdyn import Simulation
+from .diagram_core.libdyn import System
 from . import signal_interface as si
 
 
@@ -50,7 +50,7 @@ def pop_simulation_context():
     return new_context
 
 
-def get_simulation_context():
+def get_system_context():
     global current_simulation_context
     return current_simulation_context
 
@@ -59,11 +59,11 @@ def enter_system(name : str = 'simulation', upper_level_system = None):
         create a new system and activate it in the context
     """
     # new simulation
-    system = Simulation(upper_level_system, name)
+    system = System(upper_level_system, name)
 
     # register this subsystem to the parent system
-    if get_simulation_context() is not None:
-        get_simulation_context().appendNestedSystem( system )
+    if get_system_context() is not None:
+        get_system_context().appendNestedSystem( system )
 
     push_simulation_context(system)
 
@@ -73,7 +73,7 @@ def enter_subsystem(name : str):
     """
         create a new subsystem in the current system context and activate it in the context
     """
-    return enter_system(name, get_simulation_context())
+    return enter_system(name, get_system_context())
 
 def leave_system():
     return pop_simulation_context()
@@ -90,7 +90,7 @@ def set_primary_outputs(output_signals, names = None):
         for i in range(0,len(names)):
             output_signals[i].set_name_raw( names[i] )
 
-    get_simulation_context().set_primary_outputs( si.unwrap_list( output_signals ) )
+    get_system_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
 def append_primay_ouput(output_signal, export_name : str = None):
     """
@@ -100,5 +100,5 @@ def append_primay_ouput(output_signal, export_name : str = None):
     if export_name is not None:
         output_signal.set_name_raw(export_name)
 
-    get_simulation_context().append_primay_ouput(output_signal.unwrap)
+    get_system_context().append_primay_ouput(output_signal.unwrap)
     

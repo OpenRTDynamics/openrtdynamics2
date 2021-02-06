@@ -6,7 +6,7 @@ from typing import Dict, List
 
 class Block:
     """
-        This describes a block that is part of a Simulation
+        This describes a block that is part of a system
      
         BlockPrototype - describes the block's prototype implementation
                          that defined IO, parameters, ...

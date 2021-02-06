@@ -1,15 +1,7 @@
-# from . import libdyn
-# from .libdyn import Simulation
-
 from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
-
-# from .datatypes import DataTypeInt32, DataTypeFloat64, DataTypeBoolean, DataTypeArray, DataTypeNumeric
 from .code_generation_templates import PutRuntimeCppHelper
-
-from .system_context import init_simulation_context, get_simulation_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
-# from .standard_library import *
-# from .subsystems import sub_if, sub_loop, sub_switch, state_sub, sub_statemachine
+from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
 
 import os
 from pathlib import Path
@@ -22,7 +14,7 @@ def signal():
     """
 
     # return an anonymous signal
-    return si.SignalUser(get_simulation_context())
+    return si.SignalUser(get_system_context())
 
 
 
@@ -37,7 +29,7 @@ def system_input(datatype, name : str = None, default_value=None, value_range=No
         title         - the description of the signal
     """
 
-    signal = si.SimulationInputSignalUser(get_simulation_context(), datatype)
+    signal = si.SimulationInputSignalUser(get_system_context(), datatype)
 
     if name is not None:
         signal.set_name(name)
@@ -61,7 +53,7 @@ def system_input(datatype, name : str = None, default_value=None, value_range=No
 def export_graph(filename, system = None):
 
     if system is None:
-        system = get_simulation_context() 
+        system = get_system_context() 
 
     graph = system.exportGraph()
 
@@ -74,7 +66,7 @@ def show_blocks(system = None):
     """
 
     if system is None:
-        system = get_simulation_context() 
+        system = get_system_context() 
 
     print()
     print(Style.BRIGHT + "-------- list of blocks --------")
@@ -85,7 +77,7 @@ def show_blocks(system = None):
 def compile_system(system = None):
 
     if system is None:
-        system = get_simulation_context() 
+        system = get_system_context() 
 
     system.propagate_datatypes()
 
@@ -101,7 +93,7 @@ def compile_system(system = None):
     return compile_results
 
 # def compile_current_system():
-#     return compile_system( get_simulation_context() )
+#     return compile_system( get_system_context() )
 
 
 def show_execution_lines(compile_results):

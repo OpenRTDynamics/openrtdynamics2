@@ -596,7 +596,7 @@ class PutSystem(ExecutionCommand):
         Represents a system that is represented by a class in c++
     """
 
-    def __init__(self, system : Simulation, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
+    def __init__(self, system : System, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
         ExecutionCommand.__init__(self)
         self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
 
@@ -635,7 +635,7 @@ class PutSystem(ExecutionCommand):
 
     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: Simulation with the API (" + self.nameAPI + "):")
+        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: System with the API (" + self.nameAPI + "):")
         
         for c in self.executionCommands:
             c.print_execution()

@@ -29,7 +29,7 @@ def convert_python_constant_val_to_const_signal(val):
 
 # internal helper
 def _comparison(left, right, operator : str ):
-    return wrap_signal( block_prototypes.ComparisionOperator(dy.get_simulation_context(), left.unwrap, right.unwrap, operator).outputs[0] )
+    return wrap_signal( block_prototypes.ComparisionOperator(dy.get_system_context(), left.unwrap, right.unwrap, operator).outputs[0] )
 
 
 class SignalUserTemplate(object):
@@ -87,38 +87,38 @@ class SignalUserTemplate(object):
 
     def __add__(self, other):
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
 
     def __radd__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='+').outputs[0] )
 
 
     def __sub__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='-').outputs[0] )
 
     def __rsub__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='-').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='-').outputs[0] )
 
 
     def __mul__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
 
     def __rmul__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='*').outputs[0] )
 
 
     def __truediv__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ self.unwrap, other.unwrap ], operator='/').outputs[0] )
 
     def __rtruediv__(self, other): 
         other = convert_python_constant_val_to_const_signal(other)
-        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='/').outputs[0] )
+        return wrap_signal( block_prototypes.Operator1( dy.get_system_context(), inputSignals=[ other.unwrap, self.unwrap ], operator='/').outputs[0] )
 
 
 

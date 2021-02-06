@@ -1,4 +1,4 @@
-from .diagram_core.libdyn import Simulation
+from .diagram_core.libdyn import System
 from .diagram_core import datatypes as dt
 from .diagram_core.signal_network.signals import Signal
 from .diagram_core import code_generation_helper as cgh
@@ -35,7 +35,7 @@ class GenericSubsystem(bi.BlockPrototype):
         Note: the number of outputs must be defined either by N_outputs or by a manifest
 
     """
-    def __init__(self, sim : Simulation = None, manifest=None, inputSignals=None, N_outputs = None, embedded_subsystem=None ):
+    def __init__(self, sim : System = None, manifest=None, inputSignals=None, N_outputs = None, embedded_subsystem=None ):
 
         self.manifest = manifest
         self.inputSignals = inputSignals
@@ -382,7 +382,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         signals (parameter for generate_code_output_list)      - outputs out of self.outputs that need to be computed
 
     """
-    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, number_of_control_outputs : int = 0 ):
+    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, number_of_control_outputs : int = 0 ):
 
         # the prototypes of the subsystem
         self._subsystem_prototype = subsystem_prototype
@@ -528,7 +528,7 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
     """
 
 
-    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototype : GenericSubsystem,  prevent_output_computation = False ):
+    def __init__(self, sim : System, control_input : Signal, subsystem_prototype : GenericSubsystem,  prevent_output_computation = False ):
         
         self._control_input = control_input
         self.prevent_output_computation = prevent_output_computation
@@ -594,7 +594,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : Simulation, max_iteriations : int, 
+    def __init__(self, sim : System, max_iteriations : int, 
                     subsystem_prototype : GenericSubsystem, 
                     until_signal : Signal = None, yield_signal : Signal = None ):
         
@@ -738,7 +738,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
         - self.generate_switch(), generate_reset()
     """
-    def __init__(self, sim : Simulation, control_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
+    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
 
         # a list of the prototypes of all subsystems
         self._subsystem_prototypes = subsystem_prototypes
@@ -922,7 +922,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
         The outputs of the currently acrive subsystem are forwarded.
     """
 
-    def __init__(self, sim : Simulation, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
+    def __init__(self, sim : System, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
         
         self._control_input = control_input
 
@@ -974,7 +974,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : Simulation, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
+    def __init__(self, sim : System, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
         
         MultiSubsystemEmbedder.__init__(self, sim, 
                                         control_inputs=[], 
@@ -1101,7 +1101,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 #
 
 class Const(bi.StaticSource_To1):
-    def __init__(self, sim : Simulation, constant, datatype ):
+    def __init__(self, sim : System, constant, datatype ):
 
         self.constant = constant
 
@@ -1121,7 +1121,7 @@ class Const(bi.StaticSource_To1):
 #
 
 class Gain(bi.StaticFn_1To1):
-    def __init__(self, sim : Simulation, u : Signal, factor : float ):
+    def __init__(self, sim : System, u : Signal, factor : float ):
 
         self._factor = factor
 
@@ -1140,7 +1140,7 @@ class Gain(bi.StaticFn_1To1):
 #
 
 class ConvertDatatype(bi.StaticFn_1To1):
-    def __init__(self, sim : Simulation, u : Signal, target_type : dt.DataType ):
+    def __init__(self, sim : System, u : Signal, target_type : dt.DataType ):
 
         self._target_type = target_type
 
@@ -1161,7 +1161,7 @@ class ConvertDatatype(bi.StaticFn_1To1):
 #
 
 class Add(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal], factors : List[float] ):
+    def __init__(self, sim : System, inputSignals : List[Signal], factors : List[float] ):
 
         # feasibility checks
         if len(inputSignals) != len(factors):
@@ -1187,7 +1187,7 @@ class Add(bi.StaticFn_NTo1):
 
 
 class Operator1(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, inputSignals : List[Signal], operator : str ):
+    def __init__(self, sim : System, inputSignals : List[Signal], operator : str ):
 
         self.operator = operator
         bi.StaticFn_NTo1.__init__(self, sim, inputSignals)
@@ -1218,7 +1218,7 @@ class Operator1(bi.StaticFn_NTo1):
 
 
 class ComparisionOperator(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, left : Signal, right : Signal, operator : str ):
+    def __init__(self, sim : System, left : Signal, right : Signal, operator : str ):
 
         self.operator = operator
 
@@ -1240,7 +1240,7 @@ class ComparisionOperator(bi.StaticFn_NTo1):
 
 
 class SwitchNto1(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, state : Signal, inputs : List [Signal] ):
+    def __init__(self, sim : System, state : Signal, inputs : List [Signal] ):
 
         self.inputs = inputs
         self.state = state
@@ -1289,7 +1289,7 @@ class SwitchNto1(bi.StaticFn_NTo1):
 
 
 class ConditionalOverwrite(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, signal : Signal, condition : Signal, new_value ):
+    def __init__(self, sim : System, signal : Signal, condition : Signal, new_value ):
 
         self.new_value = new_value
 
@@ -1331,7 +1331,7 @@ class ConditionalOverwrite(bi.StaticFn_NTo1):
 #
 
 class StaticFnByName_1To1(bi.StaticFn_1To1):
-    def __init__(self, sim : Simulation, u : Signal, functionName : str ):
+    def __init__(self, sim : System, u : Signal, functionName : str ):
 
         self._functionName = functionName
 
@@ -1345,7 +1345,7 @@ class StaticFnByName_1To1(bi.StaticFn_1To1):
 
 
 class Operator0(bi.StaticFn_1To1):
-    def __init__(self, sim : Simulation, u : Signal, operator_str : str ):
+    def __init__(self, sim : System, u : Signal, operator_str : str ):
 
         self._operator_str = operator_str
 
@@ -1365,7 +1365,7 @@ class Operator0(bi.StaticFn_1To1):
 #
 
 class StaticFnByName_2To1(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, left : Signal, right : Signal, function_name : str ):
+    def __init__(self, sim : System, left : Signal, right : Signal, function_name : str ):
 
         self._function_name = function_name
 
@@ -1385,7 +1385,7 @@ class StaticFnByName_2To1(bi.StaticFn_NTo1):
 
 
 class GenericCppStatic(bi.BlockPrototype):
-    def __init__(self, sim : Simulation, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
+    def __init__(self, sim : System, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
 
         Ninputs = len(input_names)
 
@@ -1478,7 +1478,7 @@ class GenericCppStatic(bi.BlockPrototype):
 
 
 class Delay(bi.BlockPrototype):
-    def __init__(self, sim : Simulation, u : Signal, initial_state = None ):
+    def __init__(self, sim : System, u : Signal, initial_state = None ):
 
         self._initial_state = initial_state
         bi.BlockPrototype.__init__(self, sim, [ u ], 1)
@@ -1533,7 +1533,7 @@ class Delay(bi.BlockPrototype):
 
 
 class Flipflop(bi.BlockPrototype):
-    def __init__(self, sim : Simulation, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False ):
+    def __init__(self, sim : System, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False ):
 
         self._nodelay = nodelay
         self._activate_trigger = activate_trigger
@@ -1603,7 +1603,7 @@ class Flipflop(bi.BlockPrototype):
 #
 
 class Memory(bi.BlockPrototype):
-    def __init__(self, sim : Simulation, datatype, constant_array, write_index : Signal = None, value : Signal = None ):
+    def __init__(self, sim : System, datatype, constant_array, write_index : Signal = None, value : Signal = None ):
 
         self._constant_array = constant_array
         self._length         = len(constant_array)
@@ -1687,7 +1687,7 @@ class Memory(bi.BlockPrototype):
 
 
 class MemoryRead(bi.StaticFn_NTo1):
-    def __init__(self, sim : Simulation, memory : Signal, index : Signal ):
+    def __init__(self, sim : System, memory : Signal, index : Signal ):
 
         if 'memory_length' not in memory.properties_internal:
             raise BaseException('No property memory_length in input signal. Please create the input signal using memory()')
