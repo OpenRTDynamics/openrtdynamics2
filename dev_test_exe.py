@@ -1093,7 +1093,7 @@ if output_signals is not None:
     dy.set_primary_outputs(output_signals)
 
 # Compile system (propagate datatypes)
-compile_results = dy.compile_current_system()
+compile_results = dy.compile_system()
 
 
 # Build an executable based on a template
