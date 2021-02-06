@@ -10,36 +10,6 @@ from .core_blocks import generic_subsystem, const, gain, convert, add, operator1
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #
 # constants
 #

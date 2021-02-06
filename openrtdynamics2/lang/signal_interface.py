@@ -1,9 +1,8 @@
-from typing import Dict, List
-
 from . import lang as dy
 from . import block_prototypes as block_prototypes
 from .diagram_core.signal_network.signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
-# from .core_blocks import *
+
+from typing import Dict, List
 
 """
     This adds a layer around the signal-class.

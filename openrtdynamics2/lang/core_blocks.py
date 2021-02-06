@@ -6,9 +6,13 @@ from .diagram_core import datatypes as dt
 from typing import Dict, List
 
 
+"""
+    Core functions which directly point to blocks (implementation in, e.g., c++) 
+"""
+
+
 def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
     return wrap_signal_list( GenericSubsystem(dy.get_simulation_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )
-
 
 def const(constant, datatype ):
     return wrap_signal( Const(dy.get_simulation_context(), constant, datatype).outputs[0] )

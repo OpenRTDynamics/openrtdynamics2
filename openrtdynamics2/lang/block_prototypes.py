@@ -1,21 +1,19 @@
-from typing import Dict, List
-
-#from .libdyn import Simulation
 from .diagram_core.libdyn import Simulation
 from .diagram_core import datatypes as dt
 from .diagram_core.signal_network.signals import Signal
-
-#from .system_context import dy.get_simulation_context
-#from .lang import get_simulation_context 
-# from . import lang as dy 
-
-# print(dir(dy))
-
-from . import block_interface as bi
-# from .signal_interface import *
 from .diagram_core import code_generation_helper as cgh
+from . import block_interface as bi
+
+from typing import Dict, List
 
 # TODO: rename to atomic_blocks
+
+"""
+    This file contains the implementations (i.e., functionality for code generation) of elementary blocks.
+    The user-interface(s) for each of the blocks is in core_blocks.py
+"""
+
+
 
 #
 # Subsystem prototypes
@@ -1209,104 +1207,6 @@ class Operator1(bi.StaticFn_NTo1):
             return lines
 
 
-# def const(constant, datatype ):
-#     return wrap_signal( Const(dy.get_simulation_context(), constant, datatype).outputs[0] )
-
-# def gain(u : dy.SignalUserTemplate, gain : float ):
-#     return wrap_signal( Gain(dy.get_simulation_context(), u.unwrap, gain).outputs[0] )
-
-# def convert(u : dy.SignalUserTemplate, target_type : dt.DataType ):
-#     return wrap_signal( ConvertDatatype(dy.get_simulation_context(), u.unwrap, target_type).outputs[0] )
-
-# def add(inputSignals : List[dy.SignalUserTemplate], factors : List[float]):
-#     return wrap_signal( Add(dy.get_simulation_context(), unwrap_list( inputSignals ), factors).outputs[0] )
-
-# def operator1(inputSignals : List[dy.SignalUserTemplate], operator : str ):
-#     return wrap_signal( Operator1(dy.get_simulation_context(), unwrap_list( inputSignals ), operator).outputs[0] )
-
-
-# #
-# # logic operators
-# #
-
-# def logic_and(u1 : dy.SignalUserTemplate, u2 : dy.SignalUserTemplate):
-#     """
-#         logical and
-
-#         u1 && u2
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' && ').outputs[0] )
-
-# def logic_or(u1 : dy.SignalUserTemplate, u2 : dy.SignalUserTemplate):
-#     """
-#         logical or
-    
-#         u1 || u2
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' || ').outputs[0] )
-
-
-# def logic_xor(u1 : dy.SignalUserTemplate, u2 : dy.SignalUserTemplate):
-#     """
-#         exclusive logical or (xor)
-    
-#         u1 ^ u2
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' ^ ').outputs[0] )
-
-
-# def bitwise_and(u1 : dy.SignalUserTemplate, u2 : dy.SignalUserTemplate):
-#     """
-#         bitwise and
-
-#         u1 & u2
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
-
-# def bitwise_or(u1 : dy.SignalUserTemplate, u2 : dy.SignalUserTemplate):
-#     """
-#         bitwise or
-    
-#         u1 | u2
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
-
-
-# def bitwise_shift_left(u : dy.SignalUserTemplate, shift : dy.SignalUserTemplate):
-#     """
-#         logical shift left
-    
-#         u << shift
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list( [u,shift] ), operator=' << ').outputs[0] )
-
-
-# def bitwise_shift_right(u : dy.SignalUserTemplate, shift : dy.SignalUserTemplate):
-#     """
-#         logical shift left
-    
-#         u >> shift
-#     """
-
-#     return wrap_signal( Operator1(dy.get_simulation_context(), inputSignals=unwrap_list( [u,shift] ), operator=' >> ').outputs[0] )
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1335,16 +1235,6 @@ class ComparisionOperator(bi.StaticFn_NTo1):
         if language == 'c++':
             lines = signals[0].name + ' = ' + self.inputSignals[0].name + ' ' + self.operator + ' ' + self.inputSignals[1].name + ';\n'
             return lines
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1398,29 +1288,6 @@ class SwitchNto1(bi.StaticFn_NTo1):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class ConditionalOverwrite(bi.StaticFn_NTo1):
     def __init__(self, sim : Simulation, signal : Signal, condition : Signal, new_value ):
 
@@ -1459,21 +1326,6 @@ class ConditionalOverwrite(bi.StaticFn_NTo1):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #
 # Static functions that map 1 --> 1
 #
@@ -1488,45 +1340,6 @@ class StaticFnByName_1To1(bi.StaticFn_1To1):
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             return signals[0].name + ' = ' + str(self._functionName) + '(' + self.inputs[0].name +  ');\n'
-
-
-
-# def comparison(left : dy.SignalUserTemplate, right : dy.SignalUserTemplate, operator : str ):
-#     return wrap_signal( ComparisionOperator(dy.get_simulation_context(), left.unwrap, right.unwrap, operator).outputs[0] )
-
-# def switchNto1( state : dy.SignalUserTemplate, inputs : dy.SignalUserTemplate ):
-#     return wrap_signal( SwitchNto1(dy.get_simulation_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
-
-# def conditional_overwrite(signal : dy.SignalUserTemplate, condition : dy.SignalUserTemplate, new_value ):
-
-#     if isinstance(new_value, dy.SignalUserTemplate):
-#         new_value = new_value.unwrap
-
-#     return wrap_signal( ConditionalOverwrite(dy.get_simulation_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
-
-# def sqrt(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'sqrt').outputs[0] )
-
-# def sin(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'sin').outputs[0] )
-
-# def cos(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'cos').outputs[0] )
-
-# def tan(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'tan').outputs[0] )
-
-# def atan(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'atan').outputs[0] )
-
-# def asin(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'asin').outputs[0] )
-
-# def acos(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'acos').outputs[0] )
-
-# def abs(u : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_1To1(dy.get_simulation_context(), u.unwrap, 'abs').outputs[0] )
 
 
 
@@ -1783,50 +1596,6 @@ class Flipflop(bi.BlockPrototype):
             return self.getUniqueVarnamePrefix() + '_state' + ' = ' + initial_state_str + ';\n'
 
 
-# def logic_not(u : dy.SignalUserTemplate ):
-#     """
-#         logic negation
-#     """
-#     return wrap_signal( Operator0(dy.get_simulation_context(), u.unwrap, '!').outputs[0] )
-
-# def bitwise_not(u : dy.SignalUserTemplate ):
-#     return wrap_signal( Operator0(dy.get_simulation_context(), u.unwrap, '~').outputs[0] )
-
-
-# def atan2(y : dy.SignalUserTemplate, x : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_2To1(dy.get_simulation_context(), y.unwrap, x.unwrap, 'atan2').outputs[0] )
-
-# def pow(base : dy.SignalUserTemplate, power : dy.SignalUserTemplate ):
-#     return wrap_signal( StaticFnByName_2To1(dy.get_simulation_context(), base.unwrap, power.unwrap, 'pow').outputs[0] )
-
-# def fmod(x : dy.SignalUserTemplate, y : dy.SignalUserTemplate ):
-#     """
-#         modulo function for floating point values
-
-#         This function returns the remainder of dividing x/y.
-#     """
-#     return wrap_signal( StaticFnByName_2To1(dy.get_simulation_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
-
-# def generic_cpp_static(input_signals : List[dy.SignalUserTemplate], input_names : List [str], input_types, output_types, output_names, cpp_source_code : str ):
-#     return wrap_signal_list( GenericCppStatic(dy.get_simulation_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
-
-# def delay__(u : dy.SignalUserTemplate, initial_state = None):
-#     return wrap_signal( Delay(dy.get_simulation_context(), u.unwrap, initial_state ).outputs[0] )
-
-
-# def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False):
-#     """
-#         TODO..
-#     """
-    
-#     return wrap_signal( Flipflop(dy.get_simulation_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, nodelay=nodelay ).outputs[0] )
-
-
-
-
-
-
-
 
 
 #
@@ -1925,8 +1694,6 @@ class MemoryRead(bi.StaticFn_NTo1):
 
         self._length = memory.properties_internal['memory_length']
 
-        # print(' ############# reading a memory of length', self._length)
-
         bi.StaticFn_NTo1.__init__(self, sim, inputSignals = [memory, index] )
 
     def config_request_define_output_types(self, inputTypes):
@@ -1944,41 +1711,5 @@ class MemoryRead(bi.StaticFn_NTo1):
             
             return cgh.brackets(code)
 
-
-
-
-# def memory(datatype, constant_array, write_index : dy.SignalUserTemplate = None, value : dy.SignalUserTemplate = None):
-#     """
-#         Define an array
-
-#         Allocates static memory for an array of elements given a datatype.
-#         During each sampling instant, one element can be (over)written. 
-
-#         datatype       - the datatype of the array elements
-#         constant_array - list of constants that contain the data to initialize the array
-#         write_index    - the array index of the element to replace by value (optional)
-#         value          - the value to write into the array at write_index (optional)
-
-#         returns a reference to the memory segment which is accessible by memory_read()
-
-#         Limitations: currently the memory is not reset on subsystem reset. This will change.
-#     """
-
-#     if write_index is not None and value is not None:
-#         return wrap_signal( Memory(dy.get_simulation_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
-#     elif write_index is None and value is None:
-#         return wrap_signal( Memory(dy.get_simulation_context(), datatype, constant_array).outputs[0] )
-#     else:
-#         raise BaseException('memory: write_index and value were not properly defined')
-
-# def memory_read( memory : dy.SignalUserTemplate, index : dy.SignalUserTemplate ):
-#     """
-#         Read an element from an array defined by memory()
-
-#         index - the index indicating the element to read.
-
-#         Returns the value of the element
-#     """
-#     return wrap_signal( MemoryRead(dy.get_simulation_context(), memory.unwrap, index.unwrap ).outputs[0] )
 
 
