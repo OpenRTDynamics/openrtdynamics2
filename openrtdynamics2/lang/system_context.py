@@ -1,4 +1,4 @@
-from .diagram_core.libdyn import System
+from .diagram_core.system import System
 from . import signal_interface as si
 
 

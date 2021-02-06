@@ -1,4 +1,4 @@
-from .diagram_core.libdyn import System
+from .diagram_core.system import System
 from .diagram_core import datatypes as dt
 from .diagram_core.signal_network.signals import Signal
 from .diagram_core import code_generation_helper as cgh

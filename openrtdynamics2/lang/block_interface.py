@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from .diagram_core.libdyn import *
+from .diagram_core.system import *
 from .diagram_core.signal_network.signals import Signal, BlockOutputSignal
 from .diagram_core.signal_network.Block import *
 from .diagram_core.datatypes import common_numeric_type

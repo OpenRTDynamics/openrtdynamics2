@@ -1,4 +1,4 @@
-from .libdyn import *
+from .system import *
 #from .block_prototypes import *
 from .graph_traversion import *
 from .signal_network.signals import *

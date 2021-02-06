@@ -1,4 +1,4 @@
-from .libdyn import *
+from .system import *
 from .signal_network.signals import *
 from .signal_network import *
 from .graph_traversion import *
