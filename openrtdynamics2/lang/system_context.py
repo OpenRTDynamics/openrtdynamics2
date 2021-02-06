@@ -63,7 +63,7 @@ def enter_system(name : str = 'simulation', upper_level_system = None):
 
     # register this subsystem to the parent system
     if get_system_context() is not None:
-        get_system_context().appendNestedSystem( system )
+        get_system_context().append_subsystem( system )
 
     push_simulation_context(system)
 

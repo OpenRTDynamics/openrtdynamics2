@@ -26,7 +26,7 @@ class System:
             self._top_level_system = self
 
             self.block_id_counter = 0
-            self.signalIdCounter = 0
+            self.signal_id_counter = 0
 
             # manager to determine datatypes as new blocks are added
             # only for the highest-level system -- subsystems use the 
@@ -38,7 +38,7 @@ class System:
 
             # # share the counter of the 
             # self.block_id_counter = upper_level_system.block_id_counter
-            # self.signalIdCounter = upper_level_system.signalIdCounter
+            # self.signal_id_counter = upper_level_system.signal_id_counter
 
             # re-use the upper-level propagation
             self.datatype_propagation_instance = upper_level_system.datatype_propagation_instance
@@ -69,16 +69,19 @@ class System:
     def parent_system(self):
         return self.upper_level_system 
 
-    def getNewBlockId(self):
+    def generate_new_block_id(self):
         self._top_level_system.block_id_counter += 1
         return self._top_level_system.block_id_counter
 
     # get a new unique id for creating a signal
     def generate_new_signal_id(self):
-        self._top_level_system.signalIdCounter += 1
-        return self._top_level_system.signalIdCounter
+        self._top_level_system.signal_id_counter += 1
+        return self._top_level_system.signal_id_counter
 
-    def appendNestedSystem(self, system):
+    def append_subsystem(self, system):
+        """
+            add a subsystem to the list of subsystems to this system
+        """
         self._subsystems.append( system )
 
     @property

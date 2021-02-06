@@ -20,7 +20,7 @@ class Block:
         self.sim = sim
 
         # create a new unique block id (unique for the system the block is in)
-        self._id = sim.getNewBlockId()
+        self._id = sim.generate_new_block_id()
 
         # default names
         if blockname is None:
