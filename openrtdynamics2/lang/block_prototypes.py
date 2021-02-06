@@ -98,7 +98,7 @@ class GenericSubsystem(bi.BlockPrototype):
         # continue init as now all subsystems are compiled and the compile results and the manifest of
         # the system to compile is available.
         #
-        self.init(embedded_system.compilationResult.manifest, embedded_system.compilationResult, embedded_system.compilationResult.inputSignals)
+        self.init(embedded_system.compile_result.manifest, embedded_system.compile_result, embedded_system.compile_result.inputSignals)
 
     # post_compile_callback (called after the subsystem to embedd was compiled)
     def init(self, manifest, compileResult, inputSignals):

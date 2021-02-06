@@ -85,7 +85,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         compile_result.set_command_to_execute( execution_command )
 
         # store the compilation result in the system's structure (TODO: is this needed?)
-        system.compilationResult = compile_result
+        system.compile_result = compile_result
 
         if is_top_level_system:
             self._compleResults = compile_result

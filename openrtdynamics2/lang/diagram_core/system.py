@@ -9,17 +9,8 @@ init(autoreset=True)
 
 
 
-# TODO: rename this to System
 class System:
     def __init__(self, upper_level_system, name : str ):
-        
-        if upper_level_system is None:
-            # This system is a main system (no upper-level systems)
-            # print("New system (top-level system)")
-            pass
-        else:
-            # print("New system as a subsystem of " + upper_level_system.getName())
-            pass
 
         self.upper_level_system = upper_level_system
         self._name = name
@@ -34,23 +25,23 @@ class System:
         if upper_level_system is None:
             self._top_level_system = self
 
-            self.BlockIdCounter = 0
+            self.block_id_counter = 0
             self.signalIdCounter = 0
 
             # manager to determine datatypes as new blocks are added
             # only for the highest-level system -- subsystems use the 
             # datatype propagation of the main system
-            self.datatypePropagation = DatatypePropagation(self)
+            self.datatype_propagation_instance = DatatypePropagation(self)
 
         else:
             self._top_level_system = upper_level_system._top_level_system
 
             # # share the counter of the 
-            # self.BlockIdCounter = upper_level_system.BlockIdCounter
+            # self.block_id_counter = upper_level_system.block_id_counter
             # self.signalIdCounter = upper_level_system.signalIdCounter
 
             # re-use the upper-level propagation
-            self.datatypePropagation = upper_level_system.datatypePropagation
+            self.datatype_propagation_instance = upper_level_system.datatype_propagation_instance
 
         # components
         self.components_ = {}
@@ -65,7 +56,7 @@ class System:
         self._signals_mandatory_to_compute = []
 
         # the results of the compilation of this system
-        self.compilationResult = None
+        self.compile_result = None
 
     def getName(self):
         return self._name
@@ -79,11 +70,11 @@ class System:
         return self.upper_level_system 
 
     def getNewBlockId(self):
-        self._top_level_system.BlockIdCounter += 1
-        return self._top_level_system.BlockIdCounter
+        self._top_level_system.block_id_counter += 1
+        return self._top_level_system.block_id_counter
 
     # get a new unique id for creating a signal
-    def getNewSignalId(self):
+    def generate_new_signal_id(self):
         self._top_level_system.signalIdCounter += 1
         return self._top_level_system.signalIdCounter
 
@@ -294,18 +285,6 @@ class System:
     def blocks(self):
         return self.blocks_in_system
 
-    def GetInputInterface(self):
-        # Build an input-interface for the ORTD interpreter
-        # inform of a "inlist" structure
-
-        print("external input signals:")
-        
-        for ExtInSig in self.ExternalConnectionsArray:
-            ExtInSig.getDatatype().Show()
-
-        return self.ExternalConnectionsArray
-
-
     def resolve_anonymous_signals(self, ignore_signals_with_datatype_inheritance=False):
         """
             close down the anonymous signals and wire the connected blocks directly to the source. 
@@ -315,12 +294,10 @@ class System:
             block.verifyInputSignals(ignore_signals_with_datatype_inheritance)
 
     def propagate_datatypes(self):
-        print("propagating datatypes...")
-
         self.resolve_anonymous_signals(ignore_signals_with_datatype_inheritance=True)
 
         # find out the output datatypes
-        self.datatypePropagation.fixateTypes()
+        self.datatype_propagation_instance.fixateTypes()
 
 
         # execute this later in the compilatin process
@@ -330,7 +307,7 @@ class System:
 
     @property
     def signal_with_unresolved_datatypes(self):
-        return self.datatypePropagation.signalsWithUnderminedTypes
+        return self.datatype_propagation_instance.signalsWithUnderminedTypes
 
 
     
