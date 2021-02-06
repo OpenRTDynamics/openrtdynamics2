@@ -1,36 +1,37 @@
-from contextlib import contextmanager
-from typing import Dict, List
-
 from .signal_network.signals import *
 from .signal_network.Block import *
-
 from .datatype_propagation import *
+
+from contextlib import contextmanager
+from typing import Dict, List
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
 
 
 
 # TODO: rename this to System
 class System:
-    def __init__(self, upperLevelSim, name : str ):
+    def __init__(self, upper_level_system, name : str ):
         
-        if upperLevelSim is None:
+        if upper_level_system is None:
             # This system is a main system (no upper-level systems)
             # print("New system (top-level system)")
             pass
         else:
-            # print("New system as a subsystem of " + upperLevelSim.getName())
+            # print("New system as a subsystem of " + upper_level_system.getName())
             pass
 
-        self.UpperLevelSim = upperLevelSim
+        self.upper_level_system = upper_level_system
         self._name = name
-        self.BlocksArray = []
+        self.blocks_in_system = []
 
         # counter for system input signals
         # This determines the order of teh arguments of the generated c++ functions
-        self.simulationInputSignalCounter = 0
+        self.simulation_input_signal_counter = 0
 
         self._top_level_system = None
 
-        if upperLevelSim is None:
+        if upper_level_system is None:
             self._top_level_system = self
 
             self.BlockIdCounter = 0
@@ -42,14 +43,14 @@ class System:
             self.datatypePropagation = DatatypePropagation(self)
 
         else:
-            self._top_level_system = upperLevelSim._top_level_system
+            self._top_level_system = upper_level_system._top_level_system
 
             # # share the counter of the 
-            # self.BlockIdCounter = upperLevelSim.BlockIdCounter
-            # self.signalIdCounter = upperLevelSim.signalIdCounter
+            # self.BlockIdCounter = upper_level_system.BlockIdCounter
+            # self.signalIdCounter = upper_level_system.signalIdCounter
 
             # re-use the upper-level propagation
-            self.datatypePropagation = upperLevelSim.datatypePropagation
+            self.datatypePropagation = upper_level_system.datatypePropagation
 
         # components
         self.components_ = {}
@@ -75,7 +76,7 @@ class System:
 
     @property
     def parent_system(self):
-        return self.UpperLevelSim 
+        return self.upper_level_system 
 
     def getNewBlockId(self):
         self._top_level_system.BlockIdCounter += 1
@@ -94,7 +95,7 @@ class System:
         return self._subsystems
 
     def addBlock(self, blk : Block):
-        self.BlocksArray.append(blk)
+        self.blocks_in_system.append(blk)
 
     # TODO: remove this?
     def set_primary_outputs(self, outputSignals):
@@ -121,7 +122,7 @@ class System:
         print("Blocks in simulation " + self._name + ":")
         print("-----------------------------")
 
-        for blk in self.BlocksArray:
+        for blk in self.blocks_in_system:
             print(Fore.YELLOW + "* " + Style.RESET_ALL + "'" + blk.name + "' (" + str(blk.id) + ")"  )
 
             # list input singals
@@ -225,7 +226,7 @@ class System:
 
         # create a node for each block in the simulation
         nodes_array_index = 0
-        for block in self.BlocksArray:
+        for block in self.blocks_in_system:
 
             node, idstr = createBlockNode(nodes_array_index, block)
 
@@ -236,7 +237,7 @@ class System:
 
         
         # build links
-        for blk in self.BlocksArray:
+        for blk in self.blocks_in_system:
 
             # list input singals
             if blk.getInputSignals() is not None and len( blk.getInputSignals() ) > 0:
@@ -291,7 +292,7 @@ class System:
 
     @property
     def blocks(self):
-        return self.BlocksArray
+        return self.blocks_in_system
 
     def GetInputInterface(self):
         # Build an input-interface for the ORTD interpreter
@@ -310,7 +311,7 @@ class System:
             close down the anonymous signals and wire the connected blocks directly to the source. 
         """
         
-        for block in self.BlocksArray:
+        for block in self.blocks_in_system:
             block.verifyInputSignals(ignore_signals_with_datatype_inheritance)
 
     def propagate_datatypes(self):
@@ -324,7 +325,7 @@ class System:
 
         # execute this later in the compilatin process
 
-        # for block in self.BlocksArray:
+        # for block in self.blocks_in_system:
         #     block.verifyInputSignals(ignore_signals_with_datatype_inheritance=False)
 
     @property

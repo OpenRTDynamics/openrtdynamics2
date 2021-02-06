@@ -46,7 +46,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
     
     def traverseSubSystems(self, system : System, level):
 
-        is_top_level_system = system.UpperLevelSim is None
+        is_top_level_system = system.upper_level_system is None
 
         # go deeper and compile subsystems first
         command_list_for_all_subsystems = []
@@ -99,7 +99,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         # The datatypes of all signals must be determined here
         #
 
-        if system.UpperLevelSim is not None:#
+        if system.upper_level_system is not None:#
             # compilation can only start at top level subsystems
             raise BaseException("given system is not a top-level system (but instead a sub-system of sth.)")
 
