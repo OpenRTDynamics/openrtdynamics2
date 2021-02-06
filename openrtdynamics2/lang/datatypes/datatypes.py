@@ -1,5 +1,3 @@
-#from .signal_network import signals as sig
-
 from typing import Dict, List
 
 # remove these
@@ -29,14 +27,6 @@ ORTD_DATATYPE_UINT8 = 11
 #     return datatypes
 
 class DataType(object):
-    #
-    # TODO: feature: add type of datype: 1) 'C++', 'ORTD (V2)' + optional 'is reference flag' 
-    #
-    #
-    #
-    #
-
-
 
     def __init__(self, type : int, size : int):
         self.type = type
@@ -46,7 +36,6 @@ class DataType(object):
         # output types
         # -1 undefined, 1 equal types, 0 type missmatch
 
-        #print("DataType:isEqualTo " + str(self.size) + "==" + str(otherType.size) + " -- " + str(self.type) + " == " + str(otherType.type) )
         if otherType is None:
             return -1
 
