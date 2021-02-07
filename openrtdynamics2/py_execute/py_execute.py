@@ -66,16 +66,43 @@ class CompiledCode:
         algorithm_sourcecode, manifest = code_gen_results['algorithm_sourcecode'], code_gen_results['manifest']        
         self._manifest = manifest        
 
-        # replace the standard class name 'simulation' of the system with a unique name
-        cn = 'ortd_system_' + str(ortd_auto_namespace_id)
-        src = re.sub('class simulation', 'class ' + cn, algorithm_sourcecode)
+        use_unique_namespace = True
 
-        # send sourcecode to jit-compiler
-        cppyy.cppdef(src)
+        if use_unique_namespace == False:
+            # replace the standard class name 'simulation' of the system with a unique name
+            cn = 'ortd_system_' + str(ortd_auto_namespace_id)
 
-        # load the module that appears after compiling the source code
-        module = importlib.import_module('cppyy.gbl', cn )
-        cpp_class_of_system = getattr(module, cn)
+            # src = re.sub('class simulation', 'class ' + cn, algorithm_sourcecode)
+            src = algorithm_sourcecode.replace('class simulation','class ' + cn )
+
+            # send sourcecode to jit-compiler
+            cppyy.cppdef(src)
+
+            # load the module that appears after compiling the source code
+            module = importlib.import_module('cppyy.gbl', cn )
+            cpp_class_of_system = getattr(module, cn)
+
+        else:
+            src = 'namespace ' + 'ortd_system_ns' + str(ortd_auto_namespace_id) + '{\n' + algorithm_sourcecode + '\n}'
+
+            # send sourcecode to jit-compiler
+            cppyy.cppdef(src)
+
+            # import cppyy
+            # import importlib
+
+            # print(dir(cppyy.gbl.ortd_system_ns0.simulation))
+            # print(dir(cppyy.gbl.ortd_system_ns0))
+            # getattr(cppyy.gbl, 'ortd_system_ns0')
+
+            # do know why.. this line is required and somehow triggers the symbol in the module to appear
+            # Without this importlib cannot load the namespace 'ortd_system_nsX'
+            getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) )
+
+            # load the module that appears after compiling the source code
+            module = importlib.import_module('cppyy.gbl.' + 'ortd_system_ns' + str(ortd_auto_namespace_id)  )
+            cpp_class_of_system = module.simulation # getattr(module, cn)
+
 
         #
         # print("loaded c++ class " + cn)
