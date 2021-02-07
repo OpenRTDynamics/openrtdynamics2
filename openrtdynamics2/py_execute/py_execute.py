@@ -97,11 +97,14 @@ class CompiledCode:
 
             # do know why.. this line is required and somehow triggers the symbol in the module to appear
             # Without this importlib cannot load the namespace 'ortd_system_nsX'
-            getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) )
+#            getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) )
 
             # load the module that appears after compiling the source code
-            module = importlib.import_module('cppyy.gbl.' + 'ortd_system_ns' + str(ortd_auto_namespace_id)  )
-            cpp_class_of_system = module.simulation # getattr(module, cn)
+#            module = importlib.import_module('cppyy.gbl.' + 'ortd_system_ns' + str(ortd_auto_namespace_id)  )
+#            cpp_class_of_system = module.simulation # getattr(module, cn)
+
+
+            cpp_class_of_system = getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) ).simulation
 
 
         #
