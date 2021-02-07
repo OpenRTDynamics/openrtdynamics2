@@ -51,13 +51,19 @@ class CompiledCode:
         """
     
         import cppyy
-        import re
-        import importlib
 
         global system_instance_counter
 
         #
+        # Note:
+        #
         # Issue: https://bitbucket.org/wlav/cppyy/issues/295/q-reset-interpreter-or-multiple-instances
+        #
+        # Symbols once create in the cppyy.glb namespace cannot be deleted or overwritten.
+        # Therefore, all code is wrapped into a namespace with a unique name that involves a
+        # counter that increases for each call of cppyy.cppdef(src). Even if an instance of CompiledCode
+        # is destructed, the compiled c++ module remains in the cppyy.glb namespace, hence, over time
+        # symbols are accumulated. Hence, this is a memory leak. I do not know how to solve this.
         #
 
         ortd_auto_namespace_id = system_instance_counter
@@ -66,49 +72,16 @@ class CompiledCode:
         algorithm_sourcecode, manifest = code_gen_results['algorithm_sourcecode'], code_gen_results['manifest']        
         self._manifest = manifest        
 
-        use_unique_namespace = True
+        # wrap all classes into a unique namespace
+        src = 'namespace ' + 'ortd_system_ns' + str(ortd_auto_namespace_id) + '{\n' + algorithm_sourcecode + '\n}'
 
-        if use_unique_namespace == False:
-            # replace the standard class name 'simulation' of the system with a unique name
-            cn = 'ortd_system_' + str(ortd_auto_namespace_id)
+        # send sourcecode to jit-compiler
+        cppyy.cppdef(src)
 
-            # src = re.sub('class simulation', 'class ' + cn, algorithm_sourcecode)
-            src = algorithm_sourcecode.replace('class simulation','class ' + cn )
+        # load module and extract the main class 'simulation'
+        cpp_class_of_system = getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) ).simulation
 
-            # send sourcecode to jit-compiler
-            cppyy.cppdef(src)
-
-            # load the module that appears after compiling the source code
-            module = importlib.import_module('cppyy.gbl', cn )
-            cpp_class_of_system = getattr(module, cn)
-
-        else:
-            src = 'namespace ' + 'ortd_system_ns' + str(ortd_auto_namespace_id) + '{\n' + algorithm_sourcecode + '\n}'
-
-            # send sourcecode to jit-compiler
-            cppyy.cppdef(src)
-
-            # import cppyy
-            # import importlib
-
-            # print(dir(cppyy.gbl.ortd_system_ns0.simulation))
-            # print(dir(cppyy.gbl.ortd_system_ns0))
-            # getattr(cppyy.gbl, 'ortd_system_ns0')
-
-            # do know why.. this line is required and somehow triggers the symbol in the module to appear
-            # Without this importlib cannot load the namespace 'ortd_system_nsX'
-#            getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) )
-
-            # load the module that appears after compiling the source code
-#            module = importlib.import_module('cppyy.gbl.' + 'ortd_system_ns' + str(ortd_auto_namespace_id)  )
-#            cpp_class_of_system = module.simulation # getattr(module, cn)
-
-
-            cpp_class_of_system = getattr(cppyy.gbl, 'ortd_system_ns' + str(ortd_auto_namespace_id) ).simulation
-
-
-        #
-        # print("loaded c++ class " + cn)
+        # store
         self._cpp_class_of_system = cpp_class_of_system
 
     @property
