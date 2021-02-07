@@ -734,22 +734,26 @@ class PutSystem(ExecutionCommand):
                     function_code += 'return outputs;\n'
 
                 #
-                innerLines += '// main step function \n'
+                if self.system.upper_level_system is None:
+                    # put an interface function for nice interaction for the user of the generated code
+                    # Do this only for the top-level system
+                    
+                    innerLines += '// main step function \n'
 
-                if config_pass_by_reference:
-                    innerLines += cgh.cpp_define_generic_function( 
-                        fn_name='step', 
-                        return_cpp_type_str = 'void', 
-                        arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
-                        code = function_code
-                    )
-                else:
-                    innerLines += cgh.cpp_define_generic_function( 
-                        fn_name='step', 
-                        return_cpp_type_str = 'Outputs', 
-                        arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
-                        code = function_code
-                    )
+                    if config_pass_by_reference:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name='step', 
+                            return_cpp_type_str = 'void', 
+                            arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                            code = function_code
+                        )
+                    else:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name='step', 
+                            return_cpp_type_str = 'Outputs', 
+                            arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                            code = function_code
+                        )
 
 
 
