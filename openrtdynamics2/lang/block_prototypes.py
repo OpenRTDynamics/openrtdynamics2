@@ -100,22 +100,22 @@ class GenericSubsystem(bi.BlockPrototype):
         #
         self.init(embedded_system.compile_result.manifest, embedded_system.compile_result, embedded_system.compile_result.inputSignals)
 
-    # post_compile_callback (called after the subsystem to embedd was compiled)
+    # post_compile_callback (called after the subsystem to embed was compiled)
     def init(self, manifest, compileResult, inputSignals):
         """
             This is a second phase initialization of this subsystem block 
             (to be called by compile_callback_all_subsystems_compiled())
 
-            This function shall be called when the subsystem to embedd is compiled
+            This function shall be called when the subsystem to embed is compiled
             after the instance of 'GenericSubsystem' is created. This way, it is possible
             to add blocks embeddeding sub-systems without haveing these subsystems to be
             already compiled.
 
             Optionally, the system this block belongs to can be set.
 
-            manifest       - the system manifest of the subsystem to embedd
-            compileResults - the compile results of the subsystem to embedd
-            inputSignals   - input signals to the subsystem to embedd (links comming from an upper-level subsystem)
+            manifest       - the system manifest of the subsystem to embed
+            compileResults - the compile results of the subsystem to embed
+            inputSignals   - input signals to the subsystem to embed (links comming from an upper-level subsystem)
 
         """        
 
@@ -297,7 +297,31 @@ class GenericSubsystem(bi.BlockPrototype):
             # TODO: 2.5.2020: concept: how to compute only the nescessary signals?
             #
 
-            for s in self.outputs:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            #
+            # REWORK: introduce call to fn(Inputs & inputs, Outputs & outputs)
+            # and remove the prev. style
+            #
+
+            for s in self.outputs: # for each output of the subsystem reservate a variable
                 lines += cgh.define_variable_line( s ) 
 
                 if s not in signals:
@@ -352,18 +376,18 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
                         |                       +-------------+            |
         normal input 1  |                       |             |            |  normal output 1
                      +------------------------->+             +--------------->
-                        |                       |   embeded   |            |
-        normal input 2  |                       |             |            |  normal output 2
+                        |                       |   embedded  |            |
+        normal input 2  |                       |             |            |  normal output 2   (self.normal_outouts)
                      +------------------------->+             +--------------->
                         |                       |  subsystem  |            |
                         |        control status |             | control    |
                         |            +--------->+             +-----+      |
-                        |            |          |             | output     |
+                        |            |          |             | output(s)  |
                         |            |          +-------------+     |      |
-                        |            |                              |      |
-                        |     +------+------+                       |      |
-        control input   |     |  execution  |                       |      |
-                     +------->+  control of +<----------------------+      |
+                        |            |                              |      |-->
+                        |     +------+------+                       |      | self.additional_outputs (unused/future)
+        control input(s)|     |  execution  |                       |      |
+                     +------->+  control for+<----------------------+      |
                         |     |  subsystem  |                              |
                         |     +-------------+                              |
                         |                                                  |
@@ -397,7 +421,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         self._number_of_normal_outputs = len(self._subsystem_prototype.outputs) - number_of_control_outputs
 
         if self._number_of_normal_outputs < 0:
-            raise BaseException("The number of control outputs is higher than the total number of outputs provided by the subsystem.")
+            raise BaseException("The number of control outputs is bigger than the total number of outputs provided by the subsystem.")
 
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
 
@@ -417,18 +441,73 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         self._list_of_all_inputs = None
 
 
+
+
+
+        def create_output_mapping_table( normal_outputs_of_embedding_block, subsystem_prototype ):
+            # output signal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
+            output_signal_mapping = {}
+
+            for i in range(0, len(normal_outputs_of_embedding_block) ):
+                # fill in mapping table
+                output_signal_mapping[ normal_outputs_of_embedding_block[i] ] = subsystem_prototype.outputs[i]
+
+            return output_signal_mapping
+
+
+
+        def setup_output_datatype_inheritance( normal_outputs_of_embedding_block, subsystem_prototype ):
+            # inherit output datatypes of this block from the embedded subsystem described by subsystem_prototype
+
+            for i in range(0, len(normal_outputs_of_embedding_block) ):
+
+                output_signal_of_embedding_block = normal_outputs_of_embedding_block[i]
+                output_signal_of_subsystem = subsystem_prototype.outputs[i]
+                output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+            return
+
+
         # output sigal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
-        self._output_signal_mapping = {} # (TODO: extend/add to MultiSubsystemEmbedder)
+        self._output_signal_mapping = create_output_mapping_table( normal_outputs_of_embedding_block=self.normal_outouts, subsystem_prototype=self._subsystem_prototype )
 
-        # inherit output datatypes of this block from the embeded subsystem
-        for i in range(0, self._number_of_normal_outputs ):
+        # inherit output datatypes of this block from the embedded subsystem
+        setup_output_datatype_inheritance( normal_outputs_of_embedding_block=self.normal_outouts, subsystem_prototype=self._subsystem_prototype )
 
-            # fill in mapping table
-            self._output_signal_mapping[ self.outputs[i] ] = self._subsystem_prototype.outputs[i]
 
-            output_signal_of_embedding_block = self.outputs[i]
-            output_signal_of_subsystem = self._subsystem_prototype.outputs[i] # reference_outputs[i]
-            output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+
+        # if False:
+        #     # output sigal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
+        #     self._output_signal_mapping = {} # (TODO: extend/add to MultiSubsystemEmbedder)
+
+        #     # inherit output datatypes of this block from the embedded subsystem
+        #     for i in range(0, self._number_of_normal_outputs ):
+
+        #         # fill in mapping table
+        #         self._output_signal_mapping[ self.outputs[i] ] = self._subsystem_prototype.outputs[i]
+
+
+
+
+        #         output_signal_of_embedding_block = self.outputs[i]
+        #         output_signal_of_subsystem = self._subsystem_prototype.outputs[i] # reference_outputs[i]
+        #         output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             #output_signal_of_embedding_block.set_data_link( output_signal_of_subsystem )
 
@@ -440,6 +519,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
             self._control_signals_from_embeded_system.append( self._subsystem_prototype.outputs[i] )
 
 
+    # unused / reserved for future use
     @property
     def additional_outputs(self):
         return self.outputs[ self._number_of_normal_outputs: ]
@@ -466,21 +546,32 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
     def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
-        # NOTE: This is a simplified veriant so far..
+        # NOTE: This is a simplified variant so far..
         #       Every output depends on every signal
+        #
+        # lookup better information about feedthrough inside the manifest of the embedded subsystem
 
         return self._list_of_all_inputs
         
 
     def config_request_define_state_update_input_dependencies(self, outputSignal):
  
-        # NOTE: This is a simplified veriant so far..
+        # NOTE: This is a simplified variant so far..
         #       The update depends on every signal
 
         return self._list_of_all_inputs
 
 
     def helper_get_output_signal_mapping_to_subsystem(self, signals_to_calculate):
+        """
+
+            given the signals to calculate (variable signals) in the callbacks 
+
+                def generate_code_output_list(self, language, signals : List [ Signal ] ): 
+
+            resolve the mapping to the embedded subsystems output signals
+
+        """
 
         mapped_subsystem_output_signals = []
         for s in signals_to_calculate:
@@ -550,7 +641,37 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
 
 
-            code_compute_output = cgh.embed_subsystem(language, system_prototype=self._subsystem_prototype, ouput_signals_name=cgh.signal_list_to_name_list(signals), calculate_outputs = True, update_states = False )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            code_compute_output = cgh.embed_subsystem(
+                language, 
+                system_prototype=self._subsystem_prototype, 
+                ouput_signals_name=cgh.signal_list_to_name_list(signals), 
+                calculate_outputs = True, update_states = False )
 
 
             if self.prevent_output_computation:
@@ -780,6 +901,22 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
         # inherit output datatypes of the reference subsystem
         for i in range(0, self._number_of_switched_outputs ):
+
+
+            # TODO: add mapping here!
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             output_signal_of_embedding_block = self.outputs[i]
             output_signal_of_subsystem = switch_reference_outputs[i]

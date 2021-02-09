@@ -148,7 +148,7 @@ class sub_if:
         # now in the system in which the embeder block (including the logic) shall be placed.
         #
 
-        # create the embeeder prototype
+        # create the embedder prototype
         embeddedingBlockPrototype = bp.TruggeredSubsystem( sim=dy.get_system_context(), 
                 control_input=si.unwrap( self._condition_signal ), 
                 subsystem_prototype=self._subsystem_block_prototype,
