@@ -37,9 +37,23 @@ class Signal(object):
         # inherit the datatype for this anonymous signals from the signal refered to by inherit_datatype_of_signal
         self.inherit_datatype_of_signal = None
 
+
+
+
+
+
+
         # In case not None: the data/value of the signal are aboutained from the given signal
         # NOTE: not used so far.
         self._data_link = None
+
+
+
+
+
+
+
+
 
         # NOTE: this mus be the last in the list
         # notify the creation of this signal
@@ -277,18 +291,33 @@ class Signal(object):
         return self.lookupSource()._inherit_datatype_to_list
 
 
+
+
+
+
+
+
+
     def set_data_link(self, signal):
         """
-            The data/value of the signal are aboutained from the given signal
+            The data/value of the signal are based on the given signal
 
             This is used for:
-                1) ...
+                1) accessing the output of a subsystem 
         """
         self.lookupSource()._data_link = signal
 
     @property
     def data_link(self):
         return self.lookupSource()._data_link
+
+
+
+
+
+
+
+
 
     # move to derived classes below
     def getSourceBlock(self):
