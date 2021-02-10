@@ -636,6 +636,111 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
 
 
+# # REMOVE THIS
+# def embed_subsystem(language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
+#     """  
+#         generate code to call a subsystem (TODO: this is obsolete remove it!)
+
+#         - system_prototype   - the block prototype including the subsystem - type: : dy.GenericSubsystem
+#         - ouput_signals_name - list of variable names to which the output signals of the subsystem are assigned to
+#         - calculate_outputs  - generate a call to the output computation API function of the subsystem
+#         - update_states      - generate a call to the state update API function of the subsystem
+#     """
+
+
+#     lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
+
+#     innerLines = ''
+
+#     #
+#     # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+#     #
+
+#     # generate code for calculating the outputs 
+#     if calculate_outputs:
+
+#         innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
+
+#         if len(system_prototype.outputs) != len(ouput_signals_name):
+#             raise BaseException('len(system_prototype.outputs) != len(ouput_signals_name)')
+
+
+
+
+#         for i in range( 0, len( ouput_signals_name ) ): # NOTE:
+#             innerLines += asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
+
+#     # generate code for updating the states
+#     if update_states:
+#         innerLines += system_prototype.generate_code_update(language)
+
+
+#     lines += indent(innerLines)
+#     lines += '}\n'
+
+#     return lines
+
+
+
+
+
+def embed_subsystem2(language, subsystem_prototype, ouput_signals_name=None, ouput_signal_names_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
+    """  
+        generate code to call a subsystem
+
+        - subsystem_prototype - the block prototype including the subsystem - type: : dy.GenericSubsystem
+        - ouput_signals_name  - list of variable names to which the output signals of the subsystem are assigned to
+        
+        - ouput_signal_names_of_subsystem - ....
+
+        - calculate_outputs   - generate a call to the output computation API function of the subsystem
+        - update_states       - generate a call to the state update API function of the subsystem
+    """
+
+
+    lines = '{ // subsystem ' + subsystem_prototype.embedded_subsystem.name + '\n'
+
+    innerLines = ''
+
+    #
+    # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+    #
+
+    if reset_states:
+        innerLines += subsystem_prototype.generate_code_reset(language)
+
+
+    # generate code for calculating the outputs 
+    if calculate_outputs:
+
+        innerLines += subsystem_prototype.generate_code_output_list(language, subsystem_prototype.outputs)
+
+        if len(ouput_signal_names_of_subsystem) != len(ouput_signals_name):
+            raise BaseException('len(ouput_signal_names_of_subsystem) != len(ouput_signals_name)')
+
+
+
+
+        #
+        # REWORK: read out the outputs.* structure
+        #
+
+
+
+        for i in range( 0, len( ouput_signals_name ) ):  # NOTE: this might mix the output signals!
+            innerLines += cgh.asign( ouput_signal_names_of_subsystem[i], ouput_signals_name[i] )
+
+    # generate code for updating the states
+    if update_states:
+        innerLines += subsystem_prototype.generate_code_update(language)
+
+
+    lines += cgh.indent(innerLines)
+    lines += '}\n'
+
+    return lines
+
+
 
 
 
@@ -678,13 +783,6 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
 
 
-
-
-
-
-
-
-
             # output signal mapping lookup
             ouput_signals_of_subsystem = self.outputs_map_from_embedding_block_to_subsystem.map( signals )
 
@@ -698,21 +796,13 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
 
 
-            code_compute_output = cgh.embed_subsystem2(
-                        language, 
-                        system_prototype=self._subsystem_prototype, 
-                        ouput_signals_name=ouput_signals_names, 
-                        ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
-                        calculate_outputs = True, update_states = False 
-                    )
-
-            # update_states = cgh.embed_subsystem2(language, 
-            #             system_prototype=self._subsystem_prototype, 
-            #             calculate_outputs = False, update_states = True )
-
-
-
-
+            code_compute_output = embed_subsystem2(
+                language, 
+                subsystem_prototype=self._subsystem_prototype, 
+                ouput_signals_name=ouput_signals_names, 
+                ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
+                calculate_outputs = True, update_states = False 
+            )
 
 
 
@@ -747,7 +837,14 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            code_compute_state_update = self._subsystem_prototype.generate_code_update(language)
+            # code_compute_state_update = self._subsystem_prototype.generate_code_update(language)
+
+            code_compute_state_update = embed_subsystem2(
+                language, 
+                subsystem_prototype=self._subsystem_prototype, 
+                calculate_outputs = False, update_states = True
+            )
+
 
             # the subsystems update is on only performed when triggered
             lines += cgh.generate_if_else(language, 
@@ -838,15 +935,19 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 control_output_index += 1
 
 
-            calc_outputs = cgh.embed_subsystem2(language, 
-                        system_prototype=self._subsystem_prototype, 
-                        ouput_signals_name=ouput_signals_names, 
-                        ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
-                        calculate_outputs = True, update_states = False )
+            calc_outputs = embed_subsystem2(
+                language, 
+                subsystem_prototype=self._subsystem_prototype, 
+                ouput_signals_name=ouput_signals_names, 
+                ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
+                calculate_outputs = True, update_states = False
+            )
 
-            update_states = cgh.embed_subsystem2(language, 
-                        system_prototype=self._subsystem_prototype, 
-                        calculate_outputs = False, update_states = True )
+            update_states = embed_subsystem2(
+                language, 
+                subsystem_prototype=self._subsystem_prototype, 
+                calculate_outputs = False, update_states = True
+            )
 
             code = ''
             code +=  calc_outputs 
@@ -856,7 +957,23 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 code += cgh.generate_loop_break(language, condition=self._yield_signal.name)
 
             if self._until_signal is not None:
-                code_reset_subsystem = self._subsystem_prototype.generate_code_reset(language)
+
+
+
+                code_reset_subsystem = embed_subsystem2(
+                    language, 
+                    subsystem_prototype=self._subsystem_prototype, 
+                    calculate_outputs = False, update_states = False,
+                    reset_states = True
+                )
+
+
+                # code_reset_subsystem = self._subsystem_prototype.generate_code_reset(language)
+
+
+
+
+
                 code += cgh.generate_loop_break(language, condition=self._until_signal.name, code_before_break=code_reset_subsystem)
 
             lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code  )
