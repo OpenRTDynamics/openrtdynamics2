@@ -429,7 +429,114 @@ class OutputMapEmbeddingBlockToSubsystem():
 
 
 
+
+
+
+
+
+
 # helper fn for classes that are derived from SingleSubsystemEmbedder and XX
+def embed_subsystem3(language, subsystem_prototype, assign_to_signals=None, ouput_signal_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
+    """  
+        generate code to call a subsystem
+
+        - subsystem_prototype - the block prototype including the subsystem - type: : dy.GenericSubsystem
+        - assign_to_signals   - list of signals to which the output signals of the subsystem are assigned to
+        
+        - ouput_signal_of_subsystem - the output signals of the embedded subsystem
+
+        - calculate_outputs   - generate a call to the output computation API function of the subsystem
+        - update_states       - generate a call to the state update API function of the subsystem
+    """
+
+
+    lines = '{ // subsystem ' + subsystem_prototype.embedded_subsystem.name + '\n'
+
+    innerLines = ''
+
+    #
+    # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
+    #
+
+    if reset_states:
+        innerLines += subsystem_prototype.generate_code_reset(language)
+
+
+    # generate code for calculating the outputs 
+    if calculate_outputs:
+
+        # extract the signals names
+        assign_to_signals_names = cgh.signal_list_to_name_list(assign_to_signals)
+        ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signal_of_subsystem)
+
+
+        innerLines += subsystem_prototype.generate_code_output_list(language, subsystem_prototype.outputs)
+
+        if len(ouput_signal_names_of_subsystem) != len(assign_to_signals_names):
+            raise BaseException('len(ouput_signal_names_of_subsystem) != len(ouput_signals_name)')
+
+
+
+
+        #
+        # REWORK: read out the outputs.* structure
+        #
+
+
+
+        for i in range( 0, len( assign_to_signals_names ) ):
+            innerLines += cgh.asign( ouput_signal_names_of_subsystem[i], assign_to_signals_names[i] )
+
+    # generate code for updating the states
+    if update_states:
+        innerLines += subsystem_prototype.generate_code_update(language)
+
+
+    lines += cgh.indent(innerLines)
+    lines += '}\n'
+
+    return lines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# REMOVE
 def embed_subsystem2(language, subsystem_prototype, ouput_signals_name=None, ouput_signal_names_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
     """  
         generate code to call a subsystem
@@ -464,14 +571,9 @@ def embed_subsystem2(language, subsystem_prototype, ouput_signals_name=None, oup
         if len(ouput_signal_names_of_subsystem) != len(ouput_signals_name):
             raise BaseException('len(ouput_signal_names_of_subsystem) != len(ouput_signals_name)')
 
-
-
-
         #
         # REWORK: read out the outputs.* structure
         #
-
-
 
         for i in range( 0, len( ouput_signals_name ) ):  # NOTE: this might mix the output signals!
             innerLines += cgh.asign( ouput_signal_names_of_subsystem[i], ouput_signals_name[i] )
@@ -485,4 +587,6 @@ def embed_subsystem2(language, subsystem_prototype, ouput_signals_name=None, oup
     lines += '}\n'
 
     return lines
+
+
 

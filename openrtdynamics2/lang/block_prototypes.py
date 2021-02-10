@@ -91,7 +91,6 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
     """
 
-
     def __init__(self, sim : System, control_input : Signal, subsystem_prototype : GenericSubsystem,  prevent_output_computation = False ):
         
         self._control_input = control_input
@@ -103,52 +102,19 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
                                         number_of_control_outputs=0 )
 
 
-
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
             
-            # code_compute_output = self._subsystem_prototype.generate_code_output_list(language, self._subsystem_prototype.outputs)
-
-
-
-
-
-
-
-            # output signal mapping lookup
-            ouput_signals_of_subsystem = self.outputs_map_from_embedding_block_to_subsystem.map( signals )
-
-            ouput_signals_names = cgh.signal_list_to_name_list(signals)
-            ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signals_of_subsystem)
-
-
-
-
-
-
-
-
-            code_compute_output = embed_subsystem2(
+            # generate code to call subsystem output(s)
+            code_compute_output = embed_subsystem3(
                 language, 
                 subsystem_prototype=self._subsystem_prototype, 
-                ouput_signals_name=ouput_signals_names, 
-                ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
+                assign_to_signals=signals, 
+                ouput_signal_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
                 calculate_outputs = True, update_states = False 
             )
-
-
-
-
-
-
-            # code_compute_output = cgh.embed_subsystem(
-            #     language, 
-            #     system_prototype=self._subsystem_prototype, 
-            #     ouput_signals_name=cgh.signal_list_to_name_list(signals), 
-            #     calculate_outputs = True, update_states = False )
-
 
             if self.prevent_output_computation:
 
@@ -171,16 +137,14 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            # code_compute_state_update = self._subsystem_prototype.generate_code_update(language)
-
-            code_compute_state_update = embed_subsystem2(
+            # generate code to compute the state update of the subsystem
+            code_compute_state_update = embed_subsystem3(
                 language, 
                 subsystem_prototype=self._subsystem_prototype, 
                 calculate_outputs = False, update_states = True
             )
 
-
-            # the subsystems update is on only performed when triggered
+            # the subsystems update is only performed when triggered
             lines += cgh.generate_if_else(language, 
                 condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input.name, 1 ) ], 
                 action_list=[ code_compute_state_update ])
