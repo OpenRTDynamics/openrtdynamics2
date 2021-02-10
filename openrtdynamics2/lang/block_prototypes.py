@@ -112,7 +112,7 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
                 language, 
                 subsystem_prototype=self._subsystem_prototype, 
                 assign_to_signals=signals, 
-                ouput_signal_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
+                ouput_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
                 calculate_outputs = True, update_states = False 
             )
 
@@ -122,8 +122,6 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
                 lines += cgh.generate_if_else(language, 
                     condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input, 1 ) ], 
                     action_list=[ code_compute_output ])
-
-                # TODO: copy output signals and only the ones requested
 
             else:
                 # the subsystems outputs are always computed
@@ -184,24 +182,16 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                                         number_of_control_outputs=number_of_control_outputs )
 
 
-    # def config_request_define_state_update_input_dependencies(self, outputSignal):
- 
-    #     return [self._until_signal]
-
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
 
-            # output signal mapping lookup
-            # ouput_signals_of_subsystem = self.helper_get_output_signal_mapping_to_subsystem(signals_to_calculate=signals)
-            ouput_signals_of_subsystem = self.outputs_map_from_embedding_block_to_subsystem.map( signals )
+            assign_to_signals = []
+            ouput_signals_of_subsystem = []
 
-            ouput_signals_names = cgh.signal_list_to_name_list(signals)
-            ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signals_of_subsystem)
-            
-
-            loop_break_condition = []
+            assign_to_signals.extend(signals)
+            ouput_signals_of_subsystem.extend(self.outputs_map_from_embedding_block_to_subsystem.map( signals )) # output signal mapping lookup
 
             control_output_index = 0
 
@@ -210,12 +200,9 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 lines += cgh.defineVariables( [self._until_signal] )
 
                 # add list of signals to assign
-                ouput_signals_names.append( self._until_signal.name )
-                ouput_signal_names_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index].name )
+                assign_to_signals.append( self._until_signal )
+                ouput_signals_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index] )
             
-                # add break condition
-                loop_break_condition.append( self._until_signal.name )
-
                 control_output_index += 1
 
 
@@ -224,24 +211,24 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 lines += cgh.defineVariables( [self._yield_signal] )
 
                 # add list of signals to assign
-                ouput_signals_names.append( self._yield_signal.name )
-                ouput_signal_names_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index].name )
-
-                # add break condition
-                loop_break_condition.append( self._yield_signal.name )
+                assign_to_signals.append( self._yield_signal )
+                ouput_signals_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index] )
 
                 control_output_index += 1
 
 
-            calc_outputs = embed_subsystem2(
+
+            calc_outputs = embed_subsystem3(
                 language, 
                 subsystem_prototype=self._subsystem_prototype, 
-                ouput_signals_name=ouput_signals_names, 
-                ouput_signal_names_of_subsystem=ouput_signal_names_of_subsystem,
+                assign_to_signals=assign_to_signals, 
+                ouput_signals_of_subsystem=ouput_signals_of_subsystem,
                 calculate_outputs = True, update_states = False
             )
 
-            update_states = embed_subsystem2(
+            
+
+            update_states = embed_subsystem3(
                 language, 
                 subsystem_prototype=self._subsystem_prototype, 
                 calculate_outputs = False, update_states = True
@@ -256,21 +243,12 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
             if self._until_signal is not None:
 
-
-
-                code_reset_subsystem = embed_subsystem2(
+                code_reset_subsystem = embed_subsystem3(
                     language, 
                     subsystem_prototype=self._subsystem_prototype, 
                     calculate_outputs = False, update_states = False,
                     reset_states = True
                 )
-
-
-                # code_reset_subsystem = self._subsystem_prototype.generate_code_reset(language)
-
-
-
-
 
                 code += cgh.generate_loop_break(language, condition=self._until_signal.name, code_before_break=code_reset_subsystem)
 

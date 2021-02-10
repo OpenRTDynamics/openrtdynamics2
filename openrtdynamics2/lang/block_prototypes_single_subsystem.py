@@ -205,7 +205,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         if language == 'c++':
 
 
-            lines = '// reset state of subsystem embeded by ' + self.name + '\n'
+            lines = '// reset state of subsystem embedded by ' + self.name + '\n'
             lines += self._subsystem_prototype.generate_code_reset(language)
 
             return lines

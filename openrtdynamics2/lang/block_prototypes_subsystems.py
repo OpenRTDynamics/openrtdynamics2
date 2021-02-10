@@ -436,7 +436,7 @@ class OutputMapEmbeddingBlockToSubsystem():
 
 
 # helper fn for classes that are derived from SingleSubsystemEmbedder and XX
-def embed_subsystem3(language, subsystem_prototype, assign_to_signals=None, ouput_signal_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
+def embed_subsystem3(language, subsystem_prototype, assign_to_signals=None, ouput_signals_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
     """  
         generate code to call a subsystem
 
@@ -467,7 +467,7 @@ def embed_subsystem3(language, subsystem_prototype, assign_to_signals=None, oupu
 
         # extract the signals names
         assign_to_signals_names = cgh.signal_list_to_name_list(assign_to_signals)
-        ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signal_of_subsystem)
+        ouput_signal_names_of_subsystem = cgh.signal_list_to_name_list(ouput_signals_of_subsystem)
 
 
         innerLines += subsystem_prototype.generate_code_output_list(language, subsystem_prototype.outputs)
