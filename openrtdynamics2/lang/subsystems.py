@@ -250,7 +250,7 @@ class sub_loop:
 
         # create the embeeder prototype
         embeddedingBlockPrototype = bp.LoopUntilSubsystem( sim=dy.get_system_context(), 
-                max_iteriations=self._max_iterations, 
+                max_iterations=self._max_iterations, 
                 subsystem_prototype=self._subsystem_block_prototype,
                 until_signal=self._until_signal,
                 yield_signal=self._yield_signal)

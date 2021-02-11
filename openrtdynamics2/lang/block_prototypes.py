@@ -120,8 +120,10 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
                 # the subsystems outputs are only computed when triggered
                 lines += cgh.generate_if_else(language, 
-                    condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input, 1 ) ], 
+                    condition_list=[ cgh.generate_compare_equality_to_constant( language, self._control_input.name, 1 ) ], 
                     action_list=[ code_compute_output ])
+
+                # TODO: Design choice: assign NAN to the output values for self._control_input.name == 0 ?
 
             else:
                 # the subsystems outputs are always computed
@@ -160,11 +162,11 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : System, max_iteriations : int, 
+    def __init__(self, sim : System, max_iterations : int, 
                     subsystem_prototype : GenericSubsystem, 
                     until_signal : Signal = None, yield_signal : Signal = None ):
         
-        self.max_iter = max_iteriations
+        self.max_iter = max_iterations
         self._until_signal = until_signal
         self._yield_signal = yield_signal
 

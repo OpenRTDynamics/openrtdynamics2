@@ -113,8 +113,8 @@ def generate_signal_PWM( period, modulator ):
 
 
 # testname = 'signal_periodic_impulse' # 
-testname = 'rate_limit' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
-
+testname = 'inline_ifsubsystem_oscillator' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
+testname = 'loop_until'
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
