@@ -44,7 +44,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
                         |                                                  |
                         +--------------------------------------------------+
 
-        Picture drawn by http://asciiflow.com/
+        Figure drawn with http://asciiflow.com/
 
 
 
@@ -98,7 +98,10 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
 
         # inherit output datatypes of this block from the embedded subsystem
-        setup_output_datatype_inheritance( normal_outputs_of_embedding_block=self.normal_outouts, subsystem_prototype=self._subsystem_prototype )
+        setup_output_datatype_inheritance( 
+            normal_outputs_of_embedding_block=self.normal_outouts, 
+            subsystem_prototype=self._subsystem_prototype 
+        )
 
         self.outputs_map_from_embedding_block_to_subsystem = OutputMapEmbeddingBlockToSubsystem( 
             normal_outputs_of_embedding_block=self.normal_outouts, 

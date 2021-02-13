@@ -325,7 +325,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
             # the method self.generate_switch is provided by MultiSubsystemEmbedder 
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=self._control_input.name,
-                                            switch_ouput_signals_name= cgh.signal_list_to_name_list(signals),
+                                            switch_ouput_signals= cgh.signal_list_to_name_list(signals),
                                              calculate_outputs = True, update_states = False )
 
         return lines
@@ -396,20 +396,10 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            # do not compute all swich outputs, just the ones requested by 'signals' 
-            outputs_to_compute = []
-            for s in signals:
-                if s in self.subsystem_switch_outouts:
-                    outputs_to_compute.append( s )
-
-
-            # lines += cgh.defineVariables( signals ) + '\n'
             lines += self.generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals_name=cgh.signal_list_to_name_list(outputs_to_compute),
-                                            additional_outputs_names=[self.state_output.name] )
-
-            # lines += self.state_output.name + ' = ' + self._state_memory_delayed + ';\n'
+                                            switch_ouput_signals=signals,
+                                            additional_outputs=[self.state_output] )
 
         return lines
 
@@ -443,13 +433,13 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
+
             lines += self.generate_switch( language=language, 
                                                     switch_control_signal_name=self._state_memory,
                                                     calculate_outputs=False, 
                                                     update_states=True )
 
-
-            # get the signal issued by the currently active subsystem that describes state chanhe requests
+            # get the signal issued by the currently active subsystem that describes the requests for a stare transition
             state_control_signal_from_subsystems = self.state_output
 
             # reset current subsystem in case a state transition is requested

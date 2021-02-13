@@ -358,18 +358,24 @@ class OutputMapEmbeddingBlockToSubsystem():
 
     def __init__(self, normal_outputs_of_embedding_block, subsystem_prototype):
 
-        self._output_signal_mapping = self.create_output_mapping_table(normal_outputs_of_embedding_block, subsystem_prototype )
+        self._output_signal_mapping, self._output_signal_index_mapping = self.create_output_mapping_table(normal_outputs_of_embedding_block, subsystem_prototype )
 
 
     def create_output_mapping_table(self, normal_outputs_of_embedding_block, subsystem_prototype ):
         # output signal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
         output_signal_mapping = {}
 
+        # map output signal of embedding block to output index of the embedded block
+        output_signal_index_mapping = {}
+
         for i in range(0, len(normal_outputs_of_embedding_block) ):
             # fill in mapping table
             output_signal_mapping[ normal_outputs_of_embedding_block[i] ] = subsystem_prototype.outputs[i]
+            output_signal_index_mapping[ normal_outputs_of_embedding_block[i] ] = i
 
-        return output_signal_mapping
+
+
+        return output_signal_mapping, output_signal_index_mapping
 
 
     def map(self, output_signals_of_embedding_block):
@@ -391,7 +397,19 @@ class OutputMapEmbeddingBlockToSubsystem():
     
 
 
+    def map_to_output_index(self, output_signals_of_embedding_block):
+        """
+            return a mapping to indices of the block outputs:
 
+            e.g. [sig0, sig1, sig2, sig4] --> [0, 1, 2, 4]
+        """
+
+        mapped_subsystem_output_signals = []
+        for s in output_signals_of_embedding_block:
+            mapped_subsystem_output_signals.append( self._output_signal_index_mapping[s] )
+
+        return mapped_subsystem_output_signals
+    
 
 
 
