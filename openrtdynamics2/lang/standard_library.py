@@ -460,7 +460,7 @@ def signal_periodic_impulse(period, phase):
         phase  - singal or constant describing the phase in samples at which the pulses are generated
     """
 
-    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
+    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(2), reset_on_limit=True )
     pulse_signal = dy.int32(phase) == k
 
     return pulse_signal
