@@ -518,13 +518,13 @@ class sub_switch(SwitchPrototype):
     def on_exit(self, subsystem_prototypes):
 
         # create the  embeeder prototype
-        embeddedingBlockPrototype = bp.SwichSubsystems( sim=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.SwitchSubsystems( sim=dy.get_system_context(), 
                 control_input=self._select_signal.unwrap, 
                 subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         # connect the normal outputs via links
-        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.switched_normal_outputs )
 
         # connect the additional (control) outputs
         # -- None --
@@ -606,12 +606,12 @@ class sub_statemachine(SwitchPrototype):
     def on_exit(self, subsystem_prototypes):
 
         # create the embeeder prototype
-        embeddedingBlockPrototype = bp.StatemachineSwichSubsystems( sim=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( sim=dy.get_system_context(), 
                 subsystem_prototypes=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         # connect the normal outputs via links
-        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.switched_normal_outputs )
 
         # connect the additional (control) outputs
         self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )

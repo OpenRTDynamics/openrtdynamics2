@@ -36,7 +36,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
                         |            |          |             | output(s)  |
                         |            |          +-------------+     |      |
                         |            |                              |      |-->
-                        |     +------+------+                       |      | self.additional_outputs (unused/future)
+                        |     +------+------+                       |      | self.control_outputs (unused/future)
         control input(s)|     |  execution  |                       |      |
                      +------->+  control for+<----------------------+      |
                         |     |  subsystem  |                              |
@@ -86,14 +86,9 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         # control inputs that are used to control how the subsystems are handled
         self._control_inputs = control_inputs 
 
-
         # a list of all inputs including self._list_of_all_subsystem_inputs and self._control_inputs
         # will be filled in on compile_callback_all_subsystems_compiled()
         self._list_of_all_inputs = None
-
-
-
-
 
 
 
@@ -109,40 +104,6 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         )
 
 
-        # if False:
-        #     # output sigal mapping: map each output of SingleSubsystemEmbedder to an output of the subsystem
-        #     self._output_signal_mapping = {} # (TODO: extend/add to MultiSubsystemEmbedder)
-
-        #     # inherit output datatypes of this block from the embedded subsystem
-        #     for i in range(0, self._number_of_normal_outputs ):
-
-        #         # fill in mapping table
-        #         self._output_signal_mapping[ self.outputs[i] ] = self._subsystem_prototype.outputs[i]
-
-
-
-
-        #         output_signal_of_embedding_block = self.outputs[i]
-        #         output_signal_of_subsystem = self._subsystem_prototype.outputs[i] # reference_outputs[i]
-        #         output_signal_of_embedding_block.inherit_datatype_from_signal( output_signal_of_subsystem )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            #output_signal_of_embedding_block.set_data_link( output_signal_of_subsystem )
-
         # build a list of control signals (TODO: add to MultiSubsystemEmbedder)
         self._control_signals_from_embeded_system = []
         
@@ -153,7 +114,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
     # unused / reserved for future use
     @property
-    def additional_outputs(self):
+    def control_outputs(self):
         return self.outputs[ self._number_of_normal_outputs: ]
 
     @property

@@ -10,7 +10,40 @@ from .block_prototypes_subsystems import *
 class MultiSubsystemEmbedder(bi.BlockPrototype):
     """
         Prototype for a block that includes multiple sub-systems whose outputs are joint in a switching manner
-          (this is class to be derived, e.g. by StatemachineSwichSubsystems, SwichSubsystems)
+          (this is class to be derived, e.g. by StatemachineSwitchSubsystems, SwitchSubsystems)
+
+                    +----------------------------------------------------------------------------------------------------+
+                    | normal inputs (determinded on compile_callback_all_subsystems_compiled)                            |
+                    |                                   +----------+                                                     |
+        self._list_of_all_subsystem_inputs              |          | normal outputs                                      |
+              +---------------------------------+-------> subsys 1 +--------------+                                      |
+                    |                           |       |          |              |                                      |
+                    |                           |       |          | control      |                                      |
+                    |                           |       |          | outputs      |         switch                       |
+                    |                           |       |          +-----------+  |       +--------+                     |
+                    |                           |       |          |           |  +------>+ o      | switched            |
+                    |                           |       +----------+           |          |        | normal outputs      | self.switched_normal_outputs
+                    |                           |                              +--------->+ o    o +------------------------->
+                    |                           |                                         |     /  |                     |
+                    |                           |       +----------+ normal               |   /    | switched            |
+                    |                           |       |          | outputs   +--------->+ o      | control outputs     | self.control_outputs
+                    |                           +-------> subsys 2 +-----------+          |      o +------+------------------>
+                    |                                   |          |                      |    /   |      |              |
+                    |                                   |          | control    +-------->+ o      |      |              |
+                    |                                   |          | outputs    |         +---+----+      |              |
+                    |                                   |          +------------+             ^           |              |
+                    |                                   |          |                          |           |              |
+                    |                                   +----------+                          |           |              |
+                    |                                         o                               |           |              |
+                    | control     +-----------+               o             switch position   |           |              |
+                    | inputs      |           +-----------------------------------------------+           |              |
+              +------------------>+ execution |                                                           |              |
+             self._control_inputs | control   |                                                           |              |
+                    |             |           +<----------------------------------------------------------+              |
+                    |             +-----------+                                                                          |
+                    |                                                                                                    |
+                    +----------------------------------------------------------------------------------------------------+
+
 
         - control_inputs                        - inputs used to control the switching strategy
         - subsystem_prototypes                  - a list of the prototypes of all subsystems (of type GenericSubsystem)
@@ -51,8 +84,6 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         # now call the constructor for block prototypes and make input and output signals available
         bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
 
-
-
         # control inputs that are used to control how the subsystems are handled
         self._control_inputs = control_inputs 
 
@@ -64,12 +95,9 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         self._list_of_all_inputs = None
 
 
-
-
-
         # inherit output datatypes of this block from the embedded subsystem
         setup_output_datatype_inheritance( 
-            normal_outputs_of_embedding_block=self.subsystem_switch_outouts, 
+            normal_outputs_of_embedding_block=self.switched_normal_outputs, 
             subsystem_prototype=reference_subsystem_prototype
         )
 
@@ -82,11 +110,11 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
 
     @property
-    def additional_outputs(self):
+    def control_outputs(self):
         return self.outputs[ self._number_of_switched_outputs: ]
 
     @property # rename to normal_outputs
-    def subsystem_switch_outouts(self):
+    def switched_normal_outputs(self):
         return self.outputs[ 0:self._number_of_switched_outputs ]
 
 
@@ -116,7 +144,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
     def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
-        # NOTE: This is a simplified veriant so far..
+        # NOTE: This is a simplified so far..
         #       Every output depends on every signal
 
         return self._list_of_all_inputs
@@ -124,7 +152,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
     def config_request_define_state_update_input_dependencies(self, outputSignal):
  
-        # NOTE: This is a simplified veriant so far..
+        # NOTE: This is a simplified so far..
         #       The update depends on every signal
 
         return self._list_of_all_inputs
@@ -132,7 +160,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
 
     # for code_gen
-    def generate_switch( self, language, switch_control_signal_name, switch_ouput_signals=None, calculate_outputs = True, update_states = False, additional_outputs=None ):
+    def codegen_help_generate_switch( self, language, switch_control_signal_name, switch_ouput_signals=None, calculate_outputs = True, update_states = False, additional_outputs=None ):
         """
             code generation helper to embed multiple subsystems and a switch for the outputs
         """

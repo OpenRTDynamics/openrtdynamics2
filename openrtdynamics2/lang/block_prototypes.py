@@ -293,10 +293,10 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
 
 
-class SwichSubsystems(MultiSubsystemEmbedder):
+class SwitchSubsystems(MultiSubsystemEmbedder):
     """
         A system that includes multiple subsystems and a control input to switch in-between
-        The outputs of the currently acrive subsystem are forwarded.
+        The outputs of the currently active subsystem are forwarded.
     """
 
     def __init__(self, sim : System, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
@@ -323,7 +323,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
         if language == 'c++':
             
             # the method self.generate_switch is provided by MultiSubsystemEmbedder 
-            lines += self.generate_switch( language=language, 
+            lines += self.codegen_help_generate_switch( language=language, 
                                             switch_control_signal_name=self._control_input.name,
                                             switch_ouput_signals= cgh.signal_list_to_name_list(signals),
                                              calculate_outputs = True, update_states = False )
@@ -334,7 +334,7 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
-            lines += self.generate_switch( language=language, 
+            lines += self.codegen_help_generate_switch( language=language, 
                                                     switch_control_signal_name=self._control_input.name,
                                                      calculate_outputs = False, update_states = True )
 
@@ -346,9 +346,13 @@ class SwichSubsystems(MultiSubsystemEmbedder):
 
 
 
-class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
+class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
     """
+        Implement a state machine in which the states are represented by subsystems.
+        State transitions are performed in case a special control output of the currently
+        active subsystem indicates a transition to the next state.
 
+        self.state_output  - 
     """
 
     def __init__(self, sim : System, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
@@ -369,7 +373,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
 
     @property
     def state_output(self):
-        return self.additional_outputs[0]
+        return self.control_outputs[0]
 
 
     def generate_code_reset(self, language):
@@ -396,7 +400,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            lines += self.generate_switch( language=language, 
+            lines += self.codegen_help_generate_switch( language=language, 
                                             switch_control_signal_name=  self._state_memory ,
                                             switch_ouput_signals=signals,
                                             additional_outputs=[self.state_output] )
@@ -434,7 +438,7 @@ class StatemachineSwichSubsystems(MultiSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            lines += self.generate_switch( language=language, 
+            lines += self.codegen_help_generate_switch( language=language, 
                                                     switch_control_signal_name=self._state_memory,
                                                     calculate_outputs=False, 
                                                     update_states=True )
