@@ -295,7 +295,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
 class SwitchSubsystems(MultiSubsystemEmbedder):
     """
-        A system that includes multiple subsystems and a control input to switch in-between
+        A system that embeds multiple subsystems and a control input to switch in-between.
         The outputs of the currently active subsystem are forwarded.
     """
 
@@ -309,24 +309,23 @@ class SwitchSubsystems(MultiSubsystemEmbedder):
                                         switch_reference_outputs=reference_outputs,
                                         number_of_control_outputs=0 )
 
-
     def generate_code_defStates(self, language):
         lines = MultiSubsystemEmbedder.generate_code_defStates(self, language)
-        lines += '' # add something
         
         return lines
-
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
         if language == 'c++':
             
-            # the method self.generate_switch is provided by MultiSubsystemEmbedder 
-            lines += self.codegen_help_generate_switch( language=language, 
-                                            switch_control_signal_name=self._control_input.name,
-                                            switch_ouput_signals= cgh.signal_list_to_name_list(signals),
-                                             calculate_outputs = True, update_states = False )
+            lines += self.codegen_help_generate_switch( 
+                language=language,
+                switch_control_signal_name=self._control_input.name,
+                switch_ouput_signals=signals,
+                additional_outputs=[],
+                calculate_outputs = True, update_states = False
+            )
 
         return lines
 
@@ -334,9 +333,13 @@ class SwitchSubsystems(MultiSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
-            lines += self.codegen_help_generate_switch( language=language, 
-                                                    switch_control_signal_name=self._control_input.name,
-                                                     calculate_outputs = False, update_states = True )
+
+            lines += self.codegen_help_generate_switch(
+                language=language, 
+                switch_control_signal_name=self._control_input.name,
+                calculate_outputs=False, 
+                update_states=True
+            )
 
         return lines
 
@@ -438,10 +441,12 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            lines += self.codegen_help_generate_switch( language=language, 
-                                                    switch_control_signal_name=self._state_memory,
-                                                    calculate_outputs=False, 
-                                                    update_states=True )
+            lines += self.codegen_help_generate_switch(
+                language=language, 
+                switch_control_signal_name=self._state_memory,
+                calculate_outputs=False, 
+                update_states=True
+            )
 
             # get the signal issued by the currently active subsystem that describes the requests for a stare transition
             state_control_signal_from_subsystems = self.state_output

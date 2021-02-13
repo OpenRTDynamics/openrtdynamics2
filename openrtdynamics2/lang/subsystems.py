@@ -155,9 +155,6 @@ class sub_if:
                 prevent_output_computation = self._prevent_output_computation)
 
 
-                # subsystem_prototypes=subsystem_prototypes, 
-                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
-
         # connect the normal outputs via links
         self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
 
