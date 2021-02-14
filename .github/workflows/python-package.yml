@@ -39,5 +39,7 @@ jobs:
         
         
     - name: Test with pytest
-      run: |
-        pytest
+      run: | # use nbval to run the notebooks that contain tests
+        py.test --nbval-lax
+
+

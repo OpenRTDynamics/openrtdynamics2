@@ -5,3 +5,4 @@ prettytable
 cppyy
 pygments
 pytest-notebook
+nbval
