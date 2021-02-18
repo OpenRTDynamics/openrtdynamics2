@@ -48,6 +48,7 @@ Given $u[k] = 1.0$, for $k>=0$, the output sequence for $y$ is then $\{ 2, 3, 4,
 
 By combination of these elements (and potentially others), more sophisticated signal processing algorithms (filters, controllers, ...) can be implemented.
 
+See also this [notebook](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/minimal_demo.ipynb) that contains a running example.
 
 ## Code Examples
 
