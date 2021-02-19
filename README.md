@@ -50,7 +50,11 @@ By combination of these elements (and potentially others), more sophisticated si
 
 See also this [notebook](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/minimal_demo.ipynb) that contains a running example.
 
-## Code Examples
+## Generated code
+
+The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost anything that understands traditional c++ (c++11 features are required), for example, microcontrollers, nodes in the Robot Operating System (ROS), or any other codebase ...
+
+## Example Models
 
 A good starting point is given in [Simulation of controlled ODEs](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/pandemic_control.ipynb). Herein, some basic concepts are explained in an intuitive example.
 
