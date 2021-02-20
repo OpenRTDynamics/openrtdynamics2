@@ -42,9 +42,9 @@ A simple model is given by
     x = z + u                               # x[k] = z[k] + u[k]
     z << dy.delay(x, initial_state = 2.0)   # z[k+1] = x[k], z[0] = 2.0
 
-Herein, a signal variable $z$ is introduced that is combined with the system input $u$. The resulting intermediate variable $x$ is then delayed and assigned to $z$ closing the feedback loop. The delay has an initial value $z[0] = 2.0$.
+Herein, a signal variable $z$ is introduced that is combined with the system input u. The resulting intermediate variable x is then delayed and assigned to z closing the feedback loop. The delay has an initial value z[0] = 2.0.
 
-Given $u[k] = 1.0$, for $k>=0$, the output sequence for $y$ is then $\{ 2, 3, 4, 5, ...  \}$.
+Given u[k] = 1.0, for k>=0, the output sequence for y is then { 2, 3, 4, 5, ...  }.
 
 By combination of these elements (and potentially others), more sophisticated signal processing algorithms (filters, controllers, ...) can be implemented.
 
@@ -52,7 +52,7 @@ See also this [notebook](https://github.com/OpenRTDynamics/openrtdynamics2/blob/
 
 ## Generated code
 
-The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost anything that understands traditional c++ (c++11 features are required), for example, microcontrollers, nodes in the Robot Operating System (ROS), or any other codebase ...
+The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost any target that understands traditional c++, for example, microcontrollers, nodes in the Robot Operating System (ROS) or any codebase written in c++.
 
 ## Example Models
 

@@ -21,10 +21,24 @@ def gain(u : SignalUserTemplate, gain : float ):
     return wrap_signal( Gain(dy.get_system_context(), u.unwrap, gain).outputs[0] )
 
 def convert(u : SignalUserTemplate, target_type : dt.DataType ):
+    """
+    Datatype conversion
+
+    The input is converted to the given datatype
+
+    u           - the input signal
+    target_type - the datatype
+    """
     return wrap_signal( ConvertDatatype(dy.get_system_context(), u.unwrap, target_type).outputs[0] )
 
-def add(inputSignals : List[SignalUserTemplate], factors : List[float]):
-    return wrap_signal( Add(dy.get_system_context(), unwrap_list( inputSignals ), factors).outputs[0] )
+def add(input_signals : List[SignalUserTemplate], factors : List[float]):
+    """
+    Linear combination of the list of input signals with the list of factors
+
+    the output is given by
+        input_signals[0] * factors[0] + input_signals[1] * factors[1] + ...
+    """
+    return wrap_signal( Add(dy.get_system_context(), unwrap_list( input_signals ), factors).outputs[0] )
 
 def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
     return wrap_signal( Operator1(dy.get_system_context(), unwrap_list( inputSignals ), operator).outputs[0] )
@@ -116,6 +130,15 @@ def switchNto1( state : SignalUserTemplate, inputs : SignalUserTemplate ):
     return wrap_signal( SwitchNto1(dy.get_system_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
 
 def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
+    """
+    Overwrite the input signal by a given value in case a condition is true
+
+    The output is given by
+
+        signal     for condition==false
+        new_value  for condition==true
+
+    """
 
     if isinstance(new_value, SignalUserTemplate):
         new_value = new_value.unwrap
@@ -123,6 +146,9 @@ def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTem
     return wrap_signal( ConditionalOverwrite(dy.get_system_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
 
 def sqrt(u : SignalUserTemplate ):
+    """
+    Square root
+    """
     return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'sqrt').outputs[0] )
 
 def sin(u : SignalUserTemplate ):
@@ -144,6 +170,11 @@ def acos(u : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'acos').outputs[0] )
 
 def abs(u : SignalUserTemplate ):
+    """
+    Absolute value
+
+    |u|
+    """
     return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'abs').outputs[0] )
 
 
@@ -155,6 +186,11 @@ def logic_not(u : SignalUserTemplate ):
     return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, '!').outputs[0] )
 
 def bitwise_not(u : SignalUserTemplate ):
+    """
+    Bitwise not operator
+
+    '~'
+    """
     return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, '~').outputs[0] )
 
 
@@ -173,6 +209,35 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
     return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
 
 def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : List [str], input_types, output_types, output_names, cpp_source_code : str ):
+    """
+    Embed C/C++ source code (stateless code only)
+
+    Example:
+
+        source_code = \"\"\"
+
+            // c++ code
+
+            output1 = value;
+            if (someinput > value) {
+                output2 = value;
+            } else {
+                output2 = someinput;
+            }
+            output3 = 0.0;
+
+        \"\"\"
+
+        outputs = dy.generic_cpp_static(input_signals=[ someinput, value ], input_names=[ 'someinput', 'value' ], 
+                            input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+                            output_names=['output1', 'output2', 'output3'],
+                            output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+                            cpp_source_code = source_code )
+
+        output1 = outputs[0]
+        output2 = outputs[1]
+        output3 = outputs[2]
+    """
     return wrap_signal_list( GenericCppStatic(dy.get_system_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
 
 def delay__(u : SignalUserTemplate, initial_state = None):
@@ -181,7 +246,10 @@ def delay__(u : SignalUserTemplate, initial_state = None):
 
 def flipflop(activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False):
     """
-        TODO..
+    Flipflop logic element
+
+    The block has a state that can be activated or deactivated by the external boolean events 'activate_trigger'
+    and 'disable_trigger', respectively.
     """
     
     return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, nodelay=nodelay ).outputs[0] )
