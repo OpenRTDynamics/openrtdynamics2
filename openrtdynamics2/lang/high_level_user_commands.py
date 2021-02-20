@@ -4,7 +4,7 @@ from .code_generation_templates import PutRuntimeCppHelper
 from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
 
 import os
-from pathlib import Path
+import pathlib as pl
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
@@ -117,7 +117,7 @@ def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
     if folder is not None:
 
         # check of path exists - in case no, create it
-        Path(folder).mkdir(parents=True, exist_ok=True)
+        pl.Path(folder).mkdir(parents=True, exist_ok=True)
 
         print("Generated code will be written to " + str(folder) + ' .')
 
