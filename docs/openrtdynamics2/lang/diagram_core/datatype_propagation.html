@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.diagram_core.datatype_propagation API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.diagram_core.datatype_propagation</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Dict, List
+from .signal_network.signals import *
+from .signal_network import *
+
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
+
+
+
+class DatatypePropagation:
+
+
+    def __init__(self, sim, show_print:int=0 ):
+        # show_print 0: show nothing, 1: how some print, 2: show all
+        self._show_print = show_print
+
+        self.signalsWithDeterminedTypes = set()
+        self.signalsWithProposedTypes = set()
+
+        self.signalsWithUpdatedDeterminedTypes = []
+        self.signalsWithUpdatedProposedTypes = []
+        self.signalsWithUnderminedTypes = []
+
+
+        self.updateCounter = 0
+
+    def notifyBlock(self, block : Block):
+        # a new singals has been created
+        # once a new block is added or one of the input signals change
+
+        # trigger the block to define its output signals or give a proposal
+        block.config_request_define_output_types()
+
+        pass
+
+
+    def notifySignal(self, signal : Signal):
+        &#34;&#34;&#34;
+            This function is called back from the signal instances in Signal.py
+
+            - when a new signal is created
+            - when a datatype of a signal has been updated 
+              (e.g. indirectly due to an inherited datatype from another signal that was updated)
+        &#34;&#34;&#34;
+        # TODO 25.3.20: maybe all notification shall be just put into a line and the processed at the end of update
+
+
+        # a new singal was created
+        # (Note: it might haven been also only updated, meaning it go registered even before)
+
+        if isinstance( signal, UndeterminedSignal ):
+            # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
+            return
+
+        # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
+
+        if signal.getDatatype() is None:
+
+            # put to the list of signals with undetermined datatypes
+            self.signalsWithUnderminedTypes.append( signal )
+
+        else:
+
+            # put on the list of signals with already fixed datatypes
+            self.signalsWithUpdatedDeterminedTypes.append( signal )
+
+        self.updateCounter += 1
+
+
+
+    def notify_updateOfProposedDatatype(self, signal : Signal):
+        # a proposal for the datatype of signal was updated
+
+        # add to ..
+        self.signalsWithUpdatedProposedTypes.append( signal )
+
+        self.updateCounter += 1
+
+        # remove from other lists..
+
+
+
+    def iteration(self, signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current):
+
+        def inherit_fixed_datatype(signal):
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    if self._show_print &gt; 1:
+                        print(&#34;inherit fixed datatype &#34; + signal.toStr() + &#34; --&gt; &#34; + to_signal.toStr() )
+
+                    to_signal.setDatatype( signal.datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+        def inherit_proposed_datatype(signal):
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    # inherit proposed datatype  signal.toStr()  --&gt;  to_signal.toStr()
+                    to_signal.setProposedDatatype( signal.proposed_datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+
+        # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
+        for s in signals_with_updated_determined_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.config_request_define_output_types()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_fixed_datatype(s)
+
+
+        # forward the datatype proposals to the connected blocks
+        for s in signals_with_updated_proposed_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+            
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.config_request_define_output_types()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_proposed_datatype(s)
+                
+
+        # remove the already fixed signals from the list of undetermined signals
+        for s in signals_with_updated_determined_types_current:
+            if s in self.signalsWithUnderminedTypes:
+                self.signalsWithUnderminedTypes.remove( s )
+
+
+    def update_types_iterate(self):
+
+        while True:
+
+            signals_with_updated_determined_types_current = self.signalsWithUpdatedDeterminedTypes
+            signals_with_updated_proposed_types_current = self.signalsWithUpdatedProposedTypes
+
+            # clear that list as it is about to be processed now
+            self.signalsWithUpdatedDeterminedTypes = [] 
+            self.signalsWithUpdatedProposedTypes = [] 
+
+            # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
+            self.signalsWithDeterminedTypes.update(  (signals_with_updated_determined_types_current) )
+            self.signalsWithProposedTypes.update( (signals_with_updated_proposed_types_current) )
+
+            #
+            updateCounterBefore = self.updateCounter
+
+            # iterate..
+            # herein, the lists might fill up yielding new signals to process in the ongoing iteration
+            self.iteration(signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current)
+
+            # check if there is sth. left to to
+            if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedDeterminedTypes) == 0 and len(self.signalsWithUpdatedProposedTypes) == 0:
+
+                if self._show_print &gt; 0:
+                    print(&#34;resolved all datatypes as far as possible in this update-run&#34;)
+
+                    if self._show_print &gt; 1:
+                        print(Fore.GREEN + &#34;signals with fixed types:&#34;)
+                        for s in list(self.signalsWithDeterminedTypes):
+                            print(&#39;  - &#39; + s.toStr())
+
+                        print(Fore.YELLOW + &#34;signals with proposed types:&#34;)
+                        for s in list(self.signalsWithProposedTypes):
+                            print(&#39;  - &#39; + s.toStr())
+
+                        if len(self.signalsWithUnderminedTypes) &gt; 0:
+
+                            print(Fore.RED + &#34;signals with undetermined types:&#34;)
+                            for s in self.signalsWithUnderminedTypes:
+                                print(&#39;  - &#39; + s.toStr())
+                        
+                        else:
+                            print(Fore.GREEN + &#34;no undetermined types are left&#34;)
+
+                # leave the - while True - loop
+                break
+
+
+
+
+    def fixateTypes(self):
+
+        # discover datatype
+        self.update_types_iterate()
+
+        # # check if something is missing.. TODO
+        # for s in self.signalsWithDeterminedTypes:
+
+        #     # remove from
+        #     if s in self.signalsWithUnderminedTypes:
+        #         self.signalsWithUnderminedTypes.remove( s )
+
+        # turn the proposal datatypes into fixed types
+        for s in list(self.signalsWithProposedTypes):
+
+            # print(&#39;  - turning proposed type into fixed - &#39; + s.toStr())
+
+            # fixate datatype of s
+            s.fixDatatype()
+
+            # remove from
+            self.signalsWithUnderminedTypes.remove( s )
+
+            
+        if self._show_print &gt; 1:
+            print(&#34;signals with undetermined types:&#34;)  # TODO: investigate why this list contains some leftovers...
+            for s in self.signalsWithUnderminedTypes:
+                print(&#39;  - &#39; + s.toStr())
+
+        # TODO: notify the fixation of the datatypes using compile_callback_all_datatypes_defined() of the block prototypes</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation"><code class="flex name class">
+<span>class <span class="ident">DatatypePropagation</span></span>
+<span>(</span><span>sim, show_print: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DatatypePropagation:
+
+
+    def __init__(self, sim, show_print:int=0 ):
+        # show_print 0: show nothing, 1: how some print, 2: show all
+        self._show_print = show_print
+
+        self.signalsWithDeterminedTypes = set()
+        self.signalsWithProposedTypes = set()
+
+        self.signalsWithUpdatedDeterminedTypes = []
+        self.signalsWithUpdatedProposedTypes = []
+        self.signalsWithUnderminedTypes = []
+
+
+        self.updateCounter = 0
+
+    def notifyBlock(self, block : Block):
+        # a new singals has been created
+        # once a new block is added or one of the input signals change
+
+        # trigger the block to define its output signals or give a proposal
+        block.config_request_define_output_types()
+
+        pass
+
+
+    def notifySignal(self, signal : Signal):
+        &#34;&#34;&#34;
+            This function is called back from the signal instances in Signal.py
+
+            - when a new signal is created
+            - when a datatype of a signal has been updated 
+              (e.g. indirectly due to an inherited datatype from another signal that was updated)
+        &#34;&#34;&#34;
+        # TODO 25.3.20: maybe all notification shall be just put into a line and the processed at the end of update
+
+
+        # a new singal was created
+        # (Note: it might haven been also only updated, meaning it go registered even before)
+
+        if isinstance( signal, UndeterminedSignal ):
+            # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
+            return
+
+        # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
+
+        if signal.getDatatype() is None:
+
+            # put to the list of signals with undetermined datatypes
+            self.signalsWithUnderminedTypes.append( signal )
+
+        else:
+
+            # put on the list of signals with already fixed datatypes
+            self.signalsWithUpdatedDeterminedTypes.append( signal )
+
+        self.updateCounter += 1
+
+
+
+    def notify_updateOfProposedDatatype(self, signal : Signal):
+        # a proposal for the datatype of signal was updated
+
+        # add to ..
+        self.signalsWithUpdatedProposedTypes.append( signal )
+
+        self.updateCounter += 1
+
+        # remove from other lists..
+
+
+
+    def iteration(self, signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current):
+
+        def inherit_fixed_datatype(signal):
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    if self._show_print &gt; 1:
+                        print(&#34;inherit fixed datatype &#34; + signal.toStr() + &#34; --&gt; &#34; + to_signal.toStr() )
+
+                    to_signal.setDatatype( signal.datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+        def inherit_proposed_datatype(signal):
+
+            # inherit the type of signal to the signals that inherit from
+            if signal.inherit_datatype_to_list is not None:
+                for to_signal in signal.inherit_datatype_to_list:
+                    
+                    # inherit proposed datatype  signal.toStr()  --&gt;  to_signal.toStr()
+                    to_signal.setProposedDatatype( signal.proposed_datatype )
+
+                    # put on the list of signals with already fixed datatypes
+                    # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+
+        # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
+        for s in signals_with_updated_determined_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.config_request_define_output_types()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_fixed_datatype(s)
+
+
+        # forward the datatype proposals to the connected blocks
+        for s in signals_with_updated_proposed_types_current:
+            # ask all blocks connected to s to update their output type proposal or fix their type
+            
+            # ask each block connected to the signal s to update its output type (proposals)
+            for destBlock in s.getDestinationBlocks():
+                destBlock.config_request_define_output_types()
+
+            # forward the datatype of s to the signals that use the same datatype
+            inherit_proposed_datatype(s)
+                
+
+        # remove the already fixed signals from the list of undetermined signals
+        for s in signals_with_updated_determined_types_current:
+            if s in self.signalsWithUnderminedTypes:
+                self.signalsWithUnderminedTypes.remove( s )
+
+
+    def update_types_iterate(self):
+
+        while True:
+
+            signals_with_updated_determined_types_current = self.signalsWithUpdatedDeterminedTypes
+            signals_with_updated_proposed_types_current = self.signalsWithUpdatedProposedTypes
+
+            # clear that list as it is about to be processed now
+            self.signalsWithUpdatedDeterminedTypes = [] 
+            self.signalsWithUpdatedProposedTypes = [] 
+
+            # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
+            self.signalsWithDeterminedTypes.update(  (signals_with_updated_determined_types_current) )
+            self.signalsWithProposedTypes.update( (signals_with_updated_proposed_types_current) )
+
+            #
+            updateCounterBefore = self.updateCounter
+
+            # iterate..
+            # herein, the lists might fill up yielding new signals to process in the ongoing iteration
+            self.iteration(signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current)
+
+            # check if there is sth. left to to
+            if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedDeterminedTypes) == 0 and len(self.signalsWithUpdatedProposedTypes) == 0:
+
+                if self._show_print &gt; 0:
+                    print(&#34;resolved all datatypes as far as possible in this update-run&#34;)
+
+                    if self._show_print &gt; 1:
+                        print(Fore.GREEN + &#34;signals with fixed types:&#34;)
+                        for s in list(self.signalsWithDeterminedTypes):
+                            print(&#39;  - &#39; + s.toStr())
+
+                        print(Fore.YELLOW + &#34;signals with proposed types:&#34;)
+                        for s in list(self.signalsWithProposedTypes):
+                            print(&#39;  - &#39; + s.toStr())
+
+                        if len(self.signalsWithUnderminedTypes) &gt; 0:
+
+                            print(Fore.RED + &#34;signals with undetermined types:&#34;)
+                            for s in self.signalsWithUnderminedTypes:
+                                print(&#39;  - &#39; + s.toStr())
+                        
+                        else:
+                            print(Fore.GREEN + &#34;no undetermined types are left&#34;)
+
+                # leave the - while True - loop
+                break
+
+
+
+
+    def fixateTypes(self):
+
+        # discover datatype
+        self.update_types_iterate()
+
+        # # check if something is missing.. TODO
+        # for s in self.signalsWithDeterminedTypes:
+
+        #     # remove from
+        #     if s in self.signalsWithUnderminedTypes:
+        #         self.signalsWithUnderminedTypes.remove( s )
+
+        # turn the proposal datatypes into fixed types
+        for s in list(self.signalsWithProposedTypes):
+
+            # print(&#39;  - turning proposed type into fixed - &#39; + s.toStr())
+
+            # fixate datatype of s
+            s.fixDatatype()
+
+            # remove from
+            self.signalsWithUnderminedTypes.remove( s )
+
+            
+        if self._show_print &gt; 1:
+            print(&#34;signals with undetermined types:&#34;)  # TODO: investigate why this list contains some leftovers...
+            for s in self.signalsWithUnderminedTypes:
+                print(&#39;  - &#39; + s.toStr())</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.fixateTypes"><code class="name flex">
+<span>def <span class="ident">fixateTypes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fixateTypes(self):
+
+    # discover datatype
+    self.update_types_iterate()
+
+    # # check if something is missing.. TODO
+    # for s in self.signalsWithDeterminedTypes:
+
+    #     # remove from
+    #     if s in self.signalsWithUnderminedTypes:
+    #         self.signalsWithUnderminedTypes.remove( s )
+
+    # turn the proposal datatypes into fixed types
+    for s in list(self.signalsWithProposedTypes):
+
+        # print(&#39;  - turning proposed type into fixed - &#39; + s.toStr())
+
+        # fixate datatype of s
+        s.fixDatatype()
+
+        # remove from
+        self.signalsWithUnderminedTypes.remove( s )
+
+        
+    if self._show_print &gt; 1:
+        print(&#34;signals with undetermined types:&#34;)  # TODO: investigate why this list contains some leftovers...
+        for s in self.signalsWithUnderminedTypes:
+            print(&#39;  - &#39; + s.toStr())</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.iteration"><code class="name flex">
+<span>def <span class="ident">iteration</span></span>(<span>self, signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iteration(self, signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current):
+
+    def inherit_fixed_datatype(signal):
+
+        # inherit the type of signal to the signals that inherit from
+        if signal.inherit_datatype_to_list is not None:
+            for to_signal in signal.inherit_datatype_to_list:
+                
+                if self._show_print &gt; 1:
+                    print(&#34;inherit fixed datatype &#34; + signal.toStr() + &#34; --&gt; &#34; + to_signal.toStr() )
+
+                to_signal.setDatatype( signal.datatype )
+
+                # put on the list of signals with already fixed datatypes
+                # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+    def inherit_proposed_datatype(signal):
+
+        # inherit the type of signal to the signals that inherit from
+        if signal.inherit_datatype_to_list is not None:
+            for to_signal in signal.inherit_datatype_to_list:
+                
+                # inherit proposed datatype  signal.toStr()  --&gt;  to_signal.toStr()
+                to_signal.setProposedDatatype( signal.proposed_datatype )
+
+                # put on the list of signals with already fixed datatypes
+                # self.signalsWithUpdatedDeterminedTypes.append( to_signal )
+
+
+    # at first ask all blocks who have a signal with an already fixed datatype connected to their inputs 
+    for s in signals_with_updated_determined_types_current:
+        # ask all blocks connected to s to update their output type proposal or fix their type
+
+        # ask each block connected to the signal s to update its output type (proposals)
+        for destBlock in s.getDestinationBlocks():
+            destBlock.config_request_define_output_types()
+
+        # forward the datatype of s to the signals that use the same datatype
+        inherit_fixed_datatype(s)
+
+
+    # forward the datatype proposals to the connected blocks
+    for s in signals_with_updated_proposed_types_current:
+        # ask all blocks connected to s to update their output type proposal or fix their type
+        
+        # ask each block connected to the signal s to update its output type (proposals)
+        for destBlock in s.getDestinationBlocks():
+            destBlock.config_request_define_output_types()
+
+        # forward the datatype of s to the signals that use the same datatype
+        inherit_proposed_datatype(s)
+            
+
+    # remove the already fixed signals from the list of undetermined signals
+    for s in signals_with_updated_determined_types_current:
+        if s in self.signalsWithUnderminedTypes:
+            self.signalsWithUnderminedTypes.remove( s )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifyBlock"><code class="name flex">
+<span>def <span class="ident">notifyBlock</span></span>(<span>self, block: <module '<a title="openrtdynamics2.lang.diagram_core.signal_network.Block" href="signal_network/Block.html">openrtdynamics2.lang.diagram_core.signal_network.Block</a>' from '/Users/chr/Google Drive/ORTD/PythonAPI_Experiments/<a title="openrtdynamics2" href="../../index.html">openrtdynamics2</a>/lang/diagram_core/signal_network/Block.py'>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notifyBlock(self, block : Block):
+    # a new singals has been created
+    # once a new block is added or one of the input signals change
+
+    # trigger the block to define its output signals or give a proposal
+    block.config_request_define_output_types()
+
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifySignal"><code class="name flex">
+<span>def <span class="ident">notifySignal</span></span>(<span>self, signal: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This function is called back from the signal instances in Signal.py</p>
+<ul>
+<li>when a new signal is created</li>
+<li>when a datatype of a signal has been updated
+(e.g. indirectly due to an inherited datatype from another signal that was updated)</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notifySignal(self, signal : Signal):
+    &#34;&#34;&#34;
+        This function is called back from the signal instances in Signal.py
+
+        - when a new signal is created
+        - when a datatype of a signal has been updated 
+          (e.g. indirectly due to an inherited datatype from another signal that was updated)
+    &#34;&#34;&#34;
+    # TODO 25.3.20: maybe all notification shall be just put into a line and the processed at the end of update
+
+
+    # a new singal was created
+    # (Note: it might haven been also only updated, meaning it go registered even before)
+
+    if isinstance( signal, UndeterminedSignal ):
+        # ignore anonymous signal (there is a signal connected directly to a block (BlockOutputSignal) for each)
+        return
+
+    # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
+
+    if signal.getDatatype() is None:
+
+        # put to the list of signals with undetermined datatypes
+        self.signalsWithUnderminedTypes.append( signal )
+
+    else:
+
+        # put on the list of signals with already fixed datatypes
+        self.signalsWithUpdatedDeterminedTypes.append( signal )
+
+    self.updateCounter += 1</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notify_updateOfProposedDatatype"><code class="name flex">
+<span>def <span class="ident">notify_updateOfProposedDatatype</span></span>(<span>self, signal: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notify_updateOfProposedDatatype(self, signal : Signal):
+    # a proposal for the datatype of signal was updated
+
+    # add to ..
+    self.signalsWithUpdatedProposedTypes.append( signal )
+
+    self.updateCounter += 1</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.update_types_iterate"><code class="name flex">
+<span>def <span class="ident">update_types_iterate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_types_iterate(self):
+
+    while True:
+
+        signals_with_updated_determined_types_current = self.signalsWithUpdatedDeterminedTypes
+        signals_with_updated_proposed_types_current = self.signalsWithUpdatedProposedTypes
+
+        # clear that list as it is about to be processed now
+        self.signalsWithUpdatedDeterminedTypes = [] 
+        self.signalsWithUpdatedProposedTypes = [] 
+
+        # concat signalsWithUpdatedDeterminedTypes to self.signalsWithDeterminedTypes
+        self.signalsWithDeterminedTypes.update(  (signals_with_updated_determined_types_current) )
+        self.signalsWithProposedTypes.update( (signals_with_updated_proposed_types_current) )
+
+        #
+        updateCounterBefore = self.updateCounter
+
+        # iterate..
+        # herein, the lists might fill up yielding new signals to process in the ongoing iteration
+        self.iteration(signals_with_updated_determined_types_current, signals_with_updated_proposed_types_current)
+
+        # check if there is sth. left to to
+        if updateCounterBefore == self.updateCounter and len(self.signalsWithUpdatedDeterminedTypes) == 0 and len(self.signalsWithUpdatedProposedTypes) == 0:
+
+            if self._show_print &gt; 0:
+                print(&#34;resolved all datatypes as far as possible in this update-run&#34;)
+
+                if self._show_print &gt; 1:
+                    print(Fore.GREEN + &#34;signals with fixed types:&#34;)
+                    for s in list(self.signalsWithDeterminedTypes):
+                        print(&#39;  - &#39; + s.toStr())
+
+                    print(Fore.YELLOW + &#34;signals with proposed types:&#34;)
+                    for s in list(self.signalsWithProposedTypes):
+                        print(&#39;  - &#39; + s.toStr())
+
+                    if len(self.signalsWithUnderminedTypes) &gt; 0:
+
+                        print(Fore.RED + &#34;signals with undetermined types:&#34;)
+                        for s in self.signalsWithUnderminedTypes:
+                            print(&#39;  - &#39; + s.toStr())
+                    
+                    else:
+                        print(Fore.GREEN + &#34;no undetermined types are left&#34;)
+
+            # leave the - while True - loop
+            break</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang.diagram_core" href="index.html">openrtdynamics2.lang.diagram_core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation">DatatypePropagation</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.fixateTypes" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.fixateTypes">fixateTypes</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.iteration" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.iteration">iteration</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifyBlock" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifyBlock">notifyBlock</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifySignal" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notifySignal">notifySignal</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notify_updateOfProposedDatatype" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.notify_updateOfProposedDatatype">notify_updateOfProposedDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.update_types_iterate" href="#openrtdynamics2.lang.diagram_core.datatype_propagation.DatatypePropagation.update_types_iterate">update_types_iterate</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

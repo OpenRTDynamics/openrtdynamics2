@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.diagram_core.graph_traversion API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.diagram_core.graph_traversion</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .signal_network.signals import *
+from .signal_network.Block import *
+
+from typing import Dict, List
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
+
+
+
+#
+# NOTE: this is not used 
+#
+class graph_traversion2:
+
+    def __init__(self):
+
+        # the list of reachable blocks
+        self.reachableBlocks = []
+
+
+
+
+    # Start forward traversion starting from the given startBlock
+    def forwardTraverse(self, startBlock : Block):
+        self.reachableBlocks = []
+
+        # fill in self.reachableBlocks
+        self.forwardTraverse__(startBlock, depthCounter = 0)
+
+        # reset graph traversion markers
+        for block in self.reachableBlocks:
+            block.graphTraversionMarkerReset()
+
+        return self.reachableBlocks
+
+    # Start forward traversion starting from the given startBlock
+    def forwardTraverse__(self, startBlock : Block, depthCounter : int):
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;   &#39;
+
+        # print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+        #
+        if startBlock.graphTraversionMarkerMarkIsVisited():
+            print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+            return
+
+        # store this block as it is reachable
+        self.reachableBlocks.append( startBlock )
+
+        # make the node as visited
+        startBlock.graphTraversionMarkerMarkVisited()
+
+        print(tabs + &#34;-- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+        # find out the links to other blocks
+        for signal in startBlock.getOutputSignals():
+            # for each output signal
+
+            print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+            if len( signal.getDestinationBlocks() ) == 0:
+                print(tabs + &#39;-- none --&#39;)
+
+            for destinationBlock in signal.getDestinationBlocks():
+                # destinationBlock is a link to a connected block
+
+                print( tabs + &#34;*&#34;, destinationBlock.name, &#34;(&#34;, destinationBlock.id, &#34;)&#34;  )
+
+                # recursion
+                self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
+
+
+    # Start backward traversion starting from the given startBlock
+    #
+    # Note this is not fully tested 
+    # DELETE SOON, if it is not needed
+    #
+    def backwardTraverseExec(self, startBlock : Block):
+        self.reachableBlocks = []
+
+        # fill in self.reachableBlocks
+        self.backwardTraverseExec__(startBlock, depthCounter = 0)
+
+        # reset graph traversion markers
+        for block in self.reachableBlocks:
+            block.graphTraversionMarkerReset()
+
+        return self.reachableBlocks
+
+
+    # Start backward traversion starting from the given startBlock
+    def backwardTraverseExec__(self, startBlock : Block, depthCounter : int):
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;   &#39;
+
+        #print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+        #
+        if startBlock.graphTraversionMarkerMarkIsVisited():
+            print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+            return
+
+        # check of the block &#39;startBlock&#39;
+        #if config_request_define_feedforward_input_dependencies( signal )
+
+        # store this block as it is reachable
+        self.reachableBlocks.append( startBlock )
+
+        # make the node as visited
+        startBlock.graphTraversionMarkerMarkVisited()
+
+        print(tabs + &#34;--- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+        # find out the links to other blocks
+        for signal in startBlock.getInputSignals():
+            # for each output signal
+
+
+            print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+            if signal.getSourceBlock() is None:
+                print(tabs + &#39;-- ERROR: no input signal defined for this block! --&#39;)
+                
+            else:
+
+                print( tabs + &#34;*&#34;, signal.getSourceBlock().name, &#34;(&#34;, signal.getSourceBlock().id, &#34;)&#34;  )
+
+                self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )
+
+
+
+
+
+
+
+
+class ExecutionLine():
+    &#34;&#34;&#34;
+        This is a data structure
+        
+        It contains a list &#39;signalOrder&#39; of signals to be computed in the given order.
+        The computation of these signals depends on a list of signals given by
+        &#39;dependencySignals&#39;.
+    &#34;&#34;&#34;
+
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
+        self.signalOrder                       = signalOrder
+        self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
+        self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
+        self.blocksToUpdateStates              = blocksToUpdateStates
+        self.dependencySignalsThroughStates    = dependencySignalsThroughStates
+
+    def printExecutionLine(self):
+        print(&#34;------ print of execution line -----&#34;)
+
+        print(Fore.RED + &#34;dependent sources of any kind:&#34;)
+
+        for s in self.dependencySignals:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.RED + &#34;dependent sources (simulation inputs):&#34;)
+                
+        for s in self.dependencySignalsSimulationInputs:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.RED + &#34;dependent sources (through state-dependend blocks):&#34;)
+        
+        for s in self.dependencySignalsThroughStates:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.GREEN + &#34;execution order:&#34;)
+
+        for s in self.signalOrder:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.GREEN + &#34;blocks whose states must be updated:&#34;)
+
+        for block in self.blocksToUpdateStates:
+            print(&#34;  - &#34; + block.name )
+
+
+    def getSignalsToExecute(self):
+        l = []
+
+        l.extend( self.signalOrder )
+
+        return l
+
+
+    def appendExecutionLine(self, executionLineToAppend):
+
+        # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
+        # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
+
+        # TODO: to optimize: use sets to merge
+
+        # for s in executionLineToAppend.dependencySignals:
+        #     if not s in self.dependencySignals and not s in self.signalOrder:
+        #         self.dependencySignals.append(s)
+
+
+        for s in executionLineToAppend.dependencySignalsSimulationInputs:
+            if not s in self.dependencySignalsSimulationInputs and not s in self.signalOrder:
+                self.dependencySignalsSimulationInputs.append(s)
+
+        
+        for s in executionLineToAppend.dependencySignalsThroughStates:
+            if not s in self.dependencySignalsThroughStates and not s in self.signalOrder:
+                self.dependencySignalsThroughStates.append(s)
+
+        
+
+
+        original_list_tmp = self.signalOrder.copy()
+
+        for s in executionLineToAppend.signalOrder:
+            # TODO: (for optimization purposes) 
+            # check if there common blocks in the list. (only in case a block has more than one
+            # output signals and one of these signals is in the list executionLineToAppend.signalOrder
+            # and another one in self.signalOrder  )
+
+            # just append the 
+            if not s in original_list_tmp:
+                self.signalOrder.append( s )
+
+            else:
+                print(&#34;appendExecutionLine: skipped to add &#34; + s.name)
+
+
+
+
+        original_list_tmp = self.blocksToUpdateStates.copy()
+
+        for b in executionLineToAppend.blocksToUpdateStates:
+            # TODO: (for optimization purposes) 
+            # check if there comcon blocks in the list. 
+
+            # just append the 
+            if not b in original_list_tmp:
+                self.blocksToUpdateStates.append( b )
+
+
+
+
+
+
+class BuildExecutionPath:
+    &#34;&#34;&#34;
+        Find out the order in which signals have to be computed such that a given signal
+        &#39;signalToCalculte&#39;can be calculated. This means finding out all dependencies of
+        &#39;signalToCalculte&#39;. For each call to &#39;getExecutionLine&#39; only the signals that
+        were not already marked as a dependency in previous calls are returned.
+        Each call to &#39;getExecutionLine&#39; gives an instance &#39;ExecutionLine&#39;
+    &#34;&#34;&#34;
+    def __init__(self, show_print:int=0):
+
+        self._show_print = show_print
+
+        # list of signals the computation depends on (the tips of the execution tree)
+        self.dependencySignals = []
+
+        self.dependencySignalsThroughStates = []
+
+        # the list of signals to compute in correct order 
+        self.execution_order = []
+
+        # the list of simulation input signals required for the computation
+        self.dependencySignalsSimulationInputs = []
+
+        # For each signgal self.execution_order there might be a blocks that
+        # has an internal memory. It is required to build a list of those blocks
+        # that need a state update after their output(s) are calculated.
+        self.blocksToUpdateStates = []
+
+        # list of marked signals (important to reset their visited flags)
+        self.markedSignals = []
+
+        # number of calls to getExecutionLine()
+        self.level = 0
+
+    def __del__(self):
+        # reset the grap markers stored in the signals
+        self.resetMarkers()
+
+
+    def getExecutionLine(self, signalToCalculte : Signal):
+
+        &#34;&#34;&#34;
+            get the order of computation steps and their order that have
+            to be performed to compute &#39;signalToCalculte&#39;
+            
+            For each call to this function, a list is generated that does not contain
+            signals that are already part of a previous list (that are already computed)
+            
+            This function can be called multiple times and returns only the necessaray 
+            computations. Computations already planned in previous calls of this function
+            are not listed again. (until resetMarkers() is called)
+
+            -- results --
+
+            self.execution_order contains the list of signals to comute in the correct order including
+            the target signals. Not included in this list are signals that cross the border to the simulation
+            specified by signalToCalculte.system (coming from an outer system). Further, not included are
+            signals that have been computet in a previous call to getExecutionLine().
+
+            self.dependencySignals contains all signals that are required to comput signalToCalculate
+            and either cross the border of a simulation, 
+        &#34;&#34;&#34;
+
+        # TODO: dependency signals should stay as theiy are but reachableSignals should not contain signals
+        #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
+        #       were not already calculated
+
+        if self._show_print &gt; 0:
+            print(&#34;getExecutionLine on level &#34; + str(self.level) )
+
+        # reset the lists TODO: use sets instead to avoid duplication?
+        self.execution_order = []
+        self.dependencySignals = []
+        self.dependencySignalsThroughStates = []
+        self.dependencySignalsSimulationInputs = []
+        self.blocksToUpdateStates = []
+
+        # search within this system
+        self.system = signalToCalculte.sim
+
+        # compute by traversing the tree
+        self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
+
+        # the iteration level
+        self.level = self.level + 1
+
+        return ExecutionLine( self.execution_order, self.dependencySignals, self.dependencySignalsSimulationInputs, self.blocksToUpdateStates, self.dependencySignalsThroughStates )
+
+    def printExecutionLine(self):
+        pass
+
+    def resetMarkers(self):
+        # reset graph traversion markers
+        for signal in self.markedSignals:
+            signal.graphTraversionMarkerReset()
+
+        # reset status variables
+        self.markedSignals = []
+        self.level = 0
+
+    def place_marker_for_current_level(self, signal):
+        # mark the node/signal as being visited (meaning computed)
+        signal.graphTraversionMarkerMarkVisited(self.level)
+        self.markedSignals.append(signal)
+
+    def isSignalAlreadyComputable(self, signal : Signal):
+        return signal.graphTraversionMarkerMarkIsVisited()
+
+    # Start backward traversion starting from the given startSignal
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
+
+        #
+        # check if the datatype of startSignal is defined
+        #
+
+        if startSignal.datatype is None:
+            raise BaseException(&#39;Unknown datatype for signal &#39; + startSignal.name + &#39;: no datatype has been specified or could be determined automatically.&#39;)
+
+
+        #
+        #
+        #
+
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;.  &#39;
+
+
+        if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
+            
+            # this case must be an error..                  
+            raise BaseException(&#39;not implemented or internal error: unexpected type of signal &#39; + startSignal.name)
+
+        # check if the signal is a system input signal
+        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
+
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not comuted)
+        #  and not isinstance(startSignal, SimulationInputSignal)
+        if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
+            # - a previously computed signal has been reached
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;has already been calculated in a previous traversion&#34;) 
+
+            self.dependencySignals.append( startSignal )
+
+            # in case startSignal is a simulation input, still add it to the list of simulation input dependiencies
+            # though it has already been computed
+            if is_crossing_simulation_border:
+
+                if self._show_print &gt; 1:
+                    print(Style.DIM + tabs + &#34;as it is also a simulation input, adding it to the list of depended inputs&#34;)
+
+                # also note down that this is a (actually used) simulation input
+                self.dependencySignalsSimulationInputs.append( startSignal )
+
+            return
+
+        if startSignal.graphTraversionMarkerMarkIsVisited():
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;has already been calculated in this traversion&#34;) 
+
+            return
+
+        if is_crossing_simulation_border:
+            # signal is an input to the simulation
+            # add to the list of dependent inputs
+
+            if self._show_print &gt; 1:
+                print(Fore.YELLOW + tabs + &#34;  --&gt; crosses system bounds&#34;)
+
+            # startSignal is at the top of the tree, so add it to the dependiencies
+            self.dependencySignals.append( startSignal )
+
+            # also note down that this is a (actually used) simulation input
+            self.dependencySignalsSimulationInputs.append( startSignal )
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;added input dependency &#34; + startSignal.toStr())
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(startSignal)
+
+            return
+
+
+        # get the blocks prototype function to calculate startSignal
+        block = startSignal.getSourceBlock()
+        blocksPrototype = block.getBlockPrototype()
+
+        #
+        # check if the block that yields startSignal uses internal-states to compute startSignal
+        #
+
+        inputsToUpdateStatesTmp = blocksPrototype.config_request_define_state_update_input_dependencies( startSignal )
+        if inputsToUpdateStatesTmp is not None:
+
+            if self._show_print &gt; 1:
+                print(tabs + &#34;--- signals needed *indirectly* to compute &#34; + startSignal.name + &#34; (through state update) --&#34; )
+
+            # 
+            self.blocksToUpdateStates.append( block )
+
+            # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+            resolveUndeterminedSignals( inputsToUpdateStatesTmp )
+
+            # add the signals that are required to perform the state update
+            self.dependencySignalsThroughStates.extend( inputsToUpdateStatesTmp )
+
+            if self._show_print &gt; 1:
+                for signal in inputsToUpdateStatesTmp:
+                    print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+
+        #
+        # find out the links to other signals but only these ones that are 
+        # needed to calculate &#39;startSignal&#39;
+        #
+
+        if self._show_print &gt; 1:
+            print(tabs + &#34;--- signals needed for &#34; + startSignal.name + &#34; --&#34; )
+
+        dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(startSignal)
+
+        # please note: blocksPrototype.config_request_define_feedforward_input_dependencies might return some undetermined signals that are resolved here
+        resolveUndeterminedSignals( dependingSignals )
+
+        if len(dependingSignals) == 0:
+            # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;  (no signals needed) &#34;  )
+
+            # block startSignal.getSourceBlock() --&gt; startSignal is a starting point
+
+            # startSignal is at the top of the tree, so add it to the dependiencies
+            self.dependencySignals.append( startSignal )
+
+            #
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+    
+            self.execution_order.append( startSignal )
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(startSignal)
+
+            return
+
+
+
+        #
+        # ITERATE: go through all signals needed to calculate startSignal
+        #          only in case there are any, we come to this point
+        #
+
+        for signal in dependingSignals:
+
+            if self._show_print &gt; 1:
+                print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+            self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
+
+        #
+        # FINALIZE: now also startSignal can be computed
+        #
+
+        #
+        # store startSignal as reachable (put it on the exeution list)
+        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+        #       from this list. However, it is still in the list of dependencySignals.
+        #
+
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+
+        self.execution_order.append( startSignal )
+
+        # mark the node/signal as being visited (meaning computed)
+        self.place_marker_for_current_level(startSignal)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath"><code class="flex name class">
+<span>class <span class="ident">BuildExecutionPath</span></span>
+<span>(</span><span>show_print: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Find out the order in which signals have to be computed such that a given signal
+'signalToCalculte'can be calculated. This means finding out all dependencies of
+'signalToCalculte'. For each call to 'getExecutionLine' only the signals that
+were not already marked as a dependency in previous calls are returned.
+Each call to 'getExecutionLine' gives an instance 'ExecutionLine'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BuildExecutionPath:
+    &#34;&#34;&#34;
+        Find out the order in which signals have to be computed such that a given signal
+        &#39;signalToCalculte&#39;can be calculated. This means finding out all dependencies of
+        &#39;signalToCalculte&#39;. For each call to &#39;getExecutionLine&#39; only the signals that
+        were not already marked as a dependency in previous calls are returned.
+        Each call to &#39;getExecutionLine&#39; gives an instance &#39;ExecutionLine&#39;
+    &#34;&#34;&#34;
+    def __init__(self, show_print:int=0):
+
+        self._show_print = show_print
+
+        # list of signals the computation depends on (the tips of the execution tree)
+        self.dependencySignals = []
+
+        self.dependencySignalsThroughStates = []
+
+        # the list of signals to compute in correct order 
+        self.execution_order = []
+
+        # the list of simulation input signals required for the computation
+        self.dependencySignalsSimulationInputs = []
+
+        # For each signgal self.execution_order there might be a blocks that
+        # has an internal memory. It is required to build a list of those blocks
+        # that need a state update after their output(s) are calculated.
+        self.blocksToUpdateStates = []
+
+        # list of marked signals (important to reset their visited flags)
+        self.markedSignals = []
+
+        # number of calls to getExecutionLine()
+        self.level = 0
+
+    def __del__(self):
+        # reset the grap markers stored in the signals
+        self.resetMarkers()
+
+
+    def getExecutionLine(self, signalToCalculte : Signal):
+
+        &#34;&#34;&#34;
+            get the order of computation steps and their order that have
+            to be performed to compute &#39;signalToCalculte&#39;
+            
+            For each call to this function, a list is generated that does not contain
+            signals that are already part of a previous list (that are already computed)
+            
+            This function can be called multiple times and returns only the necessaray 
+            computations. Computations already planned in previous calls of this function
+            are not listed again. (until resetMarkers() is called)
+
+            -- results --
+
+            self.execution_order contains the list of signals to comute in the correct order including
+            the target signals. Not included in this list are signals that cross the border to the simulation
+            specified by signalToCalculte.system (coming from an outer system). Further, not included are
+            signals that have been computet in a previous call to getExecutionLine().
+
+            self.dependencySignals contains all signals that are required to comput signalToCalculate
+            and either cross the border of a simulation, 
+        &#34;&#34;&#34;
+
+        # TODO: dependency signals should stay as theiy are but reachableSignals should not contain signals
+        #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
+        #       were not already calculated
+
+        if self._show_print &gt; 0:
+            print(&#34;getExecutionLine on level &#34; + str(self.level) )
+
+        # reset the lists TODO: use sets instead to avoid duplication?
+        self.execution_order = []
+        self.dependencySignals = []
+        self.dependencySignalsThroughStates = []
+        self.dependencySignalsSimulationInputs = []
+        self.blocksToUpdateStates = []
+
+        # search within this system
+        self.system = signalToCalculte.sim
+
+        # compute by traversing the tree
+        self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
+
+        # the iteration level
+        self.level = self.level + 1
+
+        return ExecutionLine( self.execution_order, self.dependencySignals, self.dependencySignalsSimulationInputs, self.blocksToUpdateStates, self.dependencySignalsThroughStates )
+
+    def printExecutionLine(self):
+        pass
+
+    def resetMarkers(self):
+        # reset graph traversion markers
+        for signal in self.markedSignals:
+            signal.graphTraversionMarkerReset()
+
+        # reset status variables
+        self.markedSignals = []
+        self.level = 0
+
+    def place_marker_for_current_level(self, signal):
+        # mark the node/signal as being visited (meaning computed)
+        signal.graphTraversionMarkerMarkVisited(self.level)
+        self.markedSignals.append(signal)
+
+    def isSignalAlreadyComputable(self, signal : Signal):
+        return signal.graphTraversionMarkerMarkIsVisited()
+
+    # Start backward traversion starting from the given startSignal
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
+
+        #
+        # check if the datatype of startSignal is defined
+        #
+
+        if startSignal.datatype is None:
+            raise BaseException(&#39;Unknown datatype for signal &#39; + startSignal.name + &#39;: no datatype has been specified or could be determined automatically.&#39;)
+
+
+        #
+        #
+        #
+
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;.  &#39;
+
+
+        if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
+            
+            # this case must be an error..                  
+            raise BaseException(&#39;not implemented or internal error: unexpected type of signal &#39; + startSignal.name)
+
+        # check if the signal is a system input signal
+        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
+
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not comuted)
+        #  and not isinstance(startSignal, SimulationInputSignal)
+        if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
+            # - a previously computed signal has been reached
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;has already been calculated in a previous traversion&#34;) 
+
+            self.dependencySignals.append( startSignal )
+
+            # in case startSignal is a simulation input, still add it to the list of simulation input dependiencies
+            # though it has already been computed
+            if is_crossing_simulation_border:
+
+                if self._show_print &gt; 1:
+                    print(Style.DIM + tabs + &#34;as it is also a simulation input, adding it to the list of depended inputs&#34;)
+
+                # also note down that this is a (actually used) simulation input
+                self.dependencySignalsSimulationInputs.append( startSignal )
+
+            return
+
+        if startSignal.graphTraversionMarkerMarkIsVisited():
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;has already been calculated in this traversion&#34;) 
+
+            return
+
+        if is_crossing_simulation_border:
+            # signal is an input to the simulation
+            # add to the list of dependent inputs
+
+            if self._show_print &gt; 1:
+                print(Fore.YELLOW + tabs + &#34;  --&gt; crosses system bounds&#34;)
+
+            # startSignal is at the top of the tree, so add it to the dependiencies
+            self.dependencySignals.append( startSignal )
+
+            # also note down that this is a (actually used) simulation input
+            self.dependencySignalsSimulationInputs.append( startSignal )
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;added input dependency &#34; + startSignal.toStr())
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(startSignal)
+
+            return
+
+
+        # get the blocks prototype function to calculate startSignal
+        block = startSignal.getSourceBlock()
+        blocksPrototype = block.getBlockPrototype()
+
+        #
+        # check if the block that yields startSignal uses internal-states to compute startSignal
+        #
+
+        inputsToUpdateStatesTmp = blocksPrototype.config_request_define_state_update_input_dependencies( startSignal )
+        if inputsToUpdateStatesTmp is not None:
+
+            if self._show_print &gt; 1:
+                print(tabs + &#34;--- signals needed *indirectly* to compute &#34; + startSignal.name + &#34; (through state update) --&#34; )
+
+            # 
+            self.blocksToUpdateStates.append( block )
+
+            # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+            resolveUndeterminedSignals( inputsToUpdateStatesTmp )
+
+            # add the signals that are required to perform the state update
+            self.dependencySignalsThroughStates.extend( inputsToUpdateStatesTmp )
+
+            if self._show_print &gt; 1:
+                for signal in inputsToUpdateStatesTmp:
+                    print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+
+        #
+        # find out the links to other signals but only these ones that are 
+        # needed to calculate &#39;startSignal&#39;
+        #
+
+        if self._show_print &gt; 1:
+            print(tabs + &#34;--- signals needed for &#34; + startSignal.name + &#34; --&#34; )
+
+        dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(startSignal)
+
+        # please note: blocksPrototype.config_request_define_feedforward_input_dependencies might return some undetermined signals that are resolved here
+        resolveUndeterminedSignals( dependingSignals )
+
+        if len(dependingSignals) == 0:
+            # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;  (no signals needed) &#34;  )
+
+            # block startSignal.getSourceBlock() --&gt; startSignal is a starting point
+
+            # startSignal is at the top of the tree, so add it to the dependiencies
+            self.dependencySignals.append( startSignal )
+
+            #
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+    
+            self.execution_order.append( startSignal )
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(startSignal)
+
+            return
+
+
+
+        #
+        # ITERATE: go through all signals needed to calculate startSignal
+        #          only in case there are any, we come to this point
+        #
+
+        for signal in dependingSignals:
+
+            if self._show_print &gt; 1:
+                print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+            self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
+
+        #
+        # FINALIZE: now also startSignal can be computed
+        #
+
+        #
+        # store startSignal as reachable (put it on the exeution list)
+        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+        #       from this list. However, it is still in the list of dependencySignals.
+        #
+
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+
+        self.execution_order.append( startSignal )
+
+        # mark the node/signal as being visited (meaning computed)
+        self.place_marker_for_current_level(startSignal)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.backwardTraverseSignalsExec__"><code class="name flex">
+<span>def <span class="ident">backwardTraverseSignalsExec__</span></span>(<span>self, startSignal: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, depthCounter: int, system_context=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
+
+    #
+    # check if the datatype of startSignal is defined
+    #
+
+    if startSignal.datatype is None:
+        raise BaseException(&#39;Unknown datatype for signal &#39; + startSignal.name + &#39;: no datatype has been specified or could be determined automatically.&#39;)
+
+
+    #
+    #
+    #
+
+    
+    tabs = &#39;&#39;
+    for i in range(0, depthCounter):
+        tabs += &#39;.  &#39;
+
+
+    if not (isinstance(startSignal, SimulationInputSignal) or isinstance(startSignal, BlockOutputSignal)):
+        
+        # this case must be an error..                  
+        raise BaseException(&#39;not implemented or internal error: unexpected type of signal &#39; + startSignal.name)
+
+    # check if the signal is a system input signal
+    is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
+
+    # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not comuted)
+    #  and not isinstance(startSignal, SimulationInputSignal)
+    if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
+        # - a previously computed signal has been reached
+
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;has already been calculated in a previous traversion&#34;) 
+
+        self.dependencySignals.append( startSignal )
+
+        # in case startSignal is a simulation input, still add it to the list of simulation input dependiencies
+        # though it has already been computed
+        if is_crossing_simulation_border:
+
+            if self._show_print &gt; 1:
+                print(Style.DIM + tabs + &#34;as it is also a simulation input, adding it to the list of depended inputs&#34;)
+
+            # also note down that this is a (actually used) simulation input
+            self.dependencySignalsSimulationInputs.append( startSignal )
+
+        return
+
+    if startSignal.graphTraversionMarkerMarkIsVisited():
+
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;has already been calculated in this traversion&#34;) 
+
+        return
+
+    if is_crossing_simulation_border:
+        # signal is an input to the simulation
+        # add to the list of dependent inputs
+
+        if self._show_print &gt; 1:
+            print(Fore.YELLOW + tabs + &#34;  --&gt; crosses system bounds&#34;)
+
+        # startSignal is at the top of the tree, so add it to the dependiencies
+        self.dependencySignals.append( startSignal )
+
+        # also note down that this is a (actually used) simulation input
+        self.dependencySignalsSimulationInputs.append( startSignal )
+
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;added input dependency &#34; + startSignal.toStr())
+
+        # mark the node/signal as being visited (meaning computed)
+        self.place_marker_for_current_level(startSignal)
+
+        return
+
+
+    # get the blocks prototype function to calculate startSignal
+    block = startSignal.getSourceBlock()
+    blocksPrototype = block.getBlockPrototype()
+
+    #
+    # check if the block that yields startSignal uses internal-states to compute startSignal
+    #
+
+    inputsToUpdateStatesTmp = blocksPrototype.config_request_define_state_update_input_dependencies( startSignal )
+    if inputsToUpdateStatesTmp is not None:
+
+        if self._show_print &gt; 1:
+            print(tabs + &#34;--- signals needed *indirectly* to compute &#34; + startSignal.name + &#34; (through state update) --&#34; )
+
+        # 
+        self.blocksToUpdateStates.append( block )
+
+        # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+        resolveUndeterminedSignals( inputsToUpdateStatesTmp )
+
+        # add the signals that are required to perform the state update
+        self.dependencySignalsThroughStates.extend( inputsToUpdateStatesTmp )
+
+        if self._show_print &gt; 1:
+            for signal in inputsToUpdateStatesTmp:
+                print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+
+    #
+    # find out the links to other signals but only these ones that are 
+    # needed to calculate &#39;startSignal&#39;
+    #
+
+    if self._show_print &gt; 1:
+        print(tabs + &#34;--- signals needed for &#34; + startSignal.name + &#34; --&#34; )
+
+    dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(startSignal)
+
+    # please note: blocksPrototype.config_request_define_feedforward_input_dependencies might return some undetermined signals that are resolved here
+    resolveUndeterminedSignals( dependingSignals )
+
+    if len(dependingSignals) == 0:
+        # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;  (no signals needed) &#34;  )
+
+        # block startSignal.getSourceBlock() --&gt; startSignal is a starting point
+
+        # startSignal is at the top of the tree, so add it to the dependiencies
+        self.dependencySignals.append( startSignal )
+
+        #
+        if self._show_print &gt; 1:
+            print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+
+        self.execution_order.append( startSignal )
+
+        # mark the node/signal as being visited (meaning computed)
+        self.place_marker_for_current_level(startSignal)
+
+        return
+
+
+
+    #
+    # ITERATE: go through all signals needed to calculate startSignal
+    #          only in case there are any, we come to this point
+    #
+
+    for signal in dependingSignals:
+
+        if self._show_print &gt; 1:
+            print(Fore.MAGENTA + tabs + &#34;-&gt; S &#34; + signal.name )
+
+        self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
+
+    #
+    # FINALIZE: now also startSignal can be computed
+    #
+
+    #
+    # store startSignal as reachable (put it on the exeution list)
+    # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+    #       from this list. However, it is still in the list of dependencySignals.
+    #
+
+    if self._show_print &gt; 1:
+        print(Style.DIM + tabs + &#34;added &#34; + startSignal.toStr())
+
+    self.execution_order.append( startSignal )
+
+    # mark the node/signal as being visited (meaning computed)
+    self.place_marker_for_current_level(startSignal)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.getExecutionLine"><code class="name flex">
+<span>def <span class="ident">getExecutionLine</span></span>(<span>self, signalToCalculte: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get the order of computation steps and their order that have
+to be performed to compute 'signalToCalculte'</p>
+<p>For each call to this function, a list is generated that does not contain
+signals that are already part of a previous list (that are already computed)</p>
+<p>This function can be called multiple times and returns only the necessaray
+computations. Computations already planned in previous calls of this function
+are not listed again. (until resetMarkers() is called)</p>
+<p>&ndash; results &ndash;</p>
+<p>self.execution_order contains the list of signals to comute in the correct order including
+the target signals. Not included in this list are signals that cross the border to the simulation
+specified by signalToCalculte.system (coming from an outer system). Further, not included are
+signals that have been computet in a previous call to getExecutionLine().</p>
+<p>self.dependencySignals contains all signals that are required to comput signalToCalculate
+and either cross the border of a simulation,</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getExecutionLine(self, signalToCalculte : Signal):
+
+    &#34;&#34;&#34;
+        get the order of computation steps and their order that have
+        to be performed to compute &#39;signalToCalculte&#39;
+        
+        For each call to this function, a list is generated that does not contain
+        signals that are already part of a previous list (that are already computed)
+        
+        This function can be called multiple times and returns only the necessaray 
+        computations. Computations already planned in previous calls of this function
+        are not listed again. (until resetMarkers() is called)
+
+        -- results --
+
+        self.execution_order contains the list of signals to comute in the correct order including
+        the target signals. Not included in this list are signals that cross the border to the simulation
+        specified by signalToCalculte.system (coming from an outer system). Further, not included are
+        signals that have been computet in a previous call to getExecutionLine().
+
+        self.dependencySignals contains all signals that are required to comput signalToCalculate
+        and either cross the border of a simulation, 
+    &#34;&#34;&#34;
+
+    # TODO: dependency signals should stay as theiy are but reachableSignals should not contain signals
+    #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
+    #       were not already calculated
+
+    if self._show_print &gt; 0:
+        print(&#34;getExecutionLine on level &#34; + str(self.level) )
+
+    # reset the lists TODO: use sets instead to avoid duplication?
+    self.execution_order = []
+    self.dependencySignals = []
+    self.dependencySignalsThroughStates = []
+    self.dependencySignalsSimulationInputs = []
+    self.blocksToUpdateStates = []
+
+    # search within this system
+    self.system = signalToCalculte.sim
+
+    # compute by traversing the tree
+    self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
+
+    # the iteration level
+    self.level = self.level + 1
+
+    return ExecutionLine( self.execution_order, self.dependencySignals, self.dependencySignalsSimulationInputs, self.blocksToUpdateStates, self.dependencySignalsThroughStates )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.isSignalAlreadyComputable"><code class="name flex">
+<span>def <span class="ident">isSignalAlreadyComputable</span></span>(<span>self, signal: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isSignalAlreadyComputable(self, signal : Signal):
+    return signal.graphTraversionMarkerMarkIsVisited()</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.place_marker_for_current_level"><code class="name flex">
+<span>def <span class="ident">place_marker_for_current_level</span></span>(<span>self, signal)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def place_marker_for_current_level(self, signal):
+    # mark the node/signal as being visited (meaning computed)
+    signal.graphTraversionMarkerMarkVisited(self.level)
+    self.markedSignals.append(signal)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.printExecutionLine"><code class="name flex">
+<span>def <span class="ident">printExecutionLine</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def printExecutionLine(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.resetMarkers"><code class="name flex">
+<span>def <span class="ident">resetMarkers</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resetMarkers(self):
+    # reset graph traversion markers
+    for signal in self.markedSignals:
+        signal.graphTraversionMarkerReset()
+
+    # reset status variables
+    self.markedSignals = []
+    self.level = 0</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine"><code class="flex name class">
+<span>class <span class="ident">ExecutionLine</span></span>
+<span>(</span><span>signalOrder: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>], dependencySignals: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>], dependencySignalsSimulationInputs: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>], blocksToUpdateStates: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.Block.Block" href="signal_network/Block.html#openrtdynamics2.lang.diagram_core.signal_network.Block.Block">Block</a>], dependencySignalsThroughStates: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is a data structure</p>
+<p>It contains a list 'signalOrder' of signals to be computed in the given order.
+The computation of these signals depends on a list of signals given by
+'dependencySignals'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ExecutionLine():
+    &#34;&#34;&#34;
+        This is a data structure
+        
+        It contains a list &#39;signalOrder&#39; of signals to be computed in the given order.
+        The computation of these signals depends on a list of signals given by
+        &#39;dependencySignals&#39;.
+    &#34;&#34;&#34;
+
+    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
+        self.signalOrder                       = signalOrder
+        self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
+        self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
+        self.blocksToUpdateStates              = blocksToUpdateStates
+        self.dependencySignalsThroughStates    = dependencySignalsThroughStates
+
+    def printExecutionLine(self):
+        print(&#34;------ print of execution line -----&#34;)
+
+        print(Fore.RED + &#34;dependent sources of any kind:&#34;)
+
+        for s in self.dependencySignals:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.RED + &#34;dependent sources (simulation inputs):&#34;)
+                
+        for s in self.dependencySignalsSimulationInputs:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.RED + &#34;dependent sources (through state-dependend blocks):&#34;)
+        
+        for s in self.dependencySignalsThroughStates:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.GREEN + &#34;execution order:&#34;)
+
+        for s in self.signalOrder:
+            print(&#34;  - &#34; + s.name )
+
+        print(Fore.GREEN + &#34;blocks whose states must be updated:&#34;)
+
+        for block in self.blocksToUpdateStates:
+            print(&#34;  - &#34; + block.name )
+
+
+    def getSignalsToExecute(self):
+        l = []
+
+        l.extend( self.signalOrder )
+
+        return l
+
+
+    def appendExecutionLine(self, executionLineToAppend):
+
+        # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
+        # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
+
+        # TODO: to optimize: use sets to merge
+
+        # for s in executionLineToAppend.dependencySignals:
+        #     if not s in self.dependencySignals and not s in self.signalOrder:
+        #         self.dependencySignals.append(s)
+
+
+        for s in executionLineToAppend.dependencySignalsSimulationInputs:
+            if not s in self.dependencySignalsSimulationInputs and not s in self.signalOrder:
+                self.dependencySignalsSimulationInputs.append(s)
+
+        
+        for s in executionLineToAppend.dependencySignalsThroughStates:
+            if not s in self.dependencySignalsThroughStates and not s in self.signalOrder:
+                self.dependencySignalsThroughStates.append(s)
+
+        
+
+
+        original_list_tmp = self.signalOrder.copy()
+
+        for s in executionLineToAppend.signalOrder:
+            # TODO: (for optimization purposes) 
+            # check if there common blocks in the list. (only in case a block has more than one
+            # output signals and one of these signals is in the list executionLineToAppend.signalOrder
+            # and another one in self.signalOrder  )
+
+            # just append the 
+            if not s in original_list_tmp:
+                self.signalOrder.append( s )
+
+            else:
+                print(&#34;appendExecutionLine: skipped to add &#34; + s.name)
+
+
+
+
+        original_list_tmp = self.blocksToUpdateStates.copy()
+
+        for b in executionLineToAppend.blocksToUpdateStates:
+            # TODO: (for optimization purposes) 
+            # check if there comcon blocks in the list. 
+
+            # just append the 
+            if not b in original_list_tmp:
+                self.blocksToUpdateStates.append( b )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.appendExecutionLine"><code class="name flex">
+<span>def <span class="ident">appendExecutionLine</span></span>(<span>self, executionLineToAppend)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def appendExecutionLine(self, executionLineToAppend):
+
+    # merge dependencySignals: only add the elements of executionLineToAppend.dependencySignals
+    # to self.dependencySignals that are not part of self.dependencySignals or self.signalOrder
+
+    # TODO: to optimize: use sets to merge
+
+    # for s in executionLineToAppend.dependencySignals:
+    #     if not s in self.dependencySignals and not s in self.signalOrder:
+    #         self.dependencySignals.append(s)
+
+
+    for s in executionLineToAppend.dependencySignalsSimulationInputs:
+        if not s in self.dependencySignalsSimulationInputs and not s in self.signalOrder:
+            self.dependencySignalsSimulationInputs.append(s)
+
+    
+    for s in executionLineToAppend.dependencySignalsThroughStates:
+        if not s in self.dependencySignalsThroughStates and not s in self.signalOrder:
+            self.dependencySignalsThroughStates.append(s)
+
+    
+
+
+    original_list_tmp = self.signalOrder.copy()
+
+    for s in executionLineToAppend.signalOrder:
+        # TODO: (for optimization purposes) 
+        # check if there common blocks in the list. (only in case a block has more than one
+        # output signals and one of these signals is in the list executionLineToAppend.signalOrder
+        # and another one in self.signalOrder  )
+
+        # just append the 
+        if not s in original_list_tmp:
+            self.signalOrder.append( s )
+
+        else:
+            print(&#34;appendExecutionLine: skipped to add &#34; + s.name)
+
+
+
+
+    original_list_tmp = self.blocksToUpdateStates.copy()
+
+    for b in executionLineToAppend.blocksToUpdateStates:
+        # TODO: (for optimization purposes) 
+        # check if there comcon blocks in the list. 
+
+        # just append the 
+        if not b in original_list_tmp:
+            self.blocksToUpdateStates.append( b )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.getSignalsToExecute"><code class="name flex">
+<span>def <span class="ident">getSignalsToExecute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getSignalsToExecute(self):
+    l = []
+
+    l.extend( self.signalOrder )
+
+    return l</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.printExecutionLine"><code class="name flex">
+<span>def <span class="ident">printExecutionLine</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def printExecutionLine(self):
+    print(&#34;------ print of execution line -----&#34;)
+
+    print(Fore.RED + &#34;dependent sources of any kind:&#34;)
+
+    for s in self.dependencySignals:
+        print(&#34;  - &#34; + s.name )
+
+    print(Fore.RED + &#34;dependent sources (simulation inputs):&#34;)
+            
+    for s in self.dependencySignalsSimulationInputs:
+        print(&#34;  - &#34; + s.name )
+
+    print(Fore.RED + &#34;dependent sources (through state-dependend blocks):&#34;)
+    
+    for s in self.dependencySignalsThroughStates:
+        print(&#34;  - &#34; + s.name )
+
+    print(Fore.GREEN + &#34;execution order:&#34;)
+
+    for s in self.signalOrder:
+        print(&#34;  - &#34; + s.name )
+
+    print(Fore.GREEN + &#34;blocks whose states must be updated:&#34;)
+
+    for block in self.blocksToUpdateStates:
+        print(&#34;  - &#34; + block.name )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2"><code class="flex name class">
+<span>class <span class="ident">graph_traversion2</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class graph_traversion2:
+
+    def __init__(self):
+
+        # the list of reachable blocks
+        self.reachableBlocks = []
+
+
+
+
+    # Start forward traversion starting from the given startBlock
+    def forwardTraverse(self, startBlock : Block):
+        self.reachableBlocks = []
+
+        # fill in self.reachableBlocks
+        self.forwardTraverse__(startBlock, depthCounter = 0)
+
+        # reset graph traversion markers
+        for block in self.reachableBlocks:
+            block.graphTraversionMarkerReset()
+
+        return self.reachableBlocks
+
+    # Start forward traversion starting from the given startBlock
+    def forwardTraverse__(self, startBlock : Block, depthCounter : int):
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;   &#39;
+
+        # print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+        #
+        if startBlock.graphTraversionMarkerMarkIsVisited():
+            print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+            return
+
+        # store this block as it is reachable
+        self.reachableBlocks.append( startBlock )
+
+        # make the node as visited
+        startBlock.graphTraversionMarkerMarkVisited()
+
+        print(tabs + &#34;-- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+        # find out the links to other blocks
+        for signal in startBlock.getOutputSignals():
+            # for each output signal
+
+            print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+            if len( signal.getDestinationBlocks() ) == 0:
+                print(tabs + &#39;-- none --&#39;)
+
+            for destinationBlock in signal.getDestinationBlocks():
+                # destinationBlock is a link to a connected block
+
+                print( tabs + &#34;*&#34;, destinationBlock.name, &#34;(&#34;, destinationBlock.id, &#34;)&#34;  )
+
+                # recursion
+                self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
+
+
+    # Start backward traversion starting from the given startBlock
+    #
+    # Note this is not fully tested 
+    # DELETE SOON, if it is not needed
+    #
+    def backwardTraverseExec(self, startBlock : Block):
+        self.reachableBlocks = []
+
+        # fill in self.reachableBlocks
+        self.backwardTraverseExec__(startBlock, depthCounter = 0)
+
+        # reset graph traversion markers
+        for block in self.reachableBlocks:
+            block.graphTraversionMarkerReset()
+
+        return self.reachableBlocks
+
+
+    # Start backward traversion starting from the given startBlock
+    def backwardTraverseExec__(self, startBlock : Block, depthCounter : int):
+        
+        tabs = &#39;&#39;
+        for i in range(0, depthCounter):
+            tabs += &#39;   &#39;
+
+        #print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+        #
+        if startBlock.graphTraversionMarkerMarkIsVisited():
+            print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+            return
+
+        # check of the block &#39;startBlock&#39;
+        #if config_request_define_feedforward_input_dependencies( signal )
+
+        # store this block as it is reachable
+        self.reachableBlocks.append( startBlock )
+
+        # make the node as visited
+        startBlock.graphTraversionMarkerMarkVisited()
+
+        print(tabs + &#34;--- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+        # find out the links to other blocks
+        for signal in startBlock.getInputSignals():
+            # for each output signal
+
+
+            print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+            if signal.getSourceBlock() is None:
+                print(tabs + &#39;-- ERROR: no input signal defined for this block! --&#39;)
+                
+            else:
+
+                print( tabs + &#34;*&#34;, signal.getSourceBlock().name, &#34;(&#34;, signal.getSourceBlock().id, &#34;)&#34;  )
+
+                self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec"><code class="name flex">
+<span>def <span class="ident">backwardTraverseExec</span></span>(<span>self, startBlock: <a title="openrtdynamics2.lang.diagram_core.signal_network.Block.Block" href="signal_network/Block.html#openrtdynamics2.lang.diagram_core.signal_network.Block.Block">Block</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def backwardTraverseExec(self, startBlock : Block):
+    self.reachableBlocks = []
+
+    # fill in self.reachableBlocks
+    self.backwardTraverseExec__(startBlock, depthCounter = 0)
+
+    # reset graph traversion markers
+    for block in self.reachableBlocks:
+        block.graphTraversionMarkerReset()
+
+    return self.reachableBlocks</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec__"><code class="name flex">
+<span>def <span class="ident">backwardTraverseExec__</span></span>(<span>self, startBlock: <a title="openrtdynamics2.lang.diagram_core.signal_network.Block.Block" href="signal_network/Block.html#openrtdynamics2.lang.diagram_core.signal_network.Block.Block">Block</a>, depthCounter: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def backwardTraverseExec__(self, startBlock : Block, depthCounter : int):
+    
+    tabs = &#39;&#39;
+    for i in range(0, depthCounter):
+        tabs += &#39;   &#39;
+
+    #print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+    #
+    if startBlock.graphTraversionMarkerMarkIsVisited():
+        print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+        return
+
+    # check of the block &#39;startBlock&#39;
+    #if config_request_define_feedforward_input_dependencies( signal )
+
+    # store this block as it is reachable
+    self.reachableBlocks.append( startBlock )
+
+    # make the node as visited
+    startBlock.graphTraversionMarkerMarkVisited()
+
+    print(tabs + &#34;--- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+    # find out the links to other blocks
+    for signal in startBlock.getInputSignals():
+        # for each output signal
+
+
+        print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+        if signal.getSourceBlock() is None:
+            print(tabs + &#39;-- ERROR: no input signal defined for this block! --&#39;)
+            
+        else:
+
+            print( tabs + &#34;*&#34;, signal.getSourceBlock().name, &#34;(&#34;, signal.getSourceBlock().id, &#34;)&#34;  )
+
+            self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse"><code class="name flex">
+<span>def <span class="ident">forwardTraverse</span></span>(<span>self, startBlock: <a title="openrtdynamics2.lang.diagram_core.signal_network.Block.Block" href="signal_network/Block.html#openrtdynamics2.lang.diagram_core.signal_network.Block.Block">Block</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forwardTraverse(self, startBlock : Block):
+    self.reachableBlocks = []
+
+    # fill in self.reachableBlocks
+    self.forwardTraverse__(startBlock, depthCounter = 0)
+
+    # reset graph traversion markers
+    for block in self.reachableBlocks:
+        block.graphTraversionMarkerReset()
+
+    return self.reachableBlocks</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse__"><code class="name flex">
+<span>def <span class="ident">forwardTraverse__</span></span>(<span>self, startBlock: <a title="openrtdynamics2.lang.diagram_core.signal_network.Block.Block" href="signal_network/Block.html#openrtdynamics2.lang.diagram_core.signal_network.Block.Block">Block</a>, depthCounter: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forwardTraverse__(self, startBlock : Block, depthCounter : int):
+    
+    tabs = &#39;&#39;
+    for i in range(0, depthCounter):
+        tabs += &#39;   &#39;
+
+    # print(tabs + &#34;....... depth &#34; + str( depthCounter )  )
+
+    #
+    if startBlock.graphTraversionMarkerMarkIsVisited():
+        print(tabs + &#34;*** visited *** &#34;  + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) ****&#34;)  ## TODO investigtare: why is this never reached?
+        return
+
+    # store this block as it is reachable
+    self.reachableBlocks.append( startBlock )
+
+    # make the node as visited
+    startBlock.graphTraversionMarkerMarkVisited()
+
+    print(tabs + &#34;-- &#34; + startBlock.name + &#34; (&#34; + str( startBlock.id ) + &#34;) --&#34; )
+
+
+
+    # find out the links to other blocks
+    for signal in startBlock.getOutputSignals():
+        # for each output signal
+
+        print(tabs + &#34;-&gt; S &#34; + signal.name )
+
+        if len( signal.getDestinationBlocks() ) == 0:
+            print(tabs + &#39;-- none --&#39;)
+
+        for destinationBlock in signal.getDestinationBlocks():
+            # destinationBlock is a link to a connected block
+
+            print( tabs + &#34;*&#34;, destinationBlock.name, &#34;(&#34;, destinationBlock.id, &#34;)&#34;  )
+
+            # recursion
+            self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang.diagram_core" href="index.html">openrtdynamics2.lang.diagram_core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath">BuildExecutionPath</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.backwardTraverseSignalsExec__" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.backwardTraverseSignalsExec__">backwardTraverseSignalsExec__</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.getExecutionLine" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.getExecutionLine">getExecutionLine</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.isSignalAlreadyComputable" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.isSignalAlreadyComputable">isSignalAlreadyComputable</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.place_marker_for_current_level" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.place_marker_for_current_level">place_marker_for_current_level</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.printExecutionLine" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.printExecutionLine">printExecutionLine</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.resetMarkers" href="#openrtdynamics2.lang.diagram_core.graph_traversion.BuildExecutionPath.resetMarkers">resetMarkers</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine" href="#openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine">ExecutionLine</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.appendExecutionLine" href="#openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.appendExecutionLine">appendExecutionLine</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.getSignalsToExecute" href="#openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.getSignalsToExecute">getSignalsToExecute</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.printExecutionLine" href="#openrtdynamics2.lang.diagram_core.graph_traversion.ExecutionLine.printExecutionLine">printExecutionLine</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2" href="#openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2">graph_traversion2</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec" href="#openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec">backwardTraverseExec</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec__" href="#openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.backwardTraverseExec__">backwardTraverseExec__</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse" href="#openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse">forwardTraverse</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse__" href="#openrtdynamics2.lang.diagram_core.graph_traversion.graph_traversion2.forwardTraverse__">forwardTraverse__</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

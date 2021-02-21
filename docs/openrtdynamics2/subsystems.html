@@ -1,0 +1,1785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.subsystems API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.subsystems</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Dict, List
+
+from . import lang as dy
+from . import block_prototypes as bp
+
+from .code_generation_helper import *
+from . import signal_interface as si
+
+from .system_context import generate_subsystem_name, enter_subsystem
+from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+
+
+
+# class sub:
+#     def __init__(self, subsystem_name = None ):
+
+#         if subsystem_name is not None:
+#             self._subsystem_name = subsystem_name
+#         else:
+#             self._subsystem_name = generate_subsystem_name()
+
+#         self._outputs_of_embeded_subsystem = []
+#         self._outputs_of_embedding_block = []
+
+#     def add_output(self, output_signal : dy.SignalUserTemplate):
+
+#         self._outputs_of_embeded_subsystem.append(output_signal)
+
+
+#         # use SubsystemOutputLink to generate a new signal to be used outside of the subsystem
+#         # This creates a link output_signal_of_embedding_system --&gt; output_signal
+#         output_signal_of_embedding_system = dy.SubsystemOutputLinkUser( dy.get_simulation_context().UpperLevelSim, output_signal )
+
+#         # inherit datatype from output_signal
+#         output_signal_of_embedding_system.inherit_datatype( output_signal )
+
+#         self._outputs_of_embedding_block.append( output_signal_of_embedding_system.unwrap )
+
+#         return output_signal_of_embedding_system
+
+#         return None
+
+#     def set_outputs(self, signals):
+#         &#34;&#34;&#34;
+#             connect the list of outputs
+#         &#34;&#34;&#34;
+#         return_signals = []
+
+#         for s in signals:
+#             return_signals.append( self.add_output( s ) )
+
+#         return return_signals
+
+
+
+
+#     def __enter__(self):
+
+#         enter_subsystem(self._subsystem_name )
+
+#         return self
+
+
+#     def __exit__(self, type, value, traceback):
+
+#         # set the outputs of the system
+#         dy.get_simulation_context().set_primary_outputs( si.unwrap_list( self._outputs_of_embeded_subsystem ) )
+
+#         # Please note: in case it is really necessary to specify a system != None here, use the upper-level system
+#         # not the embedded one.
+
+#         # store an embeeder prototype (as generated by bp.GenericSubsystem) into the date structure of the subsystem
+#         embeddedingBlockPrototype = bp.GenericSubsystem( sim=dy.get_simulation_context().UpperLevelSim, 
+#                                                         inputSignals=None, manifest=None, 
+#                                                         additionalInputs=None )
+
+#         dy.get_simulation_context().embeddedingBlockPrototype = embeddedingBlockPrototype
+
+#         #
+#         # Link output_signal_of_embedding_system to the outputs created by bp.GenericSubsystem
+#         #
+
+#         embeddedingBlockPrototype.set_anonymous_output_signal_to_connect(   self._outputs_of_embedding_block  )
+
+
+#         # TODO: add a system wrapper/embedded (e.g. this if-block) to leave_system
+#         dy.leave_system()
+
+
+
+
+
+
+
+
+
+class sub_if:
+    &#34;&#34;&#34;
+
+        NOTE: in case the if condition is false, the outputs are hold. Eventally uninitialized.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, condition_signal : dy.SignalUserTemplate, subsystem_name = None, prevent_output_computation = False ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = generate_subsystem_name()
+
+        self._condition_signal = condition_signal
+        self._prevent_output_computation = prevent_output_computation
+
+        # 
+        self._outputs_of_embeded_subsystem = []
+
+        # outputs (links to the subsystem outputs) to be used by the user
+        self._output_links = None
+
+
+    def set_outputs(self, signals):
+        self._outputs_of_embeded_subsystem = signals.copy()
+
+    def __enter__(self):
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+
+        embedded_subsystem = dy.get_simulation_context()
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embeded_subsystem ) )
+
+        # create generic subsystem block prototype
+        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=len(self._outputs_of_embeded_subsystem) )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+        #
+        # now in the system in which the embeder block (including the logic) shall be placed.
+        #
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.TruggeredSubsystem( sim=dy.get_simulation_context(), 
+                control_input=si.unwrap( self._condition_signal ), 
+                subsystem_prototype=self._subsystem_block_prototype,
+                prevent_output_computation = self._prevent_output_computation)
+
+
+                # subsystem_prototypes=subsystem_prototypes, 
+                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+        # connect the additional (control) outputs
+        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+
+    @property
+    def outputs(self):
+
+        if self._output_links is None:
+            BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+        
+        return self._output_links
+    
+
+
+
+
+
+
+class sub_loop:
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;
+
+
+    def __init__(self, max_iterations : int, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = generate_subsystem_name()
+
+        self._max_iterations = max_iterations
+
+        # control outputs of the embedded subsystem
+        self._until_signal = None
+        self._yield_signal = None
+
+        # 
+        self._outputs_of_embeded_subsystem = []
+
+        # outputs (links to the subsystem outputs) to be used by the user
+        self._output_links = None
+
+
+    def set_outputs(self, signals):
+        self._outputs_of_embeded_subsystem = si.unwrap_list( signals.copy() )
+
+    def loop_until(self, condition_signal):
+        self._until_signal = condition_signal.unwrap
+
+    def loop_yield(self, condition_signal):
+        self._yield_signal = condition_signal.unwrap
+
+    def __enter__(self):
+
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+
+        embedded_subsystem = dy.get_simulation_context()
+
+        # collect all outputs
+        all_output_signals = []
+        all_output_signals.extend(self._outputs_of_embeded_subsystem)
+        if self._until_signal is not None:
+            all_output_signals.append(self._until_signal)
+        if self._yield_signal is not None:
+            all_output_signals.append(self._yield_signal)
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs(  all_output_signals  )
+
+        # create generic subsystem block prototype
+        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=len(all_output_signals) )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+        #
+        # now in the system in which the embeder block (including the logic) shall be placed.
+        #
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.LoopUntilSubsystem( sim=dy.get_simulation_context(), 
+                max_iteriations=self._max_iterations, 
+                subsystem_prototype=self._subsystem_block_prototype,
+                until_signal=self._until_signal,
+                yield_signal=self._yield_signal)
+
+
+                # subsystem_prototypes=subsystem_prototypes, 
+                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+        # connect the additional (control) outputs
+        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+
+    @property
+    def outputs(self):
+
+        if self._output_links is None:
+            BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+        
+        return self._output_links
+    
+
+
+
+
+
+
+
+
+
+#
+# new stuff
+#
+
+
+
+
+
+class SwitchPrototype:
+    &#34;&#34;&#34;
+        a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)
+
+        switch_subsystem_name        - the name of the switch
+        number_of_control_outputs - the number of system outputs in addition to the embedded systems outputs
+                                       i.e. control outputs of a switch/statemaching/...
+
+        - member variables -
+
+        self._switch_output_links    - overwrite by derived class when calling on_exit()
+        self.outputs                 - a list of output signals as defined by self._switch_output_links
+
+        - methods to be defined -
+
+        on_exit(subsystem_prototypes)  - callback once all subsystems were defined
+                                         during this callback self._switch_output_links must be defined
+
+    &#34;&#34;&#34;
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
+
+    def __init__(self, switch_subsystem_name, number_of_control_outputs=0):
+
+        self._switch_subsystem_name = switch_subsystem_name
+        self._total_number_of_subsystem_outputs = None
+        self._switch_output_links = None
+        self._switch_system = None
+        self._number_of_control_outputs = number_of_control_outputs
+        self._number_of_switched_outputs = None
+
+        # List [ bp.GenericSubsystem ]
+        self._subsystem_prototypes = None
+
+        # List [ switch_single_sub ]
+        self._subsystem_list = None
+
+
+    def new_subsystem(self, subsystem_name = None):
+        raise BaseException(&#34;to be implemented&#34;)
+
+    def __enter__(self):
+
+        self._subsystem_list = []
+        self._subsystem_prototypes = []
+
+        return self
+
+    def on_exit(self, subsystem_prototypes):
+        &#34;&#34;&#34;
+            called when all subsystems have been added to the switch
+
+            subsystem_prototypes - the list of subsystem block prototypes of type bp.GenericSubsystem
+        &#34;&#34;&#34;
+        raise BaseException(&#34;to be implemented&#34;)
+
+    def __exit__(self, type, value, traceback):
+        # collect all prototyes thet embedd the subsystems
+        for system in self._subsystem_list:
+            self._subsystem_prototypes.append( system.subsystem_prototype )
+
+        # analyze the default subsystem (the first) to get the output datatypes to use
+        for subsystem in [ self._subsystem_list[0] ]:
+
+            # get the outputs that will serve as reference points for datatype inheritance
+            number_of_normal_outputs = len( subsystem.outputs ) - self._number_of_control_outputs
+            self._reference_outputs = subsystem.outputs[0:number_of_normal_outputs]
+            self._total_number_of_subsystem_outputs = len(subsystem.outputs)
+
+            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_control_outputs
+
+        self.on_exit( self._subsystem_prototypes )
+
+    @property
+    def outputs(self):
+
+        if self._switch_output_links is None:
+            BaseException(&#34;Please close the switch subsystem before querying its outputs&#34;)
+        
+        return self._switch_output_links
+    
+
+
+class SwitchedSubsystemPrototype:
+    &#34;&#34;&#34;
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        - methods to called by the user -
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
+    &#34;&#34;&#34;
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
+
+    def __init__(self, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = generate_subsystem_name() + &#39;_&#39; + subsystem_name
+        else:        
+            self._subsystem_name = generate_subsystem_name()
+
+        self._outputs_of_embeded_subsystem = None
+
+        self._system = None
+        self._anonymous_output_signals = None
+        self._embeddedingBlockPrototype = None
+
+    @property
+    def system(self):
+        return self._system
+
+    @property
+    def name(self):
+        return self._subsystem_name
+
+    @property
+    def outputs(self):
+        return self._outputs_of_embeded_subsystem
+
+    def set_switched_outputs(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+
+            use self.set_switched_outputs_prototype in the derived classes to set this
+        &#34;&#34;&#34;
+        
+        BaseException(&#34;to be implemented&#34;)
+
+    def set_switched_outputs_prototype(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        &#34;&#34;&#34;
+
+        if self._outputs_of_embeded_subsystem is None:
+            self._outputs_of_embeded_subsystem = signals.copy()
+        else:
+            raise BaseException(&#34;tried to overwrite previously set output&#34;)
+
+
+
+
+
+    def __enter__(self):
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+        embedded_subsystem = dy.get_simulation_context()
+
+        #
+        number_of_subsystem_ouputs = len(self._outputs_of_embeded_subsystem)
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embeded_subsystem ) )
+
+        # create generic subsystem block prototype
+        self._embeddedingBlockPrototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=number_of_subsystem_ouputs )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+    @property
+    def subsystem_prototype(self):
+        return self._embeddedingBlockPrototype
+
+
+##
+##
+## Derivatives of SwitchedSubsystemPrototype
+##
+##
+
+
+
+
+#
+# Switch among subsystems i.e. similar to select/case
+#
+
+class SwitchedSubsystem(SwitchedSubsystemPrototype):
+    &#34;&#34;&#34;
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        - methods to be called by the user -
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
+    &#34;&#34;&#34;
+    def __init__(self, subsystem_name = None ):
+
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
+
+
+    def set_switched_outputs(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        &#34;&#34;&#34;
+
+        self.set_switched_outputs_prototype(signals)
+
+        # if self._outputs_of_embeded_subsystem is None:
+        #     self._outputs_of_embeded_subsystem = signals.copy()
+        # else:
+        #     raise BaseException(&#34;tried to overwrite previously set outputs&#34;)
+
+
+
+class sub_switch(SwitchPrototype):
+    def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
+
+        self._select_signal = select_signal
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs=0)
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = SwitchedSubsystem(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+
+    def on_exit(self, subsystem_prototypes):
+
+        # create the  embeeder prototype
+        embeddedingBlockPrototype = bp.SwichSubsystems( sim=dy.get_simulation_context(), 
+                control_input=self._select_signal.unwrap, 
+                subsystem_prototypes=subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+        # connect the additional (control) outputs
+        # -- None --
+
+
+
+#
+# State machines
+#
+
+class state_sub(SwitchedSubsystemPrototype):
+    &#34;&#34;&#34;
+        A single subsystem as part of a state machine (implemented by sub_statemachine)
+
+        - methods to called by the user -
+
+        set_switched_outputs(signals, state_signal)  - connect a list of signals to the output of the state machine
+    &#34;&#34;&#34;
+
+    def __init__(self, subsystem_name = None ):
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
+
+        self._output_signals = None
+        self._state_signal = None
+
+
+    def set_switched_outputs(self, signals, state_signal):
+        &#34;&#34;&#34;
+            set the output signals of a subsystem embedded into the state machine
+
+            - signals      - normal system output that are forwarded using a switch
+            - state_signal - control signal indicating the next state the state machine enters
+        &#34;&#34;&#34;
+        self._output_signals = signals
+        self._state_signal = state_signal
+
+        self.set_switched_outputs_prototype( signals +  [state_signal] )
+
+    @property
+    def state_control_output(self):
+         return self._state_signal
+
+    @property
+    def subsystem_outputs(self):
+        return self._output_signals
+
+
+
+class sub_statemachine(SwitchPrototype):
+    &#34;&#34;&#34;
+        A state machine subsystem
+
+        - properties -
+
+        self.state - status signal of the state machine (available after &#39;with sub_statemachine&#39; has findished)
+    &#34;&#34;&#34;
+    def __init__(self, switch_subsystem_name):
+        number_of_control_outputs = 1 # add one control output to inform about the current state
+
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs )
+
+        # state output signal undefined until defined by on_exit() 
+        self._state_output = None
+
+    @property
+    def state(self):
+        &#34;&#34;&#34;
+            get the signal describing the current state
+        &#34;&#34;&#34;
+        return self._state_output
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = state_sub(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+    def on_exit(self, subsystem_prototypes):
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.StatemachineSwichSubsystems( sim=dy.get_simulation_context(), 
+                subsystem_prototypes=subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+        # connect the additional (control) outputs
+        self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchPrototype"><code class="flex name class">
+<span>class <span class="ident">SwitchPrototype</span></span>
+<span>(</span><span>switch_subsystem_name, number_of_control_outputs=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)</p>
+<p>switch_subsystem_name
+- the name of the switch
+number_of_control_outputs - the number of system outputs in addition to the embedded systems outputs
+i.e. control outputs of a switch/statemaching/&hellip;</p>
+<ul>
+<li>member variables -</li>
+</ul>
+<p>self._switch_output_links
+- overwrite by derived class when calling on_exit()
+self.outputs
+- a list of output signals as defined by self._switch_output_links</p>
+<ul>
+<li>methods to be defined -</li>
+</ul>
+<p>on_exit(subsystem_prototypes)
+- callback once all subsystems were defined
+during this callback self._switch_output_links must be defined</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SwitchPrototype:
+    &#34;&#34;&#34;
+        a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)
+
+        switch_subsystem_name        - the name of the switch
+        number_of_control_outputs - the number of system outputs in addition to the embedded systems outputs
+                                       i.e. control outputs of a switch/statemaching/...
+
+        - member variables -
+
+        self._switch_output_links    - overwrite by derived class when calling on_exit()
+        self.outputs                 - a list of output signals as defined by self._switch_output_links
+
+        - methods to be defined -
+
+        on_exit(subsystem_prototypes)  - callback once all subsystems were defined
+                                         during this callback self._switch_output_links must be defined
+
+    &#34;&#34;&#34;
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
+
+    def __init__(self, switch_subsystem_name, number_of_control_outputs=0):
+
+        self._switch_subsystem_name = switch_subsystem_name
+        self._total_number_of_subsystem_outputs = None
+        self._switch_output_links = None
+        self._switch_system = None
+        self._number_of_control_outputs = number_of_control_outputs
+        self._number_of_switched_outputs = None
+
+        # List [ bp.GenericSubsystem ]
+        self._subsystem_prototypes = None
+
+        # List [ switch_single_sub ]
+        self._subsystem_list = None
+
+
+    def new_subsystem(self, subsystem_name = None):
+        raise BaseException(&#34;to be implemented&#34;)
+
+    def __enter__(self):
+
+        self._subsystem_list = []
+        self._subsystem_prototypes = []
+
+        return self
+
+    def on_exit(self, subsystem_prototypes):
+        &#34;&#34;&#34;
+            called when all subsystems have been added to the switch
+
+            subsystem_prototypes - the list of subsystem block prototypes of type bp.GenericSubsystem
+        &#34;&#34;&#34;
+        raise BaseException(&#34;to be implemented&#34;)
+
+    def __exit__(self, type, value, traceback):
+        # collect all prototyes thet embedd the subsystems
+        for system in self._subsystem_list:
+            self._subsystem_prototypes.append( system.subsystem_prototype )
+
+        # analyze the default subsystem (the first) to get the output datatypes to use
+        for subsystem in [ self._subsystem_list[0] ]:
+
+            # get the outputs that will serve as reference points for datatype inheritance
+            number_of_normal_outputs = len( subsystem.outputs ) - self._number_of_control_outputs
+            self._reference_outputs = subsystem.outputs[0:number_of_normal_outputs]
+            self._total_number_of_subsystem_outputs = len(subsystem.outputs)
+
+            self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_control_outputs
+
+        self.on_exit( self._subsystem_prototypes )
+
+    @property
+    def outputs(self):
+
+        if self._switch_output_links is None:
+            BaseException(&#34;Please close the switch subsystem before querying its outputs&#34;)
+        
+        return self._switch_output_links</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.sub_statemachine" href="#openrtdynamics2.subsystems.sub_statemachine">sub_statemachine</a></li>
+<li><a title="openrtdynamics2.subsystems.sub_switch" href="#openrtdynamics2.subsystems.sub_switch">sub_switch</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchPrototype.outputs"><code class="name">var <span class="ident">outputs</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def outputs(self):
+
+    if self._switch_output_links is None:
+        BaseException(&#34;Please close the switch subsystem before querying its outputs&#34;)
+    
+    return self._switch_output_links</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchPrototype.new_subsystem"><code class="name flex">
+<span>def <span class="ident">new_subsystem</span></span>(<span>self, subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_subsystem(self, subsystem_name = None):
+    raise BaseException(&#34;to be implemented&#34;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchPrototype.on_exit"><code class="name flex">
+<span>def <span class="ident">on_exit</span></span>(<span>self, subsystem_prototypes)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>called when all subsystems have been added to the switch</p>
+<p>subsystem_prototypes - the list of subsystem block prototypes of type bp.GenericSubsystem</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_exit(self, subsystem_prototypes):
+    &#34;&#34;&#34;
+        called when all subsystems have been added to the switch
+
+        subsystem_prototypes - the list of subsystem block prototypes of type bp.GenericSubsystem
+    &#34;&#34;&#34;
+    raise BaseException(&#34;to be implemented&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystem"><code class="flex name class">
+<span>class <span class="ident">SwitchedSubsystem</span></span>
+<span>(</span><span>subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems</p>
+<ul>
+<li>methods to be called by the user -</li>
+</ul>
+<p>set_switched_outputs(signals)
+- connect a list of signals to the output of the switch</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SwitchedSubsystem(SwitchedSubsystemPrototype):
+    &#34;&#34;&#34;
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        - methods to be called by the user -
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
+    &#34;&#34;&#34;
+    def __init__(self, subsystem_name = None ):
+
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
+
+
+    def set_switched_outputs(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        &#34;&#34;&#34;
+
+        self.set_switched_outputs_prototype(signals)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype">SwitchedSubsystemPrototype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystem.set_switched_outputs"><code class="name flex">
+<span>def <span class="ident">set_switched_outputs</span></span>(<span>self, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>connect a list of outputs to the switch that switches between multple subsystems of this kind</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_switched_outputs(self, signals):
+    &#34;&#34;&#34;
+        connect a list of outputs to the switch that switches between multple subsystems of this kind
+    &#34;&#34;&#34;
+
+    self.set_switched_outputs_prototype(signals)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype">SwitchedSubsystemPrototype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype">set_switched_outputs_prototype</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype"><code class="flex name class">
+<span>class <span class="ident">SwitchedSubsystemPrototype</span></span>
+<span>(</span><span>subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems</p>
+<ul>
+<li>methods to called by the user -</li>
+</ul>
+<p>set_switched_outputs(signals)
+- connect a list of signals to the output of the switch</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SwitchedSubsystemPrototype:
+    &#34;&#34;&#34;
+        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+
+        - methods to called by the user -
+
+        set_switched_outputs(signals)  - connect a list of signals to the output of the switch
+    &#34;&#34;&#34;
+
+    # NOTE: in case of an exception, nothing happens just __exit__ is called silently which then aborts
+
+    def __init__(self, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = generate_subsystem_name() + &#39;_&#39; + subsystem_name
+        else:        
+            self._subsystem_name = generate_subsystem_name()
+
+        self._outputs_of_embeded_subsystem = None
+
+        self._system = None
+        self._anonymous_output_signals = None
+        self._embeddedingBlockPrototype = None
+
+    @property
+    def system(self):
+        return self._system
+
+    @property
+    def name(self):
+        return self._subsystem_name
+
+    @property
+    def outputs(self):
+        return self._outputs_of_embeded_subsystem
+
+    def set_switched_outputs(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+
+            use self.set_switched_outputs_prototype in the derived classes to set this
+        &#34;&#34;&#34;
+        
+        BaseException(&#34;to be implemented&#34;)
+
+    def set_switched_outputs_prototype(self, signals):
+        &#34;&#34;&#34;
+            connect a list of outputs to the switch that switches between multple subsystems of this kind
+        &#34;&#34;&#34;
+
+        if self._outputs_of_embeded_subsystem is None:
+            self._outputs_of_embeded_subsystem = signals.copy()
+        else:
+            raise BaseException(&#34;tried to overwrite previously set output&#34;)
+
+
+
+
+
+    def __enter__(self):
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+        embedded_subsystem = dy.get_simulation_context()
+
+        #
+        number_of_subsystem_ouputs = len(self._outputs_of_embeded_subsystem)
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embeded_subsystem ) )
+
+        # create generic subsystem block prototype
+        self._embeddedingBlockPrototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=number_of_subsystem_ouputs )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+    @property
+    def subsystem_prototype(self):
+        return self._embeddedingBlockPrototype</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.SwitchedSubsystem" href="#openrtdynamics2.subsystems.SwitchedSubsystem">SwitchedSubsystem</a></li>
+<li><a title="openrtdynamics2.subsystems.state_sub" href="#openrtdynamics2.subsystems.state_sub">state_sub</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    return self._subsystem_name</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.outputs"><code class="name">var <span class="ident">outputs</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def outputs(self):
+    return self._outputs_of_embeded_subsystem</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.subsystem_prototype"><code class="name">var <span class="ident">subsystem_prototype</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def subsystem_prototype(self):
+    return self._embeddedingBlockPrototype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.system"><code class="name">var <span class="ident">system</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def system(self):
+    return self._system</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs"><code class="name flex">
+<span>def <span class="ident">set_switched_outputs</span></span>(<span>self, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>connect a list of outputs to the switch that switches between multple subsystems of this kind</p>
+<p>use self.set_switched_outputs_prototype in the derived classes to set this</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_switched_outputs(self, signals):
+    &#34;&#34;&#34;
+        connect a list of outputs to the switch that switches between multple subsystems of this kind
+
+        use self.set_switched_outputs_prototype in the derived classes to set this
+    &#34;&#34;&#34;
+    
+    BaseException(&#34;to be implemented&#34;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype"><code class="name flex">
+<span>def <span class="ident">set_switched_outputs_prototype</span></span>(<span>self, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>connect a list of outputs to the switch that switches between multple subsystems of this kind</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_switched_outputs_prototype(self, signals):
+    &#34;&#34;&#34;
+        connect a list of outputs to the switch that switches between multple subsystems of this kind
+    &#34;&#34;&#34;
+
+    if self._outputs_of_embeded_subsystem is None:
+        self._outputs_of_embeded_subsystem = signals.copy()
+    else:
+        raise BaseException(&#34;tried to overwrite previously set output&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.subsystems.state_sub"><code class="flex name class">
+<span>class <span class="ident">state_sub</span></span>
+<span>(</span><span>subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A single subsystem as part of a state machine (implemented by sub_statemachine)</p>
+<ul>
+<li>methods to called by the user -</li>
+</ul>
+<p>set_switched_outputs(signals, state_signal)
+- connect a list of signals to the output of the state machine</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class state_sub(SwitchedSubsystemPrototype):
+    &#34;&#34;&#34;
+        A single subsystem as part of a state machine (implemented by sub_statemachine)
+
+        - methods to called by the user -
+
+        set_switched_outputs(signals, state_signal)  - connect a list of signals to the output of the state machine
+    &#34;&#34;&#34;
+
+    def __init__(self, subsystem_name = None ):
+        SwitchedSubsystemPrototype.__init__(self, subsystem_name)
+
+        self._output_signals = None
+        self._state_signal = None
+
+
+    def set_switched_outputs(self, signals, state_signal):
+        &#34;&#34;&#34;
+            set the output signals of a subsystem embedded into the state machine
+
+            - signals      - normal system output that are forwarded using a switch
+            - state_signal - control signal indicating the next state the state machine enters
+        &#34;&#34;&#34;
+        self._output_signals = signals
+        self._state_signal = state_signal
+
+        self.set_switched_outputs_prototype( signals +  [state_signal] )
+
+    @property
+    def state_control_output(self):
+         return self._state_signal
+
+    @property
+    def subsystem_outputs(self):
+        return self._output_signals</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype">SwitchedSubsystemPrototype</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.state_sub.state_control_output"><code class="name">var <span class="ident">state_control_output</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def state_control_output(self):
+     return self._state_signal</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.state_sub.subsystem_outputs"><code class="name">var <span class="ident">subsystem_outputs</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def subsystem_outputs(self):
+    return self._output_signals</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.state_sub.set_switched_outputs"><code class="name flex">
+<span>def <span class="ident">set_switched_outputs</span></span>(<span>self, signals, state_signal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>set the output signals of a subsystem embedded into the state machine</p>
+<ul>
+<li>signals
+- normal system output that are forwarded using a switch</li>
+<li>state_signal - control signal indicating the next state the state machine enters</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_switched_outputs(self, signals, state_signal):
+    &#34;&#34;&#34;
+        set the output signals of a subsystem embedded into the state machine
+
+        - signals      - normal system output that are forwarded using a switch
+        - state_signal - control signal indicating the next state the state machine enters
+    &#34;&#34;&#34;
+    self._output_signals = signals
+    self._state_signal = state_signal
+
+    self.set_switched_outputs_prototype( signals +  [state_signal] )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype">SwitchedSubsystemPrototype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype">set_switched_outputs_prototype</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_if"><code class="flex name class">
+<span>class <span class="ident">sub_if</span></span>
+<span>(</span><span>condition_signal: <a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, subsystem_name=None, prevent_output_computation=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>NOTE: in case the if condition is false, the outputs are hold. Eventally uninitialized.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class sub_if:
+    &#34;&#34;&#34;
+
+        NOTE: in case the if condition is false, the outputs are hold. Eventally uninitialized.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, condition_signal : dy.SignalUserTemplate, subsystem_name = None, prevent_output_computation = False ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = generate_subsystem_name()
+
+        self._condition_signal = condition_signal
+        self._prevent_output_computation = prevent_output_computation
+
+        # 
+        self._outputs_of_embeded_subsystem = []
+
+        # outputs (links to the subsystem outputs) to be used by the user
+        self._output_links = None
+
+
+    def set_outputs(self, signals):
+        self._outputs_of_embeded_subsystem = signals.copy()
+
+    def __enter__(self):
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+
+        embedded_subsystem = dy.get_simulation_context()
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embeded_subsystem ) )
+
+        # create generic subsystem block prototype
+        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=len(self._outputs_of_embeded_subsystem) )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+        #
+        # now in the system in which the embeder block (including the logic) shall be placed.
+        #
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.TruggeredSubsystem( sim=dy.get_simulation_context(), 
+                control_input=si.unwrap( self._condition_signal ), 
+                subsystem_prototype=self._subsystem_block_prototype,
+                prevent_output_computation = self._prevent_output_computation)
+
+
+                # subsystem_prototypes=subsystem_prototypes, 
+                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+        # connect the additional (control) outputs
+        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+
+    @property
+    def outputs(self):
+
+        if self._output_links is None:
+            BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+        
+        return self._output_links</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_if.outputs"><code class="name">var <span class="ident">outputs</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def outputs(self):
+
+    if self._output_links is None:
+        BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+    
+    return self._output_links</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_if.set_outputs"><code class="name flex">
+<span>def <span class="ident">set_outputs</span></span>(<span>self, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_outputs(self, signals):
+    self._outputs_of_embeded_subsystem = signals.copy()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_loop"><code class="flex name class">
+<span>class <span class="ident">sub_loop</span></span>
+<span>(</span><span>max_iterations: int, subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class sub_loop:
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;
+
+
+    def __init__(self, max_iterations : int, subsystem_name = None ):
+
+        if subsystem_name is not None:
+            self._subsystem_name = subsystem_name
+        else:
+            self._subsystem_name = generate_subsystem_name()
+
+        self._max_iterations = max_iterations
+
+        # control outputs of the embedded subsystem
+        self._until_signal = None
+        self._yield_signal = None
+
+        # 
+        self._outputs_of_embeded_subsystem = []
+
+        # outputs (links to the subsystem outputs) to be used by the user
+        self._output_links = None
+
+
+    def set_outputs(self, signals):
+        self._outputs_of_embeded_subsystem = si.unwrap_list( signals.copy() )
+
+    def loop_until(self, condition_signal):
+        self._until_signal = condition_signal.unwrap
+
+    def loop_yield(self, condition_signal):
+        self._yield_signal = condition_signal.unwrap
+
+    def __enter__(self):
+
+        self._system = enter_subsystem(self._subsystem_name )
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+
+        embedded_subsystem = dy.get_simulation_context()
+
+        # collect all outputs
+        all_output_signals = []
+        all_output_signals.extend(self._outputs_of_embeded_subsystem)
+        if self._until_signal is not None:
+            all_output_signals.append(self._until_signal)
+        if self._yield_signal is not None:
+            all_output_signals.append(self._yield_signal)
+
+        # set the outputs of the system
+        embedded_subsystem.set_primary_outputs(  all_output_signals  )
+
+        # create generic subsystem block prototype
+        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.UpperLevelSim, 
+                                                    manifest=None, inputSignals=None, 
+                                                    embedded_subsystem=embedded_subsystem,
+                                                    N_outputs=len(all_output_signals) )
+
+        # leave the context of the subsystem
+        dy.leave_system()
+
+        #
+        # now in the system in which the embeder block (including the logic) shall be placed.
+        #
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.LoopUntilSubsystem( sim=dy.get_simulation_context(), 
+                max_iteriations=self._max_iterations, 
+                subsystem_prototype=self._subsystem_block_prototype,
+                until_signal=self._until_signal,
+                yield_signal=self._yield_signal)
+
+
+                # subsystem_prototypes=subsystem_prototypes, 
+                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
+
+        # connect the additional (control) outputs
+        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+
+    @property
+    def outputs(self):
+
+        if self._output_links is None:
+            BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+        
+        return self._output_links</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_loop.outputs"><code class="name">var <span class="ident">outputs</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def outputs(self):
+
+    if self._output_links is None:
+        BaseException(&#34;Please close the subsystem before querying its outputs&#34;)
+    
+    return self._output_links</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_loop.loop_until"><code class="name flex">
+<span>def <span class="ident">loop_until</span></span>(<span>self, condition_signal)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loop_until(self, condition_signal):
+    self._until_signal = condition_signal.unwrap</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_loop.loop_yield"><code class="name flex">
+<span>def <span class="ident">loop_yield</span></span>(<span>self, condition_signal)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loop_yield(self, condition_signal):
+    self._yield_signal = condition_signal.unwrap</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_loop.set_outputs"><code class="name flex">
+<span>def <span class="ident">set_outputs</span></span>(<span>self, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_outputs(self, signals):
+    self._outputs_of_embeded_subsystem = si.unwrap_list( signals.copy() )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_statemachine"><code class="flex name class">
+<span>class <span class="ident">sub_statemachine</span></span>
+<span>(</span><span>switch_subsystem_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A state machine subsystem</p>
+<ul>
+<li>properties -</li>
+</ul>
+<p>self.state - status signal of the state machine (available after 'with sub_statemachine' has findished)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class sub_statemachine(SwitchPrototype):
+    &#34;&#34;&#34;
+        A state machine subsystem
+
+        - properties -
+
+        self.state - status signal of the state machine (available after &#39;with sub_statemachine&#39; has findished)
+    &#34;&#34;&#34;
+    def __init__(self, switch_subsystem_name):
+        number_of_control_outputs = 1 # add one control output to inform about the current state
+
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs )
+
+        # state output signal undefined until defined by on_exit() 
+        self._state_output = None
+
+    @property
+    def state(self):
+        &#34;&#34;&#34;
+            get the signal describing the current state
+        &#34;&#34;&#34;
+        return self._state_output
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = state_sub(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+    def on_exit(self, subsystem_prototypes):
+
+        # create the embeeder prototype
+        embeddedingBlockPrototype = bp.StatemachineSwichSubsystems( sim=dy.get_simulation_context(), 
+                subsystem_prototypes=subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )
+
+        # connect the additional (control) outputs
+        self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.SwitchPrototype" href="#openrtdynamics2.subsystems.SwitchPrototype">SwitchPrototype</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_statemachine.state"><code class="name">var <span class="ident">state</span></code></dt>
+<dd>
+<div class="desc"><p>get the signal describing the current state</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def state(self):
+    &#34;&#34;&#34;
+        get the signal describing the current state
+    &#34;&#34;&#34;
+    return self._state_output</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_statemachine.new_subsystem"><code class="name flex">
+<span>def <span class="ident">new_subsystem</span></span>(<span>self, subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_subsystem(self, subsystem_name = None):
+
+    system = state_sub(subsystem_name=subsystem_name)
+    self._subsystem_list.append(system)
+
+    return system</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.subsystems.SwitchPrototype" href="#openrtdynamics2.subsystems.SwitchPrototype">SwitchPrototype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.subsystems.SwitchPrototype.on_exit" href="#openrtdynamics2.subsystems.SwitchPrototype.on_exit">on_exit</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.subsystems.sub_switch"><code class="flex name class">
+<span>class <span class="ident">sub_switch</span></span>
+<span>(</span><span>switch_subsystem_name, select_signal: <a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>a switch for subsystems that are implemented by SwitchedSubsystemPrototype (class to be derived)</p>
+<p>switch_subsystem_name
+- the name of the switch
+number_of_control_outputs - the number of system outputs in addition to the embedded systems outputs
+i.e. control outputs of a switch/statemaching/&hellip;</p>
+<ul>
+<li>member variables -</li>
+</ul>
+<p>self._switch_output_links
+- overwrite by derived class when calling on_exit()
+self.outputs
+- a list of output signals as defined by self._switch_output_links</p>
+<ul>
+<li>methods to be defined -</li>
+</ul>
+<p>on_exit(subsystem_prototypes)
+- callback once all subsystems were defined
+during this callback self._switch_output_links must be defined</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class sub_switch(SwitchPrototype):
+    def __init__(self, switch_subsystem_name, select_signal : dy.SignalUserTemplate ):
+
+        self._select_signal = select_signal
+        SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs=0)
+
+    def new_subsystem(self, subsystem_name = None):
+
+        system = SwitchedSubsystem(subsystem_name=subsystem_name)
+        self._subsystem_list.append(system)
+
+        return system
+
+
+    def on_exit(self, subsystem_prototypes):
+
+        # create the  embeeder prototype
+        embeddedingBlockPrototype = bp.SwichSubsystems( sim=dy.get_simulation_context(), 
+                control_input=self._select_signal.unwrap, 
+                subsystem_prototypes=subsystem_prototypes, 
+                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+
+        # connect the normal outputs via links
+        self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.subsystem_switch_outouts )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.subsystems.SwitchPrototype" href="#openrtdynamics2.subsystems.SwitchPrototype">SwitchPrototype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.subsystems.sub_switch.new_subsystem"><code class="name flex">
+<span>def <span class="ident">new_subsystem</span></span>(<span>self, subsystem_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_subsystem(self, subsystem_name = None):
+
+    system = SwitchedSubsystem(subsystem_name=subsystem_name)
+    self._subsystem_list.append(system)
+
+    return system</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.subsystems.SwitchPrototype" href="#openrtdynamics2.subsystems.SwitchPrototype">SwitchPrototype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.subsystems.SwitchPrototype.on_exit" href="#openrtdynamics2.subsystems.SwitchPrototype.on_exit">on_exit</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2" href="index.html">openrtdynamics2</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.SwitchPrototype" href="#openrtdynamics2.subsystems.SwitchPrototype">SwitchPrototype</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.SwitchPrototype.new_subsystem" href="#openrtdynamics2.subsystems.SwitchPrototype.new_subsystem">new_subsystem</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchPrototype.on_exit" href="#openrtdynamics2.subsystems.SwitchPrototype.on_exit">on_exit</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchPrototype.outputs" href="#openrtdynamics2.subsystems.SwitchPrototype.outputs">outputs</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.SwitchedSubsystem" href="#openrtdynamics2.subsystems.SwitchedSubsystem">SwitchedSubsystem</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystem.set_switched_outputs" href="#openrtdynamics2.subsystems.SwitchedSubsystem.set_switched_outputs">set_switched_outputs</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype">SwitchedSubsystemPrototype</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.name" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.name">name</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.outputs" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.outputs">outputs</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs">set_switched_outputs</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.set_switched_outputs_prototype">set_switched_outputs_prototype</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.subsystem_prototype" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.subsystem_prototype">subsystem_prototype</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.SwitchedSubsystemPrototype.system" href="#openrtdynamics2.subsystems.SwitchedSubsystemPrototype.system">system</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.state_sub" href="#openrtdynamics2.subsystems.state_sub">state_sub</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.state_sub.set_switched_outputs" href="#openrtdynamics2.subsystems.state_sub.set_switched_outputs">set_switched_outputs</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.state_sub.state_control_output" href="#openrtdynamics2.subsystems.state_sub.state_control_output">state_control_output</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.state_sub.subsystem_outputs" href="#openrtdynamics2.subsystems.state_sub.subsystem_outputs">subsystem_outputs</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.sub_if" href="#openrtdynamics2.subsystems.sub_if">sub_if</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.sub_if.outputs" href="#openrtdynamics2.subsystems.sub_if.outputs">outputs</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.sub_if.set_outputs" href="#openrtdynamics2.subsystems.sub_if.set_outputs">set_outputs</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.sub_loop" href="#openrtdynamics2.subsystems.sub_loop">sub_loop</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.sub_loop.loop_until" href="#openrtdynamics2.subsystems.sub_loop.loop_until">loop_until</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.sub_loop.loop_yield" href="#openrtdynamics2.subsystems.sub_loop.loop_yield">loop_yield</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.sub_loop.outputs" href="#openrtdynamics2.subsystems.sub_loop.outputs">outputs</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.sub_loop.set_outputs" href="#openrtdynamics2.subsystems.sub_loop.set_outputs">set_outputs</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.sub_statemachine" href="#openrtdynamics2.subsystems.sub_statemachine">sub_statemachine</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.sub_statemachine.new_subsystem" href="#openrtdynamics2.subsystems.sub_statemachine.new_subsystem">new_subsystem</a></code></li>
+<li><code><a title="openrtdynamics2.subsystems.sub_statemachine.state" href="#openrtdynamics2.subsystems.sub_statemachine.state">state</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.subsystems.sub_switch" href="#openrtdynamics2.subsystems.sub_switch">sub_switch</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.subsystems.sub_switch.new_subsystem" href="#openrtdynamics2.subsystems.sub_switch.new_subsystem">new_subsystem</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

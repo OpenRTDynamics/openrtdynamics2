@@ -1,0 +1,1536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.code_generation_templates API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.code_generation_templates</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .diagram_core.code_build_commands import *
+from .diagram_core.system_manifest import *
+from .diagram_core import diagram_compiler
+from .libraries import *
+
+import subprocess
+import os
+import json
+from pathlib import Path
+
+
+def generate_algorithm_code( compile_results, enable_tracing=False, included_systems={} ):
+    &#34;&#34;&#34;
+        generate code for the given compile result
+
+        compile_results  - the compilation results of the a system
+        enable_tracing   - include debuging
+        included_systems - unused so far
+    &#34;&#34;&#34;
+
+    main_command = compile_results.command_to_execute
+
+    algorithm_code = &#39;&#39;
+
+    # enable tracing for all execution commands
+    if enable_tracing:
+        # TODO: instead of putting True create an obj with a tracing infrastructure. So far printf is used automatically
+        main_command.command_to_put_main_system.set_tracing_infrastructure(True)
+
+    # combine (concatenate) the code from the library entries
+    for include in included_systems:
+        algorithm_code += include.sourceCode
+
+    # build the code for the implementation
+    main_command.generate_code_init(&#39;c++&#39;)
+    algorithm_code += main_command.generate_code(&#39;c++&#39;, &#39;code&#39;)
+    main_command.generate_code_destruct(&#39;c++&#39;)
+
+    # the manifest containts meta-information about the simulation and its interface
+    # i.e. input and output signals names and datatypes
+    manifest = compile_results.manifest.export_json()
+
+    return manifest, algorithm_code
+
+
+
+
+class PutRuntimeCppHelper:
+    &#34;&#34;&#34;
+        generates code for the runtime environment
+    &#34;&#34;&#34;
+
+    def __init__(self, enable_tracing=False ):
+        ExecutionCommand.__init__(self)  # TODO: what is this?
+
+        # if compile_results is not None:
+        #     self.compileResults = compile_results
+        #     self.main_command = compile_results.command_to_execute
+
+        # else:
+
+        # those are set via set_compile_results after a system is compiled
+        self.compileResults = None
+        self.main_command = None
+
+        #
+        self._algorithm_code = None
+
+        # list of inlcuded system
+        self._includedSystems = []
+
+        self._enable_tracing = enable_tracing
+
+    def set_compile_results(self, compile_results : CompileResults ):
+        self.compileResults = compile_results
+        self.main_command = compile_results.command_to_execute
+
+    def include_systems(self, system : SystemLibraryEntry):
+        self._includedSystems = system
+
+    def get_algorithm_code(self):
+        &#34;&#34;&#34;
+            Return only the code that implement the system and all sub systems
+        &#34;&#34;&#34;
+        return self._algorithm_code
+
+
+
+    def code_gen(self):
+
+        # generate code for the algorithm
+        self.manifest, self._algorithm_code = generate_algorithm_code(self.compileResults, self._enable_tracing, self._includedSystems)
+
+        
+        # TODO: iterate over all functions present in the API of the system
+        # NOTE: Currently only the main functions are used: output, update, and reset
+        #
+        API_functions = self.main_command.command_to_put_main_system.API_functions
+
+        #
+        # make strings 
+        # 
+
+        def makeStrings(signals):
+            names_CSV_list = cgh.signal_list_to_names_string(signals)
+            names_var_def = cgh.define_variable_list_string(signals)
+            printf_pattern = cgh.signalListHelper_printfPattern_string(signals)
+
+            return names_CSV_list, names_var_def, printf_pattern
+
+
+        # for the output signals
+        # input1_NamesCSVList; list of output signals. e.g. &#39;y1, y2, y3&#39; 
+        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.outputSignals )
+
+        # the inputs to the output command
+        # input1_NamesCSVList: list of output signals. e.g. &#39;y1, y2, y3&#39; 
+        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+        # the inputs to the update command
+        # input2_NamesCSVList list of output signals. e.g. &#39;u1, u2, u3&#39; 
+        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.updateCommand.inputSignals )
+
+        # all inputs
+        # merge the list of inputs for the calcoutput and stateupdate function
+        allInputs = list(set(self.main_command.command_to_put_main_system.outputCommand.inputSignals + self.main_command.command_to_put_main_system.updateCommand.inputSignals))
+        inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
+
+        # the names of input and output signals of the outputCommand combined
+        calcOutputsArgs = cgh.signal_list_to_name_list( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+        # fill in template
+        self.template = Template(self.template).safe_substitute(  
+                                                    mainSimulationName = self.main_command.command_to_put_main_system.API_name,
+                                                    algorithmCode=self._algorithm_code,
+
+                                                    input1_NamesVarDef=input1_NamesVarDef,
+                                                    input1_NamesCSVList=input1_NamesCSVList,
+
+                                                    input2_NamesVarDef=input2_NamesVarDef,
+                                                    input2_NamesCSVList=input2_NamesCSVList,
+
+                                                    inputAll_NamesVarDef=inputAll_NamesVarDef,
+                                                    inputAll_NamesCSVList=inputAll_NamesCSVList,
+
+                                                    outputNamesCSVList=outputNamesCSVList, 
+                                                    outputNamesVarDef=outputNamesVarDef,
+                                                    outputPrinfPattern=outputPrinfPattern,
+                                                    
+                                                    calcOutputsArgs=calcOutputsArgs )
+
+
+        return {&#39;sourcecode&#39; : self.template, &#39;manifest&#39; : self.manifest, &#39;algorithm_sourcecode&#39; : self._algorithm_code }
+
+    def writeFiles(self, folder):
+
+        with open( os.path.join( folder + &#39;//simulation_manifest.json&#39; ), &#39;w&#39;) as outfile:  
+            json.dump(self.manifest, outfile)
+
+    def build(self):
+        pass
+
+    def run(self):
+        pass
+
+
+
+
+class PutBasicRuntimeCpp(PutRuntimeCppHelper):
+    &#34;&#34;&#34;
+        generates code for the runtime evironment
+    &#34;&#34;&#34;
+
+    def __init__(self, i_max : int, input_signals_mapping = {} ):
+
+        self._i_max = i_max
+
+        PutRuntimeCppHelper.__init__(self)
+
+        self.input_signals_mapping = input_signals_mapping
+        self.initCodeTemplate()
+
+        
+    def code_gen(self):
+
+        # call helper to fill in some generic elements into the template
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+        #
+        # make strings 
+        # 
+
+        # constant inputs
+        inputConstAssignments = []
+        for signal, value in self.input_signals_mapping.items():
+            inputConstAssignments.append( signal.name + &#39; = &#39; + str(value) )
+
+        inputConstAssignment = &#39;; &#39;.join( inputConstAssignments ) + &#39;;&#39;
+
+        self.sourceCode = Template(self.template).safe_substitute( iMax=self._i_max,
+                                                                 inputConstAssignment=inputConstAssignment    ) 
+
+        code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+        return code_gen_results
+
+    def write_code(self, folder):
+        PutRuntimeCppHelper.writeFiles(self, folder)
+
+        self.codeFolder = folder
+
+        f = open(os.path.join( folder + &#34;main.cpp&#34;), &#34;w&#34;)
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+        os.system(&#34;c++ &#34; + self.codeFolder + &#34;main.cpp -o &#34; + self.codeFolder + &#34;main&#34;)
+
+
+    def run(self):
+        # run the generated executable
+        p = subprocess.Popen(self.codeFolder + &#39;main&#39;, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = p.wait()
+
+        # parse csv data
+        data = [ ]
+        outputs = range(0, len(self.main_command.command_to_put_main_system.outputCommand.outputSignals) )
+
+        for o in outputs:
+            data.append( [] )
+
+        for line in p.stdout.readlines():
+            sample = line.decode(&#34;utf-8&#34;).split(&#39; &#39;)
+
+            for o in outputs:
+                data[ o ].append( float( sample[o] ) )
+
+        # put data into a key-array
+        dataStruct = { }
+        o = 0
+        for s in self.main_command.command_to_put_main_system.outputCommand.outputSignals:
+            dataStruct[ s.name ] = data[o]
+
+            o = o + 1
+
+        return dataStruct
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+//
+// main
+//
+
+int main () {
+
+    // create an instance of the simulation
+    $mainSimulationName simulation;
+
+    // input signals
+    $inputAll_NamesVarDef
+
+    // output signals
+    $outputNamesVarDef
+
+    // const assignments of the input signals
+    $inputConstAssignment
+
+    // reset the simulation
+    simulation.resetStates();
+
+    // simulate
+    int i;
+
+    for (i=0; i&lt; $iMax; ++i) {
+        simulation.calcResults_1( $calcOutputsArgs );
+        simulation.updateStates(  $input2_NamesCSVList );
+
+        printf(&#34;$outputPrinfPattern\\n&#34;, $outputNamesCSVList);
+    }
+
+}
+
+            
+        &#34;&#34;&#34;        
+
+
+
+
+
+
+
+
+class WasmRuntime(PutRuntimeCppHelper):
+    &#34;&#34;&#34;
+        generates code for the Webassemble runtime environment
+
+        https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+
+    &#34;&#34;&#34;
+
+    def __init__(self, enable_tracing = False ):
+
+        PutRuntimeCppHelper.__init__(self, enable_tracing=enable_tracing)
+
+        self.initCodeTemplate()
+
+        
+    def code_gen(self):
+
+        # build I/O structs
+        ioExport = self.generate_code_writeIO(self.main_command.command_to_put_main_system.outputCommand)
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.updateCommand)
+
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.resetCommand)
+
+        self.template = Template(self.template).safe_substitute( ioExport=ioExport,
+                                                                 inputConstAssignment=&#39;&#39;    ) 
+
+        # call helper to fill in some generic elements into the template
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+        self.sourceCode = self.template
+
+        code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+        return code_gen_results
+
+
+
+    def generate_code_writeIO__(self, command_API, inputOutput : int):
+
+        if inputOutput == 1:
+            structPrefix = &#39;Inputs_&#39;
+            signals = command_API.inputSignals
+
+        elif inputOutput == 2:
+            structPrefix = &#39;Outputs_&#39;
+            signals = command_API.outputSignals
+
+        mainSimulationName = self.main_command.command_to_put_main_system.API_name
+
+        lines = &#39;&#39;
+
+        # Inputs
+        structname = structPrefix + command_API.API_name 
+
+        lines += &#39;value_object&lt;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;&gt;(&#34;&#39; + mainSimulationName + &#39;__&#39; + structname + &#39;&#34;)\n&#39;
+
+        for s in signals:
+            fieldName = s.name
+
+            lines += &#39;.field(&#34;&#39; + fieldName + &#39;&#34;, &amp;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;::&#39; + fieldName + &#39;)\n&#39;
+
+        lines += &#39;;\n\n&#39;
+
+
+        return lines
+
+    def generate_code_writeIO(self, command_API):
+        return self.generate_code_writeIO__(command_API, 1) + self.generate_code_writeIO__(command_API, 2)
+
+
+    def write_code(self, folder):
+
+        PutRuntimeCppHelper.writeFiles(self, folder)
+
+        self.codeFolder = folder
+
+        f = open( Path( folder ) / &#34;main.cpp&#34;, &#34;w&#34;)
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+
+        buildCommand = &#39;emcc --bind -s MODULARIZE=1 -s EXPORT_NAME=&#34;ORTD_simulator&#34; &#39;  + os.path.join(self.codeFolder , &#34;main.cpp&#34;) + &#34; -g4 -s -o &#34; + os.path.join( self.codeFolder , &#34;main.js&#34; )
+        print(&#34;Running compiler: &#34; + buildCommand)
+
+        returnCode = os.system(buildCommand)
+
+        print( &#34;Compilation result: &#34;, returnCode )
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;emscripten/bind.h&gt;
+
+using namespace emscripten;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+// Binding code
+EMSCRIPTEN_BINDINGS(my_class_example) {
+  class_&lt;$mainSimulationName&gt;(&#34;$mainSimulationName&#34;)
+    .constructor&lt;&gt;()
+    .function(&#34;resetStates&#34;, &amp;$mainSimulationName::resetStates__)
+    .function(&#34;calcResults_1&#34;, &amp;$mainSimulationName::calcResults_1__)
+    .function(&#34;updateStates&#34;, &amp;$mainSimulationName::updateStates__)
+    ;
+
+
+// --------------------------------
+
+$ioExport
+
+
+}
+            
+        &#34;&#34;&#34;        </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.code_generation_templates.generate_algorithm_code"><code class="name flex">
+<span>def <span class="ident">generate_algorithm_code</span></span>(<span>compile_results, enable_tracing=False, included_systems={})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate code for the given compile result</p>
+<p>compile_results
+- the compilation results of the a system
+enable_tracing
+- include debuging
+included_systems - unused so far</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_algorithm_code( compile_results, enable_tracing=False, included_systems={} ):
+    &#34;&#34;&#34;
+        generate code for the given compile result
+
+        compile_results  - the compilation results of the a system
+        enable_tracing   - include debuging
+        included_systems - unused so far
+    &#34;&#34;&#34;
+
+    main_command = compile_results.command_to_execute
+
+    algorithm_code = &#39;&#39;
+
+    # enable tracing for all execution commands
+    if enable_tracing:
+        # TODO: instead of putting True create an obj with a tracing infrastructure. So far printf is used automatically
+        main_command.command_to_put_main_system.set_tracing_infrastructure(True)
+
+    # combine (concatenate) the code from the library entries
+    for include in included_systems:
+        algorithm_code += include.sourceCode
+
+    # build the code for the implementation
+    main_command.generate_code_init(&#39;c++&#39;)
+    algorithm_code += main_command.generate_code(&#39;c++&#39;, &#39;code&#39;)
+    main_command.generate_code_destruct(&#39;c++&#39;)
+
+    # the manifest containts meta-information about the simulation and its interface
+    # i.e. input and output signals names and datatypes
+    manifest = compile_results.manifest.export_json()
+
+    return manifest, algorithm_code</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp"><code class="flex name class">
+<span>class <span class="ident">PutBasicRuntimeCpp</span></span>
+<span>(</span><span>i_max: int, input_signals_mapping={})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generates code for the runtime evironment</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PutBasicRuntimeCpp(PutRuntimeCppHelper):
+    &#34;&#34;&#34;
+        generates code for the runtime evironment
+    &#34;&#34;&#34;
+
+    def __init__(self, i_max : int, input_signals_mapping = {} ):
+
+        self._i_max = i_max
+
+        PutRuntimeCppHelper.__init__(self)
+
+        self.input_signals_mapping = input_signals_mapping
+        self.initCodeTemplate()
+
+        
+    def code_gen(self):
+
+        # call helper to fill in some generic elements into the template
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+        #
+        # make strings 
+        # 
+
+        # constant inputs
+        inputConstAssignments = []
+        for signal, value in self.input_signals_mapping.items():
+            inputConstAssignments.append( signal.name + &#39; = &#39; + str(value) )
+
+        inputConstAssignment = &#39;; &#39;.join( inputConstAssignments ) + &#39;;&#39;
+
+        self.sourceCode = Template(self.template).safe_substitute( iMax=self._i_max,
+                                                                 inputConstAssignment=inputConstAssignment    ) 
+
+        code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+        return code_gen_results
+
+    def write_code(self, folder):
+        PutRuntimeCppHelper.writeFiles(self, folder)
+
+        self.codeFolder = folder
+
+        f = open(os.path.join( folder + &#34;main.cpp&#34;), &#34;w&#34;)
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+        os.system(&#34;c++ &#34; + self.codeFolder + &#34;main.cpp -o &#34; + self.codeFolder + &#34;main&#34;)
+
+
+    def run(self):
+        # run the generated executable
+        p = subprocess.Popen(self.codeFolder + &#39;main&#39;, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = p.wait()
+
+        # parse csv data
+        data = [ ]
+        outputs = range(0, len(self.main_command.command_to_put_main_system.outputCommand.outputSignals) )
+
+        for o in outputs:
+            data.append( [] )
+
+        for line in p.stdout.readlines():
+            sample = line.decode(&#34;utf-8&#34;).split(&#39; &#39;)
+
+            for o in outputs:
+                data[ o ].append( float( sample[o] ) )
+
+        # put data into a key-array
+        dataStruct = { }
+        o = 0
+        for s in self.main_command.command_to_put_main_system.outputCommand.outputSignals:
+            dataStruct[ s.name ] = data[o]
+
+            o = o + 1
+
+        return dataStruct
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+//
+// main
+//
+
+int main () {
+
+    // create an instance of the simulation
+    $mainSimulationName simulation;
+
+    // input signals
+    $inputAll_NamesVarDef
+
+    // output signals
+    $outputNamesVarDef
+
+    // const assignments of the input signals
+    $inputConstAssignment
+
+    // reset the simulation
+    simulation.resetStates();
+
+    // simulate
+    int i;
+
+    for (i=0; i&lt; $iMax; ++i) {
+        simulation.calcResults_1( $calcOutputsArgs );
+        simulation.updateStates(  $input2_NamesCSVList );
+
+        printf(&#34;$outputPrinfPattern\\n&#34;, $outputNamesCSVList);
+    }
+
+}
+
+            
+        &#34;&#34;&#34;        </code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper">PutRuntimeCppHelper</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build(self):
+    os.system(&#34;c++ &#34; + self.codeFolder + &#34;main.cpp -o &#34; + self.codeFolder + &#34;main&#34;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.code_gen"><code class="name flex">
+<span>def <span class="ident">code_gen</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def code_gen(self):
+
+    # call helper to fill in some generic elements into the template
+    code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+    #
+    # make strings 
+    # 
+
+    # constant inputs
+    inputConstAssignments = []
+    for signal, value in self.input_signals_mapping.items():
+        inputConstAssignments.append( signal.name + &#39; = &#39; + str(value) )
+
+    inputConstAssignment = &#39;; &#39;.join( inputConstAssignments ) + &#39;;&#39;
+
+    self.sourceCode = Template(self.template).safe_substitute( iMax=self._i_max,
+                                                             inputConstAssignment=inputConstAssignment    ) 
+
+    code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+    return code_gen_results</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.initCodeTemplate"><code class="name flex">
+<span>def <span class="ident">initCodeTemplate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+//
+// main
+//
+
+int main () {
+
+    // create an instance of the simulation
+    $mainSimulationName simulation;
+
+    // input signals
+    $inputAll_NamesVarDef
+
+    // output signals
+    $outputNamesVarDef
+
+    // const assignments of the input signals
+    $inputConstAssignment
+
+    // reset the simulation
+    simulation.resetStates();
+
+    // simulate
+    int i;
+
+    for (i=0; i&lt; $iMax; ++i) {
+        simulation.calcResults_1( $calcOutputsArgs );
+        simulation.updateStates(  $input2_NamesCSVList );
+
+        printf(&#34;$outputPrinfPattern\\n&#34;, $outputNamesCSVList);
+    }
+
+}
+
+            
+        &#34;&#34;&#34;        </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    # run the generated executable
+    p = subprocess.Popen(self.codeFolder + &#39;main&#39;, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    retval = p.wait()
+
+    # parse csv data
+    data = [ ]
+    outputs = range(0, len(self.main_command.command_to_put_main_system.outputCommand.outputSignals) )
+
+    for o in outputs:
+        data.append( [] )
+
+    for line in p.stdout.readlines():
+        sample = line.decode(&#34;utf-8&#34;).split(&#39; &#39;)
+
+        for o in outputs:
+            data[ o ].append( float( sample[o] ) )
+
+    # put data into a key-array
+    dataStruct = { }
+    o = 0
+    for s in self.main_command.command_to_put_main_system.outputCommand.outputSignals:
+        dataStruct[ s.name ] = data[o]
+
+        o = o + 1
+
+    return dataStruct</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.write_code"><code class="name flex">
+<span>def <span class="ident">write_code</span></span>(<span>self, folder)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_code(self, folder):
+    PutRuntimeCppHelper.writeFiles(self, folder)
+
+    self.codeFolder = folder
+
+    f = open(os.path.join( folder + &#34;main.cpp&#34;), &#34;w&#34;)
+    f.write( self.sourceCode )
+    f.close()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper">PutRuntimeCppHelper</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code">get_algorithm_code</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper"><code class="flex name class">
+<span>class <span class="ident">PutRuntimeCppHelper</span></span>
+<span>(</span><span>enable_tracing=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generates code for the runtime environment</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PutRuntimeCppHelper:
+    &#34;&#34;&#34;
+        generates code for the runtime environment
+    &#34;&#34;&#34;
+
+    def __init__(self, enable_tracing=False ):
+        ExecutionCommand.__init__(self)  # TODO: what is this?
+
+        # if compile_results is not None:
+        #     self.compileResults = compile_results
+        #     self.main_command = compile_results.command_to_execute
+
+        # else:
+
+        # those are set via set_compile_results after a system is compiled
+        self.compileResults = None
+        self.main_command = None
+
+        #
+        self._algorithm_code = None
+
+        # list of inlcuded system
+        self._includedSystems = []
+
+        self._enable_tracing = enable_tracing
+
+    def set_compile_results(self, compile_results : CompileResults ):
+        self.compileResults = compile_results
+        self.main_command = compile_results.command_to_execute
+
+    def include_systems(self, system : SystemLibraryEntry):
+        self._includedSystems = system
+
+    def get_algorithm_code(self):
+        &#34;&#34;&#34;
+            Return only the code that implement the system and all sub systems
+        &#34;&#34;&#34;
+        return self._algorithm_code
+
+
+
+    def code_gen(self):
+
+        # generate code for the algorithm
+        self.manifest, self._algorithm_code = generate_algorithm_code(self.compileResults, self._enable_tracing, self._includedSystems)
+
+        
+        # TODO: iterate over all functions present in the API of the system
+        # NOTE: Currently only the main functions are used: output, update, and reset
+        #
+        API_functions = self.main_command.command_to_put_main_system.API_functions
+
+        #
+        # make strings 
+        # 
+
+        def makeStrings(signals):
+            names_CSV_list = cgh.signal_list_to_names_string(signals)
+            names_var_def = cgh.define_variable_list_string(signals)
+            printf_pattern = cgh.signalListHelper_printfPattern_string(signals)
+
+            return names_CSV_list, names_var_def, printf_pattern
+
+
+        # for the output signals
+        # input1_NamesCSVList; list of output signals. e.g. &#39;y1, y2, y3&#39; 
+        outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.outputSignals )
+
+        # the inputs to the output command
+        # input1_NamesCSVList: list of output signals. e.g. &#39;y1, y2, y3&#39; 
+        input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+        # the inputs to the update command
+        # input2_NamesCSVList list of output signals. e.g. &#39;u1, u2, u3&#39; 
+        input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.updateCommand.inputSignals )
+
+        # all inputs
+        # merge the list of inputs for the calcoutput and stateupdate function
+        allInputs = list(set(self.main_command.command_to_put_main_system.outputCommand.inputSignals + self.main_command.command_to_put_main_system.updateCommand.inputSignals))
+        inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
+
+        # the names of input and output signals of the outputCommand combined
+        calcOutputsArgs = cgh.signal_list_to_name_list( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+        # fill in template
+        self.template = Template(self.template).safe_substitute(  
+                                                    mainSimulationName = self.main_command.command_to_put_main_system.API_name,
+                                                    algorithmCode=self._algorithm_code,
+
+                                                    input1_NamesVarDef=input1_NamesVarDef,
+                                                    input1_NamesCSVList=input1_NamesCSVList,
+
+                                                    input2_NamesVarDef=input2_NamesVarDef,
+                                                    input2_NamesCSVList=input2_NamesCSVList,
+
+                                                    inputAll_NamesVarDef=inputAll_NamesVarDef,
+                                                    inputAll_NamesCSVList=inputAll_NamesCSVList,
+
+                                                    outputNamesCSVList=outputNamesCSVList, 
+                                                    outputNamesVarDef=outputNamesVarDef,
+                                                    outputPrinfPattern=outputPrinfPattern,
+                                                    
+                                                    calcOutputsArgs=calcOutputsArgs )
+
+
+        return {&#39;sourcecode&#39; : self.template, &#39;manifest&#39; : self.manifest, &#39;algorithm_sourcecode&#39; : self._algorithm_code }
+
+    def writeFiles(self, folder):
+
+        with open( os.path.join( folder + &#39;//simulation_manifest.json&#39; ), &#39;w&#39;) as outfile:  
+            json.dump(self.manifest, outfile)
+
+    def build(self):
+        pass
+
+    def run(self):
+        pass</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp">PutBasicRuntimeCpp</a></li>
+<li><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime">WasmRuntime</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.code_gen"><code class="name flex">
+<span>def <span class="ident">code_gen</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def code_gen(self):
+
+    # generate code for the algorithm
+    self.manifest, self._algorithm_code = generate_algorithm_code(self.compileResults, self._enable_tracing, self._includedSystems)
+
+    
+    # TODO: iterate over all functions present in the API of the system
+    # NOTE: Currently only the main functions are used: output, update, and reset
+    #
+    API_functions = self.main_command.command_to_put_main_system.API_functions
+
+    #
+    # make strings 
+    # 
+
+    def makeStrings(signals):
+        names_CSV_list = cgh.signal_list_to_names_string(signals)
+        names_var_def = cgh.define_variable_list_string(signals)
+        printf_pattern = cgh.signalListHelper_printfPattern_string(signals)
+
+        return names_CSV_list, names_var_def, printf_pattern
+
+
+    # for the output signals
+    # input1_NamesCSVList; list of output signals. e.g. &#39;y1, y2, y3&#39; 
+    outputNamesCSVList, outputNamesVarDef, outputPrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.outputSignals )
+
+    # the inputs to the output command
+    # input1_NamesCSVList: list of output signals. e.g. &#39;y1, y2, y3&#39; 
+    input1_NamesCSVList, input1_NamesVarDef, input1PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+    # the inputs to the update command
+    # input2_NamesCSVList list of output signals. e.g. &#39;u1, u2, u3&#39; 
+    input2_NamesCSVList, input2_NamesVarDef, input2_PrinfPattern = makeStrings( self.main_command.command_to_put_main_system.updateCommand.inputSignals )
+
+    # all inputs
+    # merge the list of inputs for the calcoutput and stateupdate function
+    allInputs = list(set(self.main_command.command_to_put_main_system.outputCommand.inputSignals + self.main_command.command_to_put_main_system.updateCommand.inputSignals))
+    inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
+
+    # the names of input and output signals of the outputCommand combined
+    calcOutputsArgs = cgh.signal_list_to_name_list( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+
+    # fill in template
+    self.template = Template(self.template).safe_substitute(  
+                                                mainSimulationName = self.main_command.command_to_put_main_system.API_name,
+                                                algorithmCode=self._algorithm_code,
+
+                                                input1_NamesVarDef=input1_NamesVarDef,
+                                                input1_NamesCSVList=input1_NamesCSVList,
+
+                                                input2_NamesVarDef=input2_NamesVarDef,
+                                                input2_NamesCSVList=input2_NamesCSVList,
+
+                                                inputAll_NamesVarDef=inputAll_NamesVarDef,
+                                                inputAll_NamesCSVList=inputAll_NamesCSVList,
+
+                                                outputNamesCSVList=outputNamesCSVList, 
+                                                outputNamesVarDef=outputNamesVarDef,
+                                                outputPrinfPattern=outputPrinfPattern,
+                                                
+                                                calcOutputsArgs=calcOutputsArgs )
+
+
+    return {&#39;sourcecode&#39; : self.template, &#39;manifest&#39; : self.manifest, &#39;algorithm_sourcecode&#39; : self._algorithm_code }</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code"><code class="name flex">
+<span>def <span class="ident">get_algorithm_code</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return only the code that implement the system and all sub systems</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_algorithm_code(self):
+    &#34;&#34;&#34;
+        Return only the code that implement the system and all sub systems
+    &#34;&#34;&#34;
+    return self._algorithm_code</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.include_systems"><code class="name flex">
+<span>def <span class="ident">include_systems</span></span>(<span>self, system: <a title="openrtdynamics2.lang.libraries.SystemLibraryEntry" href="libraries.html#openrtdynamics2.lang.libraries.SystemLibraryEntry">SystemLibraryEntry</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def include_systems(self, system : SystemLibraryEntry):
+    self._includedSystems = system</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.set_compile_results"><code class="name flex">
+<span>def <span class="ident">set_compile_results</span></span>(<span>self, compile_results: <a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults" href="diagram_core/diagram_compiler.html#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults">CompileResults</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_compile_results(self, compile_results : CompileResults ):
+    self.compileResults = compile_results
+    self.main_command = compile_results.command_to_execute</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.writeFiles"><code class="name flex">
+<span>def <span class="ident">writeFiles</span></span>(<span>self, folder)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def writeFiles(self, folder):
+
+    with open( os.path.join( folder + &#39;//simulation_manifest.json&#39; ), &#39;w&#39;) as outfile:  
+        json.dump(self.manifest, outfile)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime"><code class="flex name class">
+<span>class <span class="ident">WasmRuntime</span></span>
+<span>(</span><span>enable_tracing=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generates code for the Webassemble runtime environment</p>
+<p><a href="https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html">https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WasmRuntime(PutRuntimeCppHelper):
+    &#34;&#34;&#34;
+        generates code for the Webassemble runtime environment
+
+        https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+
+    &#34;&#34;&#34;
+
+    def __init__(self, enable_tracing = False ):
+
+        PutRuntimeCppHelper.__init__(self, enable_tracing=enable_tracing)
+
+        self.initCodeTemplate()
+
+        
+    def code_gen(self):
+
+        # build I/O structs
+        ioExport = self.generate_code_writeIO(self.main_command.command_to_put_main_system.outputCommand)
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.updateCommand)
+
+        ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.resetCommand)
+
+        self.template = Template(self.template).safe_substitute( ioExport=ioExport,
+                                                                 inputConstAssignment=&#39;&#39;    ) 
+
+        # call helper to fill in some generic elements into the template
+        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+        self.sourceCode = self.template
+
+        code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+        return code_gen_results
+
+
+
+    def generate_code_writeIO__(self, command_API, inputOutput : int):
+
+        if inputOutput == 1:
+            structPrefix = &#39;Inputs_&#39;
+            signals = command_API.inputSignals
+
+        elif inputOutput == 2:
+            structPrefix = &#39;Outputs_&#39;
+            signals = command_API.outputSignals
+
+        mainSimulationName = self.main_command.command_to_put_main_system.API_name
+
+        lines = &#39;&#39;
+
+        # Inputs
+        structname = structPrefix + command_API.API_name 
+
+        lines += &#39;value_object&lt;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;&gt;(&#34;&#39; + mainSimulationName + &#39;__&#39; + structname + &#39;&#34;)\n&#39;
+
+        for s in signals:
+            fieldName = s.name
+
+            lines += &#39;.field(&#34;&#39; + fieldName + &#39;&#34;, &amp;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;::&#39; + fieldName + &#39;)\n&#39;
+
+        lines += &#39;;\n\n&#39;
+
+
+        return lines
+
+    def generate_code_writeIO(self, command_API):
+        return self.generate_code_writeIO__(command_API, 1) + self.generate_code_writeIO__(command_API, 2)
+
+
+    def write_code(self, folder):
+
+        PutRuntimeCppHelper.writeFiles(self, folder)
+
+        self.codeFolder = folder
+
+        f = open( Path( folder ) / &#34;main.cpp&#34;, &#34;w&#34;)
+        f.write( self.sourceCode )
+        f.close()
+
+
+    def build(self):
+
+        buildCommand = &#39;emcc --bind -s MODULARIZE=1 -s EXPORT_NAME=&#34;ORTD_simulator&#34; &#39;  + os.path.join(self.codeFolder , &#34;main.cpp&#34;) + &#34; -g4 -s -o &#34; + os.path.join( self.codeFolder , &#34;main.js&#34; )
+        print(&#34;Running compiler: &#34; + buildCommand)
+
+        returnCode = os.system(buildCommand)
+
+        print( &#34;Compilation result: &#34;, returnCode )
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;emscripten/bind.h&gt;
+
+using namespace emscripten;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+// Binding code
+EMSCRIPTEN_BINDINGS(my_class_example) {
+  class_&lt;$mainSimulationName&gt;(&#34;$mainSimulationName&#34;)
+    .constructor&lt;&gt;()
+    .function(&#34;resetStates&#34;, &amp;$mainSimulationName::resetStates__)
+    .function(&#34;calcResults_1&#34;, &amp;$mainSimulationName::calcResults_1__)
+    .function(&#34;updateStates&#34;, &amp;$mainSimulationName::updateStates__)
+    ;
+
+
+// --------------------------------
+
+$ioExport
+
+
+}
+            
+        &#34;&#34;&#34;        </code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper">PutRuntimeCppHelper</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build(self):
+
+    buildCommand = &#39;emcc --bind -s MODULARIZE=1 -s EXPORT_NAME=&#34;ORTD_simulator&#34; &#39;  + os.path.join(self.codeFolder , &#34;main.cpp&#34;) + &#34; -g4 -s -o &#34; + os.path.join( self.codeFolder , &#34;main.js&#34; )
+    print(&#34;Running compiler: &#34; + buildCommand)
+
+    returnCode = os.system(buildCommand)
+
+    print( &#34;Compilation result: &#34;, returnCode )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.code_gen"><code class="name flex">
+<span>def <span class="ident">code_gen</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def code_gen(self):
+
+    # build I/O structs
+    ioExport = self.generate_code_writeIO(self.main_command.command_to_put_main_system.outputCommand)
+    ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.updateCommand)
+
+    ioExport += self.generate_code_writeIO(self.main_command.command_to_put_main_system.resetCommand)
+
+    self.template = Template(self.template).safe_substitute( ioExport=ioExport,
+                                                             inputConstAssignment=&#39;&#39;    ) 
+
+    # call helper to fill in some generic elements into the template
+    code_gen_results = PutRuntimeCppHelper.code_gen(self)
+
+    self.sourceCode = self.template
+
+    code_gen_results[&#39;sourcecode&#39;] = self.sourceCode
+    return code_gen_results</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO"><code class="name flex">
+<span>def <span class="ident">generate_code_writeIO</span></span>(<span>self, command_API)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_writeIO(self, command_API):
+    return self.generate_code_writeIO__(command_API, 1) + self.generate_code_writeIO__(command_API, 2)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO__"><code class="name flex">
+<span>def <span class="ident">generate_code_writeIO__</span></span>(<span>self, command_API, inputOutput: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_writeIO__(self, command_API, inputOutput : int):
+
+    if inputOutput == 1:
+        structPrefix = &#39;Inputs_&#39;
+        signals = command_API.inputSignals
+
+    elif inputOutput == 2:
+        structPrefix = &#39;Outputs_&#39;
+        signals = command_API.outputSignals
+
+    mainSimulationName = self.main_command.command_to_put_main_system.API_name
+
+    lines = &#39;&#39;
+
+    # Inputs
+    structname = structPrefix + command_API.API_name 
+
+    lines += &#39;value_object&lt;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;&gt;(&#34;&#39; + mainSimulationName + &#39;__&#39; + structname + &#39;&#34;)\n&#39;
+
+    for s in signals:
+        fieldName = s.name
+
+        lines += &#39;.field(&#34;&#39; + fieldName + &#39;&#34;, &amp;&#39; + mainSimulationName + &#39;::&#39; + structname + &#39;::&#39; + fieldName + &#39;)\n&#39;
+
+    lines += &#39;;\n\n&#39;
+
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.initCodeTemplate"><code class="name flex">
+<span>def <span class="ident">initCodeTemplate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = &#34;&#34;&#34;
+            
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;emscripten/bind.h&gt;
+
+using namespace emscripten;
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+// Binding code
+EMSCRIPTEN_BINDINGS(my_class_example) {
+  class_&lt;$mainSimulationName&gt;(&#34;$mainSimulationName&#34;)
+    .constructor&lt;&gt;()
+    .function(&#34;resetStates&#34;, &amp;$mainSimulationName::resetStates__)
+    .function(&#34;calcResults_1&#34;, &amp;$mainSimulationName::calcResults_1__)
+    .function(&#34;updateStates&#34;, &amp;$mainSimulationName::updateStates__)
+    ;
+
+
+// --------------------------------
+
+$ioExport
+
+
+}
+            
+        &#34;&#34;&#34;        </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.code_generation_templates.WasmRuntime.write_code"><code class="name flex">
+<span>def <span class="ident">write_code</span></span>(<span>self, folder)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_code(self, folder):
+
+    PutRuntimeCppHelper.writeFiles(self, folder)
+
+    self.codeFolder = folder
+
+    f = open( Path( folder ) / &#34;main.cpp&#34;, &#34;w&#34;)
+    f.write( self.sourceCode )
+    f.close()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper">PutRuntimeCppHelper</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code">get_algorithm_code</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang" href="index.html">openrtdynamics2.lang</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.generate_algorithm_code" href="#openrtdynamics2.lang.code_generation_templates.generate_algorithm_code">generate_algorithm_code</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp">PutBasicRuntimeCpp</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.build" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.build">build</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.code_gen" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.code_gen">code_gen</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.initCodeTemplate" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.initCodeTemplate">initCodeTemplate</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.run" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.run">run</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.write_code" href="#openrtdynamics2.lang.code_generation_templates.PutBasicRuntimeCpp.write_code">write_code</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper">PutRuntimeCppHelper</a></code></h4>
+<ul class="two-column">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.build" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.build">build</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.code_gen" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.code_gen">code_gen</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.get_algorithm_code">get_algorithm_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.include_systems" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.include_systems">include_systems</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.run" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.run">run</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.set_compile_results" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.set_compile_results">set_compile_results</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.writeFiles" href="#openrtdynamics2.lang.code_generation_templates.PutRuntimeCppHelper.writeFiles">writeFiles</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime">WasmRuntime</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.build" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.build">build</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.code_gen" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.code_gen">code_gen</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO">generate_code_writeIO</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO__" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.generate_code_writeIO__">generate_code_writeIO__</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.initCodeTemplate" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.initCodeTemplate">initCodeTemplate</a></code></li>
+<li><code><a title="openrtdynamics2.lang.code_generation_templates.WasmRuntime.write_code" href="#openrtdynamics2.lang.code_generation_templates.WasmRuntime.write_code">write_code</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

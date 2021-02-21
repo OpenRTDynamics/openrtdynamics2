@@ -1,0 +1,2193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.signals API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.signals</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Dict, List
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
+
+
+
+
+class Signal(object):
+    
+    def __init__(self, sim, autogeneratedName : str, datatype = None ):
+        self.sim = sim
+        
+        # the fixed and final datatype of this signals either as a result of the datatype determination phase
+        # or manually fixed.
+        self._datatype = datatype
+
+        # datatype proposal that may be filled out during the datatype determination phase
+        self.proposedDatatype = None
+
+        # indicates a signal that is not computed by a set of instructions but points to a memory containing the value
+        self._is_referencing_memory = False
+
+        # give this signal a unique default name
+        self._name = autogeneratedName
+        self._nameIsDefault = True
+
+        # the list of destinations this signals goes to
+        self.destinationBlocks = []
+        self.destinationPorts = []
+
+        # the list of signals to which the datatype of this signal is inherited
+        self._inherit_datatype_to_list = []
+
+        # used by graph_traversion as a helper variable to perform a marking of the graph nodes
+        self.graphTraversionMarker = -1
+
+        # inherit the datatype for this anonymous signals from the signal refered to by inherit_datatype_of_signal
+        self.inherit_datatype_of_signal = None
+
+        # In case not None: the data/value of the signal are aboutained from the given signal
+        # NOTE: not used so far.
+        self._data_link = None
+
+        # NOTE: this mus be the last in the list
+        # notify the creation of this signal
+        self.sim.datatypePropagation.notifySignal(self)
+
+        # properties (user)
+        self._properties = None
+
+        # properties (internal, controlled by block prototypes)
+        self.properties_internal = {}
+
+        # optional: port number of input / output w.r.t. to the system &#39;sim&#39;
+        self.port = None
+
+    @property
+    def properties(self):
+        return self.lookupSource()._properties
+
+    def set_properties(self, p):
+        self.lookupSource()._properties = p
+
+    # TODO: remove
+    def getDatatype(self):
+        return self.lookupSource()._datatype
+
+    @property
+    def datatype(self):
+        return self.lookupSource()._datatype
+    
+    def update_datatype_config(self, datatype):
+        &#34;&#34;&#34;
+            set the datatype in case it was not defined in the constructor
+        &#34;&#34;&#34;
+        if self.lookupSource()._datatype is not None:
+            raise BaseException(&#34;datatype already defined&#34;)
+        
+        self.lookupSource()._datatype = datatype
+
+
+    @property
+    def is_referencing_memory(self):
+        return self._is_referencing_memory
+
+    def set_is_referencing_memory(self, val : bool):
+        self._is_referencing_memory = val
+
+    @property
+    def nameIsDefault(self):
+        return self._nameIsDefault
+
+    @property
+    def system(self):
+        # system == simulation
+        return self.sim
+
+    # in case resolveUndeterminedSignals becomes obsolet, those 3 fns might be important
+    # otherwise TODO: remove them
+    def is_proxy(self):
+        return self.lookupSource().is_proxy()
+
+    def is_block_output(self):
+        return self.lookupSource().is_block_output()
+
+    def is_simulation_input(self):
+        return self.lookupSource().is_simulation_input()
+
+
+    def is_crossing_system_boundary(self, system):
+
+        &#34;&#34;&#34;
+            test if fot the given system this signals comes from an outer/higher level
+            system.
+        &#34;&#34;&#34;
+
+        if self.sim == system:
+            return False
+
+        # check if this signal is coming from an upper/outer system 
+        # (if not it comes from a parallel system that cannot be accessed: this is an error)
+
+        # go up in the system-nesting hirachy starting at system
+        system_iter = system
+
+        while system_iter.parent_system is not None:
+
+            if system_iter.parent_system == self.system:
+                return True
+
+            system_iter = system_iter.parent_system
+
+        raise BaseException(&#34;Bad access to signal &#34; + Fore.YELLOW + self.name + Fore.RESET + &#34;: did you access a signal from another subsystem that cannot be reached?&#34;)
+
+    def lookupSource(self):
+        return self
+
+    def graphTraversionMarkerReset(self):
+        self.lookupSource().graphTraversionMarker = -1
+
+    def graphTraversionMarkerMarkVisited(self, level):
+        if level &lt; 0:
+            raise BaseException(&#34;level cannot be &lt; 0&#34;)
+
+        self.lookupSource().graphTraversionMarker = level
+    
+    def graphTraversionMarkerMarkIsVisited(self):
+        # check of this node was marked on level or a level below
+        return self.lookupSource().graphTraversionMarker &gt;= 0
+
+    def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
+        # check of this node was marked on level or a level below
+        return self.graphTraversionMarkerMarkIsVisited() and self.lookupSource().graphTraversionMarker &lt; onLevel
+
+    # set the name of this signal
+    def set_name(self, name):
+        self.lookupSource()._name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
+
+        return self
+
+    # set the name of this signal (this method shall not get overwritten)
+    def set_name_raw(self, name):
+        self.lookupSource()._name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
+
+        return self
+
+        
+
+
+    @property
+    def name(self):
+        return self.lookupSource()._name
+
+    def toStr(self):
+        ret = &#39;&#39;
+        ret += self.name
+
+        if self.datatype is not None:
+            ret += &#34; (&#34; + self.datatype.toStr() + &#34;)&#34;
+        else:
+            # ret += &#34; (undef datatype)&#34;
+            pass
+
+
+        if self.lookupSource().proposedDatatype is not None:
+            ret += &#34; type proposal: (&#34; + self.lookupSource().proposedDatatype.toStr() + &#34;)&#34;
+        else:
+            # ret += &#34;proposal: (undef datatype)&#34;
+            pass
+
+        if self.lookupSource().inherit_datatype_of_signal is not None:
+            ret = ret + &#39;type inherit from &#39; + self.lookupSource().inherit_datatype_of_signal.name
+
+        return ret
+        
+
+    def addDestination(self, block , port : int):
+        # add this destination to the list
+        self.lookupSource().destinationBlocks.append( block )
+        self.lookupSource().destinationPorts.append( port )
+
+    def getDestinationBlocks(self):
+        return self.lookupSource().destinationBlocks
+
+
+
+    def setDatatype_nonotitication(self, datatype):
+        self.lookupSource()._datatype = datatype
+
+        # TODO: maybe there should be a notification in the next step in the datatype propagation phase?
+        # e.g.:
+        # self.lookupSource()._datatype_changed_but_not_notified_so_far = True
+
+    def setDatatype(self, datatype):
+
+        self.setDatatype_nonotitication( datatype )
+
+        # NOTE: should be added lookupSource() here (though effectively no difference)
+        # notify the change of the datatype
+        self.sim.datatypePropagation.notifySignal(self)
+
+    def fixDatatype(self):
+        # this shall explicitely not trigger a notification!
+        self.lookupSource()._datatype = self.lookupSource().proposedDatatype
+
+    def getProposedDatatype(self):
+        return self.lookupSource().proposedDatatype
+
+    def setProposedDatatype(self, proposedDatatype):
+        # only proceed if the datatype of this signals is not already fixed
+        if self.lookupSource()._datatype is None:
+
+            # only proceed of the prosed datatype is diffent to the stored one
+            # or the stored type is None (not set before)
+            if not proposedDatatype.isEqualTo( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
+
+                self.lookupSource().proposedDatatype = proposedDatatype
+                # self.lookupSource().proposedDatatypeUpdated = True
+
+                # notify the change of the datatype
+                self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
+
+        else:
+            if not self.lookupSource()._datatype.isEqualTo( proposedDatatype ):
+                raise BaseException(&#34;setProposedDatatype: only possible for signals the datatypes of which is not already fixed!&#34;)
+
+    @property
+    def proposed_datatype(self):
+        return self.lookupSource().proposedDatatype
+
+
+
+    def inherit_datatype_from_signal(self, from_signal):
+        &#34;&#34;&#34;
+            The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;.
+            This creates a bi-directional link in-between the signals self and from_signal
+        &#34;&#34;&#34;
+        self.lookupSource().inherit_datatype_of_signal = from_signal
+
+        from_signal.inherit_datatype_to( self )
+
+    def inherit_datatype_to(self, to_signal):
+        &#34;&#34;&#34;
+            add to_signal to the list of signals that inherit the datatype of this signal
+        &#34;&#34;&#34;
+        # once the datatype of this signal is fixed, inherit it to to_signal
+        self.lookupSource()._inherit_datatype_to_list.append( to_signal )
+
+    @property
+    def inherit_datatype_to_list(self):
+        return self.lookupSource()._inherit_datatype_to_list
+
+
+    def set_data_link(self, signal):
+        &#34;&#34;&#34;
+            The data/value of the signal are aboutained from the given signal
+
+            This is used for:
+                1) ...
+        &#34;&#34;&#34;
+        self.lookupSource()._data_link = signal
+
+    @property
+    def data_link(self):
+        return self.lookupSource()._data_link
+
+    # move to derived classes below
+    def getSourceBlock(self):
+        return self.lookupSource().sourceBlock
+
+
+    def set_blockname(self, name):
+        if not self.lookupSource().getSourceBlock() is None:
+            self.lookupSource().getSourceBlock().set_name(name)
+
+        return self
+
+    def ShowOrigin(self):
+        pass
+        # if not self.lookupSource().sourcePort is None and not self.lookupSource().sourceBlock is None:
+        #     print(&#34;Signal &gt;&#34; + self.name + &#34;&lt; origin: port &#34; + str(self.lookupSource().sourcePort) + &#34; of block #&#34; + str(self.lookupSource().sourceBlock.getId()) )
+
+        # else:
+        #     print(&#34;Signal &gt;&#34; + self.name + &#34;&lt; origin not defined (so far)&#34;)
+
+
+
+
+def resolveUndeterminedSignals(signals : List[Signal], ignore_signals_with_datatype_inheritance = False ):
+    &#34;&#34;&#34;
+        Go through a list of signals and replace (inplace) all entries of the list
+        with their direct source signals, i.e., signals of type UndeterminedSignal
+        will become the connected block output of type BlockOutputSignal
+    &#34;&#34;&#34;
+
+    if signals is None:
+        return
+
+    for i in range(0,len(signals)):
+        signal = signals[i].lookupSource()
+
+        if isinstance(signal, UndeterminedSignal):
+
+            if signal.inherit_datatype_of_signal is not None and ignore_signals_with_datatype_inheritance:
+
+                # there is an anonymous signal in the list. However, its datatype is foreseen to be inherited
+
+                # print(&#34;  --------- ignoring anonymous signal &#34;  + signal.toStr() + &#34; as its datatype will be inherited -------  &#34;)
+                pass
+
+            else:
+
+                raise BaseException(&#34;Could not resolve ananymous singal &#34; + signal.toStr() + &#34;. Please ensure to connect this signal to a block output.&#34; )
+
+        signals[i] = signal
+
+
+
+
+
+class UndeterminedSignal(Signal):
+    &#34;&#34;&#34;
+        A signal that serves as a placeholder and will be connected later on by
+        calling connect(). As long as no connection to a real source is present
+        the blocks that are connected to this signal are colleted in a list. Once
+        this signal is connected, the source&#39;s signal lists are merged.
+
+        NOTE: undetermined singlas must be connected to a block&#39;s output i.e. they
+        cannot be simulation inputs
+
+        It is optional to specify a datatype.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+        
+        # link to myself by default to be able to colltect the blocks that are connected to
+        # this fake-signal
+
+        # name undefined. Once connected to a block output the name is defined
+        self.linkedSignal = self
+        self.nameProposal = None
+
+        Signal.__init__(self, sim, autogeneratedName = &#39;anonymous&#39;, datatype=datatype)
+
+    def is_proxy(self):
+        return True
+
+    def toStr(self):
+        string = Signal.toStr(self)
+
+        if self is self.linkedSignal:
+            string = string + &#39; (anon.)&#39;
+
+        return string
+
+    # connect to source
+    def setequal(self, to : Signal):
+        if self is to:
+            raise BaseException(&#34;Cannot connect to the same signal.&#34;)
+
+        # check if to is a BlockOutputSignal
+        if not isinstance(to.lookupSource(), BlockOutputSignal):
+            raise BaseException(&#34;An anonymous signal can only be connected to a block output.&#34;)
+
+        # build a link to the already existing signal &#39;to&#39;
+        # print(&#34;== Created a signal link &#34; +  to.name + &#34; == &#34;+   self.name +  &#34;&#34;)
+
+        # merge the list of detination blocks
+        for b in self.destinationBlocks:
+            to.destinationBlocks.append(b)
+
+        # merge self.destinationBlocks into to.destinationBlocks
+        for p in self.destinationPorts:
+            to.destinationPorts.append(p)
+
+        # merge datatype
+        if self.datatype is not None and not to.datatype:
+            to.setDatatype_nonotitication(self.datatype)
+
+        # merge name
+        if self.nameProposal is not None and not to.nameIsDefault:
+            # TODO: check if to holds just the default name. If so update it with the proposal
+
+            to.set_name(self.nameProposal)
+            
+        # overwrite self
+        self.linkedSignal = to
+
+
+
+
+    def isConnectedToSth(self):
+        if self is self.linkedSignal:
+            return False
+        else:
+            return True
+
+    # set the name of this signal
+    def set_name(self, name):
+        if not self.isConnectedToSth():
+            # not connected
+            self.nameProposal = name
+
+        else:
+            self.linkedSignal.lookupSource().set_name(name)
+
+    def lookupSource(self):
+
+        if not self.isConnectedToSth():
+            # Note at this point the anonymous signal does not have a proper
+            # source. return itself as a placeholder until sth. is connected 
+            # by calling setequal().
+            return self
+
+        else:
+
+            return self.linkedSignal.lookupSource()
+
+
+
+
+
+
+
+
+# # TODO: remove this and related...
+# class SubsystemOutputLink(UndeterminedSignal):
+#     &#34;&#34;&#34;
+#         A signal that serves as a placeholder for a subsystem output to be used in the embedding
+#         system. A datatype must be specified.
+
+#         Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
+#         from the subsystem blocks. 
+#     &#34;&#34;&#34;
+
+#     def __init__(self, sim, original_signal : Signal):
+#         self._original_signal = original_signal
+
+#         UndeterminedSignal.__init__(self, sim)
+
+
+
+
+class BlockOutputSignal(Signal):
+    &#34;&#34;&#34;
+        A signal that is the output of a block (normal case)
+
+        TODO: implement and remove code from &#39;Signal&#39; above
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+        
+        self._sourceBlock = sourceBlock
+        self._sourcePort = sourcePort  # counting starts at zero
+
+        # give this signal a unique default name
+        Signal.__init__(self, sim, autogeneratedName = &#39;s&#39; + str(sim.getNewSignalId()), datatype = datatype)
+
+    def is_block_output(self):
+        return True
+
+    def update_source_config(self, sourceBlock = None, sourcePort = None):
+        &#34;&#34;&#34;
+            In the constructor all information is optional. To add information after construction
+            of this signal, update config might be used
+        &#34;&#34;&#34;
+
+        if self._sourceBlock is None:
+            self._sourceBlock = sourceBlock
+
+        elif sourceBlock is not None:
+            raise BaseException(&#34;souce block already defined and cannot be changed anymore&#34;)
+            
+
+        if self._sourcePort is None:
+            self._sourcePort = sourcePort
+
+        elif sourcePort is not None:
+            raise BaseException(&#34;souce port already defined and cannot be changed anymore&#34;)
+            
+
+    def lookupSource(self):
+        return self
+
+    def set_name(self, name):
+        # add a prefix to the autogenerated name
+        Signal.set_name(self, self.name + &#39;_&#39; + name)
+
+    @property
+    def sourceBlock(self):
+        return self._sourceBlock
+
+    def sourcePort(self):
+        return self._sourcePort
+
+    def redefine_source(self, sourceBlock, sourcePort):
+        self._sourceBlock = sourceBlock
+        self._sourcePort = sourcePort
+
+
+class SimulationInputSignal(Signal):
+    &#34;&#34;&#34;
+        A special signal that markes an input to a simulation.
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+
+        # give this signal a unique default name
+        Signal.__init__(self, sim, autogeneratedName = &#39;signal&#39; + str(sim.getNewSignalId()), datatype = datatype)
+
+        self.port = sim.simulationInputSignalCounter
+        sim.simulationInputSignalCounter += 1
+
+    def is_simulation_input(self):
+        return True
+
+    def is_crossing_system_boundary(self, system):
+        # as an input to a system the signal crosses the boundaries of the system
+        return True
+
+    def lookupSource(self):
+        return self</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.signals.resolveUndeterminedSignals"><code class="name flex">
+<span>def <span class="ident">resolveUndeterminedSignals</span></span>(<span>signals: List[<a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a>], ignore_signals_with_datatype_inheritance=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Go through a list of signals and replace (inplace) all entries of the list
+with their direct source signals, i.e., signals of type UndeterminedSignal
+will become the connected block output of type BlockOutputSignal</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resolveUndeterminedSignals(signals : List[Signal], ignore_signals_with_datatype_inheritance = False ):
+    &#34;&#34;&#34;
+        Go through a list of signals and replace (inplace) all entries of the list
+        with their direct source signals, i.e., signals of type UndeterminedSignal
+        will become the connected block output of type BlockOutputSignal
+    &#34;&#34;&#34;
+
+    if signals is None:
+        return
+
+    for i in range(0,len(signals)):
+        signal = signals[i].lookupSource()
+
+        if isinstance(signal, UndeterminedSignal):
+
+            if signal.inherit_datatype_of_signal is not None and ignore_signals_with_datatype_inheritance:
+
+                # there is an anonymous signal in the list. However, its datatype is foreseen to be inherited
+
+                # print(&#34;  --------- ignoring anonymous signal &#34;  + signal.toStr() + &#34; as its datatype will be inherited -------  &#34;)
+                pass
+
+            else:
+
+                raise BaseException(&#34;Could not resolve ananymous singal &#34; + signal.toStr() + &#34;. Please ensure to connect this signal to a block output.&#34; )
+
+        signals[i] = signal</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.signals.BlockOutputSignal"><code class="flex name class">
+<span>class <span class="ident">BlockOutputSignal</span></span>
+<span>(</span><span>sim, datatype=None, sourceBlock=None, sourcePort=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A signal that is the output of a block (normal case)</p>
+<p>TODO: implement and remove code from 'Signal' above</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BlockOutputSignal(Signal):
+    &#34;&#34;&#34;
+        A signal that is the output of a block (normal case)
+
+        TODO: implement and remove code from &#39;Signal&#39; above
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None, sourceBlock = None, sourcePort = None):
+        
+        self._sourceBlock = sourceBlock
+        self._sourcePort = sourcePort  # counting starts at zero
+
+        # give this signal a unique default name
+        Signal.__init__(self, sim, autogeneratedName = &#39;s&#39; + str(sim.getNewSignalId()), datatype = datatype)
+
+    def is_block_output(self):
+        return True
+
+    def update_source_config(self, sourceBlock = None, sourcePort = None):
+        &#34;&#34;&#34;
+            In the constructor all information is optional. To add information after construction
+            of this signal, update config might be used
+        &#34;&#34;&#34;
+
+        if self._sourceBlock is None:
+            self._sourceBlock = sourceBlock
+
+        elif sourceBlock is not None:
+            raise BaseException(&#34;souce block already defined and cannot be changed anymore&#34;)
+            
+
+        if self._sourcePort is None:
+            self._sourcePort = sourcePort
+
+        elif sourcePort is not None:
+            raise BaseException(&#34;souce port already defined and cannot be changed anymore&#34;)
+            
+
+    def lookupSource(self):
+        return self
+
+    def set_name(self, name):
+        # add a prefix to the autogenerated name
+        Signal.set_name(self, self.name + &#39;_&#39; + name)
+
+    @property
+    def sourceBlock(self):
+        return self._sourceBlock
+
+    def sourcePort(self):
+        return self._sourcePort
+
+    def redefine_source(self, sourceBlock, sourcePort):
+        self._sourceBlock = sourceBlock
+        self._sourcePort = sourcePort</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.sourceBlock"><code class="name">var <span class="ident">sourceBlock</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def sourceBlock(self):
+    return self._sourceBlock</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.is_block_output"><code class="name flex">
+<span>def <span class="ident">is_block_output</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_block_output(self):
+    return True</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.lookupSource"><code class="name flex">
+<span>def <span class="ident">lookupSource</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookupSource(self):
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.redefine_source"><code class="name flex">
+<span>def <span class="ident">redefine_source</span></span>(<span>self, sourceBlock, sourcePort)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def redefine_source(self, sourceBlock, sourcePort):
+    self._sourceBlock = sourceBlock
+    self._sourcePort = sourcePort</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.set_name"><code class="name flex">
+<span>def <span class="ident">set_name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name(self, name):
+    # add a prefix to the autogenerated name
+    Signal.set_name(self, self.name + &#39;_&#39; + name)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.sourcePort"><code class="name flex">
+<span>def <span class="ident">sourcePort</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sourcePort(self):
+    return self._sourcePort</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.BlockOutputSignal.update_source_config"><code class="name flex">
+<span>def <span class="ident">update_source_config</span></span>(<span>self, sourceBlock=None, sourcePort=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>In the constructor all information is optional. To add information after construction
+of this signal, update config might be used</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_source_config(self, sourceBlock = None, sourcePort = None):
+    &#34;&#34;&#34;
+        In the constructor all information is optional. To add information after construction
+        of this signal, update config might be used
+    &#34;&#34;&#34;
+
+    if self._sourceBlock is None:
+        self._sourceBlock = sourceBlock
+
+    elif sourceBlock is not None:
+        raise BaseException(&#34;souce block already defined and cannot be changed anymore&#34;)
+        
+
+    if self._sourcePort is None:
+        self._sourcePort = sourcePort
+
+    elif sourcePort is not None:
+        raise BaseException(&#34;souce port already defined and cannot be changed anymore&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_from_signal" href="#openrtdynamics2.signals.Signal.inherit_datatype_from_signal">inherit_datatype_from_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_to" href="#openrtdynamics2.signals.Signal.inherit_datatype_to">inherit_datatype_to</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_crossing_system_boundary" href="#openrtdynamics2.signals.Signal.is_crossing_system_boundary">is_crossing_system_boundary</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_data_link" href="#openrtdynamics2.signals.Signal.set_data_link">set_data_link</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.update_datatype_config" href="#openrtdynamics2.signals.Signal.update_datatype_config">update_datatype_config</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.signals.Signal"><code class="flex name class">
+<span>class <span class="ident">Signal</span></span>
+<span>(</span><span>sim, autogeneratedName: str, datatype=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Signal(object):
+    
+    def __init__(self, sim, autogeneratedName : str, datatype = None ):
+        self.sim = sim
+        
+        # the fixed and final datatype of this signals either as a result of the datatype determination phase
+        # or manually fixed.
+        self._datatype = datatype
+
+        # datatype proposal that may be filled out during the datatype determination phase
+        self.proposedDatatype = None
+
+        # indicates a signal that is not computed by a set of instructions but points to a memory containing the value
+        self._is_referencing_memory = False
+
+        # give this signal a unique default name
+        self._name = autogeneratedName
+        self._nameIsDefault = True
+
+        # the list of destinations this signals goes to
+        self.destinationBlocks = []
+        self.destinationPorts = []
+
+        # the list of signals to which the datatype of this signal is inherited
+        self._inherit_datatype_to_list = []
+
+        # used by graph_traversion as a helper variable to perform a marking of the graph nodes
+        self.graphTraversionMarker = -1
+
+        # inherit the datatype for this anonymous signals from the signal refered to by inherit_datatype_of_signal
+        self.inherit_datatype_of_signal = None
+
+        # In case not None: the data/value of the signal are aboutained from the given signal
+        # NOTE: not used so far.
+        self._data_link = None
+
+        # NOTE: this mus be the last in the list
+        # notify the creation of this signal
+        self.sim.datatypePropagation.notifySignal(self)
+
+        # properties (user)
+        self._properties = None
+
+        # properties (internal, controlled by block prototypes)
+        self.properties_internal = {}
+
+        # optional: port number of input / output w.r.t. to the system &#39;sim&#39;
+        self.port = None
+
+    @property
+    def properties(self):
+        return self.lookupSource()._properties
+
+    def set_properties(self, p):
+        self.lookupSource()._properties = p
+
+    # TODO: remove
+    def getDatatype(self):
+        return self.lookupSource()._datatype
+
+    @property
+    def datatype(self):
+        return self.lookupSource()._datatype
+    
+    def update_datatype_config(self, datatype):
+        &#34;&#34;&#34;
+            set the datatype in case it was not defined in the constructor
+        &#34;&#34;&#34;
+        if self.lookupSource()._datatype is not None:
+            raise BaseException(&#34;datatype already defined&#34;)
+        
+        self.lookupSource()._datatype = datatype
+
+
+    @property
+    def is_referencing_memory(self):
+        return self._is_referencing_memory
+
+    def set_is_referencing_memory(self, val : bool):
+        self._is_referencing_memory = val
+
+    @property
+    def nameIsDefault(self):
+        return self._nameIsDefault
+
+    @property
+    def system(self):
+        # system == simulation
+        return self.sim
+
+    # in case resolveUndeterminedSignals becomes obsolet, those 3 fns might be important
+    # otherwise TODO: remove them
+    def is_proxy(self):
+        return self.lookupSource().is_proxy()
+
+    def is_block_output(self):
+        return self.lookupSource().is_block_output()
+
+    def is_simulation_input(self):
+        return self.lookupSource().is_simulation_input()
+
+
+    def is_crossing_system_boundary(self, system):
+
+        &#34;&#34;&#34;
+            test if fot the given system this signals comes from an outer/higher level
+            system.
+        &#34;&#34;&#34;
+
+        if self.sim == system:
+            return False
+
+        # check if this signal is coming from an upper/outer system 
+        # (if not it comes from a parallel system that cannot be accessed: this is an error)
+
+        # go up in the system-nesting hirachy starting at system
+        system_iter = system
+
+        while system_iter.parent_system is not None:
+
+            if system_iter.parent_system == self.system:
+                return True
+
+            system_iter = system_iter.parent_system
+
+        raise BaseException(&#34;Bad access to signal &#34; + Fore.YELLOW + self.name + Fore.RESET + &#34;: did you access a signal from another subsystem that cannot be reached?&#34;)
+
+    def lookupSource(self):
+        return self
+
+    def graphTraversionMarkerReset(self):
+        self.lookupSource().graphTraversionMarker = -1
+
+    def graphTraversionMarkerMarkVisited(self, level):
+        if level &lt; 0:
+            raise BaseException(&#34;level cannot be &lt; 0&#34;)
+
+        self.lookupSource().graphTraversionMarker = level
+    
+    def graphTraversionMarkerMarkIsVisited(self):
+        # check of this node was marked on level or a level below
+        return self.lookupSource().graphTraversionMarker &gt;= 0
+
+    def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
+        # check of this node was marked on level or a level below
+        return self.graphTraversionMarkerMarkIsVisited() and self.lookupSource().graphTraversionMarker &lt; onLevel
+
+    # set the name of this signal
+    def set_name(self, name):
+        self.lookupSource()._name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
+
+        return self
+
+    # set the name of this signal (this method shall not get overwritten)
+    def set_name_raw(self, name):
+        self.lookupSource()._name = name
+
+        # indicate that this Signal has a specified name (not a default/auto-generated name)
+        self._nameIsDefault = False
+
+        return self
+
+        
+
+
+    @property
+    def name(self):
+        return self.lookupSource()._name
+
+    def toStr(self):
+        ret = &#39;&#39;
+        ret += self.name
+
+        if self.datatype is not None:
+            ret += &#34; (&#34; + self.datatype.toStr() + &#34;)&#34;
+        else:
+            # ret += &#34; (undef datatype)&#34;
+            pass
+
+
+        if self.lookupSource().proposedDatatype is not None:
+            ret += &#34; type proposal: (&#34; + self.lookupSource().proposedDatatype.toStr() + &#34;)&#34;
+        else:
+            # ret += &#34;proposal: (undef datatype)&#34;
+            pass
+
+        if self.lookupSource().inherit_datatype_of_signal is not None:
+            ret = ret + &#39;type inherit from &#39; + self.lookupSource().inherit_datatype_of_signal.name
+
+        return ret
+        
+
+    def addDestination(self, block , port : int):
+        # add this destination to the list
+        self.lookupSource().destinationBlocks.append( block )
+        self.lookupSource().destinationPorts.append( port )
+
+    def getDestinationBlocks(self):
+        return self.lookupSource().destinationBlocks
+
+
+
+    def setDatatype_nonotitication(self, datatype):
+        self.lookupSource()._datatype = datatype
+
+        # TODO: maybe there should be a notification in the next step in the datatype propagation phase?
+        # e.g.:
+        # self.lookupSource()._datatype_changed_but_not_notified_so_far = True
+
+    def setDatatype(self, datatype):
+
+        self.setDatatype_nonotitication( datatype )
+
+        # NOTE: should be added lookupSource() here (though effectively no difference)
+        # notify the change of the datatype
+        self.sim.datatypePropagation.notifySignal(self)
+
+    def fixDatatype(self):
+        # this shall explicitely not trigger a notification!
+        self.lookupSource()._datatype = self.lookupSource().proposedDatatype
+
+    def getProposedDatatype(self):
+        return self.lookupSource().proposedDatatype
+
+    def setProposedDatatype(self, proposedDatatype):
+        # only proceed if the datatype of this signals is not already fixed
+        if self.lookupSource()._datatype is None:
+
+            # only proceed of the prosed datatype is diffent to the stored one
+            # or the stored type is None (not set before)
+            if not proposedDatatype.isEqualTo( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
+
+                self.lookupSource().proposedDatatype = proposedDatatype
+                # self.lookupSource().proposedDatatypeUpdated = True
+
+                # notify the change of the datatype
+                self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
+
+        else:
+            if not self.lookupSource()._datatype.isEqualTo( proposedDatatype ):
+                raise BaseException(&#34;setProposedDatatype: only possible for signals the datatypes of which is not already fixed!&#34;)
+
+    @property
+    def proposed_datatype(self):
+        return self.lookupSource().proposedDatatype
+
+
+
+    def inherit_datatype_from_signal(self, from_signal):
+        &#34;&#34;&#34;
+            The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;.
+            This creates a bi-directional link in-between the signals self and from_signal
+        &#34;&#34;&#34;
+        self.lookupSource().inherit_datatype_of_signal = from_signal
+
+        from_signal.inherit_datatype_to( self )
+
+    def inherit_datatype_to(self, to_signal):
+        &#34;&#34;&#34;
+            add to_signal to the list of signals that inherit the datatype of this signal
+        &#34;&#34;&#34;
+        # once the datatype of this signal is fixed, inherit it to to_signal
+        self.lookupSource()._inherit_datatype_to_list.append( to_signal )
+
+    @property
+    def inherit_datatype_to_list(self):
+        return self.lookupSource()._inherit_datatype_to_list
+
+
+    def set_data_link(self, signal):
+        &#34;&#34;&#34;
+            The data/value of the signal are aboutained from the given signal
+
+            This is used for:
+                1) ...
+        &#34;&#34;&#34;
+        self.lookupSource()._data_link = signal
+
+    @property
+    def data_link(self):
+        return self.lookupSource()._data_link
+
+    # move to derived classes below
+    def getSourceBlock(self):
+        return self.lookupSource().sourceBlock
+
+
+    def set_blockname(self, name):
+        if not self.lookupSource().getSourceBlock() is None:
+            self.lookupSource().getSourceBlock().set_name(name)
+
+        return self
+
+    def ShowOrigin(self):
+        pass</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signals.BlockOutputSignal" href="#openrtdynamics2.signals.BlockOutputSignal">BlockOutputSignal</a></li>
+<li><a title="openrtdynamics2.signals.SimulationInputSignal" href="#openrtdynamics2.signals.SimulationInputSignal">SimulationInputSignal</a></li>
+<li><a title="openrtdynamics2.signals.UndeterminedSignal" href="#openrtdynamics2.signals.UndeterminedSignal">UndeterminedSignal</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.signals.Signal.data_link"><code class="name">var <span class="ident">data_link</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data_link(self):
+    return self.lookupSource()._data_link</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.datatype"><code class="name">var <span class="ident">datatype</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def datatype(self):
+    return self.lookupSource()._datatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.inherit_datatype_to_list"><code class="name">var <span class="ident">inherit_datatype_to_list</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def inherit_datatype_to_list(self):
+    return self.lookupSource()._inherit_datatype_to_list</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.is_referencing_memory"><code class="name">var <span class="ident">is_referencing_memory</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_referencing_memory(self):
+    return self._is_referencing_memory</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    return self.lookupSource()._name</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.nameIsDefault"><code class="name">var <span class="ident">nameIsDefault</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def nameIsDefault(self):
+    return self._nameIsDefault</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.properties"><code class="name">var <span class="ident">properties</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def properties(self):
+    return self.lookupSource()._properties</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.proposed_datatype"><code class="name">var <span class="ident">proposed_datatype</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def proposed_datatype(self):
+    return self.lookupSource().proposedDatatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.system"><code class="name">var <span class="ident">system</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def system(self):
+    # system == simulation
+    return self.sim</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signals.Signal.ShowOrigin"><code class="name flex">
+<span>def <span class="ident">ShowOrigin</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ShowOrigin(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.addDestination"><code class="name flex">
+<span>def <span class="ident">addDestination</span></span>(<span>self, block, port: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def addDestination(self, block , port : int):
+    # add this destination to the list
+    self.lookupSource().destinationBlocks.append( block )
+    self.lookupSource().destinationPorts.append( port )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.fixDatatype"><code class="name flex">
+<span>def <span class="ident">fixDatatype</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fixDatatype(self):
+    # this shall explicitely not trigger a notification!
+    self.lookupSource()._datatype = self.lookupSource().proposedDatatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.getDatatype"><code class="name flex">
+<span>def <span class="ident">getDatatype</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDatatype(self):
+    return self.lookupSource()._datatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.getDestinationBlocks"><code class="name flex">
+<span>def <span class="ident">getDestinationBlocks</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDestinationBlocks(self):
+    return self.lookupSource().destinationBlocks</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.getProposedDatatype"><code class="name flex">
+<span>def <span class="ident">getProposedDatatype</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getProposedDatatype(self):
+    return self.lookupSource().proposedDatatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.getSourceBlock"><code class="name flex">
+<span>def <span class="ident">getSourceBlock</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getSourceBlock(self):
+    return self.lookupSource().sourceBlock</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisited"><code class="name flex">
+<span>def <span class="ident">graphTraversionMarkerMarkIsVisited</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def graphTraversionMarkerMarkIsVisited(self):
+    # check of this node was marked on level or a level below
+    return self.lookupSource().graphTraversionMarker &gt;= 0</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan"><code class="name flex">
+<span>def <span class="ident">graphTraversionMarkerMarkIsVisitedOnLevelLowerThan</span></span>(<span>self, onLevel)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
+    # check of this node was marked on level or a level below
+    return self.graphTraversionMarkerMarkIsVisited() and self.lookupSource().graphTraversionMarker &lt; onLevel</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkVisited"><code class="name flex">
+<span>def <span class="ident">graphTraversionMarkerMarkVisited</span></span>(<span>self, level)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def graphTraversionMarkerMarkVisited(self, level):
+    if level &lt; 0:
+        raise BaseException(&#34;level cannot be &lt; 0&#34;)
+
+    self.lookupSource().graphTraversionMarker = level</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.graphTraversionMarkerReset"><code class="name flex">
+<span>def <span class="ident">graphTraversionMarkerReset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def graphTraversionMarkerReset(self):
+    self.lookupSource().graphTraversionMarker = -1</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.inherit_datatype_from_signal"><code class="name flex">
+<span>def <span class="ident">inherit_datatype_from_signal</span></span>(<span>self, from_signal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'.
+This creates a bi-directional link in-between the signals self and from_signal</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inherit_datatype_from_signal(self, from_signal):
+    &#34;&#34;&#34;
+        The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;.
+        This creates a bi-directional link in-between the signals self and from_signal
+    &#34;&#34;&#34;
+    self.lookupSource().inherit_datatype_of_signal = from_signal
+
+    from_signal.inherit_datatype_to( self )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.inherit_datatype_to"><code class="name flex">
+<span>def <span class="ident">inherit_datatype_to</span></span>(<span>self, to_signal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>add to_signal to the list of signals that inherit the datatype of this signal</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inherit_datatype_to(self, to_signal):
+    &#34;&#34;&#34;
+        add to_signal to the list of signals that inherit the datatype of this signal
+    &#34;&#34;&#34;
+    # once the datatype of this signal is fixed, inherit it to to_signal
+    self.lookupSource()._inherit_datatype_to_list.append( to_signal )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.is_block_output"><code class="name flex">
+<span>def <span class="ident">is_block_output</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_block_output(self):
+    return self.lookupSource().is_block_output()</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.is_crossing_system_boundary"><code class="name flex">
+<span>def <span class="ident">is_crossing_system_boundary</span></span>(<span>self, system)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>test if fot the given system this signals comes from an outer/higher level
+system.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_crossing_system_boundary(self, system):
+
+    &#34;&#34;&#34;
+        test if fot the given system this signals comes from an outer/higher level
+        system.
+    &#34;&#34;&#34;
+
+    if self.sim == system:
+        return False
+
+    # check if this signal is coming from an upper/outer system 
+    # (if not it comes from a parallel system that cannot be accessed: this is an error)
+
+    # go up in the system-nesting hirachy starting at system
+    system_iter = system
+
+    while system_iter.parent_system is not None:
+
+        if system_iter.parent_system == self.system:
+            return True
+
+        system_iter = system_iter.parent_system
+
+    raise BaseException(&#34;Bad access to signal &#34; + Fore.YELLOW + self.name + Fore.RESET + &#34;: did you access a signal from another subsystem that cannot be reached?&#34;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.is_proxy"><code class="name flex">
+<span>def <span class="ident">is_proxy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_proxy(self):
+    return self.lookupSource().is_proxy()</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.is_simulation_input"><code class="name flex">
+<span>def <span class="ident">is_simulation_input</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_simulation_input(self):
+    return self.lookupSource().is_simulation_input()</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.lookupSource"><code class="name flex">
+<span>def <span class="ident">lookupSource</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookupSource(self):
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.setDatatype"><code class="name flex">
+<span>def <span class="ident">setDatatype</span></span>(<span>self, datatype)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setDatatype(self, datatype):
+
+    self.setDatatype_nonotitication( datatype )
+
+    # NOTE: should be added lookupSource() here (though effectively no difference)
+    # notify the change of the datatype
+    self.sim.datatypePropagation.notifySignal(self)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.setDatatype_nonotitication"><code class="name flex">
+<span>def <span class="ident">setDatatype_nonotitication</span></span>(<span>self, datatype)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setDatatype_nonotitication(self, datatype):
+    self.lookupSource()._datatype = datatype</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.setProposedDatatype"><code class="name flex">
+<span>def <span class="ident">setProposedDatatype</span></span>(<span>self, proposedDatatype)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setProposedDatatype(self, proposedDatatype):
+    # only proceed if the datatype of this signals is not already fixed
+    if self.lookupSource()._datatype is None:
+
+        # only proceed of the prosed datatype is diffent to the stored one
+        # or the stored type is None (not set before)
+        if not proposedDatatype.isEqualTo( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
+
+            self.lookupSource().proposedDatatype = proposedDatatype
+            # self.lookupSource().proposedDatatypeUpdated = True
+
+            # notify the change of the datatype
+            self.sim.datatypePropagation.notify_updateOfProposedDatatype(self)
+
+    else:
+        if not self.lookupSource()._datatype.isEqualTo( proposedDatatype ):
+            raise BaseException(&#34;setProposedDatatype: only possible for signals the datatypes of which is not already fixed!&#34;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_blockname"><code class="name flex">
+<span>def <span class="ident">set_blockname</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_blockname(self, name):
+    if not self.lookupSource().getSourceBlock() is None:
+        self.lookupSource().getSourceBlock().set_name(name)
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_data_link"><code class="name flex">
+<span>def <span class="ident">set_data_link</span></span>(<span>self, signal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The data/value of the signal are aboutained from the given signal</p>
+<p>This is used for:
+1) &hellip;</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_data_link(self, signal):
+    &#34;&#34;&#34;
+        The data/value of the signal are aboutained from the given signal
+
+        This is used for:
+            1) ...
+    &#34;&#34;&#34;
+    self.lookupSource()._data_link = signal</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_is_referencing_memory"><code class="name flex">
+<span>def <span class="ident">set_is_referencing_memory</span></span>(<span>self, val: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_is_referencing_memory(self, val : bool):
+    self._is_referencing_memory = val</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_name"><code class="name flex">
+<span>def <span class="ident">set_name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name(self, name):
+    self.lookupSource()._name = name
+
+    # indicate that this Signal has a specified name (not a default/auto-generated name)
+    self._nameIsDefault = False
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_name_raw"><code class="name flex">
+<span>def <span class="ident">set_name_raw</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name_raw(self, name):
+    self.lookupSource()._name = name
+
+    # indicate that this Signal has a specified name (not a default/auto-generated name)
+    self._nameIsDefault = False
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.set_properties"><code class="name flex">
+<span>def <span class="ident">set_properties</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_properties(self, p):
+    self.lookupSource()._properties = p</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.toStr"><code class="name flex">
+<span>def <span class="ident">toStr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def toStr(self):
+    ret = &#39;&#39;
+    ret += self.name
+
+    if self.datatype is not None:
+        ret += &#34; (&#34; + self.datatype.toStr() + &#34;)&#34;
+    else:
+        # ret += &#34; (undef datatype)&#34;
+        pass
+
+
+    if self.lookupSource().proposedDatatype is not None:
+        ret += &#34; type proposal: (&#34; + self.lookupSource().proposedDatatype.toStr() + &#34;)&#34;
+    else:
+        # ret += &#34;proposal: (undef datatype)&#34;
+        pass
+
+    if self.lookupSource().inherit_datatype_of_signal is not None:
+        ret = ret + &#39;type inherit from &#39; + self.lookupSource().inherit_datatype_of_signal.name
+
+    return ret</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.Signal.update_datatype_config"><code class="name flex">
+<span>def <span class="ident">update_datatype_config</span></span>(<span>self, datatype)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>set the datatype in case it was not defined in the constructor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_datatype_config(self, datatype):
+    &#34;&#34;&#34;
+        set the datatype in case it was not defined in the constructor
+    &#34;&#34;&#34;
+    if self.lookupSource()._datatype is not None:
+        raise BaseException(&#34;datatype already defined&#34;)
+    
+    self.lookupSource()._datatype = datatype</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.signals.SimulationInputSignal"><code class="flex name class">
+<span>class <span class="ident">SimulationInputSignal</span></span>
+<span>(</span><span>sim, datatype=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A special signal that markes an input to a simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimulationInputSignal(Signal):
+    &#34;&#34;&#34;
+        A special signal that markes an input to a simulation.
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+
+        # give this signal a unique default name
+        Signal.__init__(self, sim, autogeneratedName = &#39;signal&#39; + str(sim.getNewSignalId()), datatype = datatype)
+
+        self.port = sim.simulationInputSignalCounter
+        sim.simulationInputSignalCounter += 1
+
+    def is_simulation_input(self):
+        return True
+
+    def is_crossing_system_boundary(self, system):
+        # as an input to a system the signal crosses the boundaries of the system
+        return True
+
+    def lookupSource(self):
+        return self</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signals.SimulationInputSignal.is_simulation_input"><code class="name flex">
+<span>def <span class="ident">is_simulation_input</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_simulation_input(self):
+    return True</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.SimulationInputSignal.lookupSource"><code class="name flex">
+<span>def <span class="ident">lookupSource</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookupSource(self):
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_from_signal" href="#openrtdynamics2.signals.Signal.inherit_datatype_from_signal">inherit_datatype_from_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_to" href="#openrtdynamics2.signals.Signal.inherit_datatype_to">inherit_datatype_to</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_crossing_system_boundary" href="#openrtdynamics2.signals.Signal.is_crossing_system_boundary">is_crossing_system_boundary</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_data_link" href="#openrtdynamics2.signals.Signal.set_data_link">set_data_link</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.update_datatype_config" href="#openrtdynamics2.signals.Signal.update_datatype_config">update_datatype_config</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal"><code class="flex name class">
+<span>class <span class="ident">UndeterminedSignal</span></span>
+<span>(</span><span>sim, datatype=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A signal that serves as a placeholder and will be connected later on by
+calling connect(). As long as no connection to a real source is present
+the blocks that are connected to this signal are colleted in a list. Once
+this signal is connected, the source's signal lists are merged.</p>
+<p>NOTE: undetermined singlas must be connected to a block's output i.e. they
+cannot be simulation inputs</p>
+<p>It is optional to specify a datatype.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UndeterminedSignal(Signal):
+    &#34;&#34;&#34;
+        A signal that serves as a placeholder and will be connected later on by
+        calling connect(). As long as no connection to a real source is present
+        the blocks that are connected to this signal are colleted in a list. Once
+        this signal is connected, the source&#39;s signal lists are merged.
+
+        NOTE: undetermined singlas must be connected to a block&#39;s output i.e. they
+        cannot be simulation inputs
+
+        It is optional to specify a datatype.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+        
+        # link to myself by default to be able to colltect the blocks that are connected to
+        # this fake-signal
+
+        # name undefined. Once connected to a block output the name is defined
+        self.linkedSignal = self
+        self.nameProposal = None
+
+        Signal.__init__(self, sim, autogeneratedName = &#39;anonymous&#39;, datatype=datatype)
+
+    def is_proxy(self):
+        return True
+
+    def toStr(self):
+        string = Signal.toStr(self)
+
+        if self is self.linkedSignal:
+            string = string + &#39; (anon.)&#39;
+
+        return string
+
+    # connect to source
+    def setequal(self, to : Signal):
+        if self is to:
+            raise BaseException(&#34;Cannot connect to the same signal.&#34;)
+
+        # check if to is a BlockOutputSignal
+        if not isinstance(to.lookupSource(), BlockOutputSignal):
+            raise BaseException(&#34;An anonymous signal can only be connected to a block output.&#34;)
+
+        # build a link to the already existing signal &#39;to&#39;
+        # print(&#34;== Created a signal link &#34; +  to.name + &#34; == &#34;+   self.name +  &#34;&#34;)
+
+        # merge the list of detination blocks
+        for b in self.destinationBlocks:
+            to.destinationBlocks.append(b)
+
+        # merge self.destinationBlocks into to.destinationBlocks
+        for p in self.destinationPorts:
+            to.destinationPorts.append(p)
+
+        # merge datatype
+        if self.datatype is not None and not to.datatype:
+            to.setDatatype_nonotitication(self.datatype)
+
+        # merge name
+        if self.nameProposal is not None and not to.nameIsDefault:
+            # TODO: check if to holds just the default name. If so update it with the proposal
+
+            to.set_name(self.nameProposal)
+            
+        # overwrite self
+        self.linkedSignal = to
+
+
+
+
+    def isConnectedToSth(self):
+        if self is self.linkedSignal:
+            return False
+        else:
+            return True
+
+    # set the name of this signal
+    def set_name(self, name):
+        if not self.isConnectedToSth():
+            # not connected
+            self.nameProposal = name
+
+        else:
+            self.linkedSignal.lookupSource().set_name(name)
+
+    def lookupSource(self):
+
+        if not self.isConnectedToSth():
+            # Note at this point the anonymous signal does not have a proper
+            # source. return itself as a placeholder until sth. is connected 
+            # by calling setequal().
+            return self
+
+        else:
+
+            return self.linkedSignal.lookupSource()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.isConnectedToSth"><code class="name flex">
+<span>def <span class="ident">isConnectedToSth</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isConnectedToSth(self):
+    if self is self.linkedSignal:
+        return False
+    else:
+        return True</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.is_proxy"><code class="name flex">
+<span>def <span class="ident">is_proxy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_proxy(self):
+    return True</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.lookupSource"><code class="name flex">
+<span>def <span class="ident">lookupSource</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookupSource(self):
+
+    if not self.isConnectedToSth():
+        # Note at this point the anonymous signal does not have a proper
+        # source. return itself as a placeholder until sth. is connected 
+        # by calling setequal().
+        return self
+
+    else:
+
+        return self.linkedSignal.lookupSource()</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.set_name"><code class="name flex">
+<span>def <span class="ident">set_name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name(self, name):
+    if not self.isConnectedToSth():
+        # not connected
+        self.nameProposal = name
+
+    else:
+        self.linkedSignal.lookupSource().set_name(name)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.setequal"><code class="name flex">
+<span>def <span class="ident">setequal</span></span>(<span>self, to: <a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setequal(self, to : Signal):
+    if self is to:
+        raise BaseException(&#34;Cannot connect to the same signal.&#34;)
+
+    # check if to is a BlockOutputSignal
+    if not isinstance(to.lookupSource(), BlockOutputSignal):
+        raise BaseException(&#34;An anonymous signal can only be connected to a block output.&#34;)
+
+    # build a link to the already existing signal &#39;to&#39;
+    # print(&#34;== Created a signal link &#34; +  to.name + &#34; == &#34;+   self.name +  &#34;&#34;)
+
+    # merge the list of detination blocks
+    for b in self.destinationBlocks:
+        to.destinationBlocks.append(b)
+
+    # merge self.destinationBlocks into to.destinationBlocks
+    for p in self.destinationPorts:
+        to.destinationPorts.append(p)
+
+    # merge datatype
+    if self.datatype is not None and not to.datatype:
+        to.setDatatype_nonotitication(self.datatype)
+
+    # merge name
+    if self.nameProposal is not None and not to.nameIsDefault:
+        # TODO: check if to holds just the default name. If so update it with the proposal
+
+        to.set_name(self.nameProposal)
+        
+    # overwrite self
+    self.linkedSignal = to</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signals.UndeterminedSignal.toStr"><code class="name flex">
+<span>def <span class="ident">toStr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def toStr(self):
+    string = Signal.toStr(self)
+
+    if self is self.linkedSignal:
+        string = string + &#39; (anon.)&#39;
+
+    return string</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></b></code>:
+<ul class="hlist">
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_from_signal" href="#openrtdynamics2.signals.Signal.inherit_datatype_from_signal">inherit_datatype_from_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_to" href="#openrtdynamics2.signals.Signal.inherit_datatype_to">inherit_datatype_to</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_crossing_system_boundary" href="#openrtdynamics2.signals.Signal.is_crossing_system_boundary">is_crossing_system_boundary</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_data_link" href="#openrtdynamics2.signals.Signal.set_data_link">set_data_link</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.update_datatype_config" href="#openrtdynamics2.signals.Signal.update_datatype_config">update_datatype_config</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2" href="index.html">openrtdynamics2</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.signals.resolveUndeterminedSignals" href="#openrtdynamics2.signals.resolveUndeterminedSignals">resolveUndeterminedSignals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.signals.BlockOutputSignal" href="#openrtdynamics2.signals.BlockOutputSignal">BlockOutputSignal</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.is_block_output" href="#openrtdynamics2.signals.BlockOutputSignal.is_block_output">is_block_output</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.lookupSource" href="#openrtdynamics2.signals.BlockOutputSignal.lookupSource">lookupSource</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.redefine_source" href="#openrtdynamics2.signals.BlockOutputSignal.redefine_source">redefine_source</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.set_name" href="#openrtdynamics2.signals.BlockOutputSignal.set_name">set_name</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.sourceBlock" href="#openrtdynamics2.signals.BlockOutputSignal.sourceBlock">sourceBlock</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.sourcePort" href="#openrtdynamics2.signals.BlockOutputSignal.sourcePort">sourcePort</a></code></li>
+<li><code><a title="openrtdynamics2.signals.BlockOutputSignal.update_source_config" href="#openrtdynamics2.signals.BlockOutputSignal.update_source_config">update_source_config</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signals.Signal" href="#openrtdynamics2.signals.Signal">Signal</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.signals.Signal.ShowOrigin" href="#openrtdynamics2.signals.Signal.ShowOrigin">ShowOrigin</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.addDestination" href="#openrtdynamics2.signals.Signal.addDestination">addDestination</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.data_link" href="#openrtdynamics2.signals.Signal.data_link">data_link</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.datatype" href="#openrtdynamics2.signals.Signal.datatype">datatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.fixDatatype" href="#openrtdynamics2.signals.Signal.fixDatatype">fixDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.getDatatype" href="#openrtdynamics2.signals.Signal.getDatatype">getDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.getDestinationBlocks" href="#openrtdynamics2.signals.Signal.getDestinationBlocks">getDestinationBlocks</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.getProposedDatatype" href="#openrtdynamics2.signals.Signal.getProposedDatatype">getProposedDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.getSourceBlock" href="#openrtdynamics2.signals.Signal.getSourceBlock">getSourceBlock</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisited" href="#openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisited">graphTraversionMarkerMarkIsVisited</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan" href="#openrtdynamics2.signals.Signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan">graphTraversionMarkerMarkIsVisitedOnLevelLowerThan</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.graphTraversionMarkerMarkVisited" href="#openrtdynamics2.signals.Signal.graphTraversionMarkerMarkVisited">graphTraversionMarkerMarkVisited</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.graphTraversionMarkerReset" href="#openrtdynamics2.signals.Signal.graphTraversionMarkerReset">graphTraversionMarkerReset</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_from_signal" href="#openrtdynamics2.signals.Signal.inherit_datatype_from_signal">inherit_datatype_from_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_to" href="#openrtdynamics2.signals.Signal.inherit_datatype_to">inherit_datatype_to</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.inherit_datatype_to_list" href="#openrtdynamics2.signals.Signal.inherit_datatype_to_list">inherit_datatype_to_list</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_block_output" href="#openrtdynamics2.signals.Signal.is_block_output">is_block_output</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_crossing_system_boundary" href="#openrtdynamics2.signals.Signal.is_crossing_system_boundary">is_crossing_system_boundary</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_proxy" href="#openrtdynamics2.signals.Signal.is_proxy">is_proxy</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_referencing_memory" href="#openrtdynamics2.signals.Signal.is_referencing_memory">is_referencing_memory</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.is_simulation_input" href="#openrtdynamics2.signals.Signal.is_simulation_input">is_simulation_input</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.lookupSource" href="#openrtdynamics2.signals.Signal.lookupSource">lookupSource</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.name" href="#openrtdynamics2.signals.Signal.name">name</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.nameIsDefault" href="#openrtdynamics2.signals.Signal.nameIsDefault">nameIsDefault</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.properties" href="#openrtdynamics2.signals.Signal.properties">properties</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.proposed_datatype" href="#openrtdynamics2.signals.Signal.proposed_datatype">proposed_datatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.setDatatype" href="#openrtdynamics2.signals.Signal.setDatatype">setDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.setDatatype_nonotitication" href="#openrtdynamics2.signals.Signal.setDatatype_nonotitication">setDatatype_nonotitication</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.setProposedDatatype" href="#openrtdynamics2.signals.Signal.setProposedDatatype">setProposedDatatype</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_blockname" href="#openrtdynamics2.signals.Signal.set_blockname">set_blockname</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_data_link" href="#openrtdynamics2.signals.Signal.set_data_link">set_data_link</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_is_referencing_memory" href="#openrtdynamics2.signals.Signal.set_is_referencing_memory">set_is_referencing_memory</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_name" href="#openrtdynamics2.signals.Signal.set_name">set_name</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_name_raw" href="#openrtdynamics2.signals.Signal.set_name_raw">set_name_raw</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.set_properties" href="#openrtdynamics2.signals.Signal.set_properties">set_properties</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.system" href="#openrtdynamics2.signals.Signal.system">system</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.toStr" href="#openrtdynamics2.signals.Signal.toStr">toStr</a></code></li>
+<li><code><a title="openrtdynamics2.signals.Signal.update_datatype_config" href="#openrtdynamics2.signals.Signal.update_datatype_config">update_datatype_config</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signals.SimulationInputSignal" href="#openrtdynamics2.signals.SimulationInputSignal">SimulationInputSignal</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.signals.SimulationInputSignal.is_simulation_input" href="#openrtdynamics2.signals.SimulationInputSignal.is_simulation_input">is_simulation_input</a></code></li>
+<li><code><a title="openrtdynamics2.signals.SimulationInputSignal.lookupSource" href="#openrtdynamics2.signals.SimulationInputSignal.lookupSource">lookupSource</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signals.UndeterminedSignal" href="#openrtdynamics2.signals.UndeterminedSignal">UndeterminedSignal</a></code></h4>
+<ul class="two-column">
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.isConnectedToSth" href="#openrtdynamics2.signals.UndeterminedSignal.isConnectedToSth">isConnectedToSth</a></code></li>
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.is_proxy" href="#openrtdynamics2.signals.UndeterminedSignal.is_proxy">is_proxy</a></code></li>
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.lookupSource" href="#openrtdynamics2.signals.UndeterminedSignal.lookupSource">lookupSource</a></code></li>
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.set_name" href="#openrtdynamics2.signals.UndeterminedSignal.set_name">set_name</a></code></li>
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.setequal" href="#openrtdynamics2.signals.UndeterminedSignal.setequal">setequal</a></code></li>
+<li><code><a title="openrtdynamics2.signals.UndeterminedSignal.toStr" href="#openrtdynamics2.signals.UndeterminedSignal.toStr">toStr</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

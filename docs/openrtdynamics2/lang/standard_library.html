@@ -1,0 +1,1963 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.standard_library API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.standard_library</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import math
+
+import typing as t
+from . import lang as dy
+from .diagram_core.signal_network.signals import Signal
+from .signal_interface import SignalUserTemplate
+import numpy as np
+
+from .core_blocks import generic_subsystem, const, gain, convert, add, operator1, logic_and, logic_or, logic_xor, bitwise_and, bitwise_or, bitwise_shift_left, bitwise_shift_right, comparison, switchNto1, conditional_overwrite, sqrt, sin, cos, tan, atan, asin, acos, abs, logic_not, bitwise_not, atan2, pow, fmod, generic_cpp_static, flipflop, memory, memory_read, delay__
+
+
+
+#
+# constants
+#
+
+def int32(value):
+    &#34;&#34;&#34;
+        cast anything to DataTypeInt32
+    &#34;&#34;&#34;
+
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeInt32(1) )
+
+def float64(value):
+    &#34;&#34;&#34;
+        cast anything to DataTypeFloat64
+    &#34;&#34;&#34;
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeFloat64(1) )
+
+
+def boolean(value : int):
+    &#34;&#34;&#34;
+        cast anything to DataTypeBoolean
+    &#34;&#34;&#34;
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeBoolean(1) )
+
+
+
+#
+#
+#
+
+def initial_event():
+    &#34;&#34;&#34;
+        Fires an event on the first sampling instant after the reset of the system
+    &#34;&#34;&#34;
+
+    # TODO: introduce caching like done for counter()
+
+    return dy.counter() == int32(0)
+
+
+#
+# Delay - the basis for all dynamic elements
+#
+def delay(u , initial_state = None):
+    &#34;&#34;&#34;
+        unit delay
+
+        delay the input u by one sampling instant
+
+        y[k+1] = u[k], y[0] = initial_state
+
+        u             - the input signal to delay
+        initial_state - the initial state (signal or constant value)
+    &#34;&#34;&#34;
+
+    if not isinstance( initial_state, SignalUserTemplate ):
+        return dy.delay__( u, initial_state )
+
+    else:
+
+        event_on_first_sample = initial_event()
+
+        delayed_input = dy.delay__( u, None )
+        delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
+
+        return delayed_input
+
+def sample_and_hold(u, event, initial_state = None):
+    &#34;&#34;&#34;
+        sample &amp; hold
+
+        Samples the input when event is true and hold this value for the proceeding time instants. 
+
+        u             - the input
+        event         - the trigger signal to perform the sampling
+        initial_state - the initial output
+
+        return values
+
+        the sampled input
+
+    &#34;&#34;&#34;
+
+    # NOTE: this could be implemented in a more comp. efficient way directly in C in block_prototypes.py
+
+    y = dy.signal()
+
+    delayed_y = delay( y, initial_state )
+    y &lt;&lt; dy.conditional_overwrite( delayed_y, event, u )
+
+    return y
+
+#
+# static functions
+#
+
+def unwrap_angle(angle, normalize_around_zero = False):
+    &#34;&#34;&#34;
+        Unwrap an angle
+
+        Unrap and normalize the input angle to the range 
+
+          1) [0, 2*pi[     in case normalize_around_zero == false
+          2) [-pi, pi]     in case normalize_around_zero == true
+    &#34;&#34;&#34;
+
+    def normalize_aruond_zero(angle):
+        &#34;&#34;&#34;
+            Normalize an angle
+
+            Normalize an angle to a range [-pi, pi]
+
+            Important: the assumed range for the input is - 2*pi &lt;= angle &lt;= 2*p
+        &#34;&#34;&#34;
+
+        tmp = angle            + dy.conditional_overwrite( dy.float64(0), angle &lt;= float64(-math.pi), 2*math.pi )
+        normalized_angle = tmp + dy.conditional_overwrite( dy.float64(0), angle &gt; float64(math.pi), -2*math.pi )
+
+        return normalized_angle
+
+    #
+    #
+    angle_ = dy.fmod(angle, dy.float64(2*math.pi) )
+
+    unwrapped_angle = angle_ + dy.conditional_overwrite( dy.float64(0), angle_ &lt; float64(0), 2*math.pi )
+
+    if normalize_around_zero:
+        return normalize_aruond_zero(unwrapped_angle)
+    else:
+        return unwrapped_angle
+
+
+
+
+
+def saturate(u, lower_limit = None, uppper_limit = None):
+    &#34;&#34;&#34;
+        saturate the input signal
+
+        The output is the saturated input
+
+        lower_limit   - lower bound for the output 
+        uppper_limit  - upper bound for the output
+    &#34;&#34;&#34;
+
+    y = u
+
+    if lower_limit is not None:
+        y = dy.conditional_overwrite( y, y &lt; float64(lower_limit), lower_limit )
+    
+    if uppper_limit is not None:
+        y = dy.conditional_overwrite( y, y &gt; float64(uppper_limit), uppper_limit )
+
+    return y
+
+
+def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
+    &#34;&#34;&#34;
+        rate limiter
+
+        Ts           - sampling time (constant)
+        lower_limit  - lower rate limit
+        upper_limit  - upper rate limit
+    &#34;&#34;&#34;
+
+    Ts_ = float64(Ts)
+
+    y = dy.signal()
+
+    omega = u - y
+    omega_sat = saturate(omega, float64(lower_limit) * Ts_, float64(uppper_limit) * Ts_)
+    y &lt;&lt; euler_integrator( omega_sat, 1, initial_state=initial_state)
+
+    return y
+
+
+# def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
+
+#     Ts_ = float64(Ts)
+
+#     y = dy.signal()
+
+#     e = ( u - y )
+#     omega = dy.tan( u - y ) * dy.float64(gain)
+#     omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
+
+#     y &lt;&lt; euler_integrator(  omega_sat, 1, initial_state=initial_state)
+
+#     return y
+
+
+
+#
+# Counters
+#
+
+# TODO: mark as private
+class __Counter():
+    &#34;&#34;&#34;
+        This class is meant to store the counter output signal as it might be used
+        by more than one destination block. The instance of this class is per simulation
+        and will be stored in the components property of the current get_system_context()
+    &#34;&#34;&#34;
+    def __init__(self, counter_signal : Signal):
+        self.counter_signal_ = counter_signal
+        self.hits = 0
+    
+    @property
+    def output(self):
+        self.hits += 1
+
+        # print(&#34;counter cache hits ***: &#34; + str(self.hits) )
+        return self.counter_signal_
+
+
+#
+# dynamic functions
+#
+
+def counter():
+    &#34;&#34;&#34;
+        Basic counter
+
+        The integer output is increasing with each sampling instant by 1.
+        Counting starts at zero.
+    &#34;&#34;&#34;
+
+    if not &#39;counter&#39; in dy.get_system_context().components:
+        # no counter has been defined in this system so far. Hence, create one.
+
+        increase = dy.const(1, dy.DataTypeInt32(1) )
+        cnt = dy.signal()
+        tmp = dy.delay(cnt + increase)
+        cnt &lt;&lt; tmp 
+
+        tmp.set_name(&#39;shared_couter&#39;)
+
+        # store the output signal of the counter as it might be used again. 
+        dy.get_system_context().components[&#39;counter&#39;] = __Counter(tmp)
+
+    else:
+        # use the output of an already created counter
+        tmp = dy.get_system_context().components[&#39;counter&#39;].output
+
+    return tmp
+
+
+
+
+
+def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True, no_delay:bool=False ):
+    &#34;&#34;&#34;
+        A generic counter
+
+        Features:
+        .) upper limit
+        .) triggerable start/pause
+        .) resetable
+        .) dynamic adjustable step-size
+
+        upper_limit              - the upper limit of the counter
+        initial_state            - the state after reset
+        reset                    - reset the counter
+        reset_on_limit           - reset counter once the upper limit is reached
+        start_trigger            - event to start counting
+        pause_trigger            - event to pause counting
+        auto_start               - start counting automatically
+        no_delay                 - when True the new value of the counter is returned without delay 
+    &#34;&#34;&#34;
+
+    if stepwidth is None:
+        stepwidth = dy.int32(1)
+
+    counter = dy.signal()
+
+    reached_upper_limit = counter &gt; dy.int32(upper_limit)
+
+    if start_trigger is None:
+        start_trigger = dy.boolean(0)
+
+    # 
+    if pause_trigger is not None: 
+        activate_trigger = dy.logic_or(reached_upper_limit, pause_trigger)
+    else:
+        if not auto_start:
+            activate_trigger = reached_upper_limit
+        else:
+            # when auto_start is active, continue counting after reset on reached_upper_limit
+            activate_trigger = dy.boolean(0)
+
+
+    # state for pause/counting
+    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start).set_name(&#39;paused&#39;)
+
+    # prevent counter increase
+    stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name(&#39;stepwidth&#39;)
+
+    # increase the counter until the end is reached
+    new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
+
+    if reset is not None:
+        # reset in case this is requested
+        new_counter = dy.conditional_overwrite(new_counter, reset, initial_state)
+
+    if reset_on_limit:
+        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, initial_state)
+
+    # introduce a state variable for the counter
+    counter &lt;&lt; dy.delay( new_counter, initial_state=initial_state )
+
+    if not no_delay:
+        return counter
+    else:
+        return new_counter
+
+
+# def toggle(trigger, initial_state=False):
+
+#     state = dy.signal()
+
+#     state &lt;&lt; dy.flipflop( dy.logic_and( dy.logic_not( state ), trigger ),  dy.logic_and( dy.logic_not( trigger ), state ), 
+#                             initial_state=initial_state, 
+#                             nodelay=False)
+
+#     return state
+
+
+
+def toggle(trigger, initial_state=False):
+
+    state = dy.signal()
+
+    activate   = dy.logic_and( dy.logic_not( state ), trigger )
+    deactivate = dy.logic_and( trigger , state)
+
+    tmp = dy.flipflop( activate, deactivate, 
+                            initial_state = 0, 
+                            nodelay=False )
+
+    state &lt;&lt; tmp
+
+    return state, activate, deactivate
+    
+def signal_square(period, phase):
+
+    trigger = signal_periodic_impulse(period, phase)
+
+    state, activate, deactivate = toggle(trigger)
+
+    return state, activate, deactivate
+
+    #return trigger
+
+#
+# signal generators
+#
+
+def signal_sinus(N_period : int = 100, phi = None):
+    &#34;&#34;&#34;
+        Signal generator for sinosoidal signals
+
+        The output is computed as follows:
+
+        y = sin( k * (1 / N_period * 2 * pi) + phi )
+
+        k - is the sampling index
+
+        N_period - period in sampling instants (type: constant integer)
+        phi      - phase shift (signal)
+    &#34;&#34;&#34;
+
+    if N_period &lt;= 0:
+        raise BaseException(&#39;N_period &lt;= 0&#39;)
+
+    if phi is None:
+        phi = dy.float64(0.0)
+
+    i = dy.counter_triggered( upper_limit=N_period-1, reset_on_limit=True )
+    y = dy.sin( i * dy.float64(1/N_period * 2*math.pi) + phi )
+
+    return y
+
+def signal_step(k_step):
+    &#34;&#34;&#34;
+        Signal generator for a step signal
+
+        k_step - the sampling index as returned by counter() at which the step appears.
+    &#34;&#34;&#34;
+    k = dy.counter()
+    y = dy.int32(k_step) &lt;= k
+
+    return y
+
+def signal_ramp(k_start):
+    &#34;&#34;&#34;
+        Signal generator for a ramp signal
+
+        k_start - the sampling index as returned by counter() at which the ramp starts increasing.
+    &#34;&#34;&#34;
+    k = dy.counter()
+    active = dy.int32(k_start) &lt;= k
+
+    linearRise = dy.convert( (k - dy.int32(k_start) ), dy.DataTypeFloat64(1) )
+    activation = dy.convert( active, dy.DataTypeFloat64(1) )
+
+    return activation * linearRise
+
+
+def signal_impulse(k_event):
+    &#34;&#34;&#34;
+        Pulse signal generator
+
+        generates a unique pulse at sampling index k_event
+
+        k_event - the sampling index at which the pulse appears
+    &#34;&#34;&#34;
+
+    if k_event &lt; 0:
+        raise BaseException(&#39;The sampling index for the event is invalid (k_event &lt; 0)&#39;)
+
+    k = dy.counter()
+    pulse_signal = dy.int32(k_event) == k
+
+    return pulse_signal
+
+def signal_periodic_impulse(period, phase):
+    &#34;&#34;&#34;
+        signal generator for periodic pulses
+
+        generates a sequence of pulses
+
+        period - singal or constant describing the period in samples at which the pulses are generated
+        phase  - singal or constant describing the phase in samples at which the pulses are generated
+    &#34;&#34;&#34;
+
+    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(2), reset_on_limit=True )
+    pulse_signal = dy.int32(phase) == k
+
+    return pulse_signal
+
+
+
+def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, counter=None, reset=None ):
+    &#34;&#34;&#34;
+        signal generator for a step-wise changeing signal
+
+        time_instance_indices - an array of sampling instants at which the signal changes its values
+        values                - an array of values; must have one more element than time_instance_indices
+        time_scale            - multiplies all elements of time_instance_indices by the given factor (optional)
+        counter               - an alternative sample counter (optional)
+        reset                 - boolean signal to reset the sequence (optional)
+
+        Example
+        -------
+
+        time_instance_indices = [      50, 100, 150, 250, 300, 350, 400,  450, 500  ]
+        values                = [ 0, -1.0,   0, 1.0,  0, -1.0, 0,   0.2, -0.2, 0   ]
+
+        v = step_wise_sequence( time_instance_indices, values )
+    &#34;&#34;&#34;
+    
+    if len(values) - 1 != len(time_instance_indices):
+        raise BaseException( &#34;len(values) - 1 != len(time_instance_indices)&#34; )
+
+    if counter is None:
+        counter = dy.counter()
+
+    indices_mem = dy.memory(datatype=dy.DataTypeInt32(1),   constant_array=time_instance_indices )
+    values_mem  = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=values )
+
+    current_index = dy.signal()
+
+    current_time_index_to_check = dy.memory_read( indices_mem, current_index )
+
+    # scale time
+    if time_scale is not None:
+        index_to_check = time_scale * current_time_index_to_check
+    else:
+        index_to_check = current_time_index_to_check
+
+    # check wether to step to the next sample
+    increase_index = dy.int32(0)
+    increase_index = dy.conditional_overwrite(increase_index, counter &gt;= index_to_check, dy.int32(1) )
+    current_index &lt;&lt; dy.counter_triggered(upper_limit=len(time_instance_indices), stepwidth=increase_index, reset=reset )
+
+    val = dy.memory_read(values_mem, current_index)
+
+    return val
+
+
+def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
+    &#34;&#34;&#34;
+        playback of a sequence (TODO: update)
+
+        returns sample, playback_index
+
+        sequence_array           - the sequence given as a list of values
+        reset                    - reset the playback and start from the beginning
+        reset_on_end             - reset playback once the end is reached (repetitive playback)
+        start_trigger            - event to start playback
+        pause_trigger            - event to pause playback
+        auto_start               - start playback automatically 
+
+
+        return values
+
+        sample                   - the value obtained from sequence_array
+        playback_index           - the current position of playback (index of the currently issued sequence element)
+    &#34;&#34;&#34;
+
+    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
+
+    # if prevent_initial_playback:
+    #     initial_counter_state = np.size(sequence_array)
+    # else:
+        
+
+    playback_index = counter_triggered( upper_limit=np.size(sequence_array)-1, 
+                                        stepwidth=stepwidth, initial_state=initial_state, 
+                                        reset=reset, reset_on_limit=reset_on_end, 
+                                        start_trigger=start_trigger, pause_trigger=pause_trigger, 
+                                        auto_start=auto_start)
+
+    # sample the given data
+    sample = dy.memory_read(sequence_array_storage, playback_index)
+
+    return sample, playback_index
+
+
+
+
+#
+# Filters
+#
+
+def diff(u : Signal, initial_state = None):
+    &#34;&#34;&#34;
+        Discrete difference
+
+        y = u[k] - u[k-1] 
+
+        initial state
+
+        u[0] = initial_state   in case initial_state is not None
+        u[0] = 0               otherwise
+    &#34;&#34;&#34;
+
+    i = dy.delay( u, initial_state )
+    y = dy.add( [ i, u ], [ -1, 1 ] )
+
+    return y
+
+def sum(u : Signal, initial_state=0, no_delay=False):
+    &#34;&#34;&#34;
+        Accumulative sum
+
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return value is either
+
+            y[k]   by default or when no_delay == False
+        or
+
+            y[k+1] in case no_delay == True .
+    &#34;&#34;&#34;
+
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
+
+    y_k &lt;&lt; dy.delay(y_kp1, initial_state=initial_state)
+
+    if no_delay:
+        return y_kp1
+    else:
+        return y_k
+
+def sum2(u : Signal, initial_state=0):
+    &#34;&#34;&#34;
+        Accumulative sum
+
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return values are
+
+            y[k], y[k+1]
+    &#34;&#34;&#34;
+
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
+
+    y_k &lt;&lt; dy.delay(y_kp1, initial_state=initial_state)
+
+    return y_k, y_kp1
+
+def euler_integrator( u : Signal, Ts, initial_state = 0.0):
+    &#34;&#34;&#34;
+        Euler (forward) integrator
+
+        y[k+1] = y[k] + Ts * u[k]
+    &#34;&#34;&#34;
+
+    yFb = dy.signal()
+
+    if not isinstance( Ts, SignalUserTemplate ): 
+        i = dy.add( [ yFb, u ], [ 1, Ts ] )
+    else:
+        i = yFb + Ts * u
+
+    y = dy.delay( i, initial_state )
+
+    yFb &lt;&lt; y
+
+    return y
+
+def dtf_lowpass_1_order(u : Signal, z_infinity):
+    &#34;&#34;&#34;
+        First-order discrete-time low pass filter
+
+                 1 - z_infinity
+        H (z) =  --------------
+                 z - z_infinity
+    &#34;&#34;&#34;
+
+    zinf = dy.float64( z_infinity )
+    zinf_ = dy.float64( 1 ) - zinf
+
+    y_delayed = dy.signal()
+    y =  zinf * y_delayed + zinf_ * u
+
+    y_delayed &lt;&lt; dy.delay(y)
+    
+    return y
+
+def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff : t.List[float] ):
+
+    &#34;&#34;&#34;
+    Discrete time transfer function
+
+    u         - input signal
+    num_coeff - list of numerator coefficients of the transfer function
+    den_coeff - list of denominator coefficients of the transfer function
+
+    returns the output of the filter
+
+    Details:
+    --------
+
+    This filter realizes a discrete-time transfer function by using &#39;direct form II&#39;
+    c.f. https://en.wikipedia.org/wiki/Digital_filter .
+
+            b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
+    H(z) = ----------------------------------------
+             1 + a1 z^-1 + a2 z^-2 + ... + aM z^-M
+
+    The coefficient vectors num_coeff and den_coeff describe the numerator and 
+    denominator polynomials, respectively, and are defined as follows:
+
+    num_coeff = [b0, b1, .., bN]
+    den_coeff = [a1, a2, ... aM] .
+    
+    &#34;&#34;&#34;
+
+
+    # get filter order
+    N = len(num_coeff)-1
+
+    # feedback start signal
+    z_pre = dy.signal()
+
+    # array to store state signals
+    z_ = []
+
+    # create delay chain
+    z_iterate = z_pre
+    for i in range(0,N):
+
+        z_iterate = dy.delay( z_iterate ).extendName(&#39;_z&#39; + str(i) )
+        z_.append( z_iterate ) 
+
+
+    # build feedback path
+    #
+    # a1 = den_coeff[0]
+    # a2 = den_coeff[1]
+    # a3 = den_coeff[2]
+    #        ...
+    sum_feedback = u
+    for i in range(0,N):
+
+        a_ip1 = dy.float64( den_coeff[i] ).extendName(&#39;_a&#39; + str(i+1) )
+
+        sum_feedback = sum_feedback - a_ip1 * z_[i]
+
+    sum_feedback.extendName(&#39;_i&#39;)
+
+
+    # close the feedback loop
+    z_pre &lt;&lt; sum_feedback
+
+    # build output path
+    #
+    # b0 = num_coeff[0]
+    # b1 = num_coeff[1]
+    # b2 = num_coeff[2]
+    #        ...    
+    for i in range(0,N+1):
+        
+        b_i = dy.float64( num_coeff[i] ).extendName(&#39;_b&#39; + str(i) )
+
+        if i==0:
+            y = b_i * sum_feedback
+        else:
+            y = y + b_i * z_[i-1]
+
+    # y is the filter output   
+    return y
+
+
+
+#
+# Control
+#
+
+def PID_controller(r, y, Ts, kp, ki = None, kd = None):
+    &#34;&#34;&#34;
+        discrete-time PID-controller
+
+        r           - the reference signal
+        y           - the measured plant output
+        Ts          - the sampling time
+        kp, ki, kd  - the controller parameters (proportional, integral, differential)
+    &#34;&#34;&#34;
+    Ts = dy.float64(Ts)
+
+    # control error
+    e = r - y
+
+    # P
+    u = kp * e
+
+    # D
+    if kd is not None:
+        u = u + dy.diff(e) * kd / Ts
+
+    # I
+    if ki is not None:
+        u = u + dy.sum(e) * ki * Ts
+
+    return u</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.standard_library.PID_controller"><code class="name flex">
+<span>def <span class="ident">PID_controller</span></span>(<span>r, y, Ts, kp, ki=None, kd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>discrete-time PID-controller</p>
+<p>r
+- the reference signal
+y
+- the measured plant output
+Ts
+- the sampling time
+kp, ki, kd
+- the controller parameters (proportional, integral, differential)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def PID_controller(r, y, Ts, kp, ki = None, kd = None):
+    &#34;&#34;&#34;
+        discrete-time PID-controller
+
+        r           - the reference signal
+        y           - the measured plant output
+        Ts          - the sampling time
+        kp, ki, kd  - the controller parameters (proportional, integral, differential)
+    &#34;&#34;&#34;
+    Ts = dy.float64(Ts)
+
+    # control error
+    e = r - y
+
+    # P
+    u = kp * e
+
+    # D
+    if kd is not None:
+        u = u + dy.diff(e) * kd / Ts
+
+    # I
+    if ki is not None:
+        u = u + dy.sum(e) * ki * Ts
+
+    return u</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.boolean"><code class="name flex">
+<span>def <span class="ident">boolean</span></span>(<span>value: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>cast anything to DataTypeBoolean</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def boolean(value : int):
+    &#34;&#34;&#34;
+        cast anything to DataTypeBoolean
+    &#34;&#34;&#34;
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeBoolean(1) )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.counter"><code class="name flex">
+<span>def <span class="ident">counter</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Basic counter</p>
+<p>The integer output is increasing with each sampling instant by 1.
+Counting starts at zero.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def counter():
+    &#34;&#34;&#34;
+        Basic counter
+
+        The integer output is increasing with each sampling instant by 1.
+        Counting starts at zero.
+    &#34;&#34;&#34;
+
+    if not &#39;counter&#39; in dy.get_system_context().components:
+        # no counter has been defined in this system so far. Hence, create one.
+
+        increase = dy.const(1, dy.DataTypeInt32(1) )
+        cnt = dy.signal()
+        tmp = dy.delay(cnt + increase)
+        cnt &lt;&lt; tmp 
+
+        tmp.set_name(&#39;shared_couter&#39;)
+
+        # store the output signal of the counter as it might be used again. 
+        dy.get_system_context().components[&#39;counter&#39;] = __Counter(tmp)
+
+    else:
+        # use the output of an already created counter
+        tmp = dy.get_system_context().components[&#39;counter&#39;].output
+
+    return tmp</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.counter_triggered"><code class="name flex">
+<span>def <span class="ident">counter_triggered</span></span>(<span>upper_limit, stepwidth=None, initial_state=0, reset=None, reset_on_limit: bool = False, start_trigger=None, pause_trigger=None, auto_start: bool = True, no_delay: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A generic counter</p>
+<p>Features:
+.) upper limit
+.) triggerable start/pause
+.) resetable
+.) dynamic adjustable step-size</p>
+<p>upper_limit
+- the upper limit of the counter
+initial_state
+- the state after reset
+reset
+- reset the counter
+reset_on_limit
+- reset counter once the upper limit is reached
+start_trigger
+- event to start counting
+pause_trigger
+- event to pause counting
+auto_start
+- start counting automatically
+no_delay
+- when True the new value of the counter is returned without delay</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True, no_delay:bool=False ):
+    &#34;&#34;&#34;
+        A generic counter
+
+        Features:
+        .) upper limit
+        .) triggerable start/pause
+        .) resetable
+        .) dynamic adjustable step-size
+
+        upper_limit              - the upper limit of the counter
+        initial_state            - the state after reset
+        reset                    - reset the counter
+        reset_on_limit           - reset counter once the upper limit is reached
+        start_trigger            - event to start counting
+        pause_trigger            - event to pause counting
+        auto_start               - start counting automatically
+        no_delay                 - when True the new value of the counter is returned without delay 
+    &#34;&#34;&#34;
+
+    if stepwidth is None:
+        stepwidth = dy.int32(1)
+
+    counter = dy.signal()
+
+    reached_upper_limit = counter &gt; dy.int32(upper_limit)
+
+    if start_trigger is None:
+        start_trigger = dy.boolean(0)
+
+    # 
+    if pause_trigger is not None: 
+        activate_trigger = dy.logic_or(reached_upper_limit, pause_trigger)
+    else:
+        if not auto_start:
+            activate_trigger = reached_upper_limit
+        else:
+            # when auto_start is active, continue counting after reset on reached_upper_limit
+            activate_trigger = dy.boolean(0)
+
+
+    # state for pause/counting
+    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start).set_name(&#39;paused&#39;)
+
+    # prevent counter increase
+    stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name(&#39;stepwidth&#39;)
+
+    # increase the counter until the end is reached
+    new_counter = counter + dy.conditional_overwrite(stepwidth, reached_upper_limit, 0)
+
+    if reset is not None:
+        # reset in case this is requested
+        new_counter = dy.conditional_overwrite(new_counter, reset, initial_state)
+
+    if reset_on_limit:
+        new_counter = dy.conditional_overwrite(new_counter, reached_upper_limit, initial_state)
+
+    # introduce a state variable for the counter
+    counter &lt;&lt; dy.delay( new_counter, initial_state=initial_state )
+
+    if not no_delay:
+        return counter
+    else:
+        return new_counter</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.delay"><code class="name flex">
+<span>def <span class="ident">delay</span></span>(<span>u, initial_state=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>unit delay</p>
+<p>delay the input u by one sampling instant</p>
+<p>y[k+1] = u[k], y[0] = initial_state</p>
+<p>u
+- the input signal to delay
+initial_state - the initial state (signal or constant value)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delay(u , initial_state = None):
+    &#34;&#34;&#34;
+        unit delay
+
+        delay the input u by one sampling instant
+
+        y[k+1] = u[k], y[0] = initial_state
+
+        u             - the input signal to delay
+        initial_state - the initial state (signal or constant value)
+    &#34;&#34;&#34;
+
+    if not isinstance( initial_state, SignalUserTemplate ):
+        return dy.delay__( u, initial_state )
+
+    else:
+
+        event_on_first_sample = initial_event()
+
+        delayed_input = dy.delay__( u, None )
+        delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
+
+        return delayed_input</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.diff"><code class="name flex">
+<span>def <span class="ident">diff</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, initial_state=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Discrete difference</p>
+<p>y = u[k] - u[k-1] </p>
+<p>initial state</p>
+<p>u[0] = initial_state
+in case initial_state is not None
+u[0] = 0
+otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def diff(u : Signal, initial_state = None):
+    &#34;&#34;&#34;
+        Discrete difference
+
+        y = u[k] - u[k-1] 
+
+        initial state
+
+        u[0] = initial_state   in case initial_state is not None
+        u[0] = 0               otherwise
+    &#34;&#34;&#34;
+
+    i = dy.delay( u, initial_state )
+    y = dy.add( [ i, u ], [ -1, 1 ] )
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.dtf_lowpass_1_order"><code class="name flex">
+<span>def <span class="ident">dtf_lowpass_1_order</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, z_infinity)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>First-order discrete-time low pass filter</p>
+<pre><code>     1 - z_infinity
+</code></pre>
+<p>H (z) =
+--------------
+z - z_infinity</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dtf_lowpass_1_order(u : Signal, z_infinity):
+    &#34;&#34;&#34;
+        First-order discrete-time low pass filter
+
+                 1 - z_infinity
+        H (z) =  --------------
+                 z - z_infinity
+    &#34;&#34;&#34;
+
+    zinf = dy.float64( z_infinity )
+    zinf_ = dy.float64( 1 ) - zinf
+
+    y_delayed = dy.signal()
+    y =  zinf * y_delayed + zinf_ * u
+
+    y_delayed &lt;&lt; dy.delay(y)
+    
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.euler_integrator"><code class="name flex">
+<span>def <span class="ident">euler_integrator</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, Ts, initial_state=0.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Euler (forward) integrator</p>
+<p>y[k+1] = y[k] + Ts * u[k]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def euler_integrator( u : Signal, Ts, initial_state = 0.0):
+    &#34;&#34;&#34;
+        Euler (forward) integrator
+
+        y[k+1] = y[k] + Ts * u[k]
+    &#34;&#34;&#34;
+
+    yFb = dy.signal()
+
+    if not isinstance( Ts, SignalUserTemplate ): 
+        i = dy.add( [ yFb, u ], [ 1, Ts ] )
+    else:
+        i = yFb + Ts * u
+
+    y = dy.delay( i, initial_state )
+
+    yFb &lt;&lt; y
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.float64"><code class="name flex">
+<span>def <span class="ident">float64</span></span>(<span>value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>cast anything to DataTypeFloat64</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def float64(value):
+    &#34;&#34;&#34;
+        cast anything to DataTypeFloat64
+    &#34;&#34;&#34;
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeFloat64(1) )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.initial_event"><code class="name flex">
+<span>def <span class="ident">initial_event</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fires an event on the first sampling instant after the reset of the system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initial_event():
+    &#34;&#34;&#34;
+        Fires an event on the first sampling instant after the reset of the system
+    &#34;&#34;&#34;
+
+    # TODO: introduce caching like done for counter()
+
+    return dy.counter() == int32(0)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.int32"><code class="name flex">
+<span>def <span class="ident">int32</span></span>(<span>value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>cast anything to DataTypeInt32</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def int32(value):
+    &#34;&#34;&#34;
+        cast anything to DataTypeInt32
+    &#34;&#34;&#34;
+
+    if isinstance(  value, SignalUserTemplate ):
+        # already a singal
+        return value
+    else:
+        # create a new constant
+        return dy.const(value, dy.DataTypeInt32(1) )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.play"><code class="name flex">
+<span>def <span class="ident">play</span></span>(<span>sequence_array, stepwidth=None, initial_state=0, reset=None, reset_on_end: bool = False, start_trigger=None, pause_trigger=None, auto_start: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>playback of a sequence (TODO: update)</p>
+<p>returns sample, playback_index</p>
+<p>sequence_array
+- the sequence given as a list of values
+reset
+- reset the playback and start from the beginning
+reset_on_end
+- reset playback once the end is reached (repetitive playback)
+start_trigger
+- event to start playback
+pause_trigger
+- event to pause playback
+auto_start
+- start playback automatically </p>
+<p>return values</p>
+<p>sample
+- the value obtained from sequence_array
+playback_index
+- the current position of playback (index of the currently issued sequence element)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
+    &#34;&#34;&#34;
+        playback of a sequence (TODO: update)
+
+        returns sample, playback_index
+
+        sequence_array           - the sequence given as a list of values
+        reset                    - reset the playback and start from the beginning
+        reset_on_end             - reset playback once the end is reached (repetitive playback)
+        start_trigger            - event to start playback
+        pause_trigger            - event to pause playback
+        auto_start               - start playback automatically 
+
+
+        return values
+
+        sample                   - the value obtained from sequence_array
+        playback_index           - the current position of playback (index of the currently issued sequence element)
+    &#34;&#34;&#34;
+
+    sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
+
+    # if prevent_initial_playback:
+    #     initial_counter_state = np.size(sequence_array)
+    # else:
+        
+
+    playback_index = counter_triggered( upper_limit=np.size(sequence_array)-1, 
+                                        stepwidth=stepwidth, initial_state=initial_state, 
+                                        reset=reset, reset_on_limit=reset_on_end, 
+                                        start_trigger=start_trigger, pause_trigger=pause_trigger, 
+                                        auto_start=auto_start)
+
+    # sample the given data
+    sample = dy.memory_read(sequence_array_storage, playback_index)
+
+    return sample, playback_index</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.rate_limit"><code class="name flex">
+<span>def <span class="ident">rate_limit</span></span>(<span>u, Ts, lower_limit, uppper_limit, initial_state=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rate limiter</p>
+<p>Ts
+- sampling time (constant)
+lower_limit
+- lower rate limit
+upper_limit
+- upper rate limit</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
+    &#34;&#34;&#34;
+        rate limiter
+
+        Ts           - sampling time (constant)
+        lower_limit  - lower rate limit
+        upper_limit  - upper rate limit
+    &#34;&#34;&#34;
+
+    Ts_ = float64(Ts)
+
+    y = dy.signal()
+
+    omega = u - y
+    omega_sat = saturate(omega, float64(lower_limit) * Ts_, float64(uppper_limit) * Ts_)
+    y &lt;&lt; euler_integrator( omega_sat, 1, initial_state=initial_state)
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.sample_and_hold"><code class="name flex">
+<span>def <span class="ident">sample_and_hold</span></span>(<span>u, event, initial_state=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>sample &amp; hold</p>
+<p>Samples the input when event is true and hold this value for the proceeding time instants. </p>
+<p>u
+- the input
+event
+- the trigger signal to perform the sampling
+initial_state - the initial output</p>
+<p>return values</p>
+<p>the sampled input</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sample_and_hold(u, event, initial_state = None):
+    &#34;&#34;&#34;
+        sample &amp; hold
+
+        Samples the input when event is true and hold this value for the proceeding time instants. 
+
+        u             - the input
+        event         - the trigger signal to perform the sampling
+        initial_state - the initial output
+
+        return values
+
+        the sampled input
+
+    &#34;&#34;&#34;
+
+    # NOTE: this could be implemented in a more comp. efficient way directly in C in block_prototypes.py
+
+    y = dy.signal()
+
+    delayed_y = delay( y, initial_state )
+    y &lt;&lt; dy.conditional_overwrite( delayed_y, event, u )
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.saturate"><code class="name flex">
+<span>def <span class="ident">saturate</span></span>(<span>u, lower_limit=None, uppper_limit=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>saturate the input signal</p>
+<p>The output is the saturated input</p>
+<p>lower_limit
+- lower bound for the output
+uppper_limit
+- upper bound for the output</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def saturate(u, lower_limit = None, uppper_limit = None):
+    &#34;&#34;&#34;
+        saturate the input signal
+
+        The output is the saturated input
+
+        lower_limit   - lower bound for the output 
+        uppper_limit  - upper bound for the output
+    &#34;&#34;&#34;
+
+    y = u
+
+    if lower_limit is not None:
+        y = dy.conditional_overwrite( y, y &lt; float64(lower_limit), lower_limit )
+    
+    if uppper_limit is not None:
+        y = dy.conditional_overwrite( y, y &gt; float64(uppper_limit), uppper_limit )
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_impulse"><code class="name flex">
+<span>def <span class="ident">signal_impulse</span></span>(<span>k_event)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pulse signal generator</p>
+<p>generates a unique pulse at sampling index k_event</p>
+<p>k_event - the sampling index at which the pulse appears</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_impulse(k_event):
+    &#34;&#34;&#34;
+        Pulse signal generator
+
+        generates a unique pulse at sampling index k_event
+
+        k_event - the sampling index at which the pulse appears
+    &#34;&#34;&#34;
+
+    if k_event &lt; 0:
+        raise BaseException(&#39;The sampling index for the event is invalid (k_event &lt; 0)&#39;)
+
+    k = dy.counter()
+    pulse_signal = dy.int32(k_event) == k
+
+    return pulse_signal</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_periodic_impulse"><code class="name flex">
+<span>def <span class="ident">signal_periodic_impulse</span></span>(<span>period, phase)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>signal generator for periodic pulses</p>
+<p>generates a sequence of pulses</p>
+<p>period - singal or constant describing the period in samples at which the pulses are generated
+phase
+- singal or constant describing the phase in samples at which the pulses are generated</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_periodic_impulse(period, phase):
+    &#34;&#34;&#34;
+        signal generator for periodic pulses
+
+        generates a sequence of pulses
+
+        period - singal or constant describing the period in samples at which the pulses are generated
+        phase  - singal or constant describing the phase in samples at which the pulses are generated
+    &#34;&#34;&#34;
+
+    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(2), reset_on_limit=True )
+    pulse_signal = dy.int32(phase) == k
+
+    return pulse_signal</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_ramp"><code class="name flex">
+<span>def <span class="ident">signal_ramp</span></span>(<span>k_start)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Signal generator for a ramp signal</p>
+<p>k_start - the sampling index as returned by counter() at which the ramp starts increasing.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_ramp(k_start):
+    &#34;&#34;&#34;
+        Signal generator for a ramp signal
+
+        k_start - the sampling index as returned by counter() at which the ramp starts increasing.
+    &#34;&#34;&#34;
+    k = dy.counter()
+    active = dy.int32(k_start) &lt;= k
+
+    linearRise = dy.convert( (k - dy.int32(k_start) ), dy.DataTypeFloat64(1) )
+    activation = dy.convert( active, dy.DataTypeFloat64(1) )
+
+    return activation * linearRise</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_sinus"><code class="name flex">
+<span>def <span class="ident">signal_sinus</span></span>(<span>N_period: int = 100, phi=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Signal generator for sinosoidal signals</p>
+<p>The output is computed as follows:</p>
+<p>y = sin( k * (1 / N_period * 2 * pi) + phi )</p>
+<p>k - is the sampling index</p>
+<p>N_period - period in sampling instants (type: constant integer)
+phi
+- phase shift (signal)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_sinus(N_period : int = 100, phi = None):
+    &#34;&#34;&#34;
+        Signal generator for sinosoidal signals
+
+        The output is computed as follows:
+
+        y = sin( k * (1 / N_period * 2 * pi) + phi )
+
+        k - is the sampling index
+
+        N_period - period in sampling instants (type: constant integer)
+        phi      - phase shift (signal)
+    &#34;&#34;&#34;
+
+    if N_period &lt;= 0:
+        raise BaseException(&#39;N_period &lt;= 0&#39;)
+
+    if phi is None:
+        phi = dy.float64(0.0)
+
+    i = dy.counter_triggered( upper_limit=N_period-1, reset_on_limit=True )
+    y = dy.sin( i * dy.float64(1/N_period * 2*math.pi) + phi )
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_square"><code class="name flex">
+<span>def <span class="ident">signal_square</span></span>(<span>period, phase)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_square(period, phase):
+
+    trigger = signal_periodic_impulse(period, phase)
+
+    state, activate, deactivate = toggle(trigger)
+
+    return state, activate, deactivate</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_step"><code class="name flex">
+<span>def <span class="ident">signal_step</span></span>(<span>k_step)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Signal generator for a step signal</p>
+<p>k_step - the sampling index as returned by counter() at which the step appears.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_step(k_step):
+    &#34;&#34;&#34;
+        Signal generator for a step signal
+
+        k_step - the sampling index as returned by counter() at which the step appears.
+    &#34;&#34;&#34;
+    k = dy.counter()
+    y = dy.int32(k_step) &lt;= k
+
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.signal_step_wise_sequence"><code class="name flex">
+<span>def <span class="ident">signal_step_wise_sequence</span></span>(<span>time_instance_indices, values, time_scale=None, counter=None, reset=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>signal generator for a step-wise changeing signal</p>
+<p>time_instance_indices - an array of sampling instants at which the signal changes its values
+values
+- an array of values; must have one more element than time_instance_indices
+time_scale
+- multiplies all elements of time_instance_indices by the given factor (optional)
+counter
+- an alternative sample counter (optional)
+reset
+- boolean signal to reset the sequence (optional)</p>
+<h2 id="example">Example</h2>
+<p>time_instance_indices = [
+50, 100, 150, 250, 300, 350, 400,
+450, 500
+]
+values
+= [ 0, -1.0,
+0, 1.0,
+0, -1.0, 0,
+0.2, -0.2, 0
+]</p>
+<p>v = step_wise_sequence( time_instance_indices, values )</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, counter=None, reset=None ):
+    &#34;&#34;&#34;
+        signal generator for a step-wise changeing signal
+
+        time_instance_indices - an array of sampling instants at which the signal changes its values
+        values                - an array of values; must have one more element than time_instance_indices
+        time_scale            - multiplies all elements of time_instance_indices by the given factor (optional)
+        counter               - an alternative sample counter (optional)
+        reset                 - boolean signal to reset the sequence (optional)
+
+        Example
+        -------
+
+        time_instance_indices = [      50, 100, 150, 250, 300, 350, 400,  450, 500  ]
+        values                = [ 0, -1.0,   0, 1.0,  0, -1.0, 0,   0.2, -0.2, 0   ]
+
+        v = step_wise_sequence( time_instance_indices, values )
+    &#34;&#34;&#34;
+    
+    if len(values) - 1 != len(time_instance_indices):
+        raise BaseException( &#34;len(values) - 1 != len(time_instance_indices)&#34; )
+
+    if counter is None:
+        counter = dy.counter()
+
+    indices_mem = dy.memory(datatype=dy.DataTypeInt32(1),   constant_array=time_instance_indices )
+    values_mem  = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=values )
+
+    current_index = dy.signal()
+
+    current_time_index_to_check = dy.memory_read( indices_mem, current_index )
+
+    # scale time
+    if time_scale is not None:
+        index_to_check = time_scale * current_time_index_to_check
+    else:
+        index_to_check = current_time_index_to_check
+
+    # check wether to step to the next sample
+    increase_index = dy.int32(0)
+    increase_index = dy.conditional_overwrite(increase_index, counter &gt;= index_to_check, dy.int32(1) )
+    current_index &lt;&lt; dy.counter_triggered(upper_limit=len(time_instance_indices), stepwidth=increase_index, reset=reset )
+
+    val = dy.memory_read(values_mem, current_index)
+
+    return val</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.sum"><code class="name flex">
+<span>def <span class="ident">sum</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, initial_state=0, no_delay=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Accumulative sum</p>
+<p>The difference equation</p>
+<pre><code>y[k+1] = y[k] + u[k]
+</code></pre>
+<p>is evaluated. The return value is either</p>
+<pre><code>y[k]   by default or when no_delay == False
+</code></pre>
+<p>or</p>
+<pre><code>y[k+1] in case no_delay == True .
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sum(u : Signal, initial_state=0, no_delay=False):
+    &#34;&#34;&#34;
+        Accumulative sum
+
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return value is either
+
+            y[k]   by default or when no_delay == False
+        or
+
+            y[k+1] in case no_delay == True .
+    &#34;&#34;&#34;
+
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
+
+    y_k &lt;&lt; dy.delay(y_kp1, initial_state=initial_state)
+
+    if no_delay:
+        return y_kp1
+    else:
+        return y_k</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.sum2"><code class="name flex">
+<span>def <span class="ident">sum2</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, initial_state=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Accumulative sum</p>
+<p>The difference equation</p>
+<pre><code>y[k+1] = y[k] + u[k]
+</code></pre>
+<p>is evaluated. The return values are</p>
+<pre><code>y[k], y[k+1]
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sum2(u : Signal, initial_state=0):
+    &#34;&#34;&#34;
+        Accumulative sum
+
+        The difference equation
+
+            y[k+1] = y[k] + u[k]
+
+        is evaluated. The return values are
+
+            y[k], y[k+1]
+    &#34;&#34;&#34;
+
+    y_k = dy.signal()
+    
+    y_kp1 = y_k + u
+
+    y_k &lt;&lt; dy.delay(y_kp1, initial_state=initial_state)
+
+    return y_k, y_kp1</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.toggle"><code class="name flex">
+<span>def <span class="ident">toggle</span></span>(<span>trigger, initial_state=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def toggle(trigger, initial_state=False):
+
+    state = dy.signal()
+
+    activate   = dy.logic_and( dy.logic_not( state ), trigger )
+    deactivate = dy.logic_and( trigger , state)
+
+    tmp = dy.flipflop( activate, deactivate, 
+                            initial_state = 0, 
+                            nodelay=False )
+
+    state &lt;&lt; tmp
+
+    return state, activate, deactivate</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.transfer_function_discrete"><code class="name flex">
+<span>def <span class="ident">transfer_function_discrete</span></span>(<span>u: <a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="diagram_core/signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>, num_coeff: List[float], den_coeff: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Discrete time transfer function</p>
+<p>u
+- input signal
+num_coeff - list of numerator coefficients of the transfer function
+den_coeff - list of denominator coefficients of the transfer function</p>
+<p>returns the output of the filter</p>
+<h2 id="details">Details:</h2>
+<p>This filter realizes a discrete-time transfer function by using 'direct form II'
+c.f. <a href="https://en.wikipedia.org/wiki/Digital_filter">https://en.wikipedia.org/wiki/Digital_filter</a> .</p>
+<pre><code>    b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
+</code></pre>
+<p>H(z) = ----------------------------------------
+1 + a1 z^-1 + a2 z^-2 + &hellip; + aM z^-M</p>
+<p>The coefficient vectors num_coeff and den_coeff describe the numerator and
+denominator polynomials, respectively, and are defined as follows:</p>
+<p>num_coeff = [b0, b1, .., bN]
+den_coeff = [a1, a2, &hellip; aM] .</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff : t.List[float] ):
+
+    &#34;&#34;&#34;
+    Discrete time transfer function
+
+    u         - input signal
+    num_coeff - list of numerator coefficients of the transfer function
+    den_coeff - list of denominator coefficients of the transfer function
+
+    returns the output of the filter
+
+    Details:
+    --------
+
+    This filter realizes a discrete-time transfer function by using &#39;direct form II&#39;
+    c.f. https://en.wikipedia.org/wiki/Digital_filter .
+
+            b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
+    H(z) = ----------------------------------------
+             1 + a1 z^-1 + a2 z^-2 + ... + aM z^-M
+
+    The coefficient vectors num_coeff and den_coeff describe the numerator and 
+    denominator polynomials, respectively, and are defined as follows:
+
+    num_coeff = [b0, b1, .., bN]
+    den_coeff = [a1, a2, ... aM] .
+    
+    &#34;&#34;&#34;
+
+
+    # get filter order
+    N = len(num_coeff)-1
+
+    # feedback start signal
+    z_pre = dy.signal()
+
+    # array to store state signals
+    z_ = []
+
+    # create delay chain
+    z_iterate = z_pre
+    for i in range(0,N):
+
+        z_iterate = dy.delay( z_iterate ).extendName(&#39;_z&#39; + str(i) )
+        z_.append( z_iterate ) 
+
+
+    # build feedback path
+    #
+    # a1 = den_coeff[0]
+    # a2 = den_coeff[1]
+    # a3 = den_coeff[2]
+    #        ...
+    sum_feedback = u
+    for i in range(0,N):
+
+        a_ip1 = dy.float64( den_coeff[i] ).extendName(&#39;_a&#39; + str(i+1) )
+
+        sum_feedback = sum_feedback - a_ip1 * z_[i]
+
+    sum_feedback.extendName(&#39;_i&#39;)
+
+
+    # close the feedback loop
+    z_pre &lt;&lt; sum_feedback
+
+    # build output path
+    #
+    # b0 = num_coeff[0]
+    # b1 = num_coeff[1]
+    # b2 = num_coeff[2]
+    #        ...    
+    for i in range(0,N+1):
+        
+        b_i = dy.float64( num_coeff[i] ).extendName(&#39;_b&#39; + str(i) )
+
+        if i==0:
+            y = b_i * sum_feedback
+        else:
+            y = y + b_i * z_[i-1]
+
+    # y is the filter output   
+    return y</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.standard_library.unwrap_angle"><code class="name flex">
+<span>def <span class="ident">unwrap_angle</span></span>(<span>angle, normalize_around_zero=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Unwrap an angle</p>
+<p>Unrap and normalize the input angle to the range </p>
+<p>1) [0, 2*pi[
+in case normalize_around_zero == false
+2) [-pi, pi]
+in case normalize_around_zero == true</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unwrap_angle(angle, normalize_around_zero = False):
+    &#34;&#34;&#34;
+        Unwrap an angle
+
+        Unrap and normalize the input angle to the range 
+
+          1) [0, 2*pi[     in case normalize_around_zero == false
+          2) [-pi, pi]     in case normalize_around_zero == true
+    &#34;&#34;&#34;
+
+    def normalize_aruond_zero(angle):
+        &#34;&#34;&#34;
+            Normalize an angle
+
+            Normalize an angle to a range [-pi, pi]
+
+            Important: the assumed range for the input is - 2*pi &lt;= angle &lt;= 2*p
+        &#34;&#34;&#34;
+
+        tmp = angle            + dy.conditional_overwrite( dy.float64(0), angle &lt;= float64(-math.pi), 2*math.pi )
+        normalized_angle = tmp + dy.conditional_overwrite( dy.float64(0), angle &gt; float64(math.pi), -2*math.pi )
+
+        return normalized_angle
+
+    #
+    #
+    angle_ = dy.fmod(angle, dy.float64(2*math.pi) )
+
+    unwrapped_angle = angle_ + dy.conditional_overwrite( dy.float64(0), angle_ &lt; float64(0), 2*math.pi )
+
+    if normalize_around_zero:
+        return normalize_aruond_zero(unwrapped_angle)
+    else:
+        return unwrapped_angle</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang" href="index.html">openrtdynamics2.lang</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.standard_library.PID_controller" href="#openrtdynamics2.lang.standard_library.PID_controller">PID_controller</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.boolean" href="#openrtdynamics2.lang.standard_library.boolean">boolean</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.counter" href="#openrtdynamics2.lang.standard_library.counter">counter</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.counter_triggered" href="#openrtdynamics2.lang.standard_library.counter_triggered">counter_triggered</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.delay" href="#openrtdynamics2.lang.standard_library.delay">delay</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.diff" href="#openrtdynamics2.lang.standard_library.diff">diff</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.dtf_lowpass_1_order" href="#openrtdynamics2.lang.standard_library.dtf_lowpass_1_order">dtf_lowpass_1_order</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.euler_integrator" href="#openrtdynamics2.lang.standard_library.euler_integrator">euler_integrator</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.float64" href="#openrtdynamics2.lang.standard_library.float64">float64</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.initial_event" href="#openrtdynamics2.lang.standard_library.initial_event">initial_event</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.int32" href="#openrtdynamics2.lang.standard_library.int32">int32</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.play" href="#openrtdynamics2.lang.standard_library.play">play</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.rate_limit" href="#openrtdynamics2.lang.standard_library.rate_limit">rate_limit</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.sample_and_hold" href="#openrtdynamics2.lang.standard_library.sample_and_hold">sample_and_hold</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.saturate" href="#openrtdynamics2.lang.standard_library.saturate">saturate</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_impulse" href="#openrtdynamics2.lang.standard_library.signal_impulse">signal_impulse</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_periodic_impulse" href="#openrtdynamics2.lang.standard_library.signal_periodic_impulse">signal_periodic_impulse</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_ramp" href="#openrtdynamics2.lang.standard_library.signal_ramp">signal_ramp</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_sinus" href="#openrtdynamics2.lang.standard_library.signal_sinus">signal_sinus</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_square" href="#openrtdynamics2.lang.standard_library.signal_square">signal_square</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_step" href="#openrtdynamics2.lang.standard_library.signal_step">signal_step</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.signal_step_wise_sequence" href="#openrtdynamics2.lang.standard_library.signal_step_wise_sequence">signal_step_wise_sequence</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.sum" href="#openrtdynamics2.lang.standard_library.sum">sum</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.sum2" href="#openrtdynamics2.lang.standard_library.sum2">sum2</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.toggle" href="#openrtdynamics2.lang.standard_library.toggle">toggle</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.transfer_function_discrete" href="#openrtdynamics2.lang.standard_library.transfer_function_discrete">transfer_function_discrete</a></code></li>
+<li><code><a title="openrtdynamics2.lang.standard_library.unwrap_angle" href="#openrtdynamics2.lang.standard_library.unwrap_angle">unwrap_angle</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

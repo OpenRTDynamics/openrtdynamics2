@@ -1,0 +1,3003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.diagram_core.code_build_commands API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.diagram_core.code_build_commands</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .system import *
+from .signal_network.signals import *
+from .signal_network import *
+from .graph_traversion import *
+from . import  code_generation_helper as cgh
+
+from typing import Dict, List
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
+
+from textwrap import *
+from string import Template
+
+
+#
+# Code generation helper functions
+#
+
+
+def codegen_call_to_API_function_with_strutures(API_function_command, input_struct_varname, output_struct_varname):
+    &#34;&#34;&#34;
+        help in code generation: create a function call to an API function (e.g. for calculating outputs or
+        updateting states). Input and output parameters are taken from strutures with the given names. 
+    &#34;&#34;&#34;
+    arguments_string = cgh.build_function_arguments_for_signal_io_with_struct(
+        input_signals = API_function_command.inputSignals, 
+        output_signals = API_function_command.outputSignals, 
+        input_struct_varname = input_struct_varname, 
+        output_struct_varname = output_struct_varname
+    )
+    return cgh.call_function_with_argument_str(fn_name=API_function_command.API_name, arguments_str=arguments_string)
+
+
+
+
+
+#
+# The execution command prototype
+#
+
+class ExecutionCommand(object):
+    def __init__(self):
+
+        # the nesting level (by default 0)
+        self.treeLevel_ = 0
+
+        # list of subcommands (filled in by derived classes)
+        self.executionCommands = []
+
+        # the upper level execution command within the execution tree
+        # None by default
+        self.contextCommand = None
+
+        # object to define the tracing infrastructure (e.g. printf)
+        # in case of None, tracing is deactivated
+        self._tracing_infrastructure = None
+
+    @property
+    def treeLevel(self):
+        return self.treeLevel_
+
+    # set the parent execution command
+    def setContext(self, context ):
+        self.contextCommand = context
+        self.treeLevel_ = context.treeLevel + 1
+
+    def set_tracing_infrastructure(self, tracing_infrastructure):
+        self._tracing_infrastructure = tracing_infrastructure
+
+        for cmd in self.executionCommands:
+            cmd.set_tracing_infrastructure( tracing_infrastructure )
+
+    def generate_code_init(self, language):
+        # 
+        raise BaseException(&#39;generate_code_init unimplemented&#39;)
+
+    def generate_code_destruct(self, language):
+        raise BaseException(&#39;generate_code_destruct unimplemented&#39;)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        return lines
+
+
+
+
+#
+# The execution commands
+#
+
+
+# rename to CommandCalculateSignalValues
+class CommandCalculateOutputs(ExecutionCommand):
+    &#34;&#34;&#34;
+        execute an executionLine i.e. call the output-flags of all blocks given in executionLine
+        in the correct order. This calculates the blocks outputs indicated by the signals given
+        in executionLine.getSignalsToExecute()
+
+        system - the system of which to calculate the outputs
+        target_signals - the signals to evaluate
+        output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
+    &#34;&#34;&#34;
+
+    def __init__(self, system, executionLine, targetSignals, signals_from_system_states = [], no_memory_for_output_variables : bool = False, output_signals = []):
+        ExecutionCommand.__init__(self)
+
+        self._system                          = system
+        self.executionLine                    = executionLine
+        self.targetSignals                    = targetSignals
+        self._output_signals                  = output_signals
+        self._signals_from_system_states      = signals_from_system_states
+        self.define_variables_for_the_outputs = not no_memory_for_output_variables
+
+    def print_execution(self):
+        signalListStr = &#39;[&#39;
+
+        if self.targetSignals is not None:
+            signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
+
+        signalListStr += &#39;]&#39;
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: follow output execution line to calculate &#34; + signalListStr + &#34; using:&#34;)
+
+        self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;localvar&#39;:
+
+                # 
+                signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
+
+                # remove the system-output signals if requested
+                if not self.define_variables_for_the_outputs: # This is flipped by its name
+                    for s in self.targetSignals:
+
+                        # if s is output signal of system 
+                        if s in self._output_signals:
+
+                            # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
+
+                            signals_reduced_set.remove( s )
+
+                            # notify the block prototype that the signal s will be a system output
+                            # and, hence, no memory shall be allocated for s (because the memory is already
+                            # available)
+                            s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference(&#39;c++&#39;, s)
+                            
+                            
+                            
+
+
+                # skip the input signals in this loop (as their variables are already defined by the function API)
+                for s in signals_reduced_set:
+
+                    # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
+                    if not s in self._signals_from_system_states:
+
+                        if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+                            # only implement caching for intermediate computation results.
+                            # I.e. exclude the simulation input signals
+
+                            if not s.is_referencing_memory:
+                                lines += cgh.define_variable_line( s )
+
+
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n// calculating the block outputs in the following order &#39; + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + &#39;\n&#39;
+                lines += &#39;// that depend on &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + &#39;\n&#39;
+                lines += &#39;// dependencies that require a state update are &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + &#39; \n&#39;
+                lines += &#39;\n&#39;
+
+
+                # build map block -&gt; list of signals
+                blocks_with_outputs_to_compute = {}
+
+                for s in self.executionLine.getSignalsToExecute():
+                    # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                    if not s.is_crossing_system_boundary(self._system):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+
+                        block = s.getSourceBlock()
+
+                        if block not in blocks_with_outputs_to_compute:
+                            blocks_with_outputs_to_compute[ block ] = [ s ]
+                        else:
+                            blocks_with_outputs_to_compute[ block ].append( s )
+
+
+                # for each blocks that provides outputs that are needed to compute,
+                # generate the code to calculate these outputs.
+                for block in blocks_with_outputs_to_compute:
+                    lines += block.getBlockPrototype().generate_code_output_list(&#39;c++&#39;, blocks_with_outputs_to_compute[ block ] )
+                    
+        return lines
+
+
+
+
+class CommandResetStates(ExecutionCommand):
+    &#34;&#34;&#34;
+        call reset flag of all blocks given to this command
+    &#34;&#34;&#34;
+
+    def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
+
+        self.blockList = blockList
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: reset states of:&#34;)
+
+        for block in self.blockList:
+            print(&#34;  - &#34; + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;code&#39;:
+                lines += &#39;&#39;
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().generate_code_reset(&#39;c++&#39;)
+
+        return lines
+
+
+
+
+
+
+
+
+class CommandUpdateStates(ExecutionCommand):
+    &#34;&#34;&#34;
+        call update states of all blocks given to this command
+    &#34;&#34;&#34;
+
+    def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
+
+        self.blockList = blockList
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: update states of:&#34;)
+
+        for block in self.blockList:
+            print(&#34;  - &#34; + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                # define all state variables
+
+                lines += &#39;&#39;
+                lines += &#34;\n\n// state update\n&#34;
+                for b in self.blockList:
+                    
+                    #
+                    # TODO: rename &#39;defStates&#39; to &#39;variables&#39;
+                    #
+                    
+                    lines += b.getBlockPrototype().generate_code_defStates(&#39;c++&#39;)
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;&#39;
+
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().generate_code_update(&#39;c++&#39;)
+
+
+        return lines
+
+
+
+
+
+
+
+class CommandCacheOutputs(ExecutionCommand):
+    &#34;&#34;&#34;
+        copy the value of each given signal to the space of global variables
+        (only signals that are the output of a block are considered, i.e. no 
+        simulation inputs)
+    &#34;&#34;&#34;
+
+    def __init__(self, signals : List[Signal]):
+        ExecutionCommand.__init__(self)
+
+        self.signals = signals
+        
+    def get_cachedSignals(self):
+        return self.signals
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):&#34;)
+
+        for s in self.signals:
+            print(&#34;  - &#34; + s.toStr() )
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+
+            if flag == &#39;variables&#39;:
+                lines += &#39;&#39;
+                lines += &#34;\n\n//\n// cached output values\n//\n\n&#34;
+                for s in self.signals:
+
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        # lines +=  &#39;\n// cache for &#39; + s.name + &#39;\n&#39;
+                        lines +=  s.getDatatype().cpp_define_variable(cachevarName) + &#34;;&#34; + &#39;\n&#39; 
+
+                    else:
+                        comment = &#39; // cache for &#39; + s.name + &#39; (stores a pointer to a memory location)&#39;
+                        lines +=  s.getDatatype().cpp_define_variable(&#39;(*&#39; + cachevarName + &#39;)&#39;) + &#34;;&#34; + comment + &#39;\n&#39; 
+
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;// saving the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; into the states \n&#39;
+
+
+                for s in self.signals:
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        lines += cachevarName + &#39; = &#39; + s.name + &#39;;\n&#39;
+                    else:
+                        # get the raw-pointer for the reference
+                        lines += cachevarName + &#39; = &amp;(&#39; + s.name + &#39;); // just copy a pointer to the memory location\n&#39;
+
+        return lines
+
+
+
+
+
+
+class CommandRestoreCache(ExecutionCommand):
+    &#34;&#34;&#34;
+        restore the cached signals that were previously stored by the command 
+        cacheCommand : CommandCacheOutputs
+    &#34;&#34;&#34;
+
+    def __init__(self,  cacheCommand : CommandCacheOutputs ):
+        ExecutionCommand.__init__(self)
+
+        self.signals = cacheCommand.get_cachedSignals()
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):&#34;)
+
+        for s in self.signals:
+            print(&#34;  - &#34; + s.toStr() )
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;// restoring the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; from the states \n&#39;
+
+                for s in self.signals:
+
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = &#39; + cachevarName + &#34;;&#34; + &#39;\n&#39; 
+                    else:
+                        # set the reference to the memory the pointer &#39;cachevarName&#39; is pointing to
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = *&#39; + cachevarName + &#34;;&#34; + &#39; // use a pointer to the memory location\n&#39; 
+
+
+                lines += &#39;\n&#39;
+
+        return lines
+
+
+
+
+
+
+class PutAPIFunction(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents an API-function (e.g. member function of a c++ class) which executes --
+        once triggered -- the specified commands. A list of in-/output signals to this function
+        is given by inputSignals and outputSignals.
+    &#34;&#34;&#34;
+
+    #
+    # Creates an API-function to return the calculated values that might depend on input values
+    # 
+
+    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands, generate_wrappper_functions = True):
+        ExecutionCommand.__init__(self)
+
+        self.outputSignals = outputSignals
+        self.inputSignals = inputSignals
+        self.executionCommands = executionCommands
+        self._nameAPI = nameAPI
+        self._generate_wrappper_functions = generate_wrappper_functions
+
+        # check if there are no common signal names in in/output
+        for so in self.outputSignals:
+            for si in self.inputSignals:
+                if so.name == si.name:
+                    raise BaseException(&#39;the systems in-/outputs have a common signal name: &#39; + si.name + &#39;. This is not supported in code generation. Please use a different signal name for the output or the input.&#39;)
+
+        for e in executionCommands:
+            e.setContext(self)
+
+
+    @property
+    def API_name(self):
+        return self._nameAPI
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: API outputs are:&#34;)
+        for s in self.outputSignals:
+            print(Style.DIM + &#39;  - &#39; + s.name)
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;that are calculated by: {&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+        for c in self.executionCommands:
+            c.generate_code_init(language)
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                for c in self.executionCommands:
+                    lines += c.generate_code(language, &#39;variables&#39;)
+
+
+            if flag == &#39;code&#39;:
+                #
+                # ------ define the API-function ------
+                #
+                if len(self.outputSignals) &gt; 0:
+                    lines += &#39;// API-function &#39; + self._nameAPI + &#39; to compute: &#39; + cgh.signal_list_to_names_string( self.outputSignals )
+                else:
+                    lines += &#39;// API-function &#39; + self._nameAPI
+
+                lines += &#39;\n&#39;
+
+                # innerLines will be put into the functions
+                function_code = &#39;&#39;
+
+                # place tracing (begin)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string=&#39;ENTR: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                    signals=self.inputSignals)
+
+                    function_code += &#39;\n&#39;
+                
+                # put the local variables
+                for c in self.executionCommands:
+                    function_code += c.generate_code(language, &#39;localvar&#39;)
+                
+                function_code += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    function_code += c.generate_code(language, &#39;code&#39;)
+
+                # place tracing (end)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string=&#39;EXIT: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                    signals=self.outputSignals)
+
+                    function_code += &#39;\n&#39;
+
+                # generate the function
+                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
+
+                #
+                # ------ end of &#39;define the API-function&#39; ------
+                #
+
+                if self._generate_wrappper_functions:
+
+                    # put data strutures to hold I/O signals
+                    lines += &#39;// output signals of  &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.define_structure(&#39;Outputs_&#39; + self._nameAPI , self.outputSignals)  
+
+                    lines += &#39;// input signals of &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.define_structure(&#39;Inputs_&#39; + self._nameAPI , self.inputSignals)  
+
+                    #
+                    # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+                    #
+
+                    function_code = &#39;&#39;
+                    function_code += cgh.define_struct_var( &#39;Outputs_&#39; + self._nameAPI, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+                    # call to wrapped function
+                    function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                    function_code += &#39;\n&#39;
+                    function_code += &#39;return outputs;\n&#39;
+
+                    #
+                    lines += &#39;// wrapper function for &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.cpp_define_generic_function( 
+                        fn_name=self._nameAPI + &#39;__&#39;, 
+                        return_cpp_type_str = &#39;Outputs_&#39; + self._nameAPI, 
+                        arg_list_str = &#39;Inputs_&#39; + self._nameAPI + &#39; inputs&#39;, 
+                        code = function_code
+                    )
+
+
+
+        return lines
+
+
+
+
+class PutSystem(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents a system that is represented by a class in c++
+    &#34;&#34;&#34;
+
+    def __init__(self, system : System, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
+        ExecutionCommand.__init__(self)
+        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
+
+        self.resetCommand = resetCommand
+        self.updateCommand = updateCommand
+        self.outputCommand = outputCommand
+
+        self._api_function_names = {&#39;calculate_output&#39; : self.outputCommand.API_name,
+                         &#39;state_update&#39; : self.updateCommand.API_name,
+                         &#39;reset&#39; : self.resetCommand.API_name }
+
+        self._api_functions = {&#39;calculate_output&#39; : self.outputCommand,
+                         &#39;state_update&#39; : self.updateCommand,
+                         &#39;reset&#39; : self.resetCommand }
+
+
+        self.system = system
+        self.nameAPI = system.getName()
+
+        for e in self.executionCommands:
+            e.setContext(self)
+
+
+
+    @property
+    def API_name(self):
+        return self.nameAPI
+
+    @property
+    def API_functionNames(self):
+        return self._api_function_names
+        
+    @property
+    def API_functions(self):
+        return self._api_functions
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self.nameAPI + &#34;):&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+
+        for c in self.executionCommands:
+            c.generate_code_init(language)
+
+        # call init codegen for each block in the simulation
+        for block in self.system.blocks:
+            block.getBlockPrototype().generate_code_init(language)
+
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                pass
+
+            if flag == &#39;code&#39;:
+                #
+        
+                # Add code within the same namespace this simulation sits in.
+                # E.g. to add helper functions, classes, ...
+                for b in self.system.blocks:
+                    lines += b.getBlockPrototype().codegen_addToNamespace(language)
+
+                # define the API-function (start)
+                lines += &#39;class &#39; + self.nameAPI + &#39; {&#39;
+                lines += &#39;\n&#39;
+
+                # put the local variables
+                innerLines = &#39;// variables\n&#39;
+                innerLines = &#39;public:\n&#39;
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;variables&#39;)
+                
+                innerLines += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;code&#39;)
+
+
+                #
+                # define the generic step functions
+                #
+
+                config_pass_by_reference = True
+
+                all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+                all_output_signals = self.outputCommand.outputSignals
+
+                # introduce a structure that combines all system inputs
+                innerLines += &#39;// all system inputs and outputs combined\n&#39;
+                innerLines += cgh.define_structure(&#39;Inputs&#39;, all_input_signals)
+                innerLines += cgh.define_structure(&#39;Outputs&#39;, all_output_signals)
+
+                #
+                # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+                #
+
+                function_code = &#39;&#39;
+                if not config_pass_by_reference:
+                    function_code += cgh.define_struct_var( &#39;Outputs&#39;, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+                # call to reset function
+                function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # call to output function (1)
+                function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # call to update function
+                function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # conditional update / output
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;reset_states&#39;], action_list=[function_code_reset_states] )
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;calculate_outputs==1&#39;], action_list=[function_code_calc_output] )
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;update_states&#39;], action_list=[function_code_update_states] )
+
+
+
+                function_code += &#39;\n&#39;
+
+                if not config_pass_by_reference:
+                    function_code += &#39;return outputs;\n&#39;
+
+                #
+                if self.system.upper_level_system is None:
+                    # put an interface function for nice interaction for the user of the generated code
+                    # Do this only for the top-level system
+                    
+                    innerLines += &#39;// main step function \n&#39;
+
+                    if config_pass_by_reference:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name=&#39;step&#39;, 
+                            return_cpp_type_str = &#39;void&#39;, 
+                            arg_list_str = &#39;Outputs &amp; outputs, Inputs const &amp; inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                            code = function_code
+                        )
+                    else:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name=&#39;step&#39;, 
+                            return_cpp_type_str = &#39;Outputs&#39;, 
+                            arg_list_str = &#39;Inputs inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                            code = function_code
+                        )
+
+
+
+
+                # define the API-function (finish)
+                lines += cgh.indent(innerLines)
+                lines += &#39;};\n\n&#39;
+
+        return lines
+
+
+
+
+
+
+class PutSystemAndSubsystems(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents a system and its subsystem togehter that is represented by multiple classes in c++.
+        Addiitionally, they are packed into a namespace.
+    &#34;&#34;&#34;
+
+    def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):
+
+        ExecutionCommand.__init__(self)
+        self.executionCommands = commands_to_put_subsystems + [ command_to_put_main_system ] 
+
+        self._command_to_put_main_system = command_to_put_main_system
+        self._commands_to_put_subsystems = commands_to_put_subsystems
+
+    @property
+    def command_to_put_main_system(self):
+        return self._command_to_put_main_system
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self._command_to_put_main_system.API_name + &#34; along with subsystems):&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+
+        for c in self.executionCommands:
+            c.generate_code_init(language)        
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)            
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                pass
+
+            if flag == &#39;code&#39;:
+                #
+        
+
+                lines += &#39;// namespace for &#39; + self._command_to_put_main_system.API_name + &#39; {\n&#39;
+
+                # put the global variables
+                innerLines = &#39;// global variables\n&#39;
+
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;variables&#39;)
+
+                innerLines += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;code&#39;)
+
+                lines += cgh.indent(innerLines)
+
+                # end namespace (finish)
+                lines += &#39;// end of namespace for &#39; + self._command_to_put_main_system.API_name + &#39;\n\n&#39;
+
+
+        return lines</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.codegen_call_to_API_function_with_strutures"><code class="name flex">
+<span>def <span class="ident">codegen_call_to_API_function_with_strutures</span></span>(<span>API_function_command, input_struct_varname, output_struct_varname)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>help in code generation: create a function call to an API function (e.g. for calculating outputs or
+updateting states). Input and output parameters are taken from strutures with the given names.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def codegen_call_to_API_function_with_strutures(API_function_command, input_struct_varname, output_struct_varname):
+    &#34;&#34;&#34;
+        help in code generation: create a function call to an API function (e.g. for calculating outputs or
+        updateting states). Input and output parameters are taken from strutures with the given names. 
+    &#34;&#34;&#34;
+    arguments_string = cgh.build_function_arguments_for_signal_io_with_struct(
+        input_signals = API_function_command.inputSignals, 
+        output_signals = API_function_command.outputSignals, 
+        input_struct_varname = input_struct_varname, 
+        output_struct_varname = output_struct_varname
+    )
+    return cgh.call_function_with_argument_str(fn_name=API_function_command.API_name, arguments_str=arguments_string)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs"><code class="flex name class">
+<span>class <span class="ident">CommandCacheOutputs</span></span>
+<span>(</span><span>signals: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>copy the value of each given signal to the space of global variables
+(only signals that are the output of a block are considered, i.e. no
+simulation inputs)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandCacheOutputs(ExecutionCommand):
+    &#34;&#34;&#34;
+        copy the value of each given signal to the space of global variables
+        (only signals that are the output of a block are considered, i.e. no 
+        simulation inputs)
+    &#34;&#34;&#34;
+
+    def __init__(self, signals : List[Signal]):
+        ExecutionCommand.__init__(self)
+
+        self.signals = signals
+        
+    def get_cachedSignals(self):
+        return self.signals
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):&#34;)
+
+        for s in self.signals:
+            print(&#34;  - &#34; + s.toStr() )
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+
+            if flag == &#39;variables&#39;:
+                lines += &#39;&#39;
+                lines += &#34;\n\n//\n// cached output values\n//\n\n&#34;
+                for s in self.signals:
+
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        # lines +=  &#39;\n// cache for &#39; + s.name + &#39;\n&#39;
+                        lines +=  s.getDatatype().cpp_define_variable(cachevarName) + &#34;;&#34; + &#39;\n&#39; 
+
+                    else:
+                        comment = &#39; // cache for &#39; + s.name + &#39; (stores a pointer to a memory location)&#39;
+                        lines +=  s.getDatatype().cpp_define_variable(&#39;(*&#39; + cachevarName + &#39;)&#39;) + &#34;;&#34; + comment + &#39;\n&#39; 
+
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;// saving the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; into the states \n&#39;
+
+
+                for s in self.signals:
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        lines += cachevarName + &#39; = &#39; + s.name + &#39;;\n&#39;
+                    else:
+                        # get the raw-pointer for the reference
+                        lines += cachevarName + &#39; = &amp;(&#39; + s.name + &#39;); // just copy a pointer to the memory location\n&#39;
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+
+        if flag == &#39;variables&#39;:
+            lines += &#39;&#39;
+            lines += &#34;\n\n//\n// cached output values\n//\n\n&#34;
+            for s in self.signals:
+
+                cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                if not s.is_referencing_memory:
+                    # lines +=  &#39;\n// cache for &#39; + s.name + &#39;\n&#39;
+                    lines +=  s.getDatatype().cpp_define_variable(cachevarName) + &#34;;&#34; + &#39;\n&#39; 
+
+                else:
+                    comment = &#39; // cache for &#39; + s.name + &#39; (stores a pointer to a memory location)&#39;
+                    lines +=  s.getDatatype().cpp_define_variable(&#39;(*&#39; + cachevarName + &#39;)&#39;) + &#34;;&#34; + comment + &#39;\n&#39; 
+
+
+        if flag == &#39;code&#39;:
+            lines += &#39;\n&#39;
+            lines += &#39;// saving the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; into the states \n&#39;
+
+
+            for s in self.signals:
+                cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                if not s.is_referencing_memory:
+                    lines += cachevarName + &#39; = &#39; + s.name + &#39;;\n&#39;
+                else:
+                    # get the raw-pointer for the reference
+                    lines += cachevarName + &#39; = &amp;(&#39; + s.name + &#39;); // just copy a pointer to the memory location\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.get_cachedSignals"><code class="name flex">
+<span>def <span class="ident">get_cachedSignals</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_cachedSignals(self):
+    return self.signals</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):&#34;)
+
+    for s in self.signals:
+        print(&#34;  - &#34; + s.toStr() )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs"><code class="flex name class">
+<span>class <span class="ident">CommandCalculateOutputs</span></span>
+<span>(</span><span>system, executionLine, targetSignals, signals_from_system_states=[], no_memory_for_output_variables: bool = False, output_signals=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>execute an executionLine i.e. call the output-flags of all blocks given in executionLine
+in the correct order. This calculates the blocks outputs indicated by the signals given
+in executionLine.getSignalsToExecute()</p>
+<p>system - the system of which to calculate the outputs
+target_signals - the signals to evaluate
+output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandCalculateOutputs(ExecutionCommand):
+    &#34;&#34;&#34;
+        execute an executionLine i.e. call the output-flags of all blocks given in executionLine
+        in the correct order. This calculates the blocks outputs indicated by the signals given
+        in executionLine.getSignalsToExecute()
+
+        system - the system of which to calculate the outputs
+        target_signals - the signals to evaluate
+        output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
+    &#34;&#34;&#34;
+
+    def __init__(self, system, executionLine, targetSignals, signals_from_system_states = [], no_memory_for_output_variables : bool = False, output_signals = []):
+        ExecutionCommand.__init__(self)
+
+        self._system                          = system
+        self.executionLine                    = executionLine
+        self.targetSignals                    = targetSignals
+        self._output_signals                  = output_signals
+        self._signals_from_system_states      = signals_from_system_states
+        self.define_variables_for_the_outputs = not no_memory_for_output_variables
+
+    def print_execution(self):
+        signalListStr = &#39;[&#39;
+
+        if self.targetSignals is not None:
+            signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
+
+        signalListStr += &#39;]&#39;
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: follow output execution line to calculate &#34; + signalListStr + &#34; using:&#34;)
+
+        self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;localvar&#39;:
+
+                # 
+                signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
+
+                # remove the system-output signals if requested
+                if not self.define_variables_for_the_outputs: # This is flipped by its name
+                    for s in self.targetSignals:
+
+                        # if s is output signal of system 
+                        if s in self._output_signals:
+
+                            # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
+
+                            signals_reduced_set.remove( s )
+
+                            # notify the block prototype that the signal s will be a system output
+                            # and, hence, no memory shall be allocated for s (because the memory is already
+                            # available)
+                            s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference(&#39;c++&#39;, s)
+                            
+                            
+                            
+
+
+                # skip the input signals in this loop (as their variables are already defined by the function API)
+                for s in signals_reduced_set:
+
+                    # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
+                    if not s in self._signals_from_system_states:
+
+                        if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+                            # only implement caching for intermediate computation results.
+                            # I.e. exclude the simulation input signals
+
+                            if not s.is_referencing_memory:
+                                lines += cgh.define_variable_line( s )
+
+
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n// calculating the block outputs in the following order &#39; + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + &#39;\n&#39;
+                lines += &#39;// that depend on &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + &#39;\n&#39;
+                lines += &#39;// dependencies that require a state update are &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + &#39; \n&#39;
+                lines += &#39;\n&#39;
+
+
+                # build map block -&gt; list of signals
+                blocks_with_outputs_to_compute = {}
+
+                for s in self.executionLine.getSignalsToExecute():
+                    # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                    if not s.is_crossing_system_boundary(self._system):
+                        # only implement caching for intermediate computaion results.
+                        # I.e. exclude the simulation input signals
+
+                        block = s.getSourceBlock()
+
+                        if block not in blocks_with_outputs_to_compute:
+                            blocks_with_outputs_to_compute[ block ] = [ s ]
+                        else:
+                            blocks_with_outputs_to_compute[ block ].append( s )
+
+
+                # for each blocks that provides outputs that are needed to compute,
+                # generate the code to calculate these outputs.
+                for block in blocks_with_outputs_to_compute:
+                    lines += block.getBlockPrototype().generate_code_output_list(&#39;c++&#39;, blocks_with_outputs_to_compute[ block ] )
+                    
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;localvar&#39;:
+
+            # 
+            signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
+
+            # remove the system-output signals if requested
+            if not self.define_variables_for_the_outputs: # This is flipped by its name
+                for s in self.targetSignals:
+
+                    # if s is output signal of system 
+                    if s in self._output_signals:
+
+                        # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
+
+                        signals_reduced_set.remove( s )
+
+                        # notify the block prototype that the signal s will be a system output
+                        # and, hence, no memory shall be allocated for s (because the memory is already
+                        # available)
+                        s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference(&#39;c++&#39;, s)
+                        
+                        
+                        
+
+
+            # skip the input signals in this loop (as their variables are already defined by the function API)
+            for s in signals_reduced_set:
+
+                # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
+                if not s in self._signals_from_system_states:
+
+                    if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+                        # only implement caching for intermediate computation results.
+                        # I.e. exclude the simulation input signals
+
+                        if not s.is_referencing_memory:
+                            lines += cgh.define_variable_line( s )
+
+
+
+        if flag == &#39;code&#39;:
+            lines += &#39;\n// calculating the block outputs in the following order &#39; + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + &#39;\n&#39;
+            lines += &#39;// that depend on &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + &#39;\n&#39;
+            lines += &#39;// dependencies that require a state update are &#39; + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + &#39; \n&#39;
+            lines += &#39;\n&#39;
+
+
+            # build map block -&gt; list of signals
+            blocks_with_outputs_to_compute = {}
+
+            for s in self.executionLine.getSignalsToExecute():
+                # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                if not s.is_crossing_system_boundary(self._system):
+                    # only implement caching for intermediate computaion results.
+                    # I.e. exclude the simulation input signals
+
+                    block = s.getSourceBlock()
+
+                    if block not in blocks_with_outputs_to_compute:
+                        blocks_with_outputs_to_compute[ block ] = [ s ]
+                    else:
+                        blocks_with_outputs_to_compute[ block ].append( s )
+
+
+            # for each blocks that provides outputs that are needed to compute,
+            # generate the code to calculate these outputs.
+            for block in blocks_with_outputs_to_compute:
+                lines += block.getBlockPrototype().generate_code_output_list(&#39;c++&#39;, blocks_with_outputs_to_compute[ block ] )
+                
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+    signalListStr = &#39;[&#39;
+
+    if self.targetSignals is not None:
+        signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
+
+    signalListStr += &#39;]&#39;
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: follow output execution line to calculate &#34; + signalListStr + &#34; using:&#34;)
+
+    self.executionLine.printExecutionLine()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates"><code class="flex name class">
+<span>class <span class="ident">CommandResetStates</span></span>
+<span>(</span><span>blockList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>call reset flag of all blocks given to this command</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandResetStates(ExecutionCommand):
+    &#34;&#34;&#34;
+        call reset flag of all blocks given to this command
+    &#34;&#34;&#34;
+
+    def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
+
+        self.blockList = blockList
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: reset states of:&#34;)
+
+        for block in self.blockList:
+            print(&#34;  - &#34; + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;code&#39;:
+                lines += &#39;&#39;
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().generate_code_reset(&#39;c++&#39;)
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;code&#39;:
+            lines += &#39;&#39;
+            for b in self.blockList:
+                lines += b.getBlockPrototype().generate_code_reset(&#39;c++&#39;)
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: reset states of:&#34;)
+
+    for block in self.blockList:
+        print(&#34;  - &#34; + block.toStr() )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache"><code class="flex name class">
+<span>class <span class="ident">CommandRestoreCache</span></span>
+<span>(</span><span>cacheCommand: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs">CommandCacheOutputs</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>restore the cached signals that were previously stored by the command
+cacheCommand : CommandCacheOutputs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandRestoreCache(ExecutionCommand):
+    &#34;&#34;&#34;
+        restore the cached signals that were previously stored by the command 
+        cacheCommand : CommandCacheOutputs
+    &#34;&#34;&#34;
+
+    def __init__(self,  cacheCommand : CommandCacheOutputs ):
+        ExecutionCommand.__init__(self)
+
+        self.signals = cacheCommand.get_cachedSignals()
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):&#34;)
+
+        for s in self.signals:
+            print(&#34;  - &#34; + s.toStr() )
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;// restoring the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; from the states \n&#39;
+
+                for s in self.signals:
+
+                    cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                    if not s.is_referencing_memory:
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = &#39; + cachevarName + &#34;;&#34; + &#39;\n&#39; 
+                    else:
+                        # set the reference to the memory the pointer &#39;cachevarName&#39; is pointing to
+                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = *&#39; + cachevarName + &#34;;&#34; + &#39; // use a pointer to the memory location\n&#39; 
+
+
+                lines += &#39;\n&#39;
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;code&#39;:
+            lines += &#39;\n&#39;
+            lines += &#39;// restoring the signals &#39; + cgh.signal_list_to_names_string(self.signals) + &#39; from the states \n&#39;
+
+            for s in self.signals:
+
+                cachevarName = s.name + &#34;__&#34; + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+                if not s.is_referencing_memory:
+                    lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = &#39; + cachevarName + &#34;;&#34; + &#39;\n&#39; 
+                else:
+                    # set the reference to the memory the pointer &#39;cachevarName&#39; is pointing to
+                    lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + &#39; = *&#39; + cachevarName + &#34;;&#34; + &#39; // use a pointer to the memory location\n&#39; 
+
+
+            lines += &#39;\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):&#34;)
+
+    for s in self.signals:
+        print(&#34;  - &#34; + s.toStr() )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates"><code class="flex name class">
+<span>class <span class="ident">CommandUpdateStates</span></span>
+<span>(</span><span>blockList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>call update states of all blocks given to this command</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandUpdateStates(ExecutionCommand):
+    &#34;&#34;&#34;
+        call update states of all blocks given to this command
+    &#34;&#34;&#34;
+
+    def __init__(self, blockList):
+        ExecutionCommand.__init__(self)
+
+        self.blockList = blockList
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: update states of:&#34;)
+
+        for block in self.blockList:
+            print(&#34;  - &#34; + block.toStr() )
+
+        # self.executionLine.printExecutionLine()
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                # define all state variables
+
+                lines += &#39;&#39;
+                lines += &#34;\n\n// state update\n&#34;
+                for b in self.blockList:
+                    
+                    #
+                    # TODO: rename &#39;defStates&#39; to &#39;variables&#39;
+                    #
+                    
+                    lines += b.getBlockPrototype().generate_code_defStates(&#39;c++&#39;)
+
+            if flag == &#39;code&#39;:
+                lines += &#39;\n&#39;
+                lines += &#39;&#39;
+
+                for b in self.blockList:
+                    lines += b.getBlockPrototype().generate_code_update(&#39;c++&#39;)
+
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;variables&#39;:
+            # define all state variables
+
+            lines += &#39;&#39;
+            lines += &#34;\n\n// state update\n&#34;
+            for b in self.blockList:
+                
+                #
+                # TODO: rename &#39;defStates&#39; to &#39;variables&#39;
+                #
+                
+                lines += b.getBlockPrototype().generate_code_defStates(&#39;c++&#39;)
+
+        if flag == &#39;code&#39;:
+            lines += &#39;\n&#39;
+            lines += &#39;&#39;
+
+            for b in self.blockList:
+                lines += b.getBlockPrototype().generate_code_update(&#39;c++&#39;)
+
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: update states of:&#34;)
+
+    for block in self.blockList:
+        print(&#34;  - &#34; + block.toStr() )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand"><code class="flex name class">
+<span>class <span class="ident">ExecutionCommand</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ExecutionCommand(object):
+    def __init__(self):
+
+        # the nesting level (by default 0)
+        self.treeLevel_ = 0
+
+        # list of subcommands (filled in by derived classes)
+        self.executionCommands = []
+
+        # the upper level execution command within the execution tree
+        # None by default
+        self.contextCommand = None
+
+        # object to define the tracing infrastructure (e.g. printf)
+        # in case of None, tracing is deactivated
+        self._tracing_infrastructure = None
+
+    @property
+    def treeLevel(self):
+        return self.treeLevel_
+
+    # set the parent execution command
+    def setContext(self, context ):
+        self.contextCommand = context
+        self.treeLevel_ = context.treeLevel + 1
+
+    def set_tracing_infrastructure(self, tracing_infrastructure):
+        self._tracing_infrastructure = tracing_infrastructure
+
+        for cmd in self.executionCommands:
+            cmd.set_tracing_infrastructure( tracing_infrastructure )
+
+    def generate_code_init(self, language):
+        # 
+        raise BaseException(&#39;generate_code_init unimplemented&#39;)
+
+    def generate_code_destruct(self, language):
+        raise BaseException(&#39;generate_code_destruct unimplemented&#39;)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        return lines</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs">CommandCacheOutputs</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs">CommandCalculateOutputs</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates">CommandResetStates</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache">CommandRestoreCache</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates">CommandUpdateStates</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction">PutAPIFunction</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem">PutSystem</a></li>
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems">PutSystemAndSubsystems</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.treeLevel"><code class="name">var <span class="ident">treeLevel</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def treeLevel(self):
+    return self.treeLevel_</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    raise BaseException(&#39;generate_code_destruct unimplemented&#39;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    # 
+    raise BaseException(&#39;generate_code_init unimplemented&#39;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.setContext"><code class="name flex">
+<span>def <span class="ident">setContext</span></span>(<span>self, context)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setContext(self, context ):
+    self.contextCommand = context
+    self.treeLevel_ = context.treeLevel + 1</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.set_tracing_infrastructure"><code class="name flex">
+<span>def <span class="ident">set_tracing_infrastructure</span></span>(<span>self, tracing_infrastructure)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_tracing_infrastructure(self, tracing_infrastructure):
+    self._tracing_infrastructure = tracing_infrastructure
+
+    for cmd in self.executionCommands:
+        cmd.set_tracing_infrastructure( tracing_infrastructure )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction"><code class="flex name class">
+<span>class <span class="ident">PutAPIFunction</span></span>
+<span>(</span><span>nameAPI: str, inputSignals: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>], outputSignals: List[<a title="openrtdynamics2.lang.diagram_core.signal_network.signals.Signal" href="signal_network/signals.html#openrtdynamics2.lang.diagram_core.signal_network.signals.Signal">Signal</a>], executionCommands, generate_wrappper_functions=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represents an API-function (e.g. member function of a c++ class) which executes &ndash;
+once triggered &ndash; the specified commands. A list of in-/output signals to this function
+is given by inputSignals and outputSignals.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PutAPIFunction(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents an API-function (e.g. member function of a c++ class) which executes --
+        once triggered -- the specified commands. A list of in-/output signals to this function
+        is given by inputSignals and outputSignals.
+    &#34;&#34;&#34;
+
+    #
+    # Creates an API-function to return the calculated values that might depend on input values
+    # 
+
+    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands, generate_wrappper_functions = True):
+        ExecutionCommand.__init__(self)
+
+        self.outputSignals = outputSignals
+        self.inputSignals = inputSignals
+        self.executionCommands = executionCommands
+        self._nameAPI = nameAPI
+        self._generate_wrappper_functions = generate_wrappper_functions
+
+        # check if there are no common signal names in in/output
+        for so in self.outputSignals:
+            for si in self.inputSignals:
+                if so.name == si.name:
+                    raise BaseException(&#39;the systems in-/outputs have a common signal name: &#39; + si.name + &#39;. This is not supported in code generation. Please use a different signal name for the output or the input.&#39;)
+
+        for e in executionCommands:
+            e.setContext(self)
+
+
+    @property
+    def API_name(self):
+        return self._nameAPI
+        
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: API outputs are:&#34;)
+        for s in self.outputSignals:
+            print(Style.DIM + &#39;  - &#39; + s.name)
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;that are calculated by: {&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+        for c in self.executionCommands:
+            c.generate_code_init(language)
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                for c in self.executionCommands:
+                    lines += c.generate_code(language, &#39;variables&#39;)
+
+
+            if flag == &#39;code&#39;:
+                #
+                # ------ define the API-function ------
+                #
+                if len(self.outputSignals) &gt; 0:
+                    lines += &#39;// API-function &#39; + self._nameAPI + &#39; to compute: &#39; + cgh.signal_list_to_names_string( self.outputSignals )
+                else:
+                    lines += &#39;// API-function &#39; + self._nameAPI
+
+                lines += &#39;\n&#39;
+
+                # innerLines will be put into the functions
+                function_code = &#39;&#39;
+
+                # place tracing (begin)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string=&#39;ENTR: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                    signals=self.inputSignals)
+
+                    function_code += &#39;\n&#39;
+                
+                # put the local variables
+                for c in self.executionCommands:
+                    function_code += c.generate_code(language, &#39;localvar&#39;)
+                
+                function_code += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    function_code += c.generate_code(language, &#39;code&#39;)
+
+                # place tracing (end)
+                if self._tracing_infrastructure is not None:
+                    function_code += cgh.create_printf(intro_string=&#39;EXIT: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                    signals=self.outputSignals)
+
+                    function_code += &#39;\n&#39;
+
+                # generate the function
+                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
+
+                #
+                # ------ end of &#39;define the API-function&#39; ------
+                #
+
+                if self._generate_wrappper_functions:
+
+                    # put data strutures to hold I/O signals
+                    lines += &#39;// output signals of  &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.define_structure(&#39;Outputs_&#39; + self._nameAPI , self.outputSignals)  
+
+                    lines += &#39;// input signals of &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.define_structure(&#39;Inputs_&#39; + self._nameAPI , self.inputSignals)  
+
+                    #
+                    # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+                    #
+
+                    function_code = &#39;&#39;
+                    function_code += cgh.define_struct_var( &#39;Outputs_&#39; + self._nameAPI, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+                    # call to wrapped function
+                    function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                    function_code += &#39;\n&#39;
+                    function_code += &#39;return outputs;\n&#39;
+
+                    #
+                    lines += &#39;// wrapper function for &#39; + self._nameAPI + &#39;\n&#39;
+                    lines += cgh.cpp_define_generic_function( 
+                        fn_name=self._nameAPI + &#39;__&#39;, 
+                        return_cpp_type_str = &#39;Outputs_&#39; + self._nameAPI, 
+                        arg_list_str = &#39;Inputs_&#39; + self._nameAPI + &#39; inputs&#39;, 
+                        code = function_code
+                    )
+
+
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.API_name"><code class="name">var <span class="ident">API_name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def API_name(self):
+    return self._nameAPI</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;variables&#39;:
+            for c in self.executionCommands:
+                lines += c.generate_code(language, &#39;variables&#39;)
+
+
+        if flag == &#39;code&#39;:
+            #
+            # ------ define the API-function ------
+            #
+            if len(self.outputSignals) &gt; 0:
+                lines += &#39;// API-function &#39; + self._nameAPI + &#39; to compute: &#39; + cgh.signal_list_to_names_string( self.outputSignals )
+            else:
+                lines += &#39;// API-function &#39; + self._nameAPI
+
+            lines += &#39;\n&#39;
+
+            # innerLines will be put into the functions
+            function_code = &#39;&#39;
+
+            # place tracing (begin)
+            if self._tracing_infrastructure is not None:
+                function_code += cgh.create_printf(intro_string=&#39;ENTR: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                signals=self.inputSignals)
+
+                function_code += &#39;\n&#39;
+            
+            # put the local variables
+            for c in self.executionCommands:
+                function_code += c.generate_code(language, &#39;localvar&#39;)
+            
+            function_code += &#39;\n&#39;
+
+            # put the code
+            for c in self.executionCommands:
+                function_code += c.generate_code(language, &#39;code&#39;)
+
+            # place tracing (end)
+            if self._tracing_infrastructure is not None:
+                function_code += cgh.create_printf(intro_string=&#39;EXIT: &#39; + self.contextCommand.API_name + &#39;/&#39; + self.nameAPI, 
+                                                signals=self.outputSignals)
+
+                function_code += &#39;\n&#39;
+
+            # generate the function
+            lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
+
+            #
+            # ------ end of &#39;define the API-function&#39; ------
+            #
+
+            if self._generate_wrappper_functions:
+
+                # put data strutures to hold I/O signals
+                lines += &#39;// output signals of  &#39; + self._nameAPI + &#39;\n&#39;
+                lines += cgh.define_structure(&#39;Outputs_&#39; + self._nameAPI , self.outputSignals)  
+
+                lines += &#39;// input signals of &#39; + self._nameAPI + &#39;\n&#39;
+                lines += cgh.define_structure(&#39;Inputs_&#39; + self._nameAPI , self.inputSignals)  
+
+                #
+                # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+                #
+
+                function_code = &#39;&#39;
+                function_code += cgh.define_struct_var( &#39;Outputs_&#39; + self._nameAPI, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+                # call to wrapped function
+                function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                function_code += &#39;\n&#39;
+                function_code += &#39;return outputs;\n&#39;
+
+                #
+                lines += &#39;// wrapper function for &#39; + self._nameAPI + &#39;\n&#39;
+                lines += cgh.cpp_define_generic_function( 
+                    fn_name=self._nameAPI + &#39;__&#39;, 
+                    return_cpp_type_str = &#39;Outputs_&#39; + self._nameAPI, 
+                    arg_list_str = &#39;Inputs_&#39; + self._nameAPI + &#39; inputs&#39;, 
+                    code = function_code
+                )
+
+
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    for c in self.executionCommands:
+        c.generate_code_destruct(language)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+    for c in self.executionCommands:
+        c.generate_code_init(language)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: API outputs are:&#34;)
+    for s in self.outputSignals:
+        print(Style.DIM + &#39;  - &#39; + s.name)
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;that are calculated by: {&#34;)
+    
+    for c in self.executionCommands:
+        c.print_execution()
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem"><code class="flex name class">
+<span>class <span class="ident">PutSystem</span></span>
+<span>(</span><span>system: <a title="openrtdynamics2.lang.diagram_core.system.System" href="system.html#openrtdynamics2.lang.diagram_core.system.System">System</a>, resetCommand: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction">PutAPIFunction</a>, updateCommand: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction">PutAPIFunction</a>, outputCommand: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction">PutAPIFunction</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represents a system that is represented by a class in c++</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PutSystem(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents a system that is represented by a class in c++
+    &#34;&#34;&#34;
+
+    def __init__(self, system : System, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
+        ExecutionCommand.__init__(self)
+        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
+
+        self.resetCommand = resetCommand
+        self.updateCommand = updateCommand
+        self.outputCommand = outputCommand
+
+        self._api_function_names = {&#39;calculate_output&#39; : self.outputCommand.API_name,
+                         &#39;state_update&#39; : self.updateCommand.API_name,
+                         &#39;reset&#39; : self.resetCommand.API_name }
+
+        self._api_functions = {&#39;calculate_output&#39; : self.outputCommand,
+                         &#39;state_update&#39; : self.updateCommand,
+                         &#39;reset&#39; : self.resetCommand }
+
+
+        self.system = system
+        self.nameAPI = system.getName()
+
+        for e in self.executionCommands:
+            e.setContext(self)
+
+
+
+    @property
+    def API_name(self):
+        return self.nameAPI
+
+    @property
+    def API_functionNames(self):
+        return self._api_function_names
+        
+    @property
+    def API_functions(self):
+        return self._api_functions
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self.nameAPI + &#34;):&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+
+        for c in self.executionCommands:
+            c.generate_code_init(language)
+
+        # call init codegen for each block in the simulation
+        for block in self.system.blocks:
+            block.getBlockPrototype().generate_code_init(language)
+
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                pass
+
+            if flag == &#39;code&#39;:
+                #
+        
+                # Add code within the same namespace this simulation sits in.
+                # E.g. to add helper functions, classes, ...
+                for b in self.system.blocks:
+                    lines += b.getBlockPrototype().codegen_addToNamespace(language)
+
+                # define the API-function (start)
+                lines += &#39;class &#39; + self.nameAPI + &#39; {&#39;
+                lines += &#39;\n&#39;
+
+                # put the local variables
+                innerLines = &#39;// variables\n&#39;
+                innerLines = &#39;public:\n&#39;
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;variables&#39;)
+                
+                innerLines += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;code&#39;)
+
+
+                #
+                # define the generic step functions
+                #
+
+                config_pass_by_reference = True
+
+                all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+                all_output_signals = self.outputCommand.outputSignals
+
+                # introduce a structure that combines all system inputs
+                innerLines += &#39;// all system inputs and outputs combined\n&#39;
+                innerLines += cgh.define_structure(&#39;Inputs&#39;, all_input_signals)
+                innerLines += cgh.define_structure(&#39;Outputs&#39;, all_output_signals)
+
+                #
+                # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+                #
+
+                function_code = &#39;&#39;
+                if not config_pass_by_reference:
+                    function_code += cgh.define_struct_var( &#39;Outputs&#39;, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+                # call to reset function
+                function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # call to output function (1)
+                function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # call to update function
+                function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+                # conditional update / output
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;reset_states&#39;], action_list=[function_code_reset_states] )
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;calculate_outputs==1&#39;], action_list=[function_code_calc_output] )
+                function_code += cgh.generate_if_else(language, condition_list=[&#39;update_states&#39;], action_list=[function_code_update_states] )
+
+
+
+                function_code += &#39;\n&#39;
+
+                if not config_pass_by_reference:
+                    function_code += &#39;return outputs;\n&#39;
+
+                #
+                if self.system.upper_level_system is None:
+                    # put an interface function for nice interaction for the user of the generated code
+                    # Do this only for the top-level system
+                    
+                    innerLines += &#39;// main step function \n&#39;
+
+                    if config_pass_by_reference:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name=&#39;step&#39;, 
+                            return_cpp_type_str = &#39;void&#39;, 
+                            arg_list_str = &#39;Outputs &amp; outputs, Inputs const &amp; inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                            code = function_code
+                        )
+                    else:
+                        innerLines += cgh.cpp_define_generic_function( 
+                            fn_name=&#39;step&#39;, 
+                            return_cpp_type_str = &#39;Outputs&#39;, 
+                            arg_list_str = &#39;Inputs inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                            code = function_code
+                        )
+
+
+
+
+                # define the API-function (finish)
+                lines += cgh.indent(innerLines)
+                lines += &#39;};\n\n&#39;
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functionNames"><code class="name">var <span class="ident">API_functionNames</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def API_functionNames(self):
+    return self._api_function_names</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functions"><code class="name">var <span class="ident">API_functions</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def API_functions(self):
+    return self._api_functions</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_name"><code class="name">var <span class="ident">API_name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def API_name(self):
+    return self.nameAPI</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;variables&#39;:
+            pass
+
+        if flag == &#39;code&#39;:
+            #
+    
+            # Add code within the same namespace this simulation sits in.
+            # E.g. to add helper functions, classes, ...
+            for b in self.system.blocks:
+                lines += b.getBlockPrototype().codegen_addToNamespace(language)
+
+            # define the API-function (start)
+            lines += &#39;class &#39; + self.nameAPI + &#39; {&#39;
+            lines += &#39;\n&#39;
+
+            # put the local variables
+            innerLines = &#39;// variables\n&#39;
+            innerLines = &#39;public:\n&#39;
+            for c in self.executionCommands:
+                innerLines += c.generate_code(language, &#39;variables&#39;)
+            
+            innerLines += &#39;\n&#39;
+
+            # put the code
+            for c in self.executionCommands:
+                innerLines += c.generate_code(language, &#39;code&#39;)
+
+
+            #
+            # define the generic step functions
+            #
+
+            config_pass_by_reference = True
+
+            all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+            all_output_signals = self.outputCommand.outputSignals
+
+            # introduce a structure that combines all system inputs
+            innerLines += &#39;// all system inputs and outputs combined\n&#39;
+            innerLines += cgh.define_structure(&#39;Inputs&#39;, all_input_signals)
+            innerLines += cgh.define_structure(&#39;Outputs&#39;, all_output_signals)
+
+            #
+            # put a wrapper function that offers a &#39;nicer&#39; API using structures for in- and output signals
+            #
+
+            function_code = &#39;&#39;
+            if not config_pass_by_reference:
+                function_code += cgh.define_struct_var( &#39;Outputs&#39;, &#39;outputs&#39;  ) + &#39;\n&#39;
+
+            # call to reset function
+            function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+            # call to output function (1)
+            function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+            # call to update function
+            function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname=&#39;inputs&#39;, output_struct_varname=&#39;outputs&#39;)
+
+            # conditional update / output
+            function_code += cgh.generate_if_else(language, condition_list=[&#39;reset_states&#39;], action_list=[function_code_reset_states] )
+            function_code += cgh.generate_if_else(language, condition_list=[&#39;calculate_outputs==1&#39;], action_list=[function_code_calc_output] )
+            function_code += cgh.generate_if_else(language, condition_list=[&#39;update_states&#39;], action_list=[function_code_update_states] )
+
+
+
+            function_code += &#39;\n&#39;
+
+            if not config_pass_by_reference:
+                function_code += &#39;return outputs;\n&#39;
+
+            #
+            if self.system.upper_level_system is None:
+                # put an interface function for nice interaction for the user of the generated code
+                # Do this only for the top-level system
+                
+                innerLines += &#39;// main step function \n&#39;
+
+                if config_pass_by_reference:
+                    innerLines += cgh.cpp_define_generic_function( 
+                        fn_name=&#39;step&#39;, 
+                        return_cpp_type_str = &#39;void&#39;, 
+                        arg_list_str = &#39;Outputs &amp; outputs, Inputs const &amp; inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                        code = function_code
+                    )
+                else:
+                    innerLines += cgh.cpp_define_generic_function( 
+                        fn_name=&#39;step&#39;, 
+                        return_cpp_type_str = &#39;Outputs&#39;, 
+                        arg_list_str = &#39;Inputs inputs, int calculate_outputs, bool update_states, bool reset_states&#39;, 
+                        code = function_code
+                    )
+
+
+
+
+            # define the API-function (finish)
+            lines += cgh.indent(innerLines)
+            lines += &#39;};\n\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    for c in self.executionCommands:
+        c.generate_code_destruct(language)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+
+    for c in self.executionCommands:
+        c.generate_code_init(language)
+
+    # call init codegen for each block in the simulation
+    for block in self.system.blocks:
+        block.getBlockPrototype().generate_code_init(language)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self.nameAPI + &#34;):&#34;)
+    
+    for c in self.executionCommands:
+        c.print_execution()
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems"><code class="flex name class">
+<span>class <span class="ident">PutSystemAndSubsystems</span></span>
+<span>(</span><span>command_to_put_main_system: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem">PutSystem</a>, commands_to_put_subsystems: <a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem">PutSystem</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represents a system and its subsystem togehter that is represented by multiple classes in c++.
+Addiitionally, they are packed into a namespace.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PutSystemAndSubsystems(ExecutionCommand):
+    &#34;&#34;&#34;
+        Represents a system and its subsystem togehter that is represented by multiple classes in c++.
+        Addiitionally, they are packed into a namespace.
+    &#34;&#34;&#34;
+
+    def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):
+
+        ExecutionCommand.__init__(self)
+        self.executionCommands = commands_to_put_subsystems + [ command_to_put_main_system ] 
+
+        self._command_to_put_main_system = command_to_put_main_system
+        self._commands_to_put_subsystems = commands_to_put_subsystems
+
+    @property
+    def command_to_put_main_system(self):
+        return self._command_to_put_main_system
+
+    def print_execution(self):
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self._command_to_put_main_system.API_name + &#34; along with subsystems):&#34;)
+        
+        for c in self.executionCommands:
+            c.print_execution()
+
+        print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)
+        
+    def generate_code_init(self, language):
+
+        for c in self.executionCommands:
+            c.generate_code_init(language)        
+
+    def generate_code_destruct(self, language):
+        for c in self.executionCommands:
+            c.generate_code_destruct(language)            
+
+    def generate_code(self, language, flag):
+
+        lines = &#39;&#39;
+
+        if language == &#39;c++&#39;:
+
+            if flag == &#39;variables&#39;:
+                pass
+
+            if flag == &#39;code&#39;:
+                #
+        
+
+                lines += &#39;// namespace for &#39; + self._command_to_put_main_system.API_name + &#39; {\n&#39;
+
+                # put the global variables
+                innerLines = &#39;// global variables\n&#39;
+
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;variables&#39;)
+
+                innerLines += &#39;\n&#39;
+
+                # put the code
+                for c in self.executionCommands:
+                    innerLines += c.generate_code(language, &#39;code&#39;)
+
+                lines += cgh.indent(innerLines)
+
+                # end namespace (finish)
+                lines += &#39;// end of namespace for &#39; + self._command_to_put_main_system.API_name + &#39;\n\n&#39;
+
+
+        return lines</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.command_to_put_main_system"><code class="name">var <span class="ident">command_to_put_main_system</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def command_to_put_main_system(self):
+    return self._command_to_put_main_system</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code"><code class="name flex">
+<span>def <span class="ident">generate_code</span></span>(<span>self, language, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code(self, language, flag):
+
+    lines = &#39;&#39;
+
+    if language == &#39;c++&#39;:
+
+        if flag == &#39;variables&#39;:
+            pass
+
+        if flag == &#39;code&#39;:
+            #
+    
+
+            lines += &#39;// namespace for &#39; + self._command_to_put_main_system.API_name + &#39; {\n&#39;
+
+            # put the global variables
+            innerLines = &#39;// global variables\n&#39;
+
+            for c in self.executionCommands:
+                innerLines += c.generate_code(language, &#39;variables&#39;)
+
+            innerLines += &#39;\n&#39;
+
+            # put the code
+            for c in self.executionCommands:
+                innerLines += c.generate_code(language, &#39;code&#39;)
+
+            lines += cgh.indent(innerLines)
+
+            # end namespace (finish)
+            lines += &#39;// end of namespace for &#39; + self._command_to_put_main_system.API_name + &#39;\n\n&#39;
+
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_destruct"><code class="name flex">
+<span>def <span class="ident">generate_code_destruct</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_destruct(self, language):
+    for c in self.executionCommands:
+        c.generate_code_destruct(language)            </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_init"><code class="name flex">
+<span>def <span class="ident">generate_code_init</span></span>(<span>self, language)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_code_init(self, language):
+
+    for c in self.executionCommands:
+        c.generate_code_init(language)        </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.print_execution"><code class="name flex">
+<span>def <span class="ident">print_execution</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_execution(self):
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;ExecutionCommand: System with the API (&#34; + self._command_to_put_main_system.API_name + &#34; along with subsystems):&#34;)
+    
+    for c in self.executionCommands:
+        c.print_execution()
+
+    print(Style.BRIGHT + Fore.YELLOW + &#34;}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang.diagram_core" href="index.html">openrtdynamics2.lang.diagram_core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.codegen_call_to_API_function_with_strutures" href="#openrtdynamics2.lang.diagram_core.code_build_commands.codegen_call_to_API_function_with_strutures">codegen_call_to_API_function_with_strutures</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs">CommandCacheOutputs</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.get_cachedSignals" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.get_cachedSignals">get_cachedSignals</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCacheOutputs.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs">CommandCalculateOutputs</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandCalculateOutputs.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates">CommandResetStates</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandResetStates.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache">CommandRestoreCache</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandRestoreCache.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates">CommandUpdateStates</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.CommandUpdateStates.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand">ExecutionCommand</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.setContext" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.setContext">setContext</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.set_tracing_infrastructure" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.set_tracing_infrastructure">set_tracing_infrastructure</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.treeLevel" href="#openrtdynamics2.lang.diagram_core.code_build_commands.ExecutionCommand.treeLevel">treeLevel</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction">PutAPIFunction</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.API_name" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.API_name">API_name</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutAPIFunction.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem">PutSystem</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functionNames" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functionNames">API_functionNames</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functions" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_functions">API_functions</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_name" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.API_name">API_name</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystem.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems">PutSystemAndSubsystems</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.command_to_put_main_system" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.command_to_put_main_system">command_to_put_main_system</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code">generate_code</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_destruct" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_destruct">generate_code_destruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_init" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.generate_code_init">generate_code_init</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.print_execution" href="#openrtdynamics2.lang.diagram_core.code_build_commands.PutSystemAndSubsystems.print_execution">print_execution</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

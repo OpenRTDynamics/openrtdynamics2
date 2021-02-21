@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.signal_interface API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.signal_interface</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Dict, List
+
+from . import lang as dy
+from . import block_prototypes as block_prototypes
+
+from .signals import Signal, UndeterminedSignal, BlockOutputSignal, SimulationInputSignal
+
+
+&#34;&#34;&#34;
+    This adds a layer around the signal-class.
+    It enhances the ease of use of signals by implementing operators
+    in-between signals e.g. it becomes possible to add, multiply, ...
+    signal variables among each other.
+&#34;&#34;&#34;
+
+
+def convert_python_constant_val_to_const_signal(val):
+
+    if isinstance(val, SignalUserTemplate):
+        # given value is already a signal
+        return val
+
+    if type(val) == int:  # TODO: check for range and eventually make int64
+        return dy.int32(val)
+
+    if type(val) == float:
+        return dy.float64(val)
+
+    raise BaseException(&#39;unable to convert given constant &#39; + str(val) + &#39; to a signal object.&#39;)
+
+
+class SignalUserTemplate(object):
+    def __init__(self, sim, wrapped_signal : Signal):
+
+        self.sim = sim
+        self.wrapped_signal_ = wrapped_signal
+
+    def __hash__(self):
+        return id(self)
+
+    @property
+    def unwrap(self):
+        return self.wrapped_signal_
+
+    @property
+    def name(self):
+        return self.wrapped_signal_.name
+
+    @property
+    def properties(self):
+        return self.wrapped_signal_.properties
+
+    def set_properties(self, p):
+        self.wrapped_signal_.set_properties(p)
+        return self
+
+    def set_datatype(self, datatype):
+        # call setDatatype_nonotitication to prevent the (untested) automatic update of the datatypes
+        self.wrapped_signal_.setDatatype_nonotitication(datatype)
+        return self
+
+    def set_name(self, name):
+        self.wrapped_signal_.set_name(name)
+        return self
+
+    def set_name_raw(self, name):
+        self.wrapped_signal_.set_name_raw(name)
+        return self
+
+
+    def extendName(self, name):
+        self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
+        return self
+
+    def set_blockname(self, name):
+        self.wrapped_signal_.set_blockname(name)
+        return self
+
+    # ...
+
+    #
+    # operator overloads
+    #
+
+    def __add__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;+&#39;).outputs[0] )
+
+    def __radd__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;+&#39;).outputs[0] )
+
+
+    def __sub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;-&#39;).outputs[0] )
+
+    def __rsub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator=&#39;-&#39;).outputs[0] )
+
+
+    def __mul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;*&#39;).outputs[0] )
+
+    def __rmul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;*&#39;).outputs[0] )
+
+
+    def __truediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;/&#39;).outputs[0] )
+
+    def __rtruediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator=&#39;/&#39;).outputs[0] )
+
+
+    # comparison operators
+    def __le__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&lt;=&#39; ) )
+
+    def __rle__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&lt;=&#39; ) )
+
+
+
+    def __ge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&gt;=&#39; ) )
+
+    def __rge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&gt;=&#39; ) )
+
+
+
+    def __lt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&lt;&#39; ) )
+
+    def __rlt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&lt;&#39; ) )
+
+
+
+    def __gt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&gt;&#39; ) )
+
+    def __rgt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&gt;&#39; ) )
+
+
+
+    def __eq__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;==&#39; ) )
+
+    def __req__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;==&#39; ) )
+
+    def __ne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;!=&#39; ) )
+
+    def __rne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;!=&#39; ) )
+
+
+
+
+# prev name was SignalUser, SignalUserAnonymous
+class SignalUser(SignalUserTemplate):
+
+    def __init__(self, sim):
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
+
+    def inherit_datatype(self, from_signal : SignalUserTemplate):
+        &#34;&#34;&#34;
+            The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;
+        &#34;&#34;&#34;
+        # self.inherit_datatype_of_signal = from_signal
+
+        # from_signal.unwrap.inherit_datatype_to( self.unwrap )
+
+        self.unwrap.inherit_datatype_from_signal( from_signal.unwrap )
+
+
+
+    # only ananymous signal
+    def __lshift__(self, other): 
+        # close a feedback loop by connecting the signals self and other        
+        self.unwrap.setequal(other.unwrap)
+        
+        return other
+
+
+
+
+# #
+# # TODO: is this still needed?
+# #
+# class SubsystemOutputLinkUser(SignalUser):
+#     &#34;&#34;&#34;
+#         A signal that serves as a placeholder for a subsystem output to be used in the embedding
+#         system. A datatype must be specified.
+
+#         Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
+#         from the subsystem blocks. 
+#     &#34;&#34;&#34;
+
+#     def __init__(self, sim, original_signal : Signal):
+#         self._original_signal = original_signal
+
+#         SignalUser.__init__(self, sim)
+
+
+
+
+
+
+class BlockOutputSignalUser(SignalUserTemplate):
+    &#34;&#34;&#34;
+        A signal that is the output of a block (normal case)
+    &#34;&#34;&#34;
+
+    def __init__(self, signalToWrap : BlockOutputSignal):
+        SignalUserTemplate.__init__( self, sim=signalToWrap.system, wrapped_signal=signalToWrap  )
+
+
+
+
+
+
+
+class SimulationInputSignalUser(SignalUserTemplate):
+    &#34;&#34;&#34;
+        A special signal that markes an input to a simulation.
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )
+
+
+
+
+
+
+def unwrap( signal : SignalUserTemplate ):
+    return signal.unwrap
+
+def unwrap_list( signals : List[SignalUserTemplate] ):
+
+    # create a new list of signals
+    list_of_unwrapped_signals=[]
+    for signal in signals:
+        list_of_unwrapped_signals.append( signal.unwrap )
+
+    return list_of_unwrapped_signals 
+
+def unwrap_hash( signals ):
+    &#34;&#34;&#34;
+        unwrap all signals in a hash array and return a copy 
+    &#34;&#34;&#34;
+
+    # make a copy
+    list_of_unwrapped_signals = signals.copy()
+
+    # create a new list of signals
+    for key, signal in list_of_unwrapped_signals.items():
+        list_of_unwrapped_signals[key] = signal.unwrap
+
+    return list_of_unwrapped_signals 
+
+
+def wrap_signal( signal : Signal ):
+    # wraps a block output signal
+    return BlockOutputSignalUser( signal )
+
+
+def wrap_signal_list( signals : List[ Signal ] ):
+    # wraps a list of block output signals
+    list_of_wrapped_signals=[]
+    for signal in signals:
+        list_of_wrapped_signals.append( BlockOutputSignalUser( signal ) )
+
+    return list_of_wrapped_signals</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.signal_interface.convert_python_constant_val_to_const_signal"><code class="name flex">
+<span>def <span class="ident">convert_python_constant_val_to_const_signal</span></span>(<span>val)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_python_constant_val_to_const_signal(val):
+
+    if isinstance(val, SignalUserTemplate):
+        # given value is already a signal
+        return val
+
+    if type(val) == int:  # TODO: check for range and eventually make int64
+        return dy.int32(val)
+
+    if type(val) == float:
+        return dy.float64(val)
+
+    raise BaseException(&#39;unable to convert given constant &#39; + str(val) + &#39; to a signal object.&#39;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.unwrap"><code class="name flex">
+<span>def <span class="ident">unwrap</span></span>(<span>signal: <a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unwrap( signal : SignalUserTemplate ):
+    return signal.unwrap</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.unwrap_hash"><code class="name flex">
+<span>def <span class="ident">unwrap_hash</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>unwrap all signals in a hash array and return a copy</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unwrap_hash( signals ):
+    &#34;&#34;&#34;
+        unwrap all signals in a hash array and return a copy 
+    &#34;&#34;&#34;
+
+    # make a copy
+    list_of_unwrapped_signals = signals.copy()
+
+    # create a new list of signals
+    for key, signal in list_of_unwrapped_signals.items():
+        list_of_unwrapped_signals[key] = signal.unwrap
+
+    return list_of_unwrapped_signals </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.unwrap_list"><code class="name flex">
+<span>def <span class="ident">unwrap_list</span></span>(<span>signals: List[<a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unwrap_list( signals : List[SignalUserTemplate] ):
+
+    # create a new list of signals
+    list_of_unwrapped_signals=[]
+    for signal in signals:
+        list_of_unwrapped_signals.append( signal.unwrap )
+
+    return list_of_unwrapped_signals </code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.wrap_signal"><code class="name flex">
+<span>def <span class="ident">wrap_signal</span></span>(<span>signal: <a title="openrtdynamics2.signals.Signal" href="signals.html#openrtdynamics2.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wrap_signal( signal : Signal ):
+    # wraps a block output signal
+    return BlockOutputSignalUser( signal )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.wrap_signal_list"><code class="name flex">
+<span>def <span class="ident">wrap_signal_list</span></span>(<span>signals: List[<a title="openrtdynamics2.signals.Signal" href="signals.html#openrtdynamics2.signals.Signal">Signal</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wrap_signal_list( signals : List[ Signal ] ):
+    # wraps a list of block output signals
+    list_of_wrapped_signals=[]
+    for signal in signals:
+        list_of_wrapped_signals.append( BlockOutputSignalUser( signal ) )
+
+    return list_of_wrapped_signals</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.signal_interface.BlockOutputSignalUser"><code class="flex name class">
+<span>class <span class="ident">BlockOutputSignalUser</span></span>
+<span>(</span><span>signalToWrap: <a title="openrtdynamics2.signals.BlockOutputSignal" href="signals.html#openrtdynamics2.signals.BlockOutputSignal">BlockOutputSignal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A signal that is the output of a block (normal case)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BlockOutputSignalUser(SignalUserTemplate):
+    &#34;&#34;&#34;
+        A signal that is the output of a block (normal case)
+    &#34;&#34;&#34;
+
+    def __init__(self, signalToWrap : BlockOutputSignal):
+        SignalUserTemplate.__init__( self, sim=signalToWrap.system, wrapped_signal=signalToWrap  )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a></li>
+</ul>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUser"><code class="flex name class">
+<span>class <span class="ident">SignalUser</span></span>
+<span>(</span><span>sim)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SignalUser(SignalUserTemplate):
+
+    def __init__(self, sim):
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
+
+    def inherit_datatype(self, from_signal : SignalUserTemplate):
+        &#34;&#34;&#34;
+            The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;
+        &#34;&#34;&#34;
+        # self.inherit_datatype_of_signal = from_signal
+
+        # from_signal.unwrap.inherit_datatype_to( self.unwrap )
+
+        self.unwrap.inherit_datatype_from_signal( from_signal.unwrap )
+
+
+
+    # only ananymous signal
+    def __lshift__(self, other): 
+        # close a feedback loop by connecting the signals self and other        
+        self.unwrap.setequal(other.unwrap)
+        
+        return other</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signal_interface.SignalUser.inherit_datatype"><code class="name flex">
+<span>def <span class="ident">inherit_datatype</span></span>(<span>self, from_signal: <a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The datatype of this anonymous signal shall be inherited from the given signal 'from_signal'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inherit_datatype(self, from_signal : SignalUserTemplate):
+    &#34;&#34;&#34;
+        The datatype of this anonymous signal shall be inherited from the given signal &#39;from_signal&#39;
+    &#34;&#34;&#34;
+    # self.inherit_datatype_of_signal = from_signal
+
+    # from_signal.unwrap.inherit_datatype_to( self.unwrap )
+
+    self.unwrap.inherit_datatype_from_signal( from_signal.unwrap )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate"><code class="flex name class">
+<span>class <span class="ident">SignalUserTemplate</span></span>
+<span>(</span><span>sim, wrapped_signal: <a title="openrtdynamics2.signals.Signal" href="signals.html#openrtdynamics2.signals.Signal">Signal</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SignalUserTemplate(object):
+    def __init__(self, sim, wrapped_signal : Signal):
+
+        self.sim = sim
+        self.wrapped_signal_ = wrapped_signal
+
+    def __hash__(self):
+        return id(self)
+
+    @property
+    def unwrap(self):
+        return self.wrapped_signal_
+
+    @property
+    def name(self):
+        return self.wrapped_signal_.name
+
+    @property
+    def properties(self):
+        return self.wrapped_signal_.properties
+
+    def set_properties(self, p):
+        self.wrapped_signal_.set_properties(p)
+        return self
+
+    def set_datatype(self, datatype):
+        # call setDatatype_nonotitication to prevent the (untested) automatic update of the datatypes
+        self.wrapped_signal_.setDatatype_nonotitication(datatype)
+        return self
+
+    def set_name(self, name):
+        self.wrapped_signal_.set_name(name)
+        return self
+
+    def set_name_raw(self, name):
+        self.wrapped_signal_.set_name_raw(name)
+        return self
+
+
+    def extendName(self, name):
+        self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
+        return self
+
+    def set_blockname(self, name):
+        self.wrapped_signal_.set_blockname(name)
+        return self
+
+    # ...
+
+    #
+    # operator overloads
+    #
+
+    def __add__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;+&#39;).outputs[0] )
+
+    def __radd__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;+&#39;).outputs[0] )
+
+
+    def __sub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;-&#39;).outputs[0] )
+
+    def __rsub__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator=&#39;-&#39;).outputs[0] )
+
+
+    def __mul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;*&#39;).outputs[0] )
+
+    def __rmul__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;*&#39;).outputs[0] )
+
+
+    def __truediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ self.unwrap, other.unwrap ], operator=&#39;/&#39;).outputs[0] )
+
+    def __rtruediv__(self, other): 
+        other = convert_python_constant_val_to_const_signal(other)
+        return wrap_signal( block_prototypes.Operator1( dy.get_simulation_context(), inputSignals=[ other.unwrap, self.unwrap ], operator=&#39;/&#39;).outputs[0] )
+
+
+    # comparison operators
+    def __le__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&lt;=&#39; ) )
+
+    def __rle__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&lt;=&#39; ) )
+
+
+
+    def __ge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&gt;=&#39; ) )
+
+    def __rge__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&gt;=&#39; ) )
+
+
+
+    def __lt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&lt;&#39; ) )
+
+    def __rlt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&lt;&#39; ) )
+
+
+
+    def __gt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;&gt;&#39; ) )
+
+    def __rgt__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = other, right = self, operator = &#39;&gt;&#39; ) )
+
+
+
+    def __eq__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;==&#39; ) )
+
+    def __req__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;==&#39; ) )
+
+    def __ne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;!=&#39; ) )
+
+    def __rne__(self, other):
+        other = convert_python_constant_val_to_const_signal(other)
+        return ( block_prototypes.comparison(left = self, right = other, operator = &#39;!=&#39; ) )</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signal_interface.BlockOutputSignalUser" href="#openrtdynamics2.signal_interface.BlockOutputSignalUser">BlockOutputSignalUser</a></li>
+<li><a title="openrtdynamics2.signal_interface.SignalUser" href="#openrtdynamics2.signal_interface.SignalUser">SignalUser</a></li>
+<li><a title="openrtdynamics2.signal_interface.SimulationInputSignalUser" href="#openrtdynamics2.signal_interface.SimulationInputSignalUser">SimulationInputSignalUser</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    return self.wrapped_signal_.name</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.properties"><code class="name">var <span class="ident">properties</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def properties(self):
+    return self.wrapped_signal_.properties</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.unwrap"><code class="name">var <span class="ident">unwrap</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def unwrap(self):
+    return self.wrapped_signal_</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.extendName"><code class="name flex">
+<span>def <span class="ident">extendName</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def extendName(self, name):
+    self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.set_blockname"><code class="name flex">
+<span>def <span class="ident">set_blockname</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_blockname(self, name):
+    self.wrapped_signal_.set_blockname(name)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.set_datatype"><code class="name flex">
+<span>def <span class="ident">set_datatype</span></span>(<span>self, datatype)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_datatype(self, datatype):
+    # call setDatatype_nonotitication to prevent the (untested) automatic update of the datatypes
+    self.wrapped_signal_.setDatatype_nonotitication(datatype)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.set_name"><code class="name flex">
+<span>def <span class="ident">set_name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name(self, name):
+    self.wrapped_signal_.set_name(name)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.set_name_raw"><code class="name flex">
+<span>def <span class="ident">set_name_raw</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_name_raw(self, name):
+    self.wrapped_signal_.set_name_raw(name)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SignalUserTemplate.set_properties"><code class="name flex">
+<span>def <span class="ident">set_properties</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_properties(self, p):
+    self.wrapped_signal_.set_properties(p)
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.signal_interface.SimulationInputSignalUser"><code class="flex name class">
+<span>class <span class="ident">SimulationInputSignalUser</span></span>
+<span>(</span><span>sim, datatype=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A special signal that markes an input to a simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimulationInputSignalUser(SignalUserTemplate):
+    &#34;&#34;&#34;
+        A special signal that markes an input to a simulation.
+    &#34;&#34;&#34;
+
+    def __init__(self, sim, datatype = None):
+        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2" href="index.html">openrtdynamics2</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.signal_interface.convert_python_constant_val_to_const_signal" href="#openrtdynamics2.signal_interface.convert_python_constant_val_to_const_signal">convert_python_constant_val_to_const_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.unwrap" href="#openrtdynamics2.signal_interface.unwrap">unwrap</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.unwrap_hash" href="#openrtdynamics2.signal_interface.unwrap_hash">unwrap_hash</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.unwrap_list" href="#openrtdynamics2.signal_interface.unwrap_list">unwrap_list</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.wrap_signal" href="#openrtdynamics2.signal_interface.wrap_signal">wrap_signal</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.wrap_signal_list" href="#openrtdynamics2.signal_interface.wrap_signal_list">wrap_signal_list</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.signal_interface.BlockOutputSignalUser" href="#openrtdynamics2.signal_interface.BlockOutputSignalUser">BlockOutputSignalUser</a></code></h4>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signal_interface.SignalUser" href="#openrtdynamics2.signal_interface.SignalUser">SignalUser</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.signal_interface.SignalUser.inherit_datatype" href="#openrtdynamics2.signal_interface.SignalUser.inherit_datatype">inherit_datatype</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate" href="#openrtdynamics2.signal_interface.SignalUserTemplate">SignalUserTemplate</a></code></h4>
+<ul class="two-column">
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.extendName" href="#openrtdynamics2.signal_interface.SignalUserTemplate.extendName">extendName</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.name" href="#openrtdynamics2.signal_interface.SignalUserTemplate.name">name</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.properties" href="#openrtdynamics2.signal_interface.SignalUserTemplate.properties">properties</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.set_blockname" href="#openrtdynamics2.signal_interface.SignalUserTemplate.set_blockname">set_blockname</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.set_datatype" href="#openrtdynamics2.signal_interface.SignalUserTemplate.set_datatype">set_datatype</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.set_name" href="#openrtdynamics2.signal_interface.SignalUserTemplate.set_name">set_name</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.set_name_raw" href="#openrtdynamics2.signal_interface.SignalUserTemplate.set_name_raw">set_name_raw</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.set_properties" href="#openrtdynamics2.signal_interface.SignalUserTemplate.set_properties">set_properties</a></code></li>
+<li><code><a title="openrtdynamics2.signal_interface.SignalUserTemplate.unwrap" href="#openrtdynamics2.signal_interface.SignalUserTemplate.unwrap">unwrap</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.signal_interface.SimulationInputSignalUser" href="#openrtdynamics2.signal_interface.SimulationInputSignalUser">SimulationInputSignalUser</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
