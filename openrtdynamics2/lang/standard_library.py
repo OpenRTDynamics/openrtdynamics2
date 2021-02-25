@@ -2,7 +2,7 @@ import math
 
 import typing as t
 from . import lang as dy
-from .diagram_core.signal_network.signals import Signal
+#from .diagram_core.signal_network.signals import Signal
 from .signal_interface import SignalUserTemplate
 import numpy as np
 
@@ -15,8 +15,20 @@ from .core_blocks import generic_subsystem, const, gain, convert, add, operator1
 #
 
 def int32(value):
-    """
-        cast anything to DataTypeInt32
+    """Cast anything to DataTypeInt32
+
+    Convert the input value to a signal.
+
+    Parameters
+    ----------
+    value : SignalUserTemplate, int
+        the signal or a constant value to convert to a signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the signal of type int32
+
     """
 
     if isinstance(  value, SignalUserTemplate ):
@@ -27,8 +39,20 @@ def int32(value):
         return dy.const(value, dy.DataTypeInt32(1) )
 
 def float64(value):
-    """
-        cast anything to DataTypeFloat64
+    """Cast anything to DataTypeFloat64
+
+    Convert the input value to a signal.
+
+    Parameters
+    ----------
+    value : SignalUserTemplate, float
+        the signal or a constant value to convert to a signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the signal of type float64
+
     """
     if isinstance(  value, SignalUserTemplate ):
         # already a singal
@@ -38,9 +62,21 @@ def float64(value):
         return dy.const(value, dy.DataTypeFloat64(1) )
 
 
-def boolean(value : int):
-    """
-        cast anything to DataTypeBoolean
+def boolean(value):
+    """Cast anything to DataTypeBoolean
+
+    Convert the input value to a signal.
+
+    Parameters
+    ----------
+    value : SignalUserTemplate, int
+        the signal or a constant value to convert to a signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the signal of type boolean
+
     """
     if isinstance(  value, SignalUserTemplate ):
         # already a singal
@@ -56,8 +92,12 @@ def boolean(value : int):
 #
 
 def initial_event():
-    """
-        Fires an event on the first sampling instant after the reset of the system
+    """Emits an event on the first sampling instant after the reset of the system
+
+    Returns
+    -------
+    SignalUserTemplate
+        the signal of type boolean containing the event
     """
 
     # TODO: introduce caching like done for counter()
@@ -69,15 +109,24 @@ def initial_event():
 # Delay - the basis for all dynamic elements
 #
 def delay(u , initial_state = None):
-    """
-        unit delay
+    """Unit delay
 
-        delay the input u by one sampling instant
+    Delay the input u by one sampling instant:
 
         y[k+1] = u[k], y[0] = initial_state
 
-        u             - the input signal to delay
-        initial_state - the initial state (signal or constant value)
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the input signal to delay
+    initial_state : SignalUserTemplate
+        the initial state (signal or constant value)
+
+    Returns
+    -------
+    SignalUserTemplate
+        the one-step delayed input   
+
     """
 
     if not isinstance( initial_state, SignalUserTemplate ):
@@ -93,18 +142,23 @@ def delay(u , initial_state = None):
         return delayed_input
 
 def sample_and_hold(u, event, initial_state = None):
-    """
-        sample & hold
+    """Sample & hold
 
-        Samples the input when event is true and hold this value for the proceeding time instants. 
+    Samples the input when event is true and hold this value for the proceeding time instants. 
 
-        u             - the input
-        event         - the trigger signal to perform the sampling
-        initial_state - the initial output
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the input to sample
+    event : SignalUserTemplate
+        the event on which sampling of the input is performed
+    initial_state : SignalUserTemplate
+        the initial output
 
-        return values
-
-        the sampled input
+    Returns
+    -------
+    SignalUserTemplate
+        the sampled input   
 
     """
 
@@ -122,13 +176,25 @@ def sample_and_hold(u, event, initial_state = None):
 #
 
 def unwrap_angle(angle, normalize_around_zero = False):
-    """
-        Unwrap an angle
+    """Unwrap an angle
 
-        Unrap and normalize the input angle to the range 
+    Unwrap and normalize the input angle to the range 
 
-          1) [0, 2*pi[     in case normalize_around_zero == false
-          2) [-pi, pi]     in case normalize_around_zero == true
+           [0, 2*pi[     in case normalize_around_zero == false
+        or [-pi, pi]     in case normalize_around_zero == true
+
+
+    Parameters
+    ----------
+
+    angle : SignalUserTemplate
+        the input signal (angle in radians)
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal   
+
     """
 
     def normalize_aruond_zero(angle):
@@ -160,14 +226,29 @@ def unwrap_angle(angle, normalize_around_zero = False):
 
 
 
-def saturate(u, lower_limit = None, uppper_limit = None):
-    """
-        saturate the input signal
+def saturate(u, lower_limit = None, upper_limit = None):
+    """Saturation
 
-        The output is the saturated input
+    The output is the saturated input
 
-        lower_limit   - lower bound for the output 
-        uppper_limit  - upper bound for the output
+    Parameters
+    ----------
+
+    lower_limit : SignalUserTemplate
+        lower bound for the output 
+    upper_limit : SignalUserTemplate
+        upper bound for the output
+
+    Returns
+    -------
+    SignalUserTemplate
+        the integer output signal 
+
+    Details
+    -------
+            { lower_limit   for u < lower_limit
+        y = { u             otherwise
+            { upper_limit  for u > upper_limit
     """
 
     y = u
@@ -175,19 +256,30 @@ def saturate(u, lower_limit = None, uppper_limit = None):
     if lower_limit is not None:
         y = dy.conditional_overwrite( y, y < float64(lower_limit), lower_limit )
     
-    if uppper_limit is not None:
-        y = dy.conditional_overwrite( y, y > float64(uppper_limit), uppper_limit )
+    if upper_limit is not None:
+        y = dy.conditional_overwrite( y, y > float64(upper_limit), upper_limit )
 
     return y
 
 
-def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
-    """
-        rate limiter
+def rate_limit( u, Ts, lower_limit, upper_limit, initial_state = 0 ):
+    """Rate limiter
 
-        Ts           - sampling time (constant)
-        lower_limit  - lower rate limit
-        upper_limit  - upper rate limit
+    Parameters
+    ----------
+
+    Ts : SignalUserTemplate
+        sampling time (constant)
+    lower_limit : SignalUserTemplate
+        lower rate limit
+    upper_limit : SignalUserTemplate
+        upper rate limit
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal    
+
     """
 
     Ts_ = float64(Ts)
@@ -195,26 +287,10 @@ def rate_limit( u, Ts, lower_limit, uppper_limit, initial_state = 0 ):
     y = dy.signal()
 
     omega = u - y
-    omega_sat = saturate(omega, float64(lower_limit) * Ts_, float64(uppper_limit) * Ts_)
+    omega_sat = saturate(omega, float64(lower_limit) * Ts_, float64(upper_limit) * Ts_)
     y << euler_integrator( omega_sat, 1, initial_state=initial_state)
 
     return y
-
-
-# def rate_limit_2nd( u, Ts, lower_limit, uppper_limit, gain, initial_state = 0 ):
-
-#     Ts_ = float64(Ts)
-
-#     y = dy.signal()
-
-#     e = ( u - y )
-#     omega = dy.tan( u - y ) * dy.float64(gain)
-#     omega_sat = saturate(omega, lower_limit * Ts_, uppper_limit * Ts_)
-
-#     y << euler_integrator(  omega_sat, 1, initial_state=initial_state)
-
-#     return y
-
 
 
 #
@@ -228,7 +304,7 @@ class __Counter():
         by more than one destination block. The instance of this class is per simulation
         and will be stored in the components property of the current get_system_context()
     """
-    def __init__(self, counter_signal : Signal):
+    def __init__(self, counter_signal : SignalUserTemplate):
         self.counter_signal_ = counter_signal
         self.hits = 0
     
@@ -245,11 +321,16 @@ class __Counter():
 #
 
 def counter():
-    """
-        Basic counter
+    """Basic counter - the sampling index k
 
-        The integer output is increasing with each sampling instant by 1.
-        Counting starts at zero.
+    The integer output is increasing with each sampling instant by 1.
+    Counting starts at zero.
+
+    Returns
+    -------
+    SignalUserTemplate
+        the integer output signal describing the sampling index k
+
     """
 
     if not 'counter' in dy.get_system_context().components:
@@ -260,7 +341,7 @@ def counter():
         tmp = dy.delay(cnt + increase)
         cnt << tmp 
 
-        tmp.set_name('shared_couter')
+        tmp.set_name('shared_counter')
 
         # store the output signal of the counter as it might be used again. 
         dy.get_system_context().components['counter'] = __Counter(tmp)
@@ -276,23 +357,39 @@ def counter():
 
 
 def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=None, reset_on_limit:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True, no_delay:bool=False ):
-    """
-        A generic counter
+    """A generic counter
 
-        Features:
-        .) upper limit
-        .) triggerable start/pause
-        .) resetable
-        .) dynamic adjustable step-size
+    Features:
+    - upper limit
+    - triggerable start/pause
+    - resetable
+    - dynamic adjustable step-size
 
-        upper_limit              - the upper limit of the counter
-        initial_state            - the state after reset
-        reset                    - reset the counter
-        reset_on_limit           - reset counter once the upper limit is reached
-        start_trigger            - event to start counting
-        pause_trigger            - event to pause counting
-        auto_start               - start counting automatically
-        no_delay                 - when True the new value of the counter is returned without delay 
+    Parameters
+    ----------
+
+    upper_limit : int
+        the upper limit of the counter
+    initial_state : int
+        the state after reset
+    reset : SignalUserTemplate
+        reset the counter
+    reset_on_limit : bool
+        reset counter once the upper limit is reached
+    start_trigger : SignalUserTemplate
+        event to start counting
+    pause_trigger : SignalUserTemplate
+        event to pause counting
+    auto_start : bool
+        start counting automatically
+    no_delay : bool
+        when True the new value of the counter is returned without delay 
+
+    Returns
+    -------
+    SignalUserTemplate
+        the boolean output signal    
+        
     """
 
     if stepwidth is None:
@@ -341,19 +438,31 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
         return new_counter
 
 
-# def toggle(trigger, initial_state=False):
-
-#     state = dy.signal()
-
-#     state << dy.flipflop( dy.logic_and( dy.logic_not( state ), trigger ),  dy.logic_and( dy.logic_not( trigger ), state ), 
-#                             initial_state=initial_state, 
-#                             nodelay=False)
-
-#     return state
 
 
 
 def toggle(trigger, initial_state=False):
+    """Toggle a state based on an event
+
+    Parameters
+    ----------
+
+    period : SignalUserTemplate
+        the signal to trigger a state change
+    initial_state : int
+        the initial state
+
+    Returns
+    -------
+    SignalUserTemplate
+        the boolean state signal
+
+    SignalUserTemplate
+        the event for activation
+    SignalUserTemplate
+        the event for deactivation
+
+    """
 
     state = dy.signal()
 
@@ -368,32 +477,58 @@ def toggle(trigger, initial_state=False):
 
     return state, activate, deactivate
     
-def signal_square(period, phase):
 
+#
+# signal generators
+#
+
+def signal_square(period, phase):
+    """Square wave signal generator
+
+    Parameters
+    ----------
+
+    period : SignalUserTemplate
+        singal or constant describing the period in samples at which the edges of the square are placed
+    phase : SignalUserTemplate
+        singal or constant describing the phase in samples at which the edges of the square are placed
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+
+    """
     trigger = signal_periodic_impulse(period, phase)
 
     state, activate, deactivate = toggle(trigger)
 
     return state, activate, deactivate
 
-    #return trigger
-
-#
-# signal generators
-#
 
 def signal_sinus(N_period : int = 100, phi = None):
-    """
-        Signal generator for sinosoidal signals
+    """Sine wave generator
 
-        The output is computed as follows:
+    Parameters
+    ----------
+    N_period : SignalUserTemplate
+        period in sampling instants (type: constant integer)
+    phi : SignalUserTemplate
+        phase shift (signal)
 
-        y = sin( k * (1 / N_period * 2 * pi) + phi )
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
 
-        k - is the sampling index
+    Details
+    -------
+    The output is computed as follows:
 
-        N_period - period in sampling instants (type: constant integer)
-        phi      - phase shift (signal)
+    y = sin( k * (1 / N_period * 2 * pi) + phi )
+
+    k - is the sampling index
+
     """
 
     if N_period <= 0:
@@ -408,10 +543,17 @@ def signal_sinus(N_period : int = 100, phi = None):
     return y
 
 def signal_step(k_step):
-    """
-        Signal generator for a step signal
+    """Signal generator for a step signal
 
-        k_step - the sampling index as returned by counter() at which the step appears.
+    Parameters
+    ----------
+    k_step : SignalUserTemplate
+        the sampling index as returned by counter() at which the step appears.
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
     """
     k = dy.counter()
     y = dy.int32(k_step) <= k
@@ -419,10 +561,23 @@ def signal_step(k_step):
     return y
 
 def signal_ramp(k_start):
-    """
-        Signal generator for a ramp signal
+    """Signal generator for a ramp signal
 
-        k_start - the sampling index as returned by counter() at which the ramp starts increasing.
+    Parameters
+    ----------
+    k_start : SignalUserTemplate
+        the sampling index as returned by counter() at which the ramp starts increasing.
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+
+    Details
+    -------
+
+        y[k] = { 0           for k <  k_start
+               { k-k_start   for k >= k_start
     """
     k = dy.counter()
     active = dy.int32(k_start) <= k
@@ -434,12 +589,20 @@ def signal_ramp(k_start):
 
 
 def signal_impulse(k_event):
-    """
-        Pulse signal generator
+    """Pulse signal generator
 
-        generates a unique pulse at sampling index k_event
+    Generates a unique pulse at the sampling index k_event.
 
-        k_event - the sampling index at which the pulse appears
+    Parameters
+    ----------
+    k_event : SignalUserTemplate
+        the sampling index at which the pulse appears
+
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
     """
 
     if k_event < 0:
@@ -451,13 +614,21 @@ def signal_impulse(k_event):
     return pulse_signal
 
 def signal_periodic_impulse(period, phase):
-    """
-        signal generator for periodic pulses
+    """Signal generator for periodic pulses
 
-        generates a sequence of pulses
+    Parameters
+    ----------
 
-        period - singal or constant describing the period in samples at which the pulses are generated
-        phase  - singal or constant describing the phase in samples at which the pulses are generated
+    period : SignalUserTemplate
+        singal or constant describing the period in samples at which the pulses are generated
+    phase : SignalUserTemplate
+        singal or constant describing the phase in samples at which the pulses are generated
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+
     """
 
     k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(2), reset_on_limit=True )
@@ -468,17 +639,29 @@ def signal_periodic_impulse(period, phase):
 
 
 def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, counter=None, reset=None ):
-    """
-        signal generator for a step-wise changeing signal
+    """Signal generator for a step-wise changeing signal
 
-        time_instance_indices - an array of sampling instants at which the signal changes its values
-        values                - an array of values; must have one more element than time_instance_indices
-        time_scale            - multiplies all elements of time_instance_indices by the given factor (optional)
-        counter               - an alternative sample counter (optional)
-        reset                 - boolean signal to reset the sequence (optional)
+    Parameters
+    ----------
 
-        Example
-        -------
+    time_instance_indices : List[int]
+        an array of sampling instants at which the signal changes its values
+    values : List[float]
+        an array of values; must have one more element than time_instance_indices
+    time_scale : SignalUserTemplate
+        multiplies all elements of time_instance_indices by the given factor (optional)
+    counter : SignalUserTemplate
+        an alternative sample counter (optional), default: counter=dy.counter()
+    reset : SignalUserTemplate
+        boolean signal to reset the sequence (optional)
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+
+    Example
+    -------
 
         time_instance_indices = [      50, 100, 150, 250, 300, 350, 400,  450, 500  ]
         values                = [ 0, -1.0,   0, 1.0,  0, -1.0, 0,   0.2, -0.2, 0   ]
@@ -516,23 +699,33 @@ def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, c
 
 
 def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
-    """
-        playback of a sequence (TODO: update)
+    """Play a given sequence of samples
 
-        returns sample, playback_index
+    Parameters
+    ----------
 
-        sequence_array           - the sequence given as a list of values
-        reset                    - reset the playback and start from the beginning
-        reset_on_end             - reset playback once the end is reached (repetitive playback)
-        start_trigger            - event to start playback
-        pause_trigger            - event to pause playback
-        auto_start               - start playback automatically 
+    sequence_array : list[float]
+        the sequence given as a list of values
+    reset : SignalUserTemplate
+        reset playback and start from the beginning
+    reset_on_end : SignalUserTemplate
+        reset playback once the end is reached (repetitive playback)
+    start_trigger : SignalUserTemplate
+        event to start playback
+    pause_trigger : SignalUserTemplate
+        event to pause playback
+    auto_start : bool
+        start playback automatically 
 
 
-        return values
+    Returns
+    -------
+    SignalUserTemplate
+        the value obtained from sequence_array
+    SignalUserTemplate
+        the current position of playback (index of the currently issued sequence element)
 
-        sample                   - the value obtained from sequence_array
-        playback_index           - the current position of playback (index of the currently issued sequence element)
+
     """
 
     sequence_array_storage = dy.memory(datatype=dy.DataTypeFloat64(1), constant_array=sequence_array )
@@ -560,16 +753,31 @@ def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_
 # Filters
 #
 
-def diff(u : Signal, initial_state = None):
-    """
-        Discrete difference
+def diff(u : SignalUserTemplate, initial_state = None):
+    """Discrete difference
 
-        y = u[k] - u[k-1] 
+    Parameters
+    ----------
 
-        initial state
+    u : SignalUserTemplate
+        the input signal
+    initial_state : float, SignalUserTemplate
+        the initial state
 
-        u[0] = initial_state   in case initial_state is not None
-        u[0] = 0               otherwise
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
+
+    Details:
+    --------
+
+    y = u[k] - u[k-1] 
+
+    initial state
+
+    u[0] = initial_state   in case initial_state is not None
+    u[0] = 0               otherwise
     """
 
     i = dy.delay( u, initial_state )
@@ -577,20 +785,37 @@ def diff(u : Signal, initial_state = None):
 
     return y
 
-def sum(u : Signal, initial_state=0, no_delay=False):
-    """
-        Accumulative sum
+def sum(u : SignalUserTemplate, initial_state=0, no_delay=False):
+    """Accumulative sum
 
-        The difference equation
+    Parameters
+    ----------
 
-            y[k+1] = y[k] + u[k]
+    u : SignalUserTemplate
+        the input signal
+    initial_state : float, SignalUserTemplate
+        the initial state
+    no_delay : bool
+        when true the output is not delayed
 
-        is evaluated. The return value is either
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
 
-            y[k]   by default or when no_delay == False
-        or
+    Details:
+    --------
 
-            y[k+1] in case no_delay == True .
+    The difference equation
+
+        y[k+1] = y[k] + u[k]
+
+    is evaluated. The return value is either
+
+        y[k]   by default or when no_delay == False
+    or
+
+        y[k+1] in case no_delay == True .
     """
 
     y_k = dy.signal()
@@ -604,17 +829,32 @@ def sum(u : Signal, initial_state=0, no_delay=False):
     else:
         return y_k
 
-def sum2(u : Signal, initial_state=0):
-    """
-        Accumulative sum
+def sum2(u : SignalUserTemplate, initial_state=0):
+    """Accumulative sum
 
-        The difference equation
+    Parameters
+    ----------
 
-            y[k+1] = y[k] + u[k]
+    u : SignalUserTemplate
+        the input signal
+    initial_state : float, SignalUserTemplate
+        the initial state
 
-        is evaluated. The return values are
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
 
-            y[k], y[k+1]
+    Details:
+    --------
+
+    The difference equation
+
+        y[k+1] = y[k] + u[k]
+
+    is evaluated. The return values are
+
+        y[k], y[k+1]
     """
 
     y_k = dy.signal()
@@ -625,9 +865,26 @@ def sum2(u : Signal, initial_state=0):
 
     return y_k, y_kp1
 
-def euler_integrator( u : Signal, Ts, initial_state = 0.0):
-    """
-        Euler (forward) integrator
+def euler_integrator( u : SignalUserTemplate, Ts, initial_state = 0.0):
+    """Euler (forward) integrator
+
+    Parameters
+    ----------
+
+    u : SignalUserTemplate
+        the input signal
+    Ts : float
+        the sampling time
+    initial_state : float, SignalUserTemplate
+        the initial state of the integrator
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
+
+    Details:
+    --------
 
         y[k+1] = y[k] + Ts * u[k]
     """
@@ -645,13 +902,28 @@ def euler_integrator( u : Signal, Ts, initial_state = 0.0):
 
     return y
 
-def dtf_lowpass_1_order(u : Signal, z_infinity):
-    """
-        First-order discrete-time low pass filter
 
-                 1 - z_infinity
-        H (z) =  --------------
-                 z - z_infinity
+
+def dtf_lowpass_1_order(u : SignalUserTemplate, z_infinity):
+    """First-order discrete-time low pass filter
+
+    Parameters
+    ----------
+
+    u : SignalUserTemplate
+        the input signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
+
+    Details:
+    --------
+
+                    1 - z_infinity
+            H (z) =  --------------
+                    z - z_infinity
     """
 
     zinf = dy.float64( z_infinity )
@@ -664,16 +936,23 @@ def dtf_lowpass_1_order(u : Signal, z_infinity):
     
     return y
 
-def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff : t.List[float] ):
+def transfer_function_discrete(u : SignalUserTemplate, num_coeff : t.List[float], den_coeff : t.List[float] ):
 
-    """
-    Discrete time transfer function
+    """Discrete time transfer function
 
-    u         - input signal
-    num_coeff - list of numerator coefficients of the transfer function
-    den_coeff - list of denominator coefficients of the transfer function
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the input signal
+    num_coeff : List[float]
+        a list of numerator coefficients of the transfer function
+    den_coeff : List[float]
+        a list of denominator coefficients of the transfer function
 
-    returns the output of the filter
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the filter
 
     Details:
     --------
@@ -681,16 +960,16 @@ def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff 
     This filter realizes a discrete-time transfer function by using 'direct form II'
     c.f. https://en.wikipedia.org/wiki/Digital_filter .
 
-            b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
-    H(z) = ----------------------------------------
-             1 + a1 z^-1 + a2 z^-2 + ... + aM z^-M
+                b0 + b1 z^-1 + b2 z^-2 + ... + bN z^-N
+        H(z) = ----------------------------------------
+                1 + a1 z^-1 + a2 z^-2 + ... + aM z^-M
 
     The coefficient vectors num_coeff and den_coeff describe the numerator and 
     denominator polynomials, respectively, and are defined as follows:
 
-    num_coeff = [b0, b1, .., bN]
-    den_coeff = [a1, a2, ... aM] .
-    
+        num_coeff = [b0, b1, .., bN]
+        den_coeff = [a1, a2, ... aM] .
+        
     """
 
 
@@ -755,13 +1034,28 @@ def transfer_function_discrete(u : Signal, num_coeff : t.List[float], den_coeff 
 #
 
 def PID_controller(r, y, Ts, kp, ki = None, kd = None):
-    """
-        discrete-time PID-controller
+    """Discrete-time PID-controller
 
-        r           - the reference signal
-        y           - the measured plant output
-        Ts          - the sampling time
-        kp, ki, kd  - the controller parameters (proportional, integral, differential)
+    Parameters
+    ----------
+    r : SignalUserTemplate
+        the reference signal
+    y : SignalUserTemplate
+        the measured plant output
+    Ts : float
+        the sampleing time
+    kp : float
+        the parameter kp (proportional)
+    ki : float
+        the parameter ki (integral)
+    kd : float
+        the parameter kd (differential)
+
+    Returns
+    -------
+    SignalUserTemplate
+        the control variable u
+
     """
     Ts = dy.float64(Ts)
 

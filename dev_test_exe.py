@@ -1052,7 +1052,7 @@ if testname == 'rate_limit':
     baseDatatype = dy.DataTypeFloat64(1) 
 
     lower_limit1 = dy.system_input( baseDatatype ).set_name('lower_limit1').set_properties({ "range" : [-5, 0], "default_value" : -1 })
-    uppper_limit1 = dy.system_input( baseDatatype ).set_name('uppper_limit1').set_properties({ "range" : [0,  5], "default_value" : 1 })
+    upper_limit1 = dy.system_input( baseDatatype ).set_name('upper_limit1').set_properties({ "range" : [0,  5], "default_value" : 1 })
 
     z_inf = dy.system_input( baseDatatype ).set_name('z_inf').set_properties({ "range" : [0, 0.999], "default_value" : 0.9 })
 
@@ -1062,10 +1062,10 @@ if testname == 'rate_limit':
     step, activate, deactivate = dy.signal_square(period=period, phase=phase)
 
     # v1
-    rate_limit_1 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, uppper_limit=uppper_limit1, initial_state = 0 )
+    rate_limit_1 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, upper_limit=upper_limit1, initial_state = 0 )
 
     # v2 - rate limiter and low pass
-    rate_limit_2 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, uppper_limit=uppper_limit1, initial_state = 0 )
+    rate_limit_2 = dy.rate_limit( u=step, Ts=0.01, lower_limit=lower_limit1, upper_limit=upper_limit1, initial_state = 0 )
     rate_limit_2 = dy.dtf_lowpass_1_order(rate_limit_2, z_inf)
 
     # main simulation ouput
