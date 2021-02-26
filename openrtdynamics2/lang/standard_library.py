@@ -2,7 +2,6 @@ import math
 
 import typing as t
 from . import lang as dy
-#from .diagram_core.signal_network.signals import Signal
 from .signal_interface import SignalUserTemplate
 import numpy as np
 
@@ -986,7 +985,7 @@ def transfer_function_discrete(u : SignalUserTemplate, num_coeff : t.List[float]
     z_iterate = z_pre
     for i in range(0,N):
 
-        z_iterate = dy.delay( z_iterate ).extendName('_z' + str(i) )
+        z_iterate = dy.delay( z_iterate ) .extend_name('_z' + str(i) )
         z_.append( z_iterate ) 
 
 
@@ -999,11 +998,11 @@ def transfer_function_discrete(u : SignalUserTemplate, num_coeff : t.List[float]
     sum_feedback = u
     for i in range(0,N):
 
-        a_ip1 = dy.float64( den_coeff[i] ).extendName('_a' + str(i+1) )
+        a_ip1 = dy.float64( den_coeff[i] ).extend_name('_a' + str(i+1) )
 
         sum_feedback = sum_feedback - a_ip1 * z_[i]
 
-    sum_feedback.extendName('_i')
+    sum_feedback.extend_name('_i')
 
 
     # close the feedback loop
@@ -1017,7 +1016,7 @@ def transfer_function_discrete(u : SignalUserTemplate, num_coeff : t.List[float]
     #        ...    
     for i in range(0,N+1):
         
-        b_i = dy.float64( num_coeff[i] ).extendName('_b' + str(i) )
+        b_i = dy.float64( num_coeff[i] ).extend_name('_b' + str(i) )
 
         if i==0:
             y = b_i * sum_feedback

@@ -53,7 +53,7 @@ def signalListHelper_typeNames(signals):
     typeNames = []
 
     for s in signals:
-        typeNames.append( s.getDatatype().cppDataType )
+        typeNames.append( s.getDatatype().cpp_datatype_string )
 
     return typeNames
 
@@ -152,7 +152,7 @@ def signalListHelper_printfPattern(signals):
     for s in signals:
 
         # e.g. %f
-        printfPatterns.append( s.datatype.cppPrintfPattern )
+        printfPatterns.append( s.datatype.cpp_printf_pattern )
     
     return printfPatterns
 
@@ -400,7 +400,7 @@ def create_printf(intro_string, signals):
     signals_ok_to_print = []
     for s in signals:
 
-        if s.datatype.cppPrintfPattern is not None:
+        if s.datatype.cpp_printf_pattern is not None:
             signals_ok_to_print.append( s )
 
     format_str = signalListHelper_printfPattern_string(signals_ok_to_print)

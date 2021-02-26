@@ -152,7 +152,7 @@ class GenericSubsystem(bi.BlockPrototype):
                 signal = signals[ dependingInput_name ]
 
                 # check datatype
-                if not signal.getDatatype().cppDataType == dependingInput_cpptype:
+                if not signal.getDatatype().cpp_datatype_string == dependingInput_cpptype:
                     raise BaseException('datatype does not match the one specified in the manifest. (' + (dependingInput_cpptype) + ' is required in the manifest)' )
 
                 # append signal

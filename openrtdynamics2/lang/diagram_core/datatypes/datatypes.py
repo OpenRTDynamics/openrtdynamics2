@@ -28,46 +28,46 @@ ORTD_DATATYPE_UINT8 = 11
 
 class DataType(object):
 
-    def __init__(self, type : int, size : int):
-        self.type = type
-        self.size = size
+    def __init__(self, type_id : int, size : int):
+        self._type = type_id
+        self._size = size
 
-    def isEqualTo(self, otherType):
+    def is_equal_to(self, other_type):
         # output types
         # -1 undefined, 1 equal types, 0 type missmatch
 
-        if otherType is None:
+        if other_type is None:
             return -1
 
-        if not self.isDefined():
+        if not self.is_defined():
             return -1
 
-        if not otherType.isDefined():
+        if not other_type.is_defined():
             return -1
 
-        if self.size == otherType.size and self.type == otherType.type:
+        if self._size == other_type._size and self._type == other_type._type:
             return 1
         else:
             return 0
 
-    def isDefined(self):
-        if self.type is None:
+    def is_defined(self):
+        if self._type is None:
             return False
 
-        if self.size is None:
+        if self._size is None:
             return False
 
         return True
 
     def show(self):
-        print("datatype (C): " + self.cppDataType)
+        print("datatype: " + self.cpp_datatype_string)
 
     def toStr(self):
-        return self.cppDataType + " [" + str(self.size) + "]"
+        return self.cpp_datatype_string + " [" + str(self._size) + "]"
 
     @property
-    def cppDataType(self):
-        return 'UNDEF (prototype)'
+    def cpp_datatype_string(self):
+        return 'UNDEF'
 
     def cpp_define_variable(self, variable_name, make_a_reference = False):
         if make_a_reference:
@@ -75,10 +75,10 @@ class DataType(object):
         else:
             variable_name_ = variable_name
 
-        return self.cppDataType + ' ' + variable_name_
+        return self.cpp_datatype_string + ' ' + variable_name_
 
     @property
-    def cppPrintfPattern(self):
+    def cpp_printf_pattern(self):
         return None
 
     @property
@@ -90,14 +90,14 @@ class DataType(object):
 class DataTypeArray(DataType):
 
     def __init__(self, length : int, datatype : DataType ):
-        DataType.__init__(self, type=None, size=1)
+        DataType.__init__(self, type_id=None, size=1)
 
         self._array_element_datatype = datatype
         self._length    = length
 
     @property
-    def cppDataType(self):
-        return self._array_element_datatype.cppDataType + ' [' + str(self._length) + ']'
+    def cpp_datatype_string(self):
+        return self._array_element_datatype.cpp_datatype_string + ' [' + str(self._length) + ']'
     
     @property
     def datatype_of_elements(self):
@@ -110,7 +110,7 @@ class DataTypeArray(DataType):
         else:
             variable_name_ = variable_name
 
-        return self._array_element_datatype.cppDataType + ' ' + variable_name_ + '[' + str(self._length) + ']'
+        return self._array_element_datatype.cpp_datatype_string + ' ' + variable_name_ + '[' + str(self._length) + ']'
 
 
 
@@ -118,14 +118,14 @@ class DataTypeArray(DataType):
 class DataTypeBoolean(DataType):
 
     def __init__(self, size : int):
-        DataType.__init__(self, type=ORTD_DATATYPE_BOOLEAN, size=size)
+        DataType.__init__(self, type_id=ORTD_DATATYPE_BOOLEAN, size=size)
 
     @property
-    def cppDataType(self):
+    def cpp_datatype_string(self):
         return 'bool'
 
     @property
-    def cppPrintfPattern(self):
+    def cpp_printf_pattern(self):
         return '%d'
 
     @property
@@ -139,20 +139,20 @@ class DataTypeBoolean(DataType):
 
 class DataTypeNumeric(DataType):
     def __init__(self, size : int):
-        DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
+        DataType.__init__(self, type_id=ORTD_DATATYPE_FLOAT, size=size)
 
 
 class DataTypeFloat64(DataTypeNumeric):
 
     def __init__(self, size : int):
-        DataType.__init__(self, type=ORTD_DATATYPE_FLOAT, size=size)
+        DataType.__init__(self, type_id=ORTD_DATATYPE_FLOAT, size=size)
 
     @property
-    def cppDataType(self):
+    def cpp_datatype_string(self):
         return 'double'
 
     @property
-    def cppPrintfPattern(self):
+    def cpp_printf_pattern(self):
         return '%f'
 
     @property
@@ -165,14 +165,14 @@ class DataTypeInt32(DataTypeNumeric):
 
     def __init__(self, size : int):
 
-        DataType.__init__(self, type=ORTD_DATATYPE_INT32, size=size)
+        DataType.__init__(self, type_id=ORTD_DATATYPE_INT32, size=size)
 
     @property
-    def cppDataType(self):
+    def cpp_datatype_string(self):
         return 'int32_t'
 
     @property
-    def cppPrintfPattern(self):
+    def cpp_printf_pattern(self):
         return '%d'
 
     @property
@@ -233,7 +233,7 @@ def get_unique_datatype_from_io_types(datatype_of_output_signal : DataType, data
 
     # check if all inputs have the reference type
     for s in datatypes_of_input_signals:
-        if s.isEqualTo( referenceDatatype ) == 0:
+        if s.is_equal_to( referenceDatatype ) == 0:
             raise BaseException('Type error: inputs do not match to the output datatype')
 
     return referenceDatatype

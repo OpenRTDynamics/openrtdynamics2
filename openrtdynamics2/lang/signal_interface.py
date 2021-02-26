@@ -33,50 +33,71 @@ def _comparison(left, right, operator : str ):
 
 
 class SignalUserTemplate(object):
-    def __init__(self, sim, wrapped_signal : Signal):
+    def __init__(self, system, wrapped_signal : Signal):
 
-        self.sim = sim
-        self.wrapped_signal_ = wrapped_signal
+        self._system = system
+        self._wrapped_signal = wrapped_signal
 
     def __hash__(self):
         return id(self)
 
     @property
     def unwrap(self):
-        return self.wrapped_signal_
+        """
+        Get the library-internal representation of a signal (internal use only)
+        """
+        return self._wrapped_signal
 
     @property
     def name(self):
-        return self.wrapped_signal_.name
+        """
+        the identifier of the signal
+        """
+        return self._wrapped_signal.name
 
     @property
     def properties(self):
-        return self.wrapped_signal_.properties
+        """
+        A hash array of properties
+        """
+        return self._wrapped_signal.properties
 
     def set_properties(self, p):
-        self.wrapped_signal_.set_properties(p)
+        """
+        Set the properties of the signal
+        """
+        self._wrapped_signal.set_properties(p)
         return self
 
     def set_datatype(self, datatype):
         # call setDatatype_nonotitication to prevent the (untested) automatic update of the datatypes
-        self.wrapped_signal_.setDatatype_nonotitication(datatype)
+        self._wrapped_signal.setDatatype_nonotitication(datatype)
         return self
 
     def set_name(self, name):
-        self.wrapped_signal_.set_name(name)
+        """
+        Set the signals identifier. Must be a string without spaces and alphanumerical characters only. 
+        """
+        self._wrapped_signal.set_name(name)
         return self
 
     def set_name_raw(self, name):
-        self.wrapped_signal_.set_name_raw(name)
+        self._wrapped_signal.set_name_raw(name)
         return self
 
 
-    def extendName(self, name):
-        self.wrapped_signal_.set_name( self.wrapped_signal_.name + name )
+    def extend_name(self, name):
+        """
+        Extand the current signal identifier by appending characters at the end of the string
+        """
+        self._wrapped_signal.set_name( self._wrapped_signal.name + name )
         return self
 
     def set_blockname(self, name):
-        self.wrapped_signal_.set_blockname(name)
+        """
+        Set the name of the block that has the signal as one of its outputs
+        """
+        self._wrapped_signal.set_blockname(name)
         return self
 
     # ...
@@ -186,7 +207,7 @@ class SignalUserTemplate(object):
 class SignalUser(SignalUserTemplate):
 
     def __init__(self, sim):
-        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=UndeterminedSignal(sim)  )
+        SignalUserTemplate.__init__( self, system=sim, wrapped_signal=UndeterminedSignal(sim)  )
 
     def inherit_datatype(self, from_signal : SignalUserTemplate):
         """
@@ -238,7 +259,7 @@ class BlockOutputSignalUser(SignalUserTemplate):
     """
 
     def __init__(self, signalToWrap : BlockOutputSignal):
-        SignalUserTemplate.__init__( self, sim=signalToWrap.system, wrapped_signal=signalToWrap  )
+        SignalUserTemplate.__init__( self, system=signalToWrap.system, wrapped_signal=signalToWrap  )
 
 
 
@@ -252,7 +273,7 @@ class SimulationInputSignalUser(SignalUserTemplate):
     """
 
     def __init__(self, sim, datatype = None):
-        SignalUserTemplate.__init__( self, sim=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )
+        SignalUserTemplate.__init__( self, system=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )
 
 
 

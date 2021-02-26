@@ -252,7 +252,7 @@ class Signal(object):
 
             # only proceed of the prosed datatype is diffent to the stored one
             # or the stored type is None (not set before)
-            if not proposedDatatype.isEqualTo( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
+            if not proposedDatatype.is_equal_to( self.lookupSource().proposedDatatype ) or self.lookupSource().proposedDatatype is None:
 
                 self.lookupSource().proposedDatatype = proposedDatatype
                 # self.lookupSource().proposedDatatypeUpdated = True
@@ -261,7 +261,7 @@ class Signal(object):
                 self.sim.datatype_propagation_instance.notify_updateOfProposedDatatype(self)
 
         else:
-            if not self.lookupSource()._datatype.isEqualTo( proposedDatatype ):
+            if not self.lookupSource()._datatype.is_equal_to( proposedDatatype ):
                 raise BaseException("setProposedDatatype: only possible for signals the datatypes of which is not already fixed!")
 
     @property

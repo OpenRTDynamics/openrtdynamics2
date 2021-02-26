@@ -630,7 +630,7 @@ class SwitchNto1(bi.StaticFn_NTo1):
 
         # check weather the trigger input is int32
         if inputTypes[0] is not None:
-            if dt.DataTypeInt32(1).isEqualTo( inputTypes[0] ) == 0:
+            if dt.DataTypeInt32(1).is_equal_to( inputTypes[0] ) == 0:
                 raise BaseException('state input must be of type Int32')  
 
         # determine a guess for the output datatype
@@ -788,7 +788,7 @@ class GenericCppStatic(bi.BlockPrototype):
     def config_request_define_output_types(self, inputTypes):
 
         for i in range(0, len(inputTypes)):
-            if inputTypes[i] is not None and not inputTypes[i].isEqualTo( self._input_types[i] ):
+            if inputTypes[i] is not None and not inputTypes[i].is_equal_to( self._input_types[i] ):
                 raise BaseException('GenericCppStatic: datatype missmatch for input # ' + str(i) )
 
         # return a proposal for an output type. 
