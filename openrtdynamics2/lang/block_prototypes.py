@@ -760,8 +760,17 @@ class StaticFnByName_2To1(bi.StaticFn_NTo1):
 
 
 
-class GenericCppStatic(bi.BlockPrototype):
-    def __init__(self, sim : System, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
+class GenericCppFunctionCall(bi.BlockPrototype):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_names : List [str], 
+        input_types, 
+        output_names : List[str], 
+        output_types, 
+        function_name : str
+    ):
 
         Ninputs = len(input_names)
 
@@ -779,11 +788,10 @@ class GenericCppStatic(bi.BlockPrototype):
         self._input_types = input_types
         self._output_names = output_names
         self._output_types = output_types
-        self._cpp_source_code = cpp_source_code
 
-        bi.BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
+        bi.BlockPrototype.__init__(self, system, input_signals, len(output_names), output_types  )
 
-        self._static_function_name = 'fn_static_' + str(self.id)
+        self._function_name = function_name
 
     def config_request_define_output_types(self, inputTypes):
 
@@ -804,6 +812,61 @@ class GenericCppStatic(bi.BlockPrototype):
         # return a list of input signals that are required to update the states
         return None  # no states
 
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+
+        if language == 'c++':
+
+            ilines = ''
+
+            # create tmp output variables
+            tmp_output_variable_names = []
+            for i in range(0, len(self._output_names)):
+                tmp_variable_name = self._function_name + '_' + self._output_names[i]
+                tmp_output_variable_names.append( tmp_variable_name )
+                ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
+
+            # function call
+            ilines += cgh.call_function_from_varnames( self._function_name, cgh.signal_list_to_name_list(self.inputs), tmp_output_variable_names)
+
+            # copy outputs from tmp variables
+            for i in range(0, len(self._output_names)):
+
+                # only copy the needed outputs as indicated by 'signals'
+                if self.outputs[i] in signals:
+                    ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
+
+            return '{ // calling the static function ' + self._function_name + '\n' + cgh.indent(ilines) + '}\n'
+
+
+
+
+class GenericCppStatic(GenericCppFunctionCall):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_names : List [str], 
+        input_types, 
+        output_names : List[str], 
+        output_types, 
+        cpp_source_code : str
+    ):
+
+        GenericCppFunctionCall.__init__(
+            self, 
+            system, 
+            input_signals, input_names, input_types, 
+            output_names, output_types,
+            function_name = None # self._static_function_name
+        )
+
+        self._cpp_source_code = cpp_source_code
+        self._static_function_name = 'fn_static_' + str(self.id)
+
+        #
+        self._function_name = self._static_function_name
+
+
     def codegen_addToNamespace(self, language):
 
         if language == 'c++':
@@ -815,33 +878,6 @@ class GenericCppStatic(bi.BlockPrototype):
             ilines += cgh.cpp_define_function_from_types(self._static_function_name, self._input_types, self._input_names, self._output_types, self._output_names, info_comment_1 + self._cpp_source_code + info_comment_2 )
 
             return ilines
-
-    def generate_code_output_list(self, language, signals : List [ Signal ] ):
-
-        if language == 'c++':
-
-            ilines = ''
-
-            # create tmp output variables
-            tmp_output_variable_names = []
-            for i in range(0, len(self._output_names)):
-                tmp_variable_name = self._static_function_name + '_' + self._output_names[i]
-                tmp_output_variable_names.append( tmp_variable_name )
-                ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
-
-            # function call
-            ilines += cgh.call_function_from_varnames( self._static_function_name, cgh.signal_list_to_name_list(self.inputs), tmp_output_variable_names)
-
-            # copy outputs from tmp variables
-            for i in range(0, len(self._output_names)):
-
-                # only copy the needed outputs as indicated by 'signals'
-                if self.outputs[i] in signals:
-                    ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
-
-            return '{ // calling the static function ' + self._static_function_name + '\n' + cgh.indent(ilines) + '}\n'
-
-
 
 
 
