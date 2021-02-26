@@ -87,6 +87,39 @@ class DataType(object):
 
 
 
+
+class DataTypePointer(DataType):
+    """
+    Use a pointer defined by
+
+    typedef SomeClass *SomeClassPtr
+
+    cpp_ptr_type_name = 'SomeClassPtr' 
+    """
+
+    def __init__(self, cpp_ptr_type_name : str ):
+        DataType.__init__(self, type_id=None, size=1)
+
+        self._cpp_ptr_type_name = cpp_ptr_type_name
+
+    @property
+    def cpp_datatype_string(self):
+        return self._cpp_ptr_type_name
+        
+    def is_equal_to(self, other_type):
+
+        result = DataType.is_equal_to(self, other_type)
+
+        if result == 1:
+            if self._cpp_ptr_type_name == other_type._cpp_ptr_type_name:
+                return 1
+        else:
+            return result
+
+
+
+
+
 class DataTypeArray(DataType):
 
     def __init__(self, length : int, datatype : DataType ):

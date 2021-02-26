@@ -342,7 +342,32 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
     """
     return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
 
-def generic_cpp_static(input_signals : List[SignalUserTemplate], input_names : List [str], input_types, output_names, output_types, cpp_source_code : str ):
+
+
+
+
+
+
+def cpp_allocate_class(datatype, code_constructor_call : str):
+
+    return None
+
+
+def cpp_call_class(
+    ptr_signal : SignalUserTemplate, code_call : str,
+    input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
+    output_names, output_types
+):
+
+    return None
+
+
+
+def generic_cpp_static(
+    input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
+    output_names, output_types, 
+    cpp_source_code : str
+):
     """
     Embed C/C++ source code (stateless code only)
 
