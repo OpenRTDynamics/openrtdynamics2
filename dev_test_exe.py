@@ -23,7 +23,7 @@ library_entries = []
 
 
 
-def firstOrder( u : dy.Signal, z_inf, name : str = ''):
+def firstOrder( u, z_inf, name : str = ''):
 
     yFb = dy.signal()
 
@@ -35,7 +35,7 @@ def firstOrder( u : dy.Signal, z_inf, name : str = ''):
     return y
 
 
-def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str = ''):
+def firstOrderAndGain( u, z_inf, gain, name : str = ''):
 
     dFb = dy.signal()
 
@@ -49,7 +49,7 @@ def firstOrderAndGain( u : dy.Signal, z_inf, gain, name : str = ''):
     return y
 
 
-def dInt( u : dy.Signal, name : str = ''):
+def dInt( u , name : str = ''):
 
     yFb = dy.signal()
 
@@ -61,7 +61,7 @@ def dInt( u : dy.Signal, name : str = ''):
     return y
 
 
-def diff( u : dy.Signal, name : str):
+def diff( u , name : str):
 
     i = dy.delay( u ).set_name(name + '_i')
     y = dy.add( [ i, u ], [ -1, 1 ] ).set_name(name + '_y')
@@ -114,7 +114,7 @@ def generate_signal_PWM( period, modulator ):
 
 # testname = 'signal_periodic_impulse' # 
 testname = 'inline_ifsubsystem_oscillator' # 'signal_periodic_impulse' #'loop_until' #'inline_ifsubsystem_oscillator' # 
-testname = 'loop_until'
+testname = 'cpp_class'
 
 test_modification_1 = True  # option should not have an influence on the result
 test_modification_2 = False # shall raise an error once this is true
@@ -983,6 +983,41 @@ if testname == 'generic_cpp_static':
 
 
 
+if testname == 'cpp_class':
+
+    baseDatatype = dy.DataTypeFloat64(1)
+
+    class_ptr_datatype = dy.DataTypePointer( cpp_ptr_type_name = 'SomeClassPtr' )  
+    
+    class_ptr = dy.cpp_allocate_class( datatype=class_ptr_datatype, code_constructor_call='SomeClassPtr()' )
+
+    class_ptr.set_name('pointer')
+
+    u = dy.float64(1.0)
+    
+    outputs = dy.cpp_call_class_member_function(
+        ptr_signal = class_ptr,
+        member_function_name='update',
+
+        input_signals=[ u ], input_names=[ 'u' ], 
+        input_types=[ dy.DataTypeFloat64(1) ], 
+        output_names=['output1', 'output2', 'output3'],
+        output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ]
+        
+    )
+
+    output1 = outputs[0]
+    output2 = outputs[1]
+    output3 = outputs[2]
+
+    dy.set_primary_outputs( [ output1, output2, output3 ], ['output1', 'output2', 'output3'] )
+    
+
+    output_signals = None
+
+
+
+
 
 
 if testname == 'signal_periodic_impulse':
@@ -1070,6 +1105,10 @@ if testname == 'rate_limit':
 
     # main simulation ouput
     output_signals = [ step, rate_limit_1, rate_limit_2 ]
+
+
+
+
 
 
 if testname == 'vanderpol':

@@ -769,16 +769,17 @@ class GenericCppFunctionCall(bi.BlockPrototype):
         input_types, 
         output_names : List[str], 
         output_types, 
-        function_name : str
+        function_name : str,
+        additional_inputs = []
     ):
 
-        Ninputs = len(input_names)
+        self._number_of_inputs = len(input_names)
 
-        if not Ninputs == len(input_types):
-            raise BaseException('not Ninputs == len(input_types)')
+        if not self._number_of_inputs == len(input_types):
+            raise BaseException('not number_of_inputs == len(input_types)')
 
-        if not Ninputs == len(input_signals):
-            raise BaseException('not Ninputs == len)(input_signals)')
+        if not self._number_of_inputs == len(input_signals):
+            raise BaseException('not number_of_inputs == len)(input_signals)')
 
         if not len(output_names) == len(output_types):
             raise BaseException('not len(output_names) == len(output_types)')
@@ -789,7 +790,7 @@ class GenericCppFunctionCall(bi.BlockPrototype):
         self._output_names = output_names
         self._output_types = output_types
 
-        bi.BlockPrototype.__init__(self, system, input_signals, len(output_names), output_types  )
+        bi.BlockPrototype.__init__(self, system, input_signals + additional_inputs, len(output_names), output_types  )
 
         self._function_name = function_name
 
@@ -878,6 +879,103 @@ class GenericCppStatic(GenericCppFunctionCall):
             ilines += cgh.cpp_define_function_from_types(self._static_function_name, self._input_types, self._input_names, self._output_types, self._output_names, info_comment_1 + self._cpp_source_code + info_comment_2 )
 
             return ilines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class AllocateClass(bi.DynamicSource_To1):
+#     def __init__(self, sim : System, code_constructor_call, datatype ):
+
+#         self._code_constructor_call = code_constructor_call
+
+#         # call super
+#         bi.DynamicSource_To1.__init__(self, sim, datatype)
+
+
+
+
+#     def generate_code_output_list(self, language, signals : List [ Signal ] ):
+#         if language == 'c++':
+#             return signals[0].name + ' = ' + str( self._code_constructor_call ) + ';\n'
+
+
+
+
+
+class AllocateClass(bi.BlockPrototype):
+    def __init__(self, sim : System, datatype, code_constructor_call ):
+
+        self._code_constructor_call = code_constructor_call
+        self._datatype = datatype
+
+        bi.BlockPrototype.__init__(self, sim, [], 1)
+
+    def config_request_define_output_types(self, inputTypes):
+        return [ self._datatype ]        
+
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+        return [  ]
+
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return [  ]  # all inputs
+
+    def generate_code_defStates(self, language):
+        if language == 'c++':
+            return self.outputs[0].datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_class' ) + ' = ' + self._code_constructor_call + ';\n'
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_class' + ';\n'
+
+    def generate_code_update(self, language):
+        if language == 'c++':
+            return ''
+
+    def generate_code_reset(self, language):
+        if language == 'c++':
+            return self.getUniqueVarnamePrefix() + '_class' + '->reset();\n'
+
+
+class CallClassMemberFunction(GenericCppFunctionCall):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_names : List [str], 
+        input_types, 
+        output_names : List[str], 
+        output_types, 
+        ptr_signal : Signal, 
+        member_function_name : str
+    ):
+
+        GenericCppFunctionCall.__init__(
+            self, 
+            system, 
+            input_signals, input_names, input_types, 
+            output_names, output_types,
+            function_name = ptr_signal.name + '->' + member_function_name,
+            additional_inputs = [ptr_signal]
+        )
+
+
+
 
 
 

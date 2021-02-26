@@ -348,18 +348,29 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
 
 
 
-def cpp_allocate_class(datatype, code_constructor_call : str):
+def cpp_allocate_class(datatype, code_constructor_call):
+    """
+        return a ptr signal pointing to a class instance initialized by code_constructor_call
+    """
+    return wrap_signal( AllocateClass(dy.get_system_context(), datatype, code_constructor_call).outputs[0] )
 
-    return None
 
 
-def cpp_call_class(
-    ptr_signal : SignalUserTemplate, code_call : str,
+def cpp_call_class_member_function(
+    ptr_signal : SignalUserTemplate, member_function_name : str,
     input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
     output_names, output_types
 ):
 
-    return None
+    bp = CallClassMemberFunction(
+        dy.get_system_context(), 
+        unwrap_list(input_signals), 
+        input_names, input_types, 
+        output_names, output_types, 
+        ptr_signal = ptr_signal.unwrap,
+        member_function_name = member_function_name
+    )
+    return wrap_signal_list( bp.outputs )
 
 
 
