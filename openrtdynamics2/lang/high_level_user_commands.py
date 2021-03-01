@@ -5,6 +5,7 @@ from .system_context import init_simulation_context, get_system_context, enter_s
 
 import os
 import pathlib as pl
+import typing as t
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
@@ -105,7 +106,9 @@ def show_execution_lines(compile_results):
     compile_results.command_to_execute.print_execution()
 
 
-def generate_code(template : PutRuntimeCppHelper, folder=None, build=False):
+def generate_code(template : PutRuntimeCppHelper, folder=None, build=False, include_code_list : t.List[str] = [] ):
+
+    template.add_code_to_include(include_code_list)
 
     # Compile system (propagate datatypes)
     compile_results = compile_system()

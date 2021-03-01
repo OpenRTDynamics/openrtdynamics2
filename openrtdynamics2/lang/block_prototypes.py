@@ -794,6 +794,10 @@ class GenericCppFunctionCall(bi.BlockPrototype):
 
         self._function_name = function_name
 
+    @property
+    def normal_inputs(self):
+        return self.inputs[0:self._number_of_inputs]
+
     def config_request_define_output_types(self, inputTypes):
         # check of the input types given on call of this function match the configured ones
         for i in range(0, self._number_of_inputs):
@@ -822,18 +826,14 @@ class GenericCppFunctionCall(bi.BlockPrototype):
             # create tmp output variables
             tmp_output_variable_names = []
             for i in range(0, len(self._output_names)):
-                #tmp_variable_name = self._function_name + '_' + self._output_names[i]
-                
-                
                 tmpname = self.getUniqueVarnamePrefix()
                 tmp_variable_name = tmpname + '_' + self._output_names[i]
-
 
                 tmp_output_variable_names.append( tmp_variable_name )
                 ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
 
             # function call
-            ilines += cgh.call_function_from_varnames( self._function_name, cgh.signal_list_to_name_list(self.inputs), tmp_output_variable_names)
+            ilines += cgh.call_function_from_varnames( self._function_name, cgh.signal_list_to_name_list(self.normal_inputs), tmp_output_variable_names)
 
             # copy outputs from tmp variables
             for i in range(0, len(self._output_names)):
@@ -860,9 +860,9 @@ class GenericCppStatic(GenericCppFunctionCall):
     ):
 
         GenericCppFunctionCall.__init__(
-            self, 
-            system, 
-            input_signals, input_names, input_types, 
+            self,
+            system,
+            input_signals, input_names, input_types,
             output_names, output_types,
             function_name = None # self._static_function_name
         )
