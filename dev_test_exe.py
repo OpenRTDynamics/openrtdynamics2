@@ -991,7 +991,7 @@ if testname == 'cpp_class':
     
     class_ptr = dy.cpp_allocate_class( datatype=class_ptr_datatype, code_constructor_call='SomeClassPtr()' )
 
-    class_ptr.set_name('pointer')
+    class_ptr.set_name('pointer').set_blockname('pointer_source')
 
     u = dy.float64(1.0)
     

@@ -795,8 +795,8 @@ class GenericCppFunctionCall(bi.BlockPrototype):
         self._function_name = function_name
 
     def config_request_define_output_types(self, inputTypes):
-
-        for i in range(0, len(inputTypes)):
+        # check of the input types given on call of this function match the configured ones
+        for i in range(0, self._number_of_inputs):
             if inputTypes[i] is not None and not inputTypes[i].is_equal_to( self._input_types[i] ):
                 raise BaseException('GenericCppStatic: datatype missmatch for input # ' + str(i) )
 
@@ -822,7 +822,13 @@ class GenericCppFunctionCall(bi.BlockPrototype):
             # create tmp output variables
             tmp_output_variable_names = []
             for i in range(0, len(self._output_names)):
-                tmp_variable_name = self._function_name + '_' + self._output_names[i]
+                #tmp_variable_name = self._function_name + '_' + self._output_names[i]
+                
+                
+                tmpname = self.getUniqueVarnamePrefix()
+                tmp_variable_name = tmpname + '_' + self._output_names[i]
+
+
                 tmp_output_variable_names.append( tmp_variable_name )
                 ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
 
@@ -923,7 +929,7 @@ class AllocateClass(bi.BlockPrototype):
         self._code_constructor_call = code_constructor_call
         self._datatype = datatype
 
-        bi.BlockPrototype.__init__(self, sim, [], 1)
+        bi.BlockPrototype.__init__(self, sim, [], 1, output_datatype_list=[datatype])
 
     def config_request_define_output_types(self, inputTypes):
         return [ self._datatype ]        
