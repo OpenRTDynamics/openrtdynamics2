@@ -997,20 +997,19 @@ if testname == 'cpp_class':
     
     outputs = dy.cpp_call_class_member_function(
         ptr_signal = class_ptr,
-        member_function_name='update',
 
         input_signals=[ u ], input_names=[ 'u' ], 
         input_types=[ dy.DataTypeFloat64(1) ], 
-        output_names=['output1', 'output2', 'output3'],
-        output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ]
-        
+        output_names=['output1', 'output2'],
+        output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+
+        member_function_name_to_calc_outputs='update'
     )
 
     output1 = outputs[0]
     output2 = outputs[1]
-    output3 = outputs[2]
 
-    dy.set_primary_outputs( [ output1, output2, output3 ], ['output1', 'output2', 'output3'] )
+    dy.set_primary_outputs( [ output1, output2 ], ['output1', 'output2'] )
     
 
     output_signals = None

@@ -373,9 +373,30 @@ def cpp_define_function_from_types(fn_name, input_types, input_names, output_typ
     return lines
 
 def call_function_from_varnames(fn_name, input_names, output_names):
+    """
+    Build c++ code to call a function using the given paramerers 
+    """
 
     lines = ''
-    lines += fn_name + '(' + ', '.join(output_names) + ', ' + ', '.join(input_names) + ');\n'
+
+    outputs_avail = output_names is not None and len(output_names) != 0
+    inputs_avail  = input_names  is not None and len(input_names)  != 0
+
+
+    lines += fn_name + '(' 
+    
+    if outputs_avail:  
+        output_parameter_string = ', '.join(output_names)
+        lines += output_parameter_string  
+    
+    if outputs_avail and inputs_avail:
+        lines +=  ', ' 
+
+    if inputs_avail: 
+        input_parameter_string = ', '.join(input_names)
+        lines += input_parameter_string 
+    
+    lines +=  ');\n'
 
     return lines
 

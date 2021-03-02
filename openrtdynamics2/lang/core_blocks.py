@@ -357,9 +357,15 @@ def cpp_allocate_class(datatype, code_constructor_call):
 
 
 def cpp_call_class_member_function(
-    ptr_signal : SignalUserTemplate, member_function_name : str,
+    ptr_signal : SignalUserTemplate, 
+        
     input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
-    output_names, output_types
+    output_names, output_types,
+
+    member_function_name_to_calc_outputs : str,
+    member_function_name_to_update_states : str = None,
+    member_function_name_to_reset_states : str = None
+
 ):
 
     bp = CallClassMemberFunction(
@@ -368,7 +374,10 @@ def cpp_call_class_member_function(
         input_names, input_types, 
         output_names, output_types, 
         ptr_signal = ptr_signal.unwrap,
-        member_function_name = member_function_name
+
+        member_function_name_to_calc_outputs  = member_function_name_to_calc_outputs,
+        member_function_name_to_update_states = member_function_name_to_update_states,
+        member_function_name_to_reset_states  = member_function_name_to_reset_states
     )
     return wrap_signal_list( bp.outputs )
 
