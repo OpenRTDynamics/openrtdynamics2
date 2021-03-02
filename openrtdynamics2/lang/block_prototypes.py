@@ -773,9 +773,7 @@ class GenericCppFunctionCall(bi.BlockPrototype):
         self, 
         system : System, 
         input_signals : List[Signal], 
-        input_names : List [str], 
         input_types, 
-        output_names : List[str], 
         output_types, 
         function_name_to_calc_outputs : str,
         function_name_to_update_states : str = None,
@@ -784,24 +782,16 @@ class GenericCppFunctionCall(bi.BlockPrototype):
 
     ):
 
-        self._number_of_inputs = len(input_names)
+        self._number_of_inputs = len(input_signals)
 
         if not self._number_of_inputs == len(input_types):
             raise BaseException('not number_of_inputs == len(input_types)')
 
-        if not self._number_of_inputs == len(input_signals):
-            raise BaseException('not number_of_inputs == len)(input_signals)')
-
-        if not len(output_names) == len(output_types):
-            raise BaseException('not len(output_names) == len(output_types)')
-
         self._input_signals = input_signals
-        self._input_names = input_names
         self._input_types = input_types
-        self._output_names = output_names
         self._output_types = output_types
 
-        bi.BlockPrototype.__init__(self, system, input_signals + additional_inputs, len(output_names), output_types)
+        bi.BlockPrototype.__init__(self, system, input_signals + additional_inputs, len(output_types), output_types)
 
         self._function_name_to_calc_outputs  = function_name_to_calc_outputs
         self._function_name_to_update_states = function_name_to_update_states
@@ -847,9 +837,9 @@ class GenericCppFunctionCall(bi.BlockPrototype):
 
             # create tmp output variables
             tmp_output_variable_names = []
-            for i in range(0, len(self._output_names)):
+            for i in range(0, len(self._output_types)):
                 tmpname = self.getUniqueVarnamePrefix()
-                tmp_variable_name = tmpname + '_' + self._output_names[i]
+                tmp_variable_name = tmpname + '_out' + str(i)
 
                 tmp_output_variable_names.append( tmp_variable_name )
                 ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
@@ -858,7 +848,7 @@ class GenericCppFunctionCall(bi.BlockPrototype):
             ilines += cgh.call_function_from_varnames( self._function_name_to_calc_outputs, cgh.signal_list_to_name_list(self.normal_inputs), tmp_output_variable_names)
 
             # copy outputs from tmp variables
-            for i in range(0, len(self._output_names)):
+            for i in range(0, len(self._output_types)):
 
                 # only copy the needed outputs as indicated by 'signals'
                 if self.outputs[i] in signals:
@@ -910,11 +900,17 @@ class GenericCppStatic(GenericCppFunctionCall):
         cpp_source_code : str
     ):
 
+        if not len(input_names) == len(input_signals):
+            raise BaseException('not len(input_names) == len(input_signals)')
+
+        if not len(output_names) == len(output_types):
+            raise BaseException('not len(output_names) == len(output_types)')
+
         GenericCppFunctionCall.__init__(
             self,
             system,
-            input_signals, input_names, input_types,
-            output_names, output_types,
+            input_signals, input_types,
+            output_types,
             function_name_to_calc_outputs = None
         )
 
@@ -981,9 +977,7 @@ class CallClassMemberFunction(GenericCppFunctionCall):
         self, 
         system : System, 
         input_signals : List[Signal], 
-        input_names : List [str], 
         input_types, 
-        output_names : List[str], 
         output_types, 
         ptr_signal : Signal, 
         member_function_name_to_calc_outputs : str,
@@ -1005,8 +999,8 @@ class CallClassMemberFunction(GenericCppFunctionCall):
             self, 
             system, 
 
-            input_signals, input_names, input_types, 
-            output_names, output_types,
+            input_signals, input_types, 
+            output_types,
 
             function_name_to_calc_outputs  = ptr_signal.name + '->' + member_function_name_to_calc_outputs,
             function_name_to_update_states = function_name_to_update_states,

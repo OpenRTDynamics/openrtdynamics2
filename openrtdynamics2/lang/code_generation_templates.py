@@ -31,7 +31,7 @@ def _generate_algorithm_code( compile_results, enable_tracing=False, included_sy
     # concatenate the custom code to include
     if include_code_list is not None:
         for code in include_code_list:
-            algorithm_code += code
+            algorithm_code += '// custom code\n' + code + '\n// end of custom code\n\n'
 
     # combine (concatenate) the code from the library entries
     for include in included_systems:
