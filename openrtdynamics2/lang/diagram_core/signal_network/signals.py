@@ -365,7 +365,7 @@ def resolveUndeterminedSignals(signals : List[Signal], ignore_signals_with_datat
 
             else:
 
-                raise BaseException("Could not resolve ananymous singal " + signal.toStr() + ". Please ensure to connect this signal to a block output." )
+                raise BaseException("Could not resolve anonymous singal " + signal.toStr() + ". Please ensure to connect this signal to a block output." )
 
         signals[i] = signal
 

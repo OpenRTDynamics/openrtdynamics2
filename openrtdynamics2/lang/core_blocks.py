@@ -370,7 +370,7 @@ def cpp_call_class_member_function(
     input_signals : List[SignalUserTemplate], input_types, 
     output_types,
 
-    member_function_name_to_calc_outputs : str,
+    member_function_name_to_calc_outputs : str = None,
     member_function_name_to_update_states : str = None,
     member_function_name_to_reset_states : str = None
 

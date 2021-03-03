@@ -832,29 +832,31 @@ class GenericCppFunctionCall(bi.BlockPrototype):
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         if language == 'c++':
+            if self._function_name_to_calc_outputs is not None:
+                ilines = ''
 
-            ilines = ''
+                # create tmp output variables
+                tmp_output_variable_names = []
+                for i in range(0, len(self._output_types)):
+                    tmpname = self.getUniqueVarnamePrefix()
+                    tmp_variable_name = tmpname + '_out' + str(i)
 
-            # create tmp output variables
-            tmp_output_variable_names = []
-            for i in range(0, len(self._output_types)):
-                tmpname = self.getUniqueVarnamePrefix()
-                tmp_variable_name = tmpname + '_out' + str(i)
+                    tmp_output_variable_names.append( tmp_variable_name )
+                    ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
 
-                tmp_output_variable_names.append( tmp_variable_name )
-                ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
+                # function call
+                ilines += cgh.call_function_from_varnames( self._function_name_to_calc_outputs, cgh.signal_list_to_name_list(self.normal_inputs), tmp_output_variable_names)
 
-            # function call
-            ilines += cgh.call_function_from_varnames( self._function_name_to_calc_outputs, cgh.signal_list_to_name_list(self.normal_inputs), tmp_output_variable_names)
+                # copy outputs from tmp variables
+                for i in range(0, len(self._output_types)):
 
-            # copy outputs from tmp variables
-            for i in range(0, len(self._output_types)):
+                    # only copy the needed outputs as indicated by 'signals'
+                    if self.outputs[i] in signals:
+                        ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
 
-                # only copy the needed outputs as indicated by 'signals'
-                if self.outputs[i] in signals:
-                    ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
-
-            return '{ // calling the custom c++ function ' + self._function_name_to_calc_outputs + '\n' + cgh.indent(ilines) + '}\n'
+                return '{ // calling the custom c++ function ' + self._function_name_to_calc_outputs + '\n' + cgh.indent(ilines) + '}\n'
+            else:
+                return ''
 
     def generate_code_update(self, language):
         if language == 'c++':
@@ -980,10 +982,15 @@ class CallClassMemberFunction(GenericCppFunctionCall):
         input_types, 
         output_types, 
         ptr_signal : Signal, 
-        member_function_name_to_calc_outputs : str,
+        member_function_name_to_calc_outputs : str = None,
         member_function_name_to_update_states : str = None,
         member_function_name_to_reset_states : str = None,
     ):
+
+        if member_function_name_to_calc_outputs is not None:
+            function_name_to_calc_outputs = ptr_signal.name + '->' + member_function_name_to_calc_outputs
+        else:
+            function_name_to_calc_outputs = None
 
         if member_function_name_to_update_states is not None:
             function_name_to_update_states = ptr_signal.name + '->' + member_function_name_to_update_states
@@ -1002,7 +1009,7 @@ class CallClassMemberFunction(GenericCppFunctionCall):
             input_signals, input_types, 
             output_types,
 
-            function_name_to_calc_outputs  = ptr_signal.name + '->' + member_function_name_to_calc_outputs,
+            function_name_to_calc_outputs  = function_name_to_calc_outputs,
             function_name_to_update_states = function_name_to_update_states,
             function_name_to_reset_states  = function_name_to_reset_states,
 
