@@ -90,22 +90,39 @@ class DataType(object):
 
 class DataTypePointer(DataType):
     """
-    Use a pointer defined by
+    Create a pointer pointing to an instance of a given class
 
-    typedef SomeClass *SomeClassPtr
+    Example:
+    --------
 
-    cpp_ptr_type_name = 'SomeClassPtr' 
+        cpp_type_name_class = 'SomeClass' 
+
+    In the source code of the class, the following definition is required
+
+        typedef SomeClass *SomeClassPtr
+
     """
 
-    def __init__(self, cpp_ptr_type_name : str ):
+    def __init__(self, cpp_type_name_class : str ):
         DataType.__init__(self, type_id=None, size=1)
 
-        self._cpp_ptr_type_name = cpp_ptr_type_name
+        self._cpp_ptr_type_name   = cpp_type_name_class + 'Ptr' # cpp_ptr_type_name
+        self._cpp_type_name_class = cpp_type_name_class
 
     @property
     def cpp_datatype_string(self):
+        """
+        return the c++ datatype string of the pointer to the class instance 
+        """
         return self._cpp_ptr_type_name
-        
+
+    @property
+    def cpp_datatype_string_class(self):
+        """
+        return the c++ datatype string of the class
+        """
+        return self._cpp_type_name_class
+
     def is_equal_to(self, other_type):
 
         result = DataType.is_equal_to(self, other_type)

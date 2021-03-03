@@ -940,12 +940,12 @@ class GenericCppStatic(GenericCppFunctionCall):
 
 
 class AllocateClass(bi.BlockPrototype):
-    def __init__(self, sim : System, datatype, code_constructor_call ):
+    def __init__(self, system : System, datatype, code_constructor_call ):
 
         self._code_constructor_call = code_constructor_call
         self._datatype = datatype
 
-        bi.BlockPrototype.__init__(self, sim, [], 1, output_datatype_list=[datatype])
+        bi.BlockPrototype.__init__(self, system, [], 1, output_datatype_list=[datatype])
 
     def config_request_define_output_types(self, inputTypes):
         return [ self._datatype ]        
@@ -959,11 +959,17 @@ class AllocateClass(bi.BlockPrototype):
 
     def generate_code_defStates(self, language):
         if language == 'c++':
-            return self.outputs[0].datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_class' ) + ' = ' + self._code_constructor_call + ';\n'
+
+            pointer_datatype = self.outputs[0].datatype
+
+            code = pointer_datatype.cpp_datatype_string_class + ' ' + self.getUniqueVarnamePrefix() + '_instance' + ' = ' + self._code_constructor_call + ';\n'
+            code += pointer_datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_ptr' ) + ' = &' + self.getUniqueVarnamePrefix() + '_instance' + ';\n'
+
+            return code
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_class' + ';\n'
+            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_ptr' + ';\n'
 
     def generate_code_update(self, language):
         if language == 'c++':
@@ -971,7 +977,7 @@ class AllocateClass(bi.BlockPrototype):
 
     def generate_code_reset(self, language):
         if language == 'c++':
-            return self.getUniqueVarnamePrefix() + '_class' + '->reset();\n'
+            return self.getUniqueVarnamePrefix() + '_ptr' + '->reset();\n'
 
 
 class CallClassMemberFunction(GenericCppFunctionCall):
