@@ -60,7 +60,7 @@ def lateral_vehicle_model(u_delta, v, v_dot, Ts, wheelbase, x0=0.0, y0=0.0, psi0
         delta_ = u_delta 
 
     # saturate steering
-    delta = dy.saturate(u=delta_, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
+    delta = dy.saturate(u=delta_, lower_limit=-math.pi/2.0, upper_limit=math.pi/2.0)
 
     # bicycle model
     x, y, psi, x_dot, y_dot, psi_dot = discrete_time_bicycle_model(delta, v, Ts, wheelbase, x0, y0, psi0)

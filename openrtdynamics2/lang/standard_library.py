@@ -196,7 +196,7 @@ def unwrap_angle(angle, normalize_around_zero = False):
 
     """
 
-    def normalize_aruond_zero(angle):
+    def normalize_around_zero(angle):
         """
             Normalize an angle
 
@@ -217,7 +217,7 @@ def unwrap_angle(angle, normalize_around_zero = False):
     unwrapped_angle = angle_ + dy.conditional_overwrite( dy.float64(0), angle_ < float64(0), 2*math.pi )
 
     if normalize_around_zero:
-        return normalize_aruond_zero(unwrapped_angle)
+        return normalize_around_zero(unwrapped_angle)
     else:
         return unwrapped_angle
 
@@ -396,7 +396,7 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
     counter = dy.signal()
 
-    reached_upper_limit = counter > dy.int32(upper_limit)
+    reached_upper_limit = counter >= dy.int32(upper_limit)
 
     if start_trigger is None:
         start_trigger = dy.boolean(0)
@@ -413,7 +413,7 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
 
     # state for pause/counting
-    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start).set_name('paused')
+    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start, nodelay=True).set_name('paused')
 
     # prevent counter increase
     stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name('stepwidth')
@@ -432,15 +432,15 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
     counter << dy.delay( new_counter, initial_state=initial_state )
 
     if not no_delay:
-        return counter
+        return counter, reached_upper_limit
     else:
-        return new_counter
+        return new_counter, reached_upper_limit
 
 
 
 
 
-def toggle(trigger, initial_state=False):
+def toggle(trigger, initial_state=False, nodelay=False):
     """Toggle a state based on an event
 
     Parameters
@@ -450,6 +450,8 @@ def toggle(trigger, initial_state=False):
         the signal to trigger a state change
     initial_state : int
         the initial state
+    nodelay : bool
+        when true the toggle immediately reacts to a trigger (default: false)
 
     Returns
     -------
@@ -461,6 +463,8 @@ def toggle(trigger, initial_state=False):
     SignalUserTemplate
         the event for deactivation
 
+    
+
     """
 
     state = dy.signal()
@@ -468,13 +472,17 @@ def toggle(trigger, initial_state=False):
     activate   = dy.logic_and( dy.logic_not( state ), trigger )
     deactivate = dy.logic_and( trigger , state)
 
-    tmp = dy.flipflop( activate, deactivate, 
+    state_ = dy.flipflop( activate, deactivate, 
                             initial_state = 0, 
-                            nodelay=False )
+                            nodelay=nodelay )
 
-    state << tmp
+    if not nodelay:
+        state << state_
+    else:
+        state << dy.delay(state_)
 
-    return state, activate, deactivate
+
+    return state_, activate, deactivate
     
 
 #
@@ -500,7 +508,10 @@ def signal_square(period, phase):
     """
     trigger = signal_periodic_impulse(period, phase)
 
-    state, activate, deactivate = toggle(trigger)
+
+    # k, trigger = counter_triggered( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
+
+    state, activate, deactivate = toggle(trigger, nodelay=True)
 
     return state, activate, deactivate
 
@@ -536,7 +547,7 @@ def signal_sinus(N_period : int = 100, phi = None):
     if phi is None:
         phi = dy.float64(0.0)
 
-    i = dy.counter_triggered( upper_limit=N_period-1, reset_on_limit=True )
+    i, _ = dy.counter_triggered( upper_limit=N_period-1, reset_on_limit=True )
     y = dy.sin( i * dy.float64(1/N_period * 2*math.pi) + phi )
 
     return y
@@ -630,7 +641,7 @@ def signal_periodic_impulse(period, phase):
 
     """
 
-    k = counter_triggered( upper_limit=dy.int32(period) - dy.int32(2), reset_on_limit=True )
+    k, trigger = counter_triggered( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
     pulse_signal = dy.int32(phase) == k
 
     return pulse_signal
@@ -690,14 +701,15 @@ def signal_step_wise_sequence( time_instance_indices, values, time_scale=None, c
     # check wether to step to the next sample
     increase_index = dy.int32(0)
     increase_index = dy.conditional_overwrite(increase_index, counter >= index_to_check, dy.int32(1) )
-    current_index << dy.counter_triggered(upper_limit=len(time_instance_indices), stepwidth=increase_index, reset=reset )
 
+    cnt_, _ = dy.counter_triggered(upper_limit=len(time_instance_indices), stepwidth=increase_index, reset=reset )
+    current_index << cnt_
     val = dy.memory_read(values_mem, current_index)
 
     return val
 
 
-def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True ):
+def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_on_end:bool=False, start_trigger=None, pause_trigger=None, auto_start:bool=True, no_delay:bool=False ):
     """Play a given sequence of samples
 
     Parameters
@@ -734,11 +746,14 @@ def play( sequence_array,  stepwidth=None, initial_state = 0, reset=None, reset_
     # else:
         
 
-    playback_index = counter_triggered( upper_limit=np.size(sequence_array)-1, 
-                                        stepwidth=stepwidth, initial_state=initial_state, 
-                                        reset=reset, reset_on_limit=reset_on_end, 
-                                        start_trigger=start_trigger, pause_trigger=pause_trigger, 
-                                        auto_start=auto_start)
+    playback_index, _ = counter_triggered(
+        upper_limit=np.size(sequence_array)-1, 
+        stepwidth=stepwidth, initial_state=initial_state, 
+        reset=reset, reset_on_limit=reset_on_end, 
+        start_trigger=start_trigger, pause_trigger=pause_trigger, 
+        auto_start=auto_start,
+        no_delay=no_delay
+    )
 
     # sample the given data
     sample = dy.memory_read(sequence_array_storage, playback_index)

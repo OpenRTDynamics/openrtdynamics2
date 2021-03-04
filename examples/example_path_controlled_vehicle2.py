@@ -259,7 +259,7 @@ steering_disturbance = steering_disturbance * disturbance_amplitude
 # disturbed_steering = steering + steering_disturbance * disturbance_amplitude
 
 # # steering angle limit (model-intern)
-# disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, uppper_limit=math.pi/2.0)
+# disturbed_steering = dy.saturate(u=disturbed_steering, lower_limit=-math.pi/2.0, upper_limit=math.pi/2.0)
 
 # the model of the vehicle
 # x_, y_, psi_, x_dot, y_dot, psi_dot = discrete_time_bicycle_model(disturbed_steering, velocity, Ts, wheelbase)
