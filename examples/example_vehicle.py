@@ -113,7 +113,7 @@ dy.set_primary_outputs([ x, y, psi, reference, steering, error ], ['x', 'y', 'ps
 
 
 
-code_gen_results = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=True)
+code_gen_results = dy.generate_code(template=dy.TargetWasm(), folder="generated/", build=True)
 sourcecode, manifest = code_gen_results['sourcecode'], code_gen_results['manifest']
 
 

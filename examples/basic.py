@@ -15,7 +15,7 @@ output = dy.delay(tmp)
 dy.append_primay_ouput(output, 'outputs')
 
 # generate code
-code_gen_results = dy.generate_code(template=dy.WasmRuntime(), folder="generated/", build=False)
+code_gen_results = dy.generate_code(template=dy.TargetWasm(), folder="generated/", build=False)
 sourcecode, manifest = code_gen_results['sourcecode'], code_gen_results['manifest']
 
 # clear workspace

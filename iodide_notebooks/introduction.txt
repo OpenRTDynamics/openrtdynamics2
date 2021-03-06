@@ -43,7 +43,7 @@ chain_output3 = dy.dtf_lowpass_1_order(chain_output2,  z_infinity=0.9 )
 dy.set_primary_outputs([ chain_output1, chain_output2, chain_output3 ], [ 'chain_output1', 'chain_output2', 'chain_output3' ] )
 
 # compile
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 # reset
 dy.clear()
@@ -96,7 +96,7 @@ controlled_variable << plant_output
 dy.set_primary_outputs([ plant_output, control_error, control_variable ], [ 'plant_output', 'control_error', 'control_variable' ])
 
 # compile
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 # reset
 dy.clear()
@@ -175,7 +175,7 @@ angular_velocity  << angular_velocity_
 dy.set_primary_outputs([ angle, angular_velocity ], [ 'angle', 'angular_velocity' ])
 
 # compile
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 # reset
 dy.clear()
@@ -250,7 +250,7 @@ psi  << euler_integrator(psi_dot, sampling_rate, 0.0)
 dy.set_primary_outputs([ x, y, psi ], ['x','y','psi'])
 
 # compile
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 # reset
 dy.clear()
@@ -387,7 +387,7 @@ psi  << euler_integrator(psi_dot, sampling_rate, 0.0)
 dy.set_primary_outputs([ x, y, psi, reference, steering, error ], ['x', 'y', 'psi', 'refrence', 'steering', 'error'])
 
 # compile
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 # reset
 dy.clear()

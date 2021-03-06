@@ -51,7 +51,7 @@ def _generate_algorithm_code( compile_results, enable_tracing=False, included_sy
 
 
 
-class PutRuntimeCppHelper:
+class TargetGenericCpp:
     """
         generates code for the runtime environment
     """
@@ -181,16 +181,16 @@ class PutRuntimeCppHelper:
 
 
 
-class PutBasicRuntimeCpp(PutRuntimeCppHelper):
+class TargetBasicExecutable(TargetGenericCpp):
     """
-        generates code for the runtime evironment
+        generates code for the runtime environment
     """
 
     def __init__(self, i_max : int, input_signals_mapping = {} ):
 
         self._i_max = i_max
 
-        PutRuntimeCppHelper.__init__(self)
+        TargetGenericCpp.__init__(self)
 
         self.input_signals_mapping = input_signals_mapping
         self.initCodeTemplate()
@@ -199,7 +199,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
     def code_gen(self):
 
         # call helper to fill in some generic elements into the template
-        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+        code_gen_results = TargetGenericCpp.code_gen(self)
 
         #
         # make strings 
@@ -219,7 +219,7 @@ class PutBasicRuntimeCpp(PutRuntimeCppHelper):
         return code_gen_results
 
     def write_code(self, folder):
-        PutRuntimeCppHelper.writeFiles(self, folder)
+        TargetGenericCpp.writeFiles(self, folder)
 
         self.codeFolder = folder
 
@@ -321,7 +321,7 @@ int main () {
 
 
 
-class WasmRuntime(PutRuntimeCppHelper):
+class TargetWasm(TargetGenericCpp):
     """
         generates code for the Webassemble runtime environment
 
@@ -331,7 +331,7 @@ class WasmRuntime(PutRuntimeCppHelper):
 
     def __init__(self, enable_tracing = False ):
 
-        PutRuntimeCppHelper.__init__(self, enable_tracing=enable_tracing)
+        TargetGenericCpp.__init__(self, enable_tracing=enable_tracing)
 
         self.initCodeTemplate()
 
@@ -348,7 +348,7 @@ class WasmRuntime(PutRuntimeCppHelper):
                                                                  inputConstAssignment=''    ) 
 
         # call helper to fill in some generic elements into the template
-        code_gen_results = PutRuntimeCppHelper.code_gen(self)
+        code_gen_results = TargetGenericCpp.code_gen(self)
 
         self.sourceCode = self.template
 
@@ -392,7 +392,7 @@ class WasmRuntime(PutRuntimeCppHelper):
 
     def write_code(self, folder):
 
-        PutRuntimeCppHelper.writeFiles(self, folder)
+        TargetGenericCpp.writeFiles(self, folder)
 
         self.codeFolder = folder
 

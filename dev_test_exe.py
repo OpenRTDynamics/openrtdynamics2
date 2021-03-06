@@ -1135,10 +1135,10 @@ compile_results = dy.compile_system()
 
 
 # Build an executable based on a template
-runtime_template = dy.WasmRuntime()
+runtime_template = dy.TargetWasm()
 runtime_template.set_compile_results(compile_results)
 
-#runtime_template = dy.PutBasicRuntimeCpp(input_signals_mapping=input_signals_mapping)
+#runtime_template = dy.TargetBasicExecutable(input_signals_mapping=input_signals_mapping)
 
 
 # optional: add (pre-compiled) systems from the libraries

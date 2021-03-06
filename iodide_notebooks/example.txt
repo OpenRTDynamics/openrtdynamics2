@@ -91,7 +91,7 @@ state_control = switch.state.set_name('state_control')
 # set the outputs of the system
 dy.set_primary_outputs([ output_x, output_v, state_control, counter ])
 
-sourcecode, manifest = dy.generate_code(template=dy.WasmRuntime())
+sourcecode, manifest = dy.generate_code(template=dy.TargetWasm())
 
 %% md
 

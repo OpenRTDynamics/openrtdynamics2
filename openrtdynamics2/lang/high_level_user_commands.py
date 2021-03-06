@@ -1,6 +1,6 @@
 from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
-from .code_generation_templates import PutRuntimeCppHelper
+from .code_generation_templates import TargetGenericCpp
 from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
 
 import os
@@ -106,7 +106,7 @@ def show_execution_lines(compile_results):
     compile_results.command_to_execute.print_execution()
 
 
-def generate_code(template : PutRuntimeCppHelper, folder=None, build=False, include_code_list : t.List[str] = [] ):
+def generate_code(template : TargetGenericCpp, folder=None, build=False, include_code_list : t.List[str] = [] ):
 
     template.add_code_to_include(include_code_list)
 
