@@ -484,7 +484,7 @@ def delay__(u : SignalUserTemplate, initial_state = None):
     return wrap_signal( Delay(dy.get_system_context(), u.unwrap, initial_state ).outputs[0] )
 
 
-def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUserTemplate, initial_state = False, nodelay = False):
+def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUserTemplate, initial_state = False, no_delay = False):
     """Flipflop logic element
 
     The block has a state that can be activated or deactivated by the external boolean events 'activate_trigger'
@@ -498,7 +498,7 @@ def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUser
         the event to deactivate the state
     initial_state : bool       
         the initial state
-    nodelay : bool
+    no_delay : bool
         return the state change without a delay 
 
     Returns
@@ -508,7 +508,7 @@ def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUser
 
     """
     
-    return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, nodelay=nodelay ).outputs[0] )
+    return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, no_delay=no_delay ).outputs[0] )
 
 
 

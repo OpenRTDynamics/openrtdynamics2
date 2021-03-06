@@ -415,7 +415,7 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
 
     # state for pause/counting
-    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start, nodelay=True).set_name('paused')
+    paused =  dy.flipflop(activate_trigger=activate_trigger, disable_trigger=start_trigger, initial_state = not auto_start, no_delay=True).set_name('paused')
 
     # prevent counter increase
     stepwidth = dy.conditional_overwrite(stepwidth, paused, 0).set_name('stepwidth')
@@ -442,7 +442,7 @@ def counter_triggered( upper_limit, stepwidth=None, initial_state = 0, reset=Non
 
 
 
-def toggle(trigger, initial_state=False, nodelay=False):
+def toggle(trigger, initial_state=False, no_delay=False):
     """Toggle a state based on an event
 
     Parameters
@@ -452,7 +452,7 @@ def toggle(trigger, initial_state=False, nodelay=False):
         the signal to trigger a state change
     initial_state : int
         the initial state
-    nodelay : bool
+    no_delay : bool
         when true the toggle immediately reacts to a trigger (default: false)
 
     Returns
@@ -476,9 +476,9 @@ def toggle(trigger, initial_state=False, nodelay=False):
 
     state_ = dy.flipflop( activate, deactivate, 
                             initial_state = 0, 
-                            nodelay=nodelay )
+                            no_delay=no_delay )
 
-    if not nodelay:
+    if not no_delay:
         state << state_
     else:
         state << dy.delay(state_)
@@ -513,7 +513,7 @@ def signal_square(period, phase):
 
     # k, trigger = counter_triggered( upper_limit=dy.int32(period) - dy.int32(1), reset_on_limit=True )
 
-    state, activate, deactivate = toggle(trigger, nodelay=True)
+    state, activate, deactivate = toggle(trigger, no_delay=True)
 
     return state, activate, deactivate
 

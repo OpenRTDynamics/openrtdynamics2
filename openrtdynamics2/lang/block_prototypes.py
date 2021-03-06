@@ -1091,9 +1091,9 @@ class Delay(bi.BlockPrototype):
 
 
 class Flipflop(bi.BlockPrototype):
-    def __init__(self, sim : System, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, nodelay = False ):
+    def __init__(self, sim : System, activate_trigger : Signal, disable_trigger : Signal, initial_state = False, no_delay = False ):
 
-        self._nodelay = nodelay
+        self._no_delay = no_delay
         self._activate_trigger = activate_trigger
         self._disable_trigger  = disable_trigger
         self._initial_state    = initial_state
@@ -1107,7 +1107,7 @@ class Flipflop(bi.BlockPrototype):
     def config_request_define_feedforward_input_dependencies(self, outputSignal):
         # return a list of input signals on which the given output signal depends on
 
-        if self._nodelay:
+        if self._no_delay:
             # (direct feedtrough) dependence on all inputs
             return self.inputs
         else:
@@ -1128,7 +1128,7 @@ class Flipflop(bi.BlockPrototype):
             state_varname = self.getUniqueVarnamePrefix() + '_state'
 
             lines = signals[0].name + ' = ' + state_varname + ';\n'
-            if self._nodelay:
+            if self._no_delay:
                 lines += signals[0].name + ' = ' + self.inputs[0].name + ' ? true : ' + signals[0].name + ';\n'
                 lines += signals[0].name + ' = ' + self.inputs[1].name + ' ? false : ' + signals[0].name + ';\n'
 
