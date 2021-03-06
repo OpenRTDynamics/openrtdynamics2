@@ -140,14 +140,65 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
 
     E=BuildExecutionPath()
 
-
     print("determining the computation order...")
 
-
-    # collect all execution lines with:
+    # append all execution lines to this structure
     executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
 
-    # for all requested output singals
+
+
+
+
+
+
+    #
+    # look for blocks mandatory to be computed (e.g., sink blocks)
+    # and the required signals. NOTE: currently only sinks are supported
+    # that are triggered on state update.
+    #
+
+    sink_blocks_using_state_update = []
+    inputs_through_state_update_for_sinks = []
+
+    for blk in system.blocks_in_system:
+        if blk.output_signals is not None:
+            if len(blk.output_signals) == 0: # no output signals --> must be a sink
+
+                # print(Style.BRIGHT, "found a sink-type block", blk.name)
+
+                inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
+                if inputs_to_update_states_tmp is not None:
+                    # a sink that needs inputs for its state update
+                    sink_blocks_using_state_update.append(blk)
+
+                    # print("signals needed *indirectly* to compute sink (through state update)" )
+
+                    # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+                    resolveUndeterminedSignals( inputs_to_update_states_tmp )
+
+                    # add the signals that are required to perform the state update
+                    inputs_through_state_update_for_sinks.extend( inputs_to_update_states_tmp )
+
+                    # for signal in inputsToUpdateStatesTmp:
+                    #     print(Fore.MAGENTA + "-> S " + signal.name )
+
+
+
+    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
+
+    # add
+    executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
+
+
+
+
+
+
+
+
+    #
+    # look for output signals to be computed
+    #
 
     signals_to_compute = set()
     signals_to_compute.update( set(outputSignals) )
@@ -163,6 +214,13 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
         # merge all lines into one
         # TODO use sets inside 'appendExecutionLine' some block are present twiche
         executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+
+
+
+
+
+
+
 
 
 
@@ -202,7 +260,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
 
         if isinstance(s, BlockOutputSignal) and not s.is_crossing_system_boundary(system):
 
-            # only implement caching for intermediate computaion results.
+            # only implement caching for intermediate computation results.
             # I.e. exclude the simulation input signals
 
             signalsToCache.append( s )
@@ -227,10 +285,10 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
     simulationInputSignalsToUpdateStates = set()
 
     # the list of blocks that are updated. Note: So far this list is only used to prevent
-    # double uodates.
+    # double updates.
     blocksWhoseStatesToUpdate_All = []
 
-    # find out which singnals must be further computed to allow a state-update of the blocks
+    # find out which signals must be further computed to allow a state-update of the blocks
     dependencySignals__ = dependencySignalsThroughStates + simulationInputSignalsToCalculateOutputs
 
     dependency_signals_through_states_that_are_already_computed = set()

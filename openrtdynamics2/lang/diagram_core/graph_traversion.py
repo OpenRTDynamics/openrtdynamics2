@@ -152,7 +152,14 @@ class ExecutionLine():
         'dependencySignals'.
     """
 
-    def __init__(self, signalOrder : List[ Signal ] , dependencySignals : List[ Signal ], dependencySignalsSimulationInputs : List[ Signal ], blocksToUpdateStates : List[ Block ], dependencySignalsThroughStates : List[ Signal ] ):
+    def __init__(
+        self,
+        signalOrder : List[ Signal ],
+        dependencySignals : List[ Signal ],
+        dependencySignalsSimulationInputs : List[ Signal ],
+        blocksToUpdateStates : List[ Block ],
+        dependencySignalsThroughStates : List[ Signal ]
+    ):
         self.signalOrder                       = signalOrder
         self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
@@ -489,7 +496,7 @@ class BuildExecutionPath:
 
             # block startSignal.getSourceBlock() --> startSignal is a starting point
 
-            # startSignal is at the top of the tree, so add it to the dependiencies
+            # startSignal is at the top of the tree, so add it to the dependencies
             self.dependencySignals.append( startSignal )
 
             #

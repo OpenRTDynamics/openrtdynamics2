@@ -48,7 +48,7 @@ class Block:
 
 
         # initialize the empty list of output signals
-        self.OutputSignals = []
+        self.output_signals = []
 
         # used by graph_traversion as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = False
@@ -76,7 +76,7 @@ class Block:
         return self.graphTraversionMarker
 
     def configOutputSignals(self, signals):
-        self.OutputSignals = signals
+        self.output_signals = signals
 
     def verifyInputSignals(self, ignore_signals_with_datatype_inheritance = False):
         # check the input signals for proper connections to other blocks or simulation inputs
@@ -119,10 +119,10 @@ class Block:
         proposedOutputSingalTypes = self.blockPrototype.config_request_define_output_types( inputSignalTypes )
 
         # update all signals accordingly
-        for i in range(0, len(self.OutputSignals)):
+        for i in range(0, len(self.output_signals)):
 
             if proposedOutputSingalTypes[i] is not None:
-                signal = self.OutputSignals[i]
+                signal = self.output_signals[i]
                 signal.setProposedDatatype(  proposedOutputSingalTypes[i]  )
 
         return
@@ -158,7 +158,7 @@ class Block:
         return self.inputSignals
 
     def getOutputSignals(self):
-        return self.OutputSignals
+        return self.output_signals
 
 
 

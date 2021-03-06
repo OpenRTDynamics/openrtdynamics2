@@ -9,13 +9,14 @@ import json
 from pathlib import Path
 
 
-def generate_algorithm_code( compile_results, enable_tracing=False, included_systems={} ):
+def _generate_algorithm_code( compile_results, enable_tracing=False, included_systems={}, include_code_list : List[str] = [] ):
     """
         generate code for the given compile result
 
-        compile_results  - the compilation results of the a system
-        enable_tracing   - include debuging
-        included_systems - unused so far
+        compile_results    - the compilation results of the a system
+        enable_tracing     - include debuging
+        included_systems   - unused so far
+        include_code_list  - list of strings containing code to include
     """
 
     main_command = compile_results.command_to_execute
@@ -26,6 +27,11 @@ def generate_algorithm_code( compile_results, enable_tracing=False, included_sys
     if enable_tracing:
         # TODO: instead of putting True create an obj with a tracing infrastructure. So far printf is used automatically
         main_command.command_to_put_main_system.set_tracing_infrastructure(True)
+
+    # concatenate the custom code to include
+    if include_code_list is not None:
+        for code in include_code_list:
+            algorithm_code += '// custom code\n' + code + '\n// end of custom code\n\n'
 
     # combine (concatenate) the code from the library entries
     for include in included_systems:
@@ -62,11 +68,12 @@ class PutRuntimeCppHelper:
         # those are set via set_compile_results after a system is compiled
         self.compileResults = None
         self.main_command = None
+        self._include_code_list = None
 
         #
         self._algorithm_code = None
 
-        # list of inlcuded system
+        # list of systems to include
         self._includedSystems = []
 
         self._enable_tracing = enable_tracing
@@ -77,6 +84,9 @@ class PutRuntimeCppHelper:
 
     def include_systems(self, system : SystemLibraryEntry):
         self._includedSystems = system
+
+    def add_code_to_include(self, include_code_list : List[str] = []):
+        self._include_code_list = include_code_list
 
     def get_algorithm_code(self):
         """
@@ -89,7 +99,12 @@ class PutRuntimeCppHelper:
     def code_gen(self):
 
         # generate code for the algorithm
-        self.manifest, self._algorithm_code = generate_algorithm_code(self.compileResults, self._enable_tracing, self._includedSystems)
+        self.manifest, self._algorithm_code = _generate_algorithm_code(
+            self.compileResults, 
+            self._enable_tracing, 
+            self._includedSystems, 
+            self._include_code_list
+        )
 
         
         # TODO: iterate over all functions present in the API of the system

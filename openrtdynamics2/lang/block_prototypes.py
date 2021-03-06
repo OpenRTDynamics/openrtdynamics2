@@ -760,34 +760,56 @@ class StaticFnByName_2To1(bi.StaticFn_NTo1):
 
 
 
-class GenericCppStatic(bi.BlockPrototype):
-    def __init__(self, sim : System, input_signals : List[Signal], input_names : List [str], input_types, output_names : List[str], output_types, cpp_source_code : str ):
 
-        Ninputs = len(input_names)
 
-        if not Ninputs == len(input_types):
-            raise BaseException('not Ninputs == len(input_types)')
 
-        if not Ninputs == len(input_signals):
-            raise BaseException('not Ninputs == len)(input_signals)')
 
-        if not len(output_names) == len(output_types):
-            raise BaseException('not len(output_names) == len(output_types)')
+
+
+
+
+class GenericCppFunctionCall(bi.BlockPrototype):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_types, 
+        output_types, 
+        function_name_to_calc_outputs : str,
+        function_name_to_update_states : str = None,
+        function_name_to_reset_states : str = None,
+        additional_inputs = [],
+
+    ):
+
+        self._number_of_inputs = len(input_signals)
+
+        if not self._number_of_inputs == len(input_types):
+            raise BaseException('not number_of_inputs == len(input_types)')
 
         self._input_signals = input_signals
-        self._input_names = input_names
         self._input_types = input_types
-        self._output_names = output_names
         self._output_types = output_types
-        self._cpp_source_code = cpp_source_code
 
-        bi.BlockPrototype.__init__(self, sim, input_signals, len(output_names), output_types  )
+        bi.BlockPrototype.__init__(self, system, input_signals + additional_inputs, len(output_types), output_types)
 
-        self._static_function_name = 'fn_static_' + str(self.id)
+        self._function_name_to_calc_outputs  = function_name_to_calc_outputs
+        self._function_name_to_update_states = function_name_to_update_states
+        self._function_name_to_reset_states  = function_name_to_reset_states
+
+
+        if function_name_to_update_states is not None or function_name_to_reset_states is not None:
+            self._static_block_only = False
+        else:
+            self._static_block_only = True
+
+    @property
+    def normal_inputs(self):
+        return self.inputs[0:self._number_of_inputs]
 
     def config_request_define_output_types(self, inputTypes):
-
-        for i in range(0, len(inputTypes)):
+        # check of the input types given on call of this function match the configured ones
+        for i in range(0, self._number_of_inputs):
             if inputTypes[i] is not None and not inputTypes[i].is_equal_to( self._input_types[i] ):
                 raise BaseException('GenericCppStatic: datatype missmatch for input # ' + str(i) )
 
@@ -798,11 +820,108 @@ class GenericCppStatic(bi.BlockPrototype):
         # return a list of input signals on which the given output signal depends on
 
         # the output depends on all inputs
-        return self.inputs 
+        return self.inputs
 
     def config_request_define_state_update_input_dependencies(self, outputSignal):
         # return a list of input signals that are required to update the states
-        return None  # no states
+        if self._static_block_only:
+            return None  # no states and, hence, no dependencies for a block input
+        else:
+            return self.inputs # a state update depends on all input signals (might be refined in the future)
+
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+
+        if language == 'c++':
+            if self._function_name_to_calc_outputs is not None:
+                ilines = ''
+
+                # create tmp output variables
+                tmp_output_variable_names = []
+                for i in range(0, len(self._output_types)):
+                    tmpname = self.getUniqueVarnamePrefix()
+                    tmp_variable_name = tmpname + '_out' + str(i)
+
+                    tmp_output_variable_names.append( tmp_variable_name )
+                    ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
+
+                # function call
+                ilines += cgh.call_function_from_varnames( self._function_name_to_calc_outputs, cgh.signal_list_to_name_list(self.normal_inputs), tmp_output_variable_names)
+
+                # copy outputs from tmp variables
+                for i in range(0, len(self._output_types)):
+
+                    # only copy the needed outputs as indicated by 'signals'
+                    if self.outputs[i] in signals:
+                        ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
+
+                return '{ // calling the custom c++ function ' + self._function_name_to_calc_outputs + '\n' + cgh.indent(ilines) + '}\n'
+            else:
+                return ''
+
+    def generate_code_update(self, language):
+        if language == 'c++':
+            if self._function_name_to_update_states is not None:
+
+                ilines = ''
+
+                # function call
+                ilines += cgh.call_function_from_varnames( self._function_name_to_update_states, cgh.signal_list_to_name_list(self.normal_inputs), None)
+
+                return '{ // calling the custom c++ function ' + self._function_name_to_update_states + '\n' + cgh.indent(ilines) + '}\n'
+            else:
+                return ''
+
+
+    def generate_code_reset(self, language):
+        if language == 'c++':
+            if self._function_name_to_reset_states is not None:
+
+                ilines = ''
+
+                # function call
+                ilines += cgh.call_function_from_varnames( self._function_name_to_reset_states, None, None)
+
+                # return '{ // calling the custom c++ function ' + self._function_name_to_reset_states + '\n' + cgh.indent(ilines) + '}\n'
+
+                return '// NOT IMPLEMENTED: calling the custom c++ function\n'
+            else:
+                return ''
+
+
+
+
+class GenericCppStatic(GenericCppFunctionCall):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_names : List [str], 
+        input_types, 
+        output_names : List[str], 
+        output_types, 
+        cpp_source_code : str
+    ):
+
+        if not len(input_names) == len(input_signals):
+            raise BaseException('not len(input_names) == len(input_signals)')
+
+        if not len(output_names) == len(output_types):
+            raise BaseException('not len(output_names) == len(output_types)')
+
+        GenericCppFunctionCall.__init__(
+            self,
+            system,
+            input_signals, input_types,
+            output_types,
+            function_name_to_calc_outputs = None
+        )
+
+        self._cpp_source_code = cpp_source_code
+        self._static_function_name = 'fn_static_' + str(self.id)
+
+        #
+        self._function_name_to_calc_outputs = self._static_function_name
+
 
     def codegen_addToNamespace(self, language):
 
@@ -816,30 +935,93 @@ class GenericCppStatic(bi.BlockPrototype):
 
             return ilines
 
-    def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
+
+
+
+class AllocateClass(bi.BlockPrototype):
+    def __init__(self, system : System, datatype, code_constructor_call ):
+
+        self._code_constructor_call = code_constructor_call
+        self._datatype = datatype
+
+        bi.BlockPrototype.__init__(self, system, [], 1, output_datatype_list=[datatype])
+
+    def config_request_define_output_types(self, inputTypes):
+        return [ self._datatype ]        
+
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+        return [  ]
+
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
+        # return a list of input signals that are required to update the states
+        return [  ]  # all inputs
+
+    def generate_code_defStates(self, language):
         if language == 'c++':
 
-            ilines = ''
+            pointer_datatype = self.outputs[0].datatype
 
-            # create tmp output variables
-            tmp_output_variable_names = []
-            for i in range(0, len(self._output_names)):
-                tmp_variable_name = self._static_function_name + '_' + self._output_names[i]
-                tmp_output_variable_names.append( tmp_variable_name )
-                ilines += self._output_types[i].cpp_define_variable(variable_name=tmp_variable_name) + ';\n'
+            code = pointer_datatype.cpp_datatype_string_class + ' ' + self.getUniqueVarnamePrefix() + '_instance' + ' = ' + self._code_constructor_call + ';\n'
+            code += pointer_datatype.cpp_define_variable( self.getUniqueVarnamePrefix() + '_ptr' ) + ' = &' + self.getUniqueVarnamePrefix() + '_instance' + ';\n'
 
-            # function call
-            ilines += cgh.call_function_from_varnames( self._static_function_name, cgh.signal_list_to_name_list(self.inputs), tmp_output_variable_names)
+            return code
 
-            # copy outputs from tmp variables
-            for i in range(0, len(self._output_names)):
+    def generate_code_output_list(self, language, signals : List [ Signal ] ):
+        if language == 'c++':
+            return signals[0].name + ' = ' + self.getUniqueVarnamePrefix() + '_ptr' + ';\n'
 
-                # only copy the needed outputs as indicated by 'signals'
-                if self.outputs[i] in signals:
-                    ilines += self.outputs[i].name + ' = ' + tmp_output_variable_names[i] + ';\n'
+    def generate_code_update(self, language):
+        if language == 'c++':
+            return ''
 
-            return '{ // calling the static function ' + self._static_function_name + '\n' + cgh.indent(ilines) + '}\n'
+    def generate_code_reset(self, language):
+        if language == 'c++':
+            return self.getUniqueVarnamePrefix() + '_ptr' + '->reset();\n'
+
+
+class CallClassMemberFunction(GenericCppFunctionCall):
+    def __init__(
+        self, 
+        system : System, 
+        input_signals : List[Signal], 
+        input_types, 
+        output_types, 
+        ptr_signal : Signal, 
+        member_function_name_to_calc_outputs : str = None,
+        member_function_name_to_update_states : str = None,
+        member_function_name_to_reset_states : str = None,
+    ):
+
+        if member_function_name_to_calc_outputs is not None:
+            function_name_to_calc_outputs = ptr_signal.name + '->' + member_function_name_to_calc_outputs
+        else:
+            function_name_to_calc_outputs = None
+
+        if member_function_name_to_update_states is not None:
+            function_name_to_update_states = ptr_signal.name + '->' + member_function_name_to_update_states
+        else:
+            function_name_to_update_states = None
+
+        if member_function_name_to_reset_states is not None:
+            function_name_to_reset_states = ptr_signal.name + '->' + member_function_name_to_reset_states
+        else:
+            function_name_to_reset_states = None
+
+        GenericCppFunctionCall.__init__(
+            self, 
+            system, 
+
+            input_signals, input_types, 
+            output_types,
+
+            function_name_to_calc_outputs  = function_name_to_calc_outputs,
+            function_name_to_update_states = function_name_to_update_states,
+            function_name_to_reset_states  = function_name_to_reset_states,
+
+            additional_inputs = [ptr_signal]
+        )
+
 
 
 
