@@ -1,0 +1,1823 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.core_blocks API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.core_blocks</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .block_prototypes import *
+from .signal_interface import SignalUserTemplate, wrap_signal, wrap_signal_list, unwrap_hash, unwrap_list, unwrap
+from . import system_context as dy
+from .diagram_core import datatypes as dt
+
+from typing import Dict, List
+
+
+&#34;&#34;&#34;
+    Core functions which directly point to blocks (implementation in, e.g., c++) 
+&#34;&#34;&#34;
+
+
+def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
+    return wrap_signal_list( GenericSubsystem(dy.get_system_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )
+
+def const(constant, datatype ):
+    return wrap_signal( Const(dy.get_system_context(), constant, datatype).outputs[0] )
+
+def gain(u : SignalUserTemplate, gain : float ):
+    return wrap_signal( Gain(dy.get_system_context(), u.unwrap, gain).outputs[0] )
+
+def convert(u : SignalUserTemplate, target_type : dt.DataType ):
+    &#34;&#34;&#34;
+    Datatype conversion
+
+    The input is converted to the given datatype
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the input signal
+    target_type
+        the datatype to convert the signal to
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal with the given type
+    &#34;&#34;&#34;
+    return wrap_signal( ConvertDatatype(dy.get_system_context(), u.unwrap, target_type).outputs[0] )
+
+def add(input_signals : List[SignalUserTemplate], factors : List[float]):
+    &#34;&#34;&#34;
+    Linear combination of the list of input signals with the list of factors
+
+    the output is given by
+
+        input_signals[0] * factors[0] + input_signals[1] * factors[1] + ...
+    &#34;&#34;&#34;
+    return wrap_signal( Add(dy.get_system_context(), unwrap_list( input_signals ), factors).outputs[0] )
+
+def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
+    return wrap_signal( Operator1(dy.get_system_context(), unwrap_list( inputSignals ), operator).outputs[0] )
+
+
+#
+# logic operators
+#
+
+def logic_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical and
+
+        u1 &amp;&amp; u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=&#39; &amp;&amp; &#39;).outputs[0] )
+
+def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical or
+    
+        u1 || u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; || &#39;).outputs[0] )
+
+
+def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        exclusive logical or (xor)
+    
+        u1 ^ u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; ^ &#39;).outputs[0] )
+
+
+def bitwise_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        bitwise and
+
+        u1 &amp; u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=&#39; &amp; &#39;).outputs[0] )
+
+def bitwise_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        bitwise or
+    
+        u1 | u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; | &#39;).outputs[0] )
+
+
+def bitwise_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical shift left
+    
+        u &lt;&lt; shift
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=&#39; &lt;&lt; &#39;).outputs[0] )
+
+
+def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical shift left
+    
+        u &gt;&gt; shift
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=&#39; &gt;&gt; &#39;).outputs[0] )
+
+
+
+
+
+
+
+
+
+def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
+    return wrap_signal( ComparisionOperator(dy.get_system_context(), left.unwrap, right.unwrap, operator).outputs[0] )
+
+def switchNto1( state : SignalUserTemplate, inputs : List[SignalUserTemplate] ):
+    &#34;&#34;&#34;N to one signal switch
+
+    returns 
+
+        inputs[0]  for state == 1
+        inputs[1]  for state == 2
+        inputs[2]  for state == 3
+           ...
+
+    Parameters
+    ----------
+    state : SignalUserTemplate
+        the state of the switch  
+    inputs : List[SignalUserTemplate]
+        the input signals among which to switch
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the switch
+    &#34;&#34;&#34;
+    return wrap_signal( SwitchNto1(dy.get_system_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
+
+def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
+    &#34;&#34;&#34;
+    Overwrite the input signal by a given value in case a condition is true
+
+    The output is given by
+
+        signal     for condition==false
+        new_value  for condition==true
+
+    Parameters
+    ----------
+    signal : SignalUserTemplate
+        the input signal
+    condition : SignalUserTemplate
+        the boolean condition for when to overwrite signal
+    new_value : SignalUserTemplate, float, int
+        the value with is used to replace the input in case the condition is true
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+    &#34;&#34;&#34;
+
+    if isinstance(new_value, SignalUserTemplate):
+        new_value = new_value.unwrap
+
+    return wrap_signal( ConditionalOverwrite(dy.get_system_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
+
+def sqrt(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Square root
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;sqrt&#39;).outputs[0] )
+
+def sin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;sin&#39;).outputs[0] )
+
+def cos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;cos&#39;).outputs[0] )
+
+def tan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;tan&#39;).outputs[0] )
+
+def atan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;atan&#39;).outputs[0] )
+
+def asin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;asin&#39;).outputs[0] )
+
+def acos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;acos&#39;).outputs[0] )
+
+def abs(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Absolute value
+
+    Computes the absolute value |u|.
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;abs&#39;).outputs[0] )
+
+
+
+def logic_not(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Logic negation
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the boolean input signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the boolean output signal
+
+    Details
+    -------
+    returns 
+        !u
+    &#34;&#34;&#34;
+    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, &#39;!&#39;).outputs[0] )
+
+def bitwise_not(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Bitwise not operator
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the integer input signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the integer output signal
+
+    Details
+    -------
+    returns 
+        ~u
+    &#34;&#34;&#34;
+    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, &#39;~&#39;).outputs[0] )
+
+
+def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        atan2
+
+        This function returns atan2(x,y).
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+        returns 
+            atan2(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), y.unwrap, x.unwrap, &#39;atan2&#39;).outputs[0] )
+
+def pow(x : SignalUserTemplate, y : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        Power function for floating point values
+
+        This function returns the x to the power of y (x^y).
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+            returns pow(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, &#39;pow&#39;).outputs[0] )
+
+def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        Modulo function for floating point values
+
+        This function returns the remainder of dividing x/y.
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+            returns fmod(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, &#39;fmod&#39;).outputs[0] )
+
+
+
+
+
+
+
+def cpp_allocate_class(datatype, code_constructor_call):
+    &#34;&#34;&#34;
+        Return a pointer signal pointing to a class instance initialized by code_constructor_call
+
+        Parameters
+        ----------
+        ptr_signal : DataTypePointer
+            the datatype of the pointer to use
+        code_constructor_call : str
+            the code to initialize the class instance
+
+    &#34;&#34;&#34;
+    return wrap_signal( AllocateClass(dy.get_system_context(), datatype, code_constructor_call).outputs[0] )
+
+
+
+def cpp_call_class_member_function(
+    ptr_signal : SignalUserTemplate, 
+        
+    input_signals : List[SignalUserTemplate], input_types, 
+    output_types,
+
+    member_function_name_to_calc_outputs : str = None,
+    member_function_name_to_update_states : str = None,
+    member_function_name_to_reset_states : str = None
+
+):
+    &#34;&#34;&#34;
+        Call member functions of a c++ class
+
+        This function calls member functions of a class instance given by a pointer to an instance.
+        In- and outputs are passed as parameters to the member function given by
+        &#39;member_function_name_to_calc_outputs&#39;. Herein, the output signals are the first parameters
+        and the input signals then follow.
+
+        On an optional state update call, the member function &#39;member_function_name_to_update_states&#39;
+        is called and the parameters are the input signals.
+
+        Parameters
+        ----------
+        ptr_signal : SignalUserTemplate
+            the pointer to the class instance as generated by cpp_allocate_class()
+        input_signals : SignalUserTemplate
+            a list of input signals that are passed to the called member functions via the parameters
+        input_types : List[ Datatype ]
+            the datatypes of the inputs
+        output_types : List[ Datatype ]
+            the datatypes of the outputs
+        member_function_name_to_calc_outputs : str
+            the name of the member function to call to compute the output signals
+        member_function_name_to_update_states : str
+            optional: the name of the member function to call to update the states
+
+        Returns
+        -------
+        List[SignalUserTemplate|
+            the output signals
+
+    &#34;&#34;&#34;
+    bp = CallClassMemberFunction(
+        dy.get_system_context(), 
+        unwrap_list(input_signals), 
+        input_types, 
+        output_types, 
+        ptr_signal = ptr_signal.unwrap,
+
+        member_function_name_to_calc_outputs  = member_function_name_to_calc_outputs,
+        member_function_name_to_update_states = member_function_name_to_update_states,
+        member_function_name_to_reset_states  = member_function_name_to_reset_states
+    )
+    return wrap_signal_list( bp.outputs )
+
+
+
+def generic_cpp_static(
+    input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
+    output_names, output_types, 
+    cpp_source_code : str
+):
+    &#34;&#34;&#34;
+    Embed C/C++ source code (stateless code only)
+
+    Parameters
+    ----------
+    input_signals : List[SignalUserTemplate]
+        the list of input signals
+    input_names : List[str]
+        the list of the names of the input signals to be used as variable names for the c++ code
+    input_types : List[Datatype]
+        the list of the datatypes of the input signals (must be fixed)
+    output_types : List[Datatype]
+        the list of the datatypes of the output signals (must be fixed)
+    output_names : List[str]
+        the list of the names of the output signals to be used as variable names for the c++ code
+    cpp_source_code : str
+        the code to embed
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        the output signals
+
+    Example
+    -------
+
+        source_code = \&#34;\&#34;\&#34;
+
+            // This is c++ code
+            output1 = value;
+            if (someinput &gt; value) {
+                output2 = value;
+            } else {
+                output2 = someinput;
+            }
+            output3 = 0.0;
+
+        \&#34;\&#34;\&#34;
+
+        outputs = dy.generic_cpp_static(
+            input_signals=[ someinput, value ], input_names=[ &#39;someinput&#39;, &#39;value&#39; ], 
+            input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+            output_names=[&#39;output1&#39;, &#39;output2&#39;, &#39;output3&#39;],
+            output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+            cpp_source_code = source_code
+        )
+
+        output1 = outputs[0]
+        output2 = outputs[1]
+        output3 = outputs[2]
+    &#34;&#34;&#34;
+    return wrap_signal_list( GenericCppStatic(dy.get_system_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
+
+def delay__(u : SignalUserTemplate, initial_state = None):
+    return wrap_signal( Delay(dy.get_system_context(), u.unwrap, initial_state ).outputs[0] )
+
+
+def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUserTemplate, initial_state = False, no_delay = False):
+    &#34;&#34;&#34;Flipflop logic element
+
+    The block has a state that can be activated or deactivated by the external boolean events &#39;activate_trigger&#39;
+    and &#39;disable_trigger&#39;, respectively.
+
+    Parameters
+    ----------
+    activate_trigger : SignalUserTemplate       
+        the event to activate the state
+    disable_trigger : SignalUserTemplate       
+        the event to deactivate the state
+    initial_state : bool       
+        the initial state
+    no_delay : bool
+        return the state change without a delay 
+
+    Returns
+    -------
+    SignalUserTemplate
+        the state
+
+    &#34;&#34;&#34;
+    
+    return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, no_delay=no_delay ).outputs[0] )
+
+
+
+
+def memory(datatype, constant_array, write_index : SignalUserTemplate = None, value : SignalUserTemplate = None):
+    &#34;&#34;&#34;
+    Define an array for storing and reading values
+
+    Allocates static memory for an array of elements given a datatype.
+    During each sampling instant, one element can be (over)written. 
+
+    Parameters
+    ----------
+    datatype : Datatype       
+        the datatype of the array elements
+    constant_array : List[float], List[int]
+        list of constants that contain the data to initialize the array
+    write_index : SignalUserTemplate
+        the array index (integer signal) of the element to replace by value (optional)
+    value : SignalUserTemplate
+        the value to write into the array at write_index (optional)
+
+    returns a reference to the memory segment which is accessible by memory_read()
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        a reference to the memory segment which is accessible by memory_read()
+
+
+    Limitations
+    -----------
+    currently the memory is not reset on subsystem reset. This will change.
+    &#34;&#34;&#34;
+
+    if write_index is not None and value is not None:
+        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
+    elif write_index is None and value is None:
+        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array).outputs[0] )
+    else:
+        raise BaseException(&#39;memory: write_index and value were not properly defined&#39;)
+
+def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Read an element from an array defined by memory()
+
+    Parameters
+    ----------
+    memory : SignalUserTemplate
+        the memory as returned by memory()
+    index : SignalUserTemplate
+        the index indicating the element to read
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        returns the value of the element
+    &#34;&#34;&#34;
+    return wrap_signal( MemoryRead(dy.get_system_context(), memory.unwrap, index.unwrap ).outputs[0] )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.core_blocks.abs"><code class="name flex">
+<span>def <span class="ident">abs</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Absolute value</p>
+<p>Computes the absolute value |u|.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def abs(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Absolute value
+
+    Computes the absolute value |u|.
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;abs&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.acos"><code class="name flex">
+<span>def <span class="ident">acos</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def acos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;acos&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>input_signals: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>], factors: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Linear combination of the list of input signals with the list of factors</p>
+<p>the output is given by</p>
+<pre><code>input_signals[0] * factors[0] + input_signals[1] * factors[1] + ...
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(input_signals : List[SignalUserTemplate], factors : List[float]):
+    &#34;&#34;&#34;
+    Linear combination of the list of input signals with the list of factors
+
+    the output is given by
+
+        input_signals[0] * factors[0] + input_signals[1] * factors[1] + ...
+    &#34;&#34;&#34;
+    return wrap_signal( Add(dy.get_system_context(), unwrap_list( input_signals ), factors).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.asin"><code class="name flex">
+<span>def <span class="ident">asin</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def asin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;asin&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.atan"><code class="name flex">
+<span>def <span class="ident">atan</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def atan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;atan&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.atan2"><code class="name flex">
+<span>def <span class="ident">atan2</span></span>(<span>y: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, x: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>atan2</p>
+<p>This function returns atan2(x,y).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>x</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>y</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal</dd>
+</dl>
+<h2 id="details">Details</h2>
+<p>returns
+atan2(x,y)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        atan2
+
+        This function returns atan2(x,y).
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+        returns 
+            atan2(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), y.unwrap, x.unwrap, &#39;atan2&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.bitwise_and"><code class="name flex">
+<span>def <span class="ident">bitwise_and</span></span>(<span>u1: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, u2: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>bitwise and</p>
+<p>u1 &amp; u2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitwise_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        bitwise and
+
+        u1 &amp; u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=&#39; &amp; &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.bitwise_not"><code class="name flex">
+<span>def <span class="ident">bitwise_not</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Bitwise not operator</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>u</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the integer input signal</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the integer output signal</dd>
+</dl>
+<h2 id="details">Details</h2>
+<p>returns
+~u</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitwise_not(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Bitwise not operator
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the integer input signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the integer output signal
+
+    Details
+    -------
+    returns 
+        ~u
+    &#34;&#34;&#34;
+    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, &#39;~&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.bitwise_or"><code class="name flex">
+<span>def <span class="ident">bitwise_or</span></span>(<span>u1: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, u2: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>bitwise or</p>
+<p>u1 | u2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitwise_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        bitwise or
+    
+        u1 | u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; | &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.bitwise_shift_left"><code class="name flex">
+<span>def <span class="ident">bitwise_shift_left</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, shift: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>logical shift left</p>
+<p>u &lt;&lt; shift</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitwise_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical shift left
+    
+        u &lt;&lt; shift
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=&#39; &lt;&lt; &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.bitwise_shift_right"><code class="name flex">
+<span>def <span class="ident">bitwise_shift_right</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, shift: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>logical shift left</p>
+<p>u &gt;&gt; shift</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical shift left
+    
+        u &gt;&gt; shift
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=&#39; &gt;&gt; &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.comparison"><code class="name flex">
+<span>def <span class="ident">comparison</span></span>(<span>left: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, right: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, operator: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
+    return wrap_signal( ComparisionOperator(dy.get_system_context(), left.unwrap, right.unwrap, operator).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.conditional_overwrite"><code class="name flex">
+<span>def <span class="ident">conditional_overwrite</span></span>(<span>signal: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, condition: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, new_value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Overwrite the input signal by a given value in case a condition is true</p>
+<p>The output is given by</p>
+<pre><code>signal     for condition==false
+new_value  for condition==true
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>signal</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the input signal</dd>
+<dt><strong><code>condition</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the boolean condition for when to overwrite signal</dd>
+<dt><strong><code>new_value</code></strong> :&ensp;<code>SignalUserTemplate, float, int</code></dt>
+<dd>the value with is used to replace the input in case the condition is true</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
+    &#34;&#34;&#34;
+    Overwrite the input signal by a given value in case a condition is true
+
+    The output is given by
+
+        signal     for condition==false
+        new_value  for condition==true
+
+    Parameters
+    ----------
+    signal : SignalUserTemplate
+        the input signal
+    condition : SignalUserTemplate
+        the boolean condition for when to overwrite signal
+    new_value : SignalUserTemplate, float, int
+        the value with is used to replace the input in case the condition is true
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+    &#34;&#34;&#34;
+
+    if isinstance(new_value, SignalUserTemplate):
+        new_value = new_value.unwrap
+
+    return wrap_signal( ConditionalOverwrite(dy.get_system_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.const"><code class="name flex">
+<span>def <span class="ident">const</span></span>(<span>constant, datatype)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def const(constant, datatype ):
+    return wrap_signal( Const(dy.get_system_context(), constant, datatype).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.convert"><code class="name flex">
+<span>def <span class="ident">convert</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, target_type: <a title="openrtdynamics2.lang.diagram_core.datatypes.datatypes.DataType" href="diagram_core/datatypes/datatypes.html#openrtdynamics2.lang.diagram_core.datatypes.datatypes.DataType">DataType</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Datatype conversion</p>
+<p>The input is converted to the given datatype</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>u</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the input signal</dd>
+<dt><strong><code>target_type</code></strong></dt>
+<dd>the datatype to convert the signal to</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal with the given type</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert(u : SignalUserTemplate, target_type : dt.DataType ):
+    &#34;&#34;&#34;
+    Datatype conversion
+
+    The input is converted to the given datatype
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the input signal
+    target_type
+        the datatype to convert the signal to
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal with the given type
+    &#34;&#34;&#34;
+    return wrap_signal( ConvertDatatype(dy.get_system_context(), u.unwrap, target_type).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.cos"><code class="name flex">
+<span>def <span class="ident">cos</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cos(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;cos&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.cpp_allocate_class"><code class="name flex">
+<span>def <span class="ident">cpp_allocate_class</span></span>(<span>datatype, code_constructor_call)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a pointer signal pointing to a class instance initialized by code_constructor_call</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ptr_signal</code></strong> :&ensp;<code>DataTypePointer</code></dt>
+<dd>the datatype of the pointer to use</dd>
+<dt><strong><code>code_constructor_call</code></strong> :&ensp;<code>str</code></dt>
+<dd>the code to initialize the class instance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpp_allocate_class(datatype, code_constructor_call):
+    &#34;&#34;&#34;
+        Return a pointer signal pointing to a class instance initialized by code_constructor_call
+
+        Parameters
+        ----------
+        ptr_signal : DataTypePointer
+            the datatype of the pointer to use
+        code_constructor_call : str
+            the code to initialize the class instance
+
+    &#34;&#34;&#34;
+    return wrap_signal( AllocateClass(dy.get_system_context(), datatype, code_constructor_call).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.cpp_call_class_member_function"><code class="name flex">
+<span>def <span class="ident">cpp_call_class_member_function</span></span>(<span>ptr_signal: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, input_signals: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>], input_types, output_types, member_function_name_to_calc_outputs: str = None, member_function_name_to_update_states: str = None, member_function_name_to_reset_states: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call member functions of a c++ class</p>
+<p>This function calls member functions of a class instance given by a pointer to an instance.
+In- and outputs are passed as parameters to the member function given by
+'member_function_name_to_calc_outputs'. Herein, the output signals are the first parameters
+and the input signals then follow.</p>
+<p>On an optional state update call, the member function 'member_function_name_to_update_states'
+is called and the parameters are the input signals.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ptr_signal</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the pointer to the class instance as generated by cpp_allocate_class()</dd>
+<dt><strong><code>input_signals</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>a list of input signals that are passed to the called member functions via the parameters</dd>
+<dt><strong><code>input_types</code></strong> :&ensp;<code>List[ Datatype ]</code></dt>
+<dd>the datatypes of the inputs</dd>
+<dt><strong><code>output_types</code></strong> :&ensp;<code>List[ Datatype ]</code></dt>
+<dd>the datatypes of the outputs</dd>
+<dt><strong><code>member_function_name_to_calc_outputs</code></strong> :&ensp;<code>str</code></dt>
+<dd>the name of the member function to call to compute the output signals</dd>
+<dt><strong><code>member_function_name_to_update_states</code></strong> :&ensp;<code>str</code></dt>
+<dd>optional: the name of the member function to call to update the states</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[SignalUserTemplate|</code></dt>
+<dd>the output signals</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpp_call_class_member_function(
+    ptr_signal : SignalUserTemplate, 
+        
+    input_signals : List[SignalUserTemplate], input_types, 
+    output_types,
+
+    member_function_name_to_calc_outputs : str = None,
+    member_function_name_to_update_states : str = None,
+    member_function_name_to_reset_states : str = None
+
+):
+    &#34;&#34;&#34;
+        Call member functions of a c++ class
+
+        This function calls member functions of a class instance given by a pointer to an instance.
+        In- and outputs are passed as parameters to the member function given by
+        &#39;member_function_name_to_calc_outputs&#39;. Herein, the output signals are the first parameters
+        and the input signals then follow.
+
+        On an optional state update call, the member function &#39;member_function_name_to_update_states&#39;
+        is called and the parameters are the input signals.
+
+        Parameters
+        ----------
+        ptr_signal : SignalUserTemplate
+            the pointer to the class instance as generated by cpp_allocate_class()
+        input_signals : SignalUserTemplate
+            a list of input signals that are passed to the called member functions via the parameters
+        input_types : List[ Datatype ]
+            the datatypes of the inputs
+        output_types : List[ Datatype ]
+            the datatypes of the outputs
+        member_function_name_to_calc_outputs : str
+            the name of the member function to call to compute the output signals
+        member_function_name_to_update_states : str
+            optional: the name of the member function to call to update the states
+
+        Returns
+        -------
+        List[SignalUserTemplate|
+            the output signals
+
+    &#34;&#34;&#34;
+    bp = CallClassMemberFunction(
+        dy.get_system_context(), 
+        unwrap_list(input_signals), 
+        input_types, 
+        output_types, 
+        ptr_signal = ptr_signal.unwrap,
+
+        member_function_name_to_calc_outputs  = member_function_name_to_calc_outputs,
+        member_function_name_to_update_states = member_function_name_to_update_states,
+        member_function_name_to_reset_states  = member_function_name_to_reset_states
+    )
+    return wrap_signal_list( bp.outputs )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.delay__"><code class="name flex">
+<span>def <span class="ident">delay__</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, initial_state=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delay__(u : SignalUserTemplate, initial_state = None):
+    return wrap_signal( Delay(dy.get_system_context(), u.unwrap, initial_state ).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.flipflop"><code class="name flex">
+<span>def <span class="ident">flipflop</span></span>(<span>activate_trigger: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, disable_trigger: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, initial_state=False, no_delay=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Flipflop logic element</p>
+<p>The block has a state that can be activated or deactivated by the external boolean events 'activate_trigger'
+and 'disable_trigger', respectively.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>activate_trigger</code></strong> :&ensp;<code>SignalUserTemplate
+</code></dt>
+<dd>the event to activate the state</dd>
+<dt><strong><code>disable_trigger</code></strong> :&ensp;<code>SignalUserTemplate
+</code></dt>
+<dd>the event to deactivate the state</dd>
+<dt><strong><code>initial_state</code></strong> :&ensp;<code>bool
+</code></dt>
+<dd>the initial state</dd>
+<dt><strong><code>no_delay</code></strong> :&ensp;<code>bool</code></dt>
+<dd>return the state change without a delay</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the state</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUserTemplate, initial_state = False, no_delay = False):
+    &#34;&#34;&#34;Flipflop logic element
+
+    The block has a state that can be activated or deactivated by the external boolean events &#39;activate_trigger&#39;
+    and &#39;disable_trigger&#39;, respectively.
+
+    Parameters
+    ----------
+    activate_trigger : SignalUserTemplate       
+        the event to activate the state
+    disable_trigger : SignalUserTemplate       
+        the event to deactivate the state
+    initial_state : bool       
+        the initial state
+    no_delay : bool
+        return the state change without a delay 
+
+    Returns
+    -------
+    SignalUserTemplate
+        the state
+
+    &#34;&#34;&#34;
+    
+    return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, no_delay=no_delay ).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.fmod"><code class="name flex">
+<span>def <span class="ident">fmod</span></span>(<span>x: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, y: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Modulo function for floating point values</p>
+<p>This function returns the remainder of dividing x/y.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>x</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>y</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal</dd>
+</dl>
+<h2 id="details">Details</h2>
+<pre><code>returns fmod(x,y)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        Modulo function for floating point values
+
+        This function returns the remainder of dividing x/y.
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+            returns fmod(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, &#39;fmod&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.gain"><code class="name flex">
+<span>def <span class="ident">gain</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, gain: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gain(u : SignalUserTemplate, gain : float ):
+    return wrap_signal( Gain(dy.get_system_context(), u.unwrap, gain).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.generic_cpp_static"><code class="name flex">
+<span>def <span class="ident">generic_cpp_static</span></span>(<span>input_signals: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>], input_names: List[str], input_types, output_names, output_types, cpp_source_code: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Embed C/C++ source code (stateless code only)</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>input_signals</code></strong> :&ensp;<code>List[SignalUserTemplate]</code></dt>
+<dd>the list of input signals</dd>
+<dt><strong><code>input_names</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>the list of the names of the input signals to be used as variable names for the c++ code</dd>
+<dt><strong><code>input_types</code></strong> :&ensp;<code>List[Datatype]</code></dt>
+<dd>the list of the datatypes of the input signals (must be fixed)</dd>
+<dt><strong><code>output_types</code></strong> :&ensp;<code>List[Datatype]</code></dt>
+<dd>the list of the datatypes of the output signals (must be fixed)</dd>
+<dt><strong><code>output_names</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>the list of the names of the output signals to be used as variable names for the c++ code</dd>
+<dt><strong><code>cpp_source_code</code></strong> :&ensp;<code>str</code></dt>
+<dd>the code to embed</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[SignalUserTemplate]</code></dt>
+<dd>the output signals</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>source_code = """
+
+    // This is c++ code
+    output1 = value;
+    if (someinput &gt; value) {
+        output2 = value;
+    } else {
+        output2 = someinput;
+    }
+    output3 = 0.0;
+
+"""
+
+outputs = dy.generic_cpp_static(
+    input_signals=[ someinput, value ], input_names=[ 'someinput', 'value' ], 
+    input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+    output_names=['output1', 'output2', 'output3'],
+    output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+    cpp_source_code = source_code
+)
+
+output1 = outputs[0]
+output2 = outputs[1]
+output3 = outputs[2]
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generic_cpp_static(
+    input_signals : List[SignalUserTemplate], input_names : List [str], input_types, 
+    output_names, output_types, 
+    cpp_source_code : str
+):
+    &#34;&#34;&#34;
+    Embed C/C++ source code (stateless code only)
+
+    Parameters
+    ----------
+    input_signals : List[SignalUserTemplate]
+        the list of input signals
+    input_names : List[str]
+        the list of the names of the input signals to be used as variable names for the c++ code
+    input_types : List[Datatype]
+        the list of the datatypes of the input signals (must be fixed)
+    output_types : List[Datatype]
+        the list of the datatypes of the output signals (must be fixed)
+    output_names : List[str]
+        the list of the names of the output signals to be used as variable names for the c++ code
+    cpp_source_code : str
+        the code to embed
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        the output signals
+
+    Example
+    -------
+
+        source_code = \&#34;\&#34;\&#34;
+
+            // This is c++ code
+            output1 = value;
+            if (someinput &gt; value) {
+                output2 = value;
+            } else {
+                output2 = someinput;
+            }
+            output3 = 0.0;
+
+        \&#34;\&#34;\&#34;
+
+        outputs = dy.generic_cpp_static(
+            input_signals=[ someinput, value ], input_names=[ &#39;someinput&#39;, &#39;value&#39; ], 
+            input_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ], 
+            output_names=[&#39;output1&#39;, &#39;output2&#39;, &#39;output3&#39;],
+            output_types=[ dy.DataTypeFloat64(1), dy.DataTypeFloat64(1), dy.DataTypeFloat64(1) ],
+            cpp_source_code = source_code
+        )
+
+        output1 = outputs[0]
+        output2 = outputs[1]
+        output3 = outputs[2]
+    &#34;&#34;&#34;
+    return wrap_signal_list( GenericCppStatic(dy.get_system_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.generic_subsystem"><code class="name flex">
+<span>def <span class="ident">generic_subsystem</span></span>(<span>manifest, inputSignals: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
+    return wrap_signal_list( GenericSubsystem(dy.get_system_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.logic_and"><code class="name flex">
+<span>def <span class="ident">logic_and</span></span>(<span>u1: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, u2: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>logical and</p>
+<p>u1 &amp;&amp; u2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logic_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical and
+
+        u1 &amp;&amp; u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=&#39; &amp;&amp; &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.logic_not"><code class="name flex">
+<span>def <span class="ident">logic_not</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Logic negation</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>u</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the boolean input signal</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the boolean output signal</dd>
+</dl>
+<h2 id="details">Details</h2>
+<p>returns
+!u</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logic_not(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Logic negation
+
+    Parameters
+    ----------
+    u : SignalUserTemplate
+        the boolean input signal
+
+    Returns
+    -------
+    SignalUserTemplate
+        the boolean output signal
+
+    Details
+    -------
+    returns 
+        !u
+    &#34;&#34;&#34;
+    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, &#39;!&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.logic_or"><code class="name flex">
+<span>def <span class="ident">logic_or</span></span>(<span>u1: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, u2: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>logical or</p>
+<p>u1 || u2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        logical or
+    
+        u1 || u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; || &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.logic_xor"><code class="name flex">
+<span>def <span class="ident">logic_xor</span></span>(<span>u1: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, u2: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>exclusive logical or (xor)</p>
+<p>u1 ^ u2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
+    &#34;&#34;&#34;
+        exclusive logical or (xor)
+    
+        u1 ^ u2
+    &#34;&#34;&#34;
+
+    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=&#39; ^ &#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.memory"><code class="name flex">
+<span>def <span class="ident">memory</span></span>(<span>datatype, constant_array, write_index: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a> = None, value: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a> = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Define an array for storing and reading values</p>
+<p>Allocates static memory for an array of elements given a datatype.
+During each sampling instant, one element can be (over)written. </p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>datatype</code></strong> :&ensp;<code>Datatype
+</code></dt>
+<dd>the datatype of the array elements</dd>
+<dt><strong><code>constant_array</code></strong> :&ensp;<code>List[float], List[int]</code></dt>
+<dd>list of constants that contain the data to initialize the array</dd>
+<dt><strong><code>write_index</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the array index (integer signal) of the element to replace by value (optional)</dd>
+<dt><strong><code>value</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the value to write into the array at write_index (optional)</dd>
+</dl>
+<p>returns a reference to the memory segment which is accessible by memory_read()</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[SignalUserTemplate]</code></dt>
+<dd>a reference to the memory segment which is accessible by memory_read()</dd>
+</dl>
+<h2 id="limitations">Limitations</h2>
+<p>currently the memory is not reset on subsystem reset. This will change.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def memory(datatype, constant_array, write_index : SignalUserTemplate = None, value : SignalUserTemplate = None):
+    &#34;&#34;&#34;
+    Define an array for storing and reading values
+
+    Allocates static memory for an array of elements given a datatype.
+    During each sampling instant, one element can be (over)written. 
+
+    Parameters
+    ----------
+    datatype : Datatype       
+        the datatype of the array elements
+    constant_array : List[float], List[int]
+        list of constants that contain the data to initialize the array
+    write_index : SignalUserTemplate
+        the array index (integer signal) of the element to replace by value (optional)
+    value : SignalUserTemplate
+        the value to write into the array at write_index (optional)
+
+    returns a reference to the memory segment which is accessible by memory_read()
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        a reference to the memory segment which is accessible by memory_read()
+
+
+    Limitations
+    -----------
+    currently the memory is not reset on subsystem reset. This will change.
+    &#34;&#34;&#34;
+
+    if write_index is not None and value is not None:
+        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
+    elif write_index is None and value is None:
+        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array).outputs[0] )
+    else:
+        raise BaseException(&#39;memory: write_index and value were not properly defined&#39;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.memory_read"><code class="name flex">
+<span>def <span class="ident">memory_read</span></span>(<span>memory: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, index: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read an element from an array defined by memory()</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>memory</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the memory as returned by memory()</dd>
+<dt><strong><code>index</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the index indicating the element to read</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[SignalUserTemplate]</code></dt>
+<dd>returns the value of the element</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Read an element from an array defined by memory()
+
+    Parameters
+    ----------
+    memory : SignalUserTemplate
+        the memory as returned by memory()
+    index : SignalUserTemplate
+        the index indicating the element to read
+
+    Returns
+    -------
+    List[SignalUserTemplate]
+        returns the value of the element
+    &#34;&#34;&#34;
+    return wrap_signal( MemoryRead(dy.get_system_context(), memory.unwrap, index.unwrap ).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.operator1"><code class="name flex">
+<span>def <span class="ident">operator1</span></span>(<span>inputSignals: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>], operator: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
+    return wrap_signal( Operator1(dy.get_system_context(), unwrap_list( inputSignals ), operator).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.pow"><code class="name flex">
+<span>def <span class="ident">pow</span></span>(<span>x: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, y: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Power function for floating point values</p>
+<p>This function returns the x to the power of y (x^y).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>x</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>y</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal</dd>
+</dl>
+<h2 id="details">Details</h2>
+<pre><code>returns pow(x,y)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pow(x : SignalUserTemplate, y : SignalUserTemplate ):
+    &#34;&#34;&#34;
+        Power function for floating point values
+
+        This function returns the x to the power of y (x^y).
+
+        Parameters
+        ----------
+        x : SignalUserTemplate
+            x
+        y : SignalUserTemplate
+            y
+
+        Returns
+        -------
+        SignalUserTemplate
+            the output signal
+
+        Details
+        -------
+            returns pow(x,y)
+
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, &#39;pow&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.sin"><code class="name flex">
+<span>def <span class="ident">sin</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sin(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;sin&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.sqrt"><code class="name flex">
+<span>def <span class="ident">sqrt</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Square root</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sqrt(u : SignalUserTemplate ):
+    &#34;&#34;&#34;
+    Square root
+    &#34;&#34;&#34;
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;sqrt&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.switchNto1"><code class="name flex">
+<span>def <span class="ident">switchNto1</span></span>(<span>state: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>, inputs: List[<a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>N to one signal switch</p>
+<p>returns </p>
+<pre><code>inputs[0]  for state == 1
+inputs[1]  for state == 2
+inputs[2]  for state == 3
+   ...
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>state</code></strong> :&ensp;<code>SignalUserTemplate</code></dt>
+<dd>the state of the switch</dd>
+<dt><strong><code>inputs</code></strong> :&ensp;<code>List[SignalUserTemplate]</code></dt>
+<dd>the input signals among which to switch</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>SignalUserTemplate</code></dt>
+<dd>the output signal of the switch</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def switchNto1( state : SignalUserTemplate, inputs : List[SignalUserTemplate] ):
+    &#34;&#34;&#34;N to one signal switch
+
+    returns 
+
+        inputs[0]  for state == 1
+        inputs[1]  for state == 2
+        inputs[2]  for state == 3
+           ...
+
+    Parameters
+    ----------
+    state : SignalUserTemplate
+        the state of the switch  
+    inputs : List[SignalUserTemplate]
+        the input signals among which to switch
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal of the switch
+    &#34;&#34;&#34;
+    return wrap_signal( SwitchNto1(dy.get_system_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.core_blocks.tan"><code class="name flex">
+<span>def <span class="ident">tan</span></span>(<span>u: <a title="openrtdynamics2.lang.signal_interface.SignalUserTemplate" href="signal_interface.html#openrtdynamics2.lang.signal_interface.SignalUserTemplate">SignalUserTemplate</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tan(u : SignalUserTemplate ):
+    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, &#39;tan&#39;).outputs[0] )</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang" href="index.html">openrtdynamics2.lang</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.core_blocks.abs" href="#openrtdynamics2.lang.core_blocks.abs">abs</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.acos" href="#openrtdynamics2.lang.core_blocks.acos">acos</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.add" href="#openrtdynamics2.lang.core_blocks.add">add</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.asin" href="#openrtdynamics2.lang.core_blocks.asin">asin</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.atan" href="#openrtdynamics2.lang.core_blocks.atan">atan</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.atan2" href="#openrtdynamics2.lang.core_blocks.atan2">atan2</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.bitwise_and" href="#openrtdynamics2.lang.core_blocks.bitwise_and">bitwise_and</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.bitwise_not" href="#openrtdynamics2.lang.core_blocks.bitwise_not">bitwise_not</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.bitwise_or" href="#openrtdynamics2.lang.core_blocks.bitwise_or">bitwise_or</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.bitwise_shift_left" href="#openrtdynamics2.lang.core_blocks.bitwise_shift_left">bitwise_shift_left</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.bitwise_shift_right" href="#openrtdynamics2.lang.core_blocks.bitwise_shift_right">bitwise_shift_right</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.comparison" href="#openrtdynamics2.lang.core_blocks.comparison">comparison</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.conditional_overwrite" href="#openrtdynamics2.lang.core_blocks.conditional_overwrite">conditional_overwrite</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.const" href="#openrtdynamics2.lang.core_blocks.const">const</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.convert" href="#openrtdynamics2.lang.core_blocks.convert">convert</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.cos" href="#openrtdynamics2.lang.core_blocks.cos">cos</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.cpp_allocate_class" href="#openrtdynamics2.lang.core_blocks.cpp_allocate_class">cpp_allocate_class</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.cpp_call_class_member_function" href="#openrtdynamics2.lang.core_blocks.cpp_call_class_member_function">cpp_call_class_member_function</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.delay__" href="#openrtdynamics2.lang.core_blocks.delay__">delay__</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.flipflop" href="#openrtdynamics2.lang.core_blocks.flipflop">flipflop</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.fmod" href="#openrtdynamics2.lang.core_blocks.fmod">fmod</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.gain" href="#openrtdynamics2.lang.core_blocks.gain">gain</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.generic_cpp_static" href="#openrtdynamics2.lang.core_blocks.generic_cpp_static">generic_cpp_static</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.generic_subsystem" href="#openrtdynamics2.lang.core_blocks.generic_subsystem">generic_subsystem</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.logic_and" href="#openrtdynamics2.lang.core_blocks.logic_and">logic_and</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.logic_not" href="#openrtdynamics2.lang.core_blocks.logic_not">logic_not</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.logic_or" href="#openrtdynamics2.lang.core_blocks.logic_or">logic_or</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.logic_xor" href="#openrtdynamics2.lang.core_blocks.logic_xor">logic_xor</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.memory" href="#openrtdynamics2.lang.core_blocks.memory">memory</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.memory_read" href="#openrtdynamics2.lang.core_blocks.memory_read">memory_read</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.operator1" href="#openrtdynamics2.lang.core_blocks.operator1">operator1</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.pow" href="#openrtdynamics2.lang.core_blocks.pow">pow</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.sin" href="#openrtdynamics2.lang.core_blocks.sin">sin</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.sqrt" href="#openrtdynamics2.lang.core_blocks.sqrt">sqrt</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.switchNto1" href="#openrtdynamics2.lang.core_blocks.switchNto1">switchNto1</a></code></li>
+<li><code><a title="openrtdynamics2.lang.core_blocks.tan" href="#openrtdynamics2.lang.core_blocks.tan">tan</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

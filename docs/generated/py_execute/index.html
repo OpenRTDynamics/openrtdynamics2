@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.py_execute API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.py_execute</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .py_execute import *
+
+__pdoc__ = {}
+__pdoc__[&#39;py_execute&#39;] = False
+#__all__ = [&#39;show_required_inputs&#39;]
+
+__all__ = [&#39;show_required_inputs&#39;, &#39;run_batch_simulation&#39;, &#39;SystemInstance&#39;, &#39;CompiledCode&#39;]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.py_execute.run_batch_simulation"><code class="name flex">
+<span>def <span class="ident">run_batch_simulation</span></span>(<span>system_instance: openrtdynamics2.py_execute.py_execute.SystemInstance, input_data, N, output_keys=None, reset_system=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run a simulation</p>
+<p>system_instance : SystemInstance - the instance of the system to simulate
+input_data
+- hash array containing the input data stored in arrays
+N
+- the number of steps to simulate
+output_keys
+- a list of output signals of which the traces are stored
+reset_system
+- reset the system before starting the simulation (if false, a
+previous simulation can be continued)</p>
+<h2 id="example-usage">Example usage:</h2>
+<p>testsim = SystemInstance(algorithm_sourcecode, manifest)</p>
+<h1 id="1-get-all-output-signals">1) Get all output signals</h1>
+<p>N=3000
+input_data = {'velocity' : 2*np.ones(N), 'time_scale' : 7 }
+sim_results_full = run_batch_simulation(testsim, input_data, N )</p>
+<h1 id="2-get-only-a-subset-of-the-output-signals">2) Get only a subset of the output signals</h1>
+<p>sim_results = run_batch_simulation(testsim, input_data, N,
+output_keys=['x', 'y', 'steering'] )</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_batch_simulation(system_instance : SystemInstance, input_data, N, output_keys=None, reset_system=True ):
+    &#34;&#34;&#34;
+        Run a simulation
+        
+        system_instance : SystemInstance - the instance of the system to simulate
+        input_data                       - hash array containing the input data stored in arrays
+        N                                - the number of steps to simulate
+        output_keys                      - a list of output signals of which the traces are stored
+        reset_system                     - reset the system before starting the simulation (if false, a
+                                           previous simulation can be continued)
+        
+    
+        Example usage:
+        --------------
+    
+        testsim = SystemInstance(algorithm_sourcecode, manifest)
+    
+        # 1) Get all output signals
+        
+        N=3000
+        input_data = {&#39;velocity&#39; : 2*np.ones(N), &#39;time_scale&#39; : 7 }
+        sim_results_full = run_batch_simulation(testsim, input_data, N )
+        
+        # 2) Get only a subset of the output signals
+        
+        sim_results = run_batch_simulation(testsim, input_data, N,  output_keys=[&#39;x&#39;, &#39;y&#39;, &#39;steering&#39;] )
+
+    &#34;&#34;&#34;
+    
+    # get memory for input signals 
+    inputs = system_instance.inputs
+    
+    #
+    if output_keys is None:
+        output_keys = system_instance.manifest[&#39;io&#39;][&#39;outputs&#39;][&#39;calculate_output&#39;][&#39;names&#39;]
+    
+    # allocate memory for output signals
+    storage = { k : np.zeros(N) for k in output_keys }
+
+    # detect single values in input_data which will be treated as constants
+    input_data_without_const_values = {}
+    for k in input_data.keys():
+
+        val = input_data[k]
+
+        if hasattr(inputs, k):
+            if type(val) == float or type(val) == int or np.size( val ) == 1:
+                setattr(inputs, k, val)
+                # print(&#39;set const value&#39;, val, &#39; for &#39;, k)
+            else:
+                input_data_without_const_values[k] = val
+
+                
+    # reset system 
+    if reset_system:
+        system_instance.reset_states()
+    
+    # start simulation
+    for i in range(0,N):
+        
+        for k in input_data_without_const_values.keys():
+            val = input_data_without_const_values[k][i]
+            setattr(inputs, k, val)
+
+        outputs = system_instance.calculate_outputs()
+        system_instance.update_states()
+
+        for k in output_keys:
+            val = getattr(outputs, k)
+            storage[k][i] = val
+
+    return storage</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.show_required_inputs"><code class="name flex">
+<span>def <span class="ident">show_required_inputs</span></span>(<span>testsim)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print a table containing all input signals as required by the simulator functions
+of the implemented system.</p>
+<p>system_instance : SystemInstance - the instance of the system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_required_inputs(testsim):
+    &#34;&#34;&#34;
+        Print a table containing all input signals as required by the simulator functions
+        of the implemented system.
+
+        system_instance : SystemInstance - the instance of the system
+    &#34;&#34;&#34;
+
+    from prettytable import PrettyTable
+
+    s_o_1 = testsim.manifest[&#39;io&#39;][&#39;inputs&#39;][&#39;calculate_output&#39;][&#39;names&#39;]
+    s_u = testsim.manifest[&#39;io&#39;][&#39;inputs&#39;][&#39;state_update&#39;][&#39;names&#39;]
+    s_r = testsim.manifest[&#39;io&#39;][&#39;inputs&#39;][&#39;reset&#39;][&#39;names&#39;]
+
+    all_signals = list(set(s_o_1 + s_u + s_r) )
+
+    table_rows = []
+    for k in all_signals:
+
+        o_1, u, r = &#39;&#39;, &#39;&#39;, &#39;&#39;
+
+        if k in s_o_1:
+            o_1 = &#39;X&#39;
+
+        if k in s_u:
+            u = &#39;X&#39;
+
+        if k in s_r:
+            r = &#39;X&#39;
+
+        row = [ k, o_1, u, r ]
+
+        table_rows.append(row)
+
+
+    x = PrettyTable()
+    x.field_names = [&#34;input signal,  needed for --&gt;&#34;, &#34;calc. outputs&#34;, &#34;update&#34;, &#34;reset&#34;]
+
+    x.add_rows(table_rows)
+
+    print(x)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.py_execute.CompiledCode"><code class="flex name class">
+<span>class <span class="ident">CompiledCode</span></span>
+<span>(</span><span>code_gen_results)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compile a system so that it can be instanciated and, hence, executed </p>
+<p>code_gen_results
+- the returned results of dy.generate_code</p>
+<p>Note: internally the c++ interpreter Cling C++ interpreter is used
+that is interfaced by Python via <a href="https://pypi.org/project/cppyy/">https://pypi.org/project/cppyy/</a> .</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompiledCode:
+    
+    def __init__(self, code_gen_results):
+        &#34;&#34;&#34;
+            Compile a system so that it can be instanciated and, hence, executed 
+        
+            code_gen_results  - the returned results of dy.generate_code
+
+            Note: internally the c++ interpreter Cling C++ interpreter is used
+            that is interfaced by Python via https://pypi.org/project/cppyy/ .
+        &#34;&#34;&#34;
+    
+        import cppyy
+
+        global system_instance_counter
+
+        #
+        # Note:
+        #
+        # Issue: https://bitbucket.org/wlav/cppyy/issues/295/q-reset-interpreter-or-multiple-instances
+        #
+        # Symbols once create in the cppyy.glb namespace cannot be deleted or overwritten.
+        # Therefore, all code is wrapped into a namespace with a unique name that involves a
+        # counter that increases for each call of cppyy.cppdef(src). Even if an instance of CompiledCode
+        # is destructed, the compiled c++ module remains in the cppyy.glb namespace, hence, over time
+        # symbols are accumulated. Hence, this is a memory leak. I do not know how to solve this.
+        #
+
+        ortd_auto_namespace_id = system_instance_counter
+        system_instance_counter = system_instance_counter + 1
+        
+        algorithm_sourcecode, manifest = code_gen_results[&#39;algorithm_sourcecode&#39;], code_gen_results[&#39;manifest&#39;]        
+        self._manifest = manifest        
+
+        # wrap all classes into a unique namespace
+        src = &#39;namespace &#39; + &#39;ortd_system_ns&#39; + str(ortd_auto_namespace_id) + &#39;{\n&#39; + algorithm_sourcecode + &#39;\n}&#39;
+
+        # send sourcecode to jit-compiler
+        cppyy.cppdef(src)
+
+        # load module and extract the main class &#39;simulation&#39;
+        cpp_class_of_system = getattr(cppyy.gbl, &#39;ortd_system_ns&#39; + str(ortd_auto_namespace_id) ).simulation
+
+        # store
+        self._cpp_class_of_system = cpp_class_of_system
+
+    @property
+    def system_class(self):
+        return self._cpp_class_of_system
+        
+    @property
+    def manifest(self):
+        return self._manifest</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.py_execute.CompiledCode.manifest"><code class="name">var <span class="ident">manifest</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def manifest(self):
+    return self._manifest</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.CompiledCode.system_class"><code class="name">var <span class="ident">system_class</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def system_class(self):
+    return self._cpp_class_of_system</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.py_execute.SystemInstance"><code class="flex name class">
+<span>class <span class="ident">SystemInstance</span></span>
+<span>(</span><span>compiled_code: openrtdynamics2.py_execute.py_execute.CompiledCode)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Instantiate a system so that it can be executed </p>
+<p>compiled_code
+- an instance of CompiledCode</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SystemInstance:
+    
+    def __init__(self, compiled_code : CompiledCode):
+        &#34;&#34;&#34;
+            Instantiate a system so that it can be executed 
+        
+            compiled_code   - an instance of CompiledCode
+        &#34;&#34;&#34;
+
+        self._compiled_code = compiled_code
+
+        system_class = compiled_code.system_class
+
+
+        # create an instance of the system
+        self._sim = system_class()
+
+        # create instances for the in- and output signals        
+        self.inputs = system_class.Inputs()
+        self.outputs = system_class.Outputs()
+        
+        fill_default_input_values( compiled_code.manifest, self.inputs )
+        
+        
+    def reset_states(self):
+        &#34;&#34;&#34;
+            reset all internal states of the system and all subsystems
+        &#34;&#34;&#34;
+        self._sim.step( self.outputs, self.inputs, 0, False, True )
+
+    def calculate_outputs(self):
+        self._sim.step( self.outputs, self.inputs, 1, False, False )
+        return self.outputs
+
+    def update_states(self):
+        self._sim.step( self.outputs, self.inputs, 0, True, False )
+
+    def single_step(self):
+        &#34;&#34;&#34;
+            perform one step and return the system outputs
+
+            Please note: the inputs must be via the member variable inputs before.
+        &#34;&#34;&#34;
+        res = self.calculate_outputs()
+        self.update_states()
+
+        return res
+
+        
+    @property
+    def instance(self):
+        return self._sim
+    
+    @property
+    def manifest(self):
+        return self._compiled_code.manifest</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.py_execute.SystemInstance.instance"><code class="name">var <span class="ident">instance</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def instance(self):
+    return self._sim</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.SystemInstance.manifest"><code class="name">var <span class="ident">manifest</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def manifest(self):
+    return self._compiled_code.manifest</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.py_execute.SystemInstance.calculate_outputs"><code class="name flex">
+<span>def <span class="ident">calculate_outputs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_outputs(self):
+    self._sim.step( self.outputs, self.inputs, 1, False, False )
+    return self.outputs</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.SystemInstance.reset_states"><code class="name flex">
+<span>def <span class="ident">reset_states</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>reset all internal states of the system and all subsystems</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset_states(self):
+    &#34;&#34;&#34;
+        reset all internal states of the system and all subsystems
+    &#34;&#34;&#34;
+    self._sim.step( self.outputs, self.inputs, 0, False, True )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.SystemInstance.single_step"><code class="name flex">
+<span>def <span class="ident">single_step</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>perform one step and return the system outputs</p>
+<p>Please note: the inputs must be via the member variable inputs before.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def single_step(self):
+    &#34;&#34;&#34;
+        perform one step and return the system outputs
+
+        Please note: the inputs must be via the member variable inputs before.
+    &#34;&#34;&#34;
+    res = self.calculate_outputs()
+    self.update_states()
+
+    return res</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.py_execute.SystemInstance.update_states"><code class="name flex">
+<span>def <span class="ident">update_states</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_states(self):
+    self._sim.step( self.outputs, self.inputs, 0, True, False )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2" href="../index.html">openrtdynamics2</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.py_execute.run_batch_simulation" href="#openrtdynamics2.py_execute.run_batch_simulation">run_batch_simulation</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.show_required_inputs" href="#openrtdynamics2.py_execute.show_required_inputs">show_required_inputs</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.py_execute.CompiledCode" href="#openrtdynamics2.py_execute.CompiledCode">CompiledCode</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.py_execute.CompiledCode.manifest" href="#openrtdynamics2.py_execute.CompiledCode.manifest">manifest</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.CompiledCode.system_class" href="#openrtdynamics2.py_execute.CompiledCode.system_class">system_class</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.py_execute.SystemInstance" href="#openrtdynamics2.py_execute.SystemInstance">SystemInstance</a></code></h4>
+<ul class="two-column">
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.calculate_outputs" href="#openrtdynamics2.py_execute.SystemInstance.calculate_outputs">calculate_outputs</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.instance" href="#openrtdynamics2.py_execute.SystemInstance.instance">instance</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.manifest" href="#openrtdynamics2.py_execute.SystemInstance.manifest">manifest</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.reset_states" href="#openrtdynamics2.py_execute.SystemInstance.reset_states">reset_states</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.single_step" href="#openrtdynamics2.py_execute.SystemInstance.single_step">single_step</a></code></li>
+<li><code><a title="openrtdynamics2.py_execute.SystemInstance.update_states" href="#openrtdynamics2.py_execute.SystemInstance.update_states">update_states</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

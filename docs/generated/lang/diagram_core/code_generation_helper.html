@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.diagram_core.code_generation_helper API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.diagram_core.code_generation_helper</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#
+# Helper functions related to c++ code generation
+#
+
+
+import textwrap as tw
+
+
+
+def tabs(N):
+    t = &#39;&#39;
+    for i in range(0,N):
+        t += &#39;  &#39;
+    
+    return t
+
+
+def indent(lines):
+
+    return tw.indent(lines, &#39;  &#39;)
+
+
+
+#
+#
+#
+
+
+# rename to signal_list_to_name_list
+def signal_list_to_name_list(signals):
+    names = []
+
+    for s in signals:
+        names.append( s.name )
+
+    return names
+
+
+# TODO: rename to comma_separated_names_string
+def signal_list_to_names_string(signals):
+    return &#39;, &#39;.join( signal_list_to_name_list(signals)  )
+
+
+
+
+
+#
+#
+#
+
+
+def signalListHelper_typeNames(signals):
+    typeNames = []
+
+    for s in signals:
+        typeNames.append( s.getDatatype().cpp_datatype_string )
+
+    return typeNames
+
+
+def signalListHelper_types(signals):
+    types = []
+
+    for s in signals:
+        types.append( s.getDatatype() )
+
+    return types
+
+
+
+#
+#
+#
+
+
+def defineVariable( signal, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a sting containing e.g.
+
+        &#39;double signalName&#39;
+    &#34;&#34;&#34;
+
+    return signal.getDatatype().cpp_define_variable( signal.name, make_a_reference )
+
+
+
+# rename to signalListHelper_CppVarDefStr --&gt; define_variable_list
+def define_variable_list(signals, make_a_reference = False):
+    vardefStr = []  # e.g. double y
+
+    for s in signals:
+        # e.g.: double y;
+        vardefStr.append( defineVariable(s, make_a_reference)  )
+
+    return vardefStr
+
+def defineVariables( signals, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a string containing e.g.
+
+        &#39;double signalName1;\n
+         double signalName2;\n&#39;
+    &#34;&#34;&#34;
+    elements = define_variable_list(signals, make_a_reference )
+
+    return &#39;;\n&#39;.join( elements ) + &#39;;\n&#39;
+
+
+
+
+
+
+def asign( from_signal_name, to_signal_name ):
+    &#34;&#34;&#34;
+        generate code to asign a value
+
+        - from_signal_name
+        - to_signal_name
+    &#34;&#34;&#34;
+    return to_signal_name + &#39; = &#39; + from_signal_name + &#39;;\n&#39;
+
+def define_variable_list_string(signals, make_a_reference = False):
+    return &#39;; &#39;.join( define_variable_list(signals, make_a_reference)  ) + &#39;;&#39;
+
+
+
+def generate_compare_equality_to_constant( language, signal_name, constant ):
+    return signal_name + &#39; == &#39; + str(constant)
+
+
+
+
+
+
+def define_variable_line( signal, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a sting containing e.g.
+
+        &#39;double signalName;\n&#39;
+    &#34;&#34;&#34;
+    element = define_variable_list([signal], make_a_reference )
+
+    return element[0] + &#39;;\n&#39;
+
+#
+#
+#
+
+def signalListHelper_printfPattern(signals):
+    printfPatterns = [] 
+
+    for s in signals:
+
+        # e.g. %f
+        printfPatterns.append( s.datatype.cpp_printf_pattern )
+    
+    return printfPatterns
+
+def signalListHelper_printfPattern_string(signals):
+    return &#39; &#39;.join( signalListHelper_printfPattern(signals) )
+
+
+
+
+# brackets
+def brackets(code):
+    return &#39;{\n&#39; + indent(code) + &#39;\n}\n&#39;
+
+def brackets_no_newline(code):
+    return &#39;{\n&#39; + indent(code) + &#39;\n}&#39;
+
+
+
+#
+#
+#
+
+
+def define_structure( name, signals ):
+    &#34;&#34;&#34;
+        define a structure given a name given a list of signals
+    &#34;&#34;&#34;
+#    tmp = defineVariables( signals )
+#    tmp = indent(tmp, &#39;  &#39;)
+#    return f&#39;struct { name }  {{\n{ tmp }}};\n\n&#39;
+
+    return &#39;struct &#39; + name + brackets_no_newline( defineVariables( signals )  ) + &#39;;\n&#39;
+    
+
+def define_struct_var( structName, structVarname ):
+    return structName + &#39; &#39; + structVarname + &#39;;\n&#39;
+
+def fillStruct( structName, structVarname, signals ):
+    &#34;&#34;&#34;
+        define an instance of a structure and assign values to the elements
+    &#34;&#34;&#34;
+
+    lines = &#39;&#39;
+
+    lines += define_struct_var( structName, structVarname )
+
+
+    for s in signals:
+        lines += structVarname + &#39;.&#39; + s.name + &#39; = &#39; + s.name + &#39;;\n&#39;
+
+    return lines
+
+def get_struct_elements( structVarname, signals ):
+    # get list of e.g. &#39;outputs.y1&#39;, &#39;outputs.y2&#39;
+
+    structElements = []
+
+    for s in signals:
+        structElements.append( structVarname + &#39;.&#39; + s.name  )
+
+    return structElements
+
+def build_function_arguments_for_signal_io_with_struct(input_signals, output_signals, input_struct_varname, output_struct_varname):
+
+    # build arguments for function call
+    if len(output_signals) &gt; 0 or len(input_signals) &gt; 0:
+
+        output_arguments = get_struct_elements( output_struct_varname, output_signals )
+        input_arguments = get_struct_elements( input_struct_varname, input_signals )
+
+        arguments_string = &#39;&#39;
+        if len(output_arguments) &gt; 0:
+            arguments_string += &#39;, &#39;.join( output_arguments )
+
+        if len(output_arguments) &gt; 0 and len(input_arguments) &gt; 0:
+            arguments_string += &#39;,   &#39;                    
+
+        if len(input_arguments) &gt; 0:
+            arguments_string += &#39;, &#39;.join( input_arguments )
+
+    else:
+        arguments_string = &#39;&#39;
+
+    return arguments_string
+
+
+#
+# control flow
+#
+def generate_if_else(language, condition_list, action_list):
+
+    N = len(condition_list)
+
+    lines = &#39;if (&#39; + condition_list[0] + &#39;) {\n&#39; + indent( action_list[0] )
+
+
+    if len(action_list) == 1:
+        lines += &#39;\n}\n&#39;
+
+        return lines
+
+    else:
+
+        for i in range(1, N):
+            lines += &#39;\n} else if (&#39; + condition_list[i] + &#39;) {\n&#39; + indent( action_list[i] )
+
+
+    if len(action_list) == N + 1:
+        lines += &#39;\n} else {\n&#39; + indent( action_list[ N ] ) + &#39;\n}\n&#39;
+
+    elif len(action_list) == N:
+        lines += &#39;\n}\n&#39;
+
+    else:
+        raise BaseException(&#34;missmatch of the number of actions and conditions&#34;)
+
+    return lines
+
+
+
+
+
+def generate_loop_break(language, condition, code_before_break = None):
+    &#34;&#34;&#34;
+        break a loop (to be used with generate_loop)
+
+        condition  - the condition to break the loop
+    &#34;&#34;&#34;
+    code_to_run = &#39;&#39;
+    if code_before_break is not None:
+        code_to_run += code_before_break + &#39;\n&#39;
+
+    code_to_run += &#39;break;&#39;
+
+    abort_code = generate_if_else(language, condition_list=[condition], action_list=[ code_to_run ])
+
+    return abort_code
+
+
+def generate_loop( language, max_iterations, code_to_exec  ):
+    &#34;&#34;&#34;
+        generate a loop
+
+        - max_iterations - the maximal number of loop iterations
+        - code_to_exec   - the code to execute in the loop
+    &#34;&#34;&#34;
+
+    lines = &#39;for (int i = 0; i &lt; &#39; + max_iterations + &#39;; ++i) &#39; + brackets_no_newline( code_to_exec ) + &#39;;\n&#39;
+    return lines
+
+
+
+
+def cpp_define_generic_function(fn_name, return_cpp_type_str, arg_list_str, code):
+    &#34;&#34;&#34;
+        generate code for a c++ generic c++ function
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += return_cpp_type_str + &#39; &#39; + fn_name + &#39;(&#39; + arg_list_str + &#39;) {\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;}\n&#39;
+
+    return lines
+
+
+def cpp_define_function(fn_name, input_signals, output_signals, code):
+    &#34;&#34;&#34;
+        generate code for a c++ function using in- and output signals
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += &#39;void &#39; + fn_name + &#39;(&#39;
+
+    # put the parameter list e.g. double &amp; y1, double &amp; y2, u1, u2
+    elements = []
+        
+    elements.extend( define_variable_list( output_signals, make_a_reference=True ) )
+    elements.extend( define_variable_list( input_signals ) )
+
+    lines += &#39;, &#39;.join(elements)
+    lines +=  &#39;) { // created by cpp_define_function\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;}\n&#39;
+
+    return lines
+
+
+def cpp_define_function_from_types(fn_name, input_types, input_names, output_types, output_names, code):
+    &#34;&#34;&#34;
+        generate code for a c++ function using types and names for the in- and outputs
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += &#39;void &#39; + fn_name + &#39;(&#39;
+
+    # put the parameter list e.g. double &amp; y1, double &amp; y2, u1, u2
+    elements = []
+
+    for i in range(0, len(output_types)):
+        elements.append( output_types[i].cpp_define_variable( output_names[i], make_a_reference=True ) )
+        
+    for i in range(0, len(input_types)):
+        elements.append( input_types[i].cpp_define_variable( input_names[i], make_a_reference=True ) )
+
+
+    lines += &#39;, &#39;.join(elements)
+    lines +=  &#39;) {\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;\n}\n&#39;
+
+    return lines
+
+def call_function_from_varnames(fn_name, input_names, output_names):
+    &#34;&#34;&#34;
+    Build c++ code to call a function using the given paramerers 
+    &#34;&#34;&#34;
+
+    lines = &#39;&#39;
+
+    outputs_avail = output_names is not None and len(output_names) != 0
+    inputs_avail  = input_names  is not None and len(input_names)  != 0
+
+
+    lines += fn_name + &#39;(&#39; 
+    
+    if outputs_avail:  
+        output_parameter_string = &#39;, &#39;.join(output_names)
+        lines += output_parameter_string  
+    
+    if outputs_avail and inputs_avail:
+        lines +=  &#39;, &#39; 
+
+    if inputs_avail: 
+        input_parameter_string = &#39;, &#39;.join(input_names)
+        lines += input_parameter_string 
+    
+    lines +=  &#39;);\n&#39;
+
+    return lines
+
+def call_function_with_argument_str(fn_name, arguments_str):
+    return fn_name + &#39;(&#39; + arguments_str + &#39;);\n&#39;
+
+
+#
+# I/O
+#
+
+def create_printf(intro_string, signals):
+    &#34;&#34;&#34;
+        generate a code for showing the values of the given signals using printf
+
+        intro_string - a string that is place at the begin of the output
+        signals      - a list of signals whose values to print
+
+        NOTE: signals with a datatype that did not define a printf pattern will be ignored. 
+    &#34;&#34;&#34;
+
+    signals_ok_to_print = []
+    for s in signals:
+
+        if s.datatype.cpp_printf_pattern is not None:
+            signals_ok_to_print.append( s )
+
+    format_str = signalListHelper_printfPattern_string(signals_ok_to_print)
+    parameter_str = signal_list_to_names_string(signals_ok_to_print)
+
+    if not 0 == len(signals_ok_to_print):
+        code = &#39;printf(&#34;&#39; + intro_string + &#39;:   (&#39; + parameter_str + &#39;) = (&#39; + format_str + &#39;)\\n&#34;, &#39; + parameter_str + &#39;);&#39; + &#39;\n&#39;
+    else:
+        code = &#39;printf(&#34;&#39; + intro_string +  &#39;\\n&#34;);&#39; + &#39;\n&#39;
+
+    return code</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.asign"><code class="name flex">
+<span>def <span class="ident">asign</span></span>(<span>from_signal_name, to_signal_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate code to asign a value</p>
+<ul>
+<li>from_signal_name</li>
+<li>to_signal_name</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def asign( from_signal_name, to_signal_name ):
+    &#34;&#34;&#34;
+        generate code to asign a value
+
+        - from_signal_name
+        - to_signal_name
+    &#34;&#34;&#34;
+    return to_signal_name + &#39; = &#39; + from_signal_name + &#39;;\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.brackets"><code class="name flex">
+<span>def <span class="ident">brackets</span></span>(<span>code)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def brackets(code):
+    return &#39;{\n&#39; + indent(code) + &#39;\n}\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.brackets_no_newline"><code class="name flex">
+<span>def <span class="ident">brackets_no_newline</span></span>(<span>code)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def brackets_no_newline(code):
+    return &#39;{\n&#39; + indent(code) + &#39;\n}&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.build_function_arguments_for_signal_io_with_struct"><code class="name flex">
+<span>def <span class="ident">build_function_arguments_for_signal_io_with_struct</span></span>(<span>input_signals, output_signals, input_struct_varname, output_struct_varname)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_function_arguments_for_signal_io_with_struct(input_signals, output_signals, input_struct_varname, output_struct_varname):
+
+    # build arguments for function call
+    if len(output_signals) &gt; 0 or len(input_signals) &gt; 0:
+
+        output_arguments = get_struct_elements( output_struct_varname, output_signals )
+        input_arguments = get_struct_elements( input_struct_varname, input_signals )
+
+        arguments_string = &#39;&#39;
+        if len(output_arguments) &gt; 0:
+            arguments_string += &#39;, &#39;.join( output_arguments )
+
+        if len(output_arguments) &gt; 0 and len(input_arguments) &gt; 0:
+            arguments_string += &#39;,   &#39;                    
+
+        if len(input_arguments) &gt; 0:
+            arguments_string += &#39;, &#39;.join( input_arguments )
+
+    else:
+        arguments_string = &#39;&#39;
+
+    return arguments_string</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_from_varnames"><code class="name flex">
+<span>def <span class="ident">call_function_from_varnames</span></span>(<span>fn_name, input_names, output_names)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build c++ code to call a function using the given paramerers</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call_function_from_varnames(fn_name, input_names, output_names):
+    &#34;&#34;&#34;
+    Build c++ code to call a function using the given paramerers 
+    &#34;&#34;&#34;
+
+    lines = &#39;&#39;
+
+    outputs_avail = output_names is not None and len(output_names) != 0
+    inputs_avail  = input_names  is not None and len(input_names)  != 0
+
+
+    lines += fn_name + &#39;(&#39; 
+    
+    if outputs_avail:  
+        output_parameter_string = &#39;, &#39;.join(output_names)
+        lines += output_parameter_string  
+    
+    if outputs_avail and inputs_avail:
+        lines +=  &#39;, &#39; 
+
+    if inputs_avail: 
+        input_parameter_string = &#39;, &#39;.join(input_names)
+        lines += input_parameter_string 
+    
+    lines +=  &#39;);\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_with_argument_str"><code class="name flex">
+<span>def <span class="ident">call_function_with_argument_str</span></span>(<span>fn_name, arguments_str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call_function_with_argument_str(fn_name, arguments_str):
+    return fn_name + &#39;(&#39; + arguments_str + &#39;);\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function"><code class="name flex">
+<span>def <span class="ident">cpp_define_function</span></span>(<span>fn_name, input_signals, output_signals, code)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate code for a c++ function using in- and output signals</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpp_define_function(fn_name, input_signals, output_signals, code):
+    &#34;&#34;&#34;
+        generate code for a c++ function using in- and output signals
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += &#39;void &#39; + fn_name + &#39;(&#39;
+
+    # put the parameter list e.g. double &amp; y1, double &amp; y2, u1, u2
+    elements = []
+        
+    elements.extend( define_variable_list( output_signals, make_a_reference=True ) )
+    elements.extend( define_variable_list( input_signals ) )
+
+    lines += &#39;, &#39;.join(elements)
+    lines +=  &#39;) { // created by cpp_define_function\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;}\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function_from_types"><code class="name flex">
+<span>def <span class="ident">cpp_define_function_from_types</span></span>(<span>fn_name, input_types, input_names, output_types, output_names, code)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate code for a c++ function using types and names for the in- and outputs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpp_define_function_from_types(fn_name, input_types, input_names, output_types, output_names, code):
+    &#34;&#34;&#34;
+        generate code for a c++ function using types and names for the in- and outputs
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += &#39;void &#39; + fn_name + &#39;(&#39;
+
+    # put the parameter list e.g. double &amp; y1, double &amp; y2, u1, u2
+    elements = []
+
+    for i in range(0, len(output_types)):
+        elements.append( output_types[i].cpp_define_variable( output_names[i], make_a_reference=True ) )
+        
+    for i in range(0, len(input_types)):
+        elements.append( input_types[i].cpp_define_variable( input_names[i], make_a_reference=True ) )
+
+
+    lines += &#39;, &#39;.join(elements)
+    lines +=  &#39;) {\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;\n}\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_generic_function"><code class="name flex">
+<span>def <span class="ident">cpp_define_generic_function</span></span>(<span>fn_name, return_cpp_type_str, arg_list_str, code)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate code for a c++ generic c++ function</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpp_define_generic_function(fn_name, return_cpp_type_str, arg_list_str, code):
+    &#34;&#34;&#34;
+        generate code for a c++ generic c++ function
+    &#34;&#34;&#34;
+    lines = &#39;&#39;
+    lines += return_cpp_type_str + &#39; &#39; + fn_name + &#39;(&#39; + arg_list_str + &#39;) {\n&#39;
+
+    # inner code to call
+    lines += indent(code)
+
+    lines += &#39;}\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.create_printf"><code class="name flex">
+<span>def <span class="ident">create_printf</span></span>(<span>intro_string, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate a code for showing the values of the given signals using printf</p>
+<p>intro_string - a string that is place at the begin of the output
+signals
+- a list of signals whose values to print</p>
+<p>NOTE: signals with a datatype that did not define a printf pattern will be ignored.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_printf(intro_string, signals):
+    &#34;&#34;&#34;
+        generate a code for showing the values of the given signals using printf
+
+        intro_string - a string that is place at the begin of the output
+        signals      - a list of signals whose values to print
+
+        NOTE: signals with a datatype that did not define a printf pattern will be ignored. 
+    &#34;&#34;&#34;
+
+    signals_ok_to_print = []
+    for s in signals:
+
+        if s.datatype.cpp_printf_pattern is not None:
+            signals_ok_to_print.append( s )
+
+    format_str = signalListHelper_printfPattern_string(signals_ok_to_print)
+    parameter_str = signal_list_to_names_string(signals_ok_to_print)
+
+    if not 0 == len(signals_ok_to_print):
+        code = &#39;printf(&#34;&#39; + intro_string + &#39;:   (&#39; + parameter_str + &#39;) = (&#39; + format_str + &#39;)\\n&#34;, &#39; + parameter_str + &#39;);&#39; + &#39;\n&#39;
+    else:
+        code = &#39;printf(&#34;&#39; + intro_string +  &#39;\\n&#34;);&#39; + &#39;\n&#39;
+
+    return code</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariable"><code class="name flex">
+<span>def <span class="ident">defineVariable</span></span>(<span>signal, make_a_reference=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>create a sting containing e.g.</p>
+<p>'double signalName'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def defineVariable( signal, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a sting containing e.g.
+
+        &#39;double signalName&#39;
+    &#34;&#34;&#34;
+
+    return signal.getDatatype().cpp_define_variable( signal.name, make_a_reference )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariables"><code class="name flex">
+<span>def <span class="ident">defineVariables</span></span>(<span>signals, make_a_reference=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>create a string containing e.g.</p>
+<pre><code>    'double signalName1;
+
+     double signalName2;
+</code></pre>
+<p>'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def defineVariables( signals, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a string containing e.g.
+
+        &#39;double signalName1;\n
+         double signalName2;\n&#39;
+    &#34;&#34;&#34;
+    elements = define_variable_list(signals, make_a_reference )
+
+    return &#39;;\n&#39;.join( elements ) + &#39;;\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.define_struct_var"><code class="name flex">
+<span>def <span class="ident">define_struct_var</span></span>(<span>structName, structVarname)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define_struct_var( structName, structVarname ):
+    return structName + &#39; &#39; + structVarname + &#39;;\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.define_structure"><code class="name flex">
+<span>def <span class="ident">define_structure</span></span>(<span>name, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>define a structure given a name given a list of signals</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define_structure( name, signals ):
+    &#34;&#34;&#34;
+        define a structure given a name given a list of signals
+    &#34;&#34;&#34;
+#    tmp = defineVariables( signals )
+#    tmp = indent(tmp, &#39;  &#39;)
+#    return f&#39;struct { name }  {{\n{ tmp }}};\n\n&#39;
+
+    return &#39;struct &#39; + name + brackets_no_newline( defineVariables( signals )  ) + &#39;;\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_line"><code class="name flex">
+<span>def <span class="ident">define_variable_line</span></span>(<span>signal, make_a_reference=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>create a sting containing e.g.</p>
+<pre><code>    'double signalName;
+</code></pre>
+<p>'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define_variable_line( signal, make_a_reference = False ):
+    &#34;&#34;&#34;
+        create a sting containing e.g.
+
+        &#39;double signalName;\n&#39;
+    &#34;&#34;&#34;
+    element = define_variable_list([signal], make_a_reference )
+
+    return element[0] + &#39;;\n&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list"><code class="name flex">
+<span>def <span class="ident">define_variable_list</span></span>(<span>signals, make_a_reference=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define_variable_list(signals, make_a_reference = False):
+    vardefStr = []  # e.g. double y
+
+    for s in signals:
+        # e.g.: double y;
+        vardefStr.append( defineVariable(s, make_a_reference)  )
+
+    return vardefStr</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list_string"><code class="name flex">
+<span>def <span class="ident">define_variable_list_string</span></span>(<span>signals, make_a_reference=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define_variable_list_string(signals, make_a_reference = False):
+    return &#39;; &#39;.join( define_variable_list(signals, make_a_reference)  ) + &#39;;&#39;</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.fillStruct"><code class="name flex">
+<span>def <span class="ident">fillStruct</span></span>(<span>structName, structVarname, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>define an instance of a structure and assign values to the elements</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fillStruct( structName, structVarname, signals ):
+    &#34;&#34;&#34;
+        define an instance of a structure and assign values to the elements
+    &#34;&#34;&#34;
+
+    lines = &#39;&#39;
+
+    lines += define_struct_var( structName, structVarname )
+
+
+    for s in signals:
+        lines += structVarname + &#39;.&#39; + s.name + &#39; = &#39; + s.name + &#39;;\n&#39;
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_compare_equality_to_constant"><code class="name flex">
+<span>def <span class="ident">generate_compare_equality_to_constant</span></span>(<span>language, signal_name, constant)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_compare_equality_to_constant( language, signal_name, constant ):
+    return signal_name + &#39; == &#39; + str(constant)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_if_else"><code class="name flex">
+<span>def <span class="ident">generate_if_else</span></span>(<span>language, condition_list, action_list)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_if_else(language, condition_list, action_list):
+
+    N = len(condition_list)
+
+    lines = &#39;if (&#39; + condition_list[0] + &#39;) {\n&#39; + indent( action_list[0] )
+
+
+    if len(action_list) == 1:
+        lines += &#39;\n}\n&#39;
+
+        return lines
+
+    else:
+
+        for i in range(1, N):
+            lines += &#39;\n} else if (&#39; + condition_list[i] + &#39;) {\n&#39; + indent( action_list[i] )
+
+
+    if len(action_list) == N + 1:
+        lines += &#39;\n} else {\n&#39; + indent( action_list[ N ] ) + &#39;\n}\n&#39;
+
+    elif len(action_list) == N:
+        lines += &#39;\n}\n&#39;
+
+    else:
+        raise BaseException(&#34;missmatch of the number of actions and conditions&#34;)
+
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop"><code class="name flex">
+<span>def <span class="ident">generate_loop</span></span>(<span>language, max_iterations, code_to_exec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>generate a loop</p>
+<ul>
+<li>max_iterations - the maximal number of loop iterations</li>
+<li>code_to_exec
+- the code to execute in the loop</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_loop( language, max_iterations, code_to_exec  ):
+    &#34;&#34;&#34;
+        generate a loop
+
+        - max_iterations - the maximal number of loop iterations
+        - code_to_exec   - the code to execute in the loop
+    &#34;&#34;&#34;
+
+    lines = &#39;for (int i = 0; i &lt; &#39; + max_iterations + &#39;; ++i) &#39; + brackets_no_newline( code_to_exec ) + &#39;;\n&#39;
+    return lines</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop_break"><code class="name flex">
+<span>def <span class="ident">generate_loop_break</span></span>(<span>language, condition, code_before_break=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>break a loop (to be used with generate_loop)</p>
+<p>condition
+- the condition to break the loop</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_loop_break(language, condition, code_before_break = None):
+    &#34;&#34;&#34;
+        break a loop (to be used with generate_loop)
+
+        condition  - the condition to break the loop
+    &#34;&#34;&#34;
+    code_to_run = &#39;&#39;
+    if code_before_break is not None:
+        code_to_run += code_before_break + &#39;\n&#39;
+
+    code_to_run += &#39;break;&#39;
+
+    abort_code = generate_if_else(language, condition_list=[condition], action_list=[ code_to_run ])
+
+    return abort_code</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.get_struct_elements"><code class="name flex">
+<span>def <span class="ident">get_struct_elements</span></span>(<span>structVarname, signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_struct_elements( structVarname, signals ):
+    # get list of e.g. &#39;outputs.y1&#39;, &#39;outputs.y2&#39;
+
+    structElements = []
+
+    for s in signals:
+        structElements.append( structVarname + &#39;.&#39; + s.name  )
+
+    return structElements</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>lines)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(lines):
+
+    return tw.indent(lines, &#39;  &#39;)</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern"><code class="name flex">
+<span>def <span class="ident">signalListHelper_printfPattern</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signalListHelper_printfPattern(signals):
+    printfPatterns = [] 
+
+    for s in signals:
+
+        # e.g. %f
+        printfPatterns.append( s.datatype.cpp_printf_pattern )
+    
+    return printfPatterns</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern_string"><code class="name flex">
+<span>def <span class="ident">signalListHelper_printfPattern_string</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signalListHelper_printfPattern_string(signals):
+    return &#39; &#39;.join( signalListHelper_printfPattern(signals) )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_typeNames"><code class="name flex">
+<span>def <span class="ident">signalListHelper_typeNames</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signalListHelper_typeNames(signals):
+    typeNames = []
+
+    for s in signals:
+        typeNames.append( s.getDatatype().cpp_datatype_string )
+
+    return typeNames</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_types"><code class="name flex">
+<span>def <span class="ident">signalListHelper_types</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signalListHelper_types(signals):
+    types = []
+
+    for s in signals:
+        types.append( s.getDatatype() )
+
+    return types</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_name_list"><code class="name flex">
+<span>def <span class="ident">signal_list_to_name_list</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_list_to_name_list(signals):
+    names = []
+
+    for s in signals:
+        names.append( s.name )
+
+    return names</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_names_string"><code class="name flex">
+<span>def <span class="ident">signal_list_to_names_string</span></span>(<span>signals)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def signal_list_to_names_string(signals):
+    return &#39;, &#39;.join( signal_list_to_name_list(signals)  )</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.code_generation_helper.tabs"><code class="name flex">
+<span>def <span class="ident">tabs</span></span>(<span>N)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tabs(N):
+    t = &#39;&#39;
+    for i in range(0,N):
+        t += &#39;  &#39;
+    
+    return t</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang.diagram_core" href="index.html">openrtdynamics2.lang.diagram_core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.asign" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.asign">asign</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.brackets" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.brackets">brackets</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.brackets_no_newline" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.brackets_no_newline">brackets_no_newline</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.build_function_arguments_for_signal_io_with_struct" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.build_function_arguments_for_signal_io_with_struct">build_function_arguments_for_signal_io_with_struct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_from_varnames" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_from_varnames">call_function_from_varnames</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_with_argument_str" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.call_function_with_argument_str">call_function_with_argument_str</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function">cpp_define_function</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function_from_types" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_function_from_types">cpp_define_function_from_types</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_generic_function" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.cpp_define_generic_function">cpp_define_generic_function</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.create_printf" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.create_printf">create_printf</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariable" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariable">defineVariable</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariables" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.defineVariables">defineVariables</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.define_struct_var" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.define_struct_var">define_struct_var</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.define_structure" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.define_structure">define_structure</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_line" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_line">define_variable_line</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list">define_variable_list</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list_string" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.define_variable_list_string">define_variable_list_string</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.fillStruct" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.fillStruct">fillStruct</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_compare_equality_to_constant" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.generate_compare_equality_to_constant">generate_compare_equality_to_constant</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_if_else" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.generate_if_else">generate_if_else</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop">generate_loop</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop_break" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.generate_loop_break">generate_loop_break</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.get_struct_elements" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.get_struct_elements">get_struct_elements</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.indent" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.indent">indent</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern">signalListHelper_printfPattern</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern_string" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_printfPattern_string">signalListHelper_printfPattern_string</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_typeNames" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_typeNames">signalListHelper_typeNames</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_types" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signalListHelper_types">signalListHelper_types</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_name_list" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_name_list">signal_list_to_name_list</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_names_string" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.signal_list_to_names_string">signal_list_to_names_string</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.code_generation_helper.tabs" href="#openrtdynamics2.lang.diagram_core.code_generation_helper.tabs">tabs</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

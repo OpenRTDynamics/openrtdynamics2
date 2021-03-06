@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>openrtdynamics2.lang.diagram_core.diagram_compiler API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>openrtdynamics2.lang.diagram_core.diagram_compiler</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .system import *
+#from .block_prototypes import *
+from .graph_traversion import *
+from .signal_network.signals import *
+from .code_build_commands import *
+from .system_manifest import *
+
+from colorama import init,  Fore, Back, Style
+init(autoreset=True)
+
+
+
+class CompileResults(object):
+    &#34;&#34;&#34;
+        compilation results for one system
+        (excluding subsystems)
+    &#34;&#34;&#34;
+    
+    def __init__(self, manifest, command_to_execute):
+        self._command_to_execute = command_to_execute
+        self._manifest = manifest
+
+    @property
+    def manifest(self):
+        return self._manifest
+
+    @property
+    def command_to_execute(self):
+        return self._command_to_execute
+
+    def set_command_to_execute(self, command_to_execute):
+        self._command_to_execute = command_to_execute 
+
+
+
+class CompileDiagram: # TODO: does this need to be a class? so far no.
+
+    def __init__(self):
+
+        # self._manifest = None
+        self._compleResults = None
+
+    @property
+    def compileResults(self):
+        return self._compleResults
+    
+    def traverseSubSystems(self, system : System, level):
+
+        is_top_level_system = system.upper_level_system is None
+
+        # go deeper and compile subsystems first
+        command_list_for_all_subsystems = []
+
+        for subSystem in system.subsystems:
+            compileResult = self.traverseSubSystems(subSystem, level=level+1)
+
+            command_list_for_all_subsystems.append( compileResult.command_to_execute )
+
+        # notify each block about the compilation of all subsystems in the system
+        for block in system.blocks:
+            block.blockPrototype.compile_callback_all_subsystems_compiled()
+
+        #
+        print(&#34;compiling system &#34; + system.name + &#34; (level &#34; + str(level) + &#34;)... &#34; )
+
+        # compile the system
+
+        # TODO: when the inner system gets compiled, the system is okay (unmodified)
+        #       as code generation is triggered, modified I/O signals are present which cases 
+        #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
+
+
+
+        compile_result = compile_single_system( system, reduce_uneeded_code = not is_top_level_system )
+
+
+        # # produre commands for building/executing
+        # command_list_for_all_subsystems = []
+        # for subsystem in system.subsystems:
+        #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
+
+
+        # replace the execution command by one that wraps all subsystems along with the main system
+        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.command_to_execute, commands_to_put_subsystems=command_list_for_all_subsystems )
+        compile_result.set_command_to_execute( execution_command )
+
+        # store the compilation result in the system&#39;s structure (TODO: is this needed?)
+        system.compile_result = compile_result
+
+        if is_top_level_system:
+            self._compleResults = compile_result
+
+        return compile_result
+
+
+
+    def compile(self, system):
+        #
+        # The datatypes of all signals must be determined here
+        #
+
+        if system.upper_level_system is not None:#
+            # compilation can only start at top level subsystems
+            raise BaseException(&#34;given system is not a top-level system (but instead a sub-system of sth.)&#34;)
+
+        main_compile_result = self.traverseSubSystems(system, level = 0)
+
+        if main_compile_result is None:
+            raise BaseException(&#34;failed to obtain the compilation results&#34;)
+
+        self._compleResults = main_compile_result
+
+        return main_compile_result
+
+
+
+def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=0):
+
+    # the primary output signals are the outputs of the compiled system
+    outputSignals = system.primary_outputs
+
+    # prepare (input filter of the given signals)
+    resolveUndeterminedSignals(outputSignals)
+
+    # remove all anonymous signal
+    system.resolve_anonymous_signals()
+
+
+
+    #
+    # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+    # at runtime.
+    #
+
+
+
+    #
+    # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
+    #
+
+    E=BuildExecutionPath()
+
+    print(&#34;determining the computation order...&#34;)
+
+    # append all execution lines to this structure
+    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
+
+
+
+
+
+
+
+    #
+    # look for blocks mandatory to be computed (e.g., sink blocks)
+    # and the required signals. NOTE: currently only sinks are supported
+    # that are triggered on state update.
+    #
+
+    sink_blocks_using_state_update = []
+    inputs_through_state_update_for_sinks = []
+
+    for blk in system.blocks_in_system:
+        if blk.output_signals is not None:
+            if len(blk.output_signals) == 0: # no output signals --&gt; must be a sink
+
+                # print(Style.BRIGHT, &#34;found a sink-type block&#34;, blk.name)
+
+                inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
+                if inputs_to_update_states_tmp is not None:
+                    # a sink that needs inputs for its state update
+                    sink_blocks_using_state_update.append(blk)
+
+                    # print(&#34;signals needed *indirectly* to compute sink (through state update)&#34; )
+
+                    # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+                    resolveUndeterminedSignals( inputs_to_update_states_tmp )
+
+                    # add the signals that are required to perform the state update
+                    inputs_through_state_update_for_sinks.extend( inputs_to_update_states_tmp )
+
+                    # for signal in inputsToUpdateStatesTmp:
+                    #     print(Fore.MAGENTA + &#34;-&gt; S &#34; + signal.name )
+
+
+
+    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
+
+    # add
+    executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
+
+
+
+
+
+
+
+
+    #
+    # look for output signals to be computed
+    #
+
+    signals_to_compute = set()
+    signals_to_compute.update( set(outputSignals) )
+    signals_to_compute.update( set(system.signals_mandatory_to_compute) )
+
+    for s in list(signals_to_compute):
+
+        elForOutputS = E.getExecutionLine( s )
+
+        if enable_print &gt; 1:
+            elForOutputS.printExecutionLine()
+
+        # merge all lines into one
+        # TODO use sets inside &#39;appendExecutionLine&#39; some block are present twiche
+        executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+
+
+
+
+
+
+
+
+
+
+
+    print(&#34;building execution paths...&#34;)
+
+    # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
+    # element. Also collect the newly appearing dependency signals in a list and also 
+    # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
+    # finally concatenare the execution lines
+
+    # start with following signals to be computed
+    simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
+    blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
+    dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
+
+    # counter for the order (i.e. step through all delays present in the system)
+    order = 0
+
+    # execution line per order
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, 
+                                                                executionLineToCalculateOutputs, 
+                                                                signals_to_compute,
+                                                                no_memory_for_output_variables = True, 
+                                                                output_signals=outputSignals )
+
+    #
+    # cache all signals that are calculated so far
+    # TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
+    #
+
+    signalsToCache = []
+    for s in executionLineToCalculateOutputs.signalOrder:
+
+        if isinstance(s, UndeterminedSignal):
+            raise BaseException(&#34;found anonymous signal during compilation&#34;)
+
+        if isinstance(s, BlockOutputSignal) and not s.is_crossing_system_boundary(system):
+
+            # only implement caching for intermediate computation results.
+            # I.e. exclude the simulation input signals
+
+            signalsToCache.append( s )
+
+    commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
+
+    # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
+    # Further, it stores intermediate results
+    commandToPublishTheResults = PutAPIFunction(&#34;calcResults_1&#34;, 
+                                                inputSignals=simulationInputSignalsToCalculateOutputs,
+                                                outputSignals=outputSignals, 
+                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
+                                                generate_wrappper_functions = not reduce_uneeded_code )
+
+    # Initialize the list of commands to execute to update the states
+    commandsToExecuteForStateUpdate = []
+
+    # restore the cache of output signals to update the states
+    commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
+
+    # the simulation intputs needed to perform the state update
+    simulationInputSignalsToUpdateStates = set()
+
+    # the list of blocks that are updated. Note: So far this list is only used to prevent
+    # double updates.
+    blocksWhoseStatesToUpdate_All = []
+
+    # find out which signals must be further computed to allow a state-update of the blocks
+    dependencySignals__ = dependencySignalsThroughStates + simulationInputSignalsToCalculateOutputs
+
+    dependency_signals_through_states_that_are_already_computed = set()
+    
+
+    while True:
+
+        if enable_print &gt; 0:
+            print(&#34;--------- Computing order &#34;+ str(order) + &#34; --------&#34;)
+        
+        # backwards jump over the blocks that compute dependencySignals through their states.
+        # The result is dependencySignals__ which are the inputs to these blocks
+        if enable_print &gt; 0:
+            print(Style.DIM + &#34;These sources are translated to (through their blocks via state-update):&#34;)
+
+        # print the list of signals
+        if enable_print &gt; 0:
+            print(&#34;-- dependencySignalsThroughStates signals __ --&#34;)
+            for s in dependencySignalsThroughStates:
+                print(&#34;  - &#34; + s.name)
+
+        # collect all executions lines build in this order in:
+        executionLinesForCurrentOrder = []
+
+        # iterate over all needed input signals and find out how to compute each signal
+        for s in dependencySignalsThroughStates:
+
+            # get execution line to calculate s
+            executionLineForS = E.getExecutionLine(s)
+
+            # store this execution line
+            executionLinesForCurrentOrder.append(executionLineForS)
+
+
+        # merge all lines temporarily stored in &#39;executionLinesForCurrentOrder&#39; into one &#39;executionLineForCurrentOrder&#39;
+        executionLineForCurrentOrder = ExecutionLine( [], [], [], [], [] )
+        for e in executionLinesForCurrentOrder:
+
+            # append execution line
+            executionLineForCurrentOrder.appendExecutionLine( e )
+
+        # update the list
+        dependency_signals_through_states_that_are_already_computed.update( dependencySignalsThroughStates )
+
+
+        # create a command to calcurate executionLineForCurrentOrder and append to the
+        # list of commands for state update: &#39;commandsToExecuteForStateUpdate&#39;
+        
+        #
+        # TODO (DONE): ensure somehow that variables are reserved for the inputs to the blocks
+        #              whose states are updated
+        #  executionLineForCurrentOrder.dependencySignalsSimulationInputs contains a list of input needed to update
+        #  the states.
+        #
+
+        signals_from_system_states = signalsToCache
+
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, 
+                                                                        executionLineForCurrentOrder, 
+                                                                        dependencySignals__, 
+                                                                        signals_from_system_states=signals_from_system_states, 
+                                                                        no_memory_for_output_variables = False) )
+
+        #
+        # find out which blocks need a call to update their states:
+        # create commands for the blocks that have dependencySignals as outputs
+        #
+
+        if enable_print &gt; 0:
+            print(&#34;state update of blocks that yield the following output signals:&#34;)
+
+
+
+        # TODO: rework this loop: use a set instead
+        # blocksToUpdateStates Is already computed
+
+        blocksWhoseStatesToUpdate = []
+
+        for blk in blocksToUpdateStates:
+
+            if not blk in blocksWhoseStatesToUpdate_All:
+                # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
+                # dependencySignals are outputs of the same block)
+                blocksWhoseStatesToUpdate.append( blk )
+                blocksWhoseStatesToUpdate_All.append( blk )
+
+                # added  blk.toStr
+            else:
+                #
+                # already added blk.toStr()
+                pass
+
+
+
+
+        # create state update command and append to the list of commnds to execute for state-update
+        sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
+        commandsToExecuteForStateUpdate.append( sUpCmd )
+
+        # get the dependendy singals of the current order
+        # TODO important: remove the signals that are already computable from this list
+        #dependencySignals = executionLineForCurrentOrder.dependencySignals
+        dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
+        blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
+        dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+
+        # TODO: handle special case in which a simulation input is requried for the state update of a block
+        #       and was before found to be required to calculate the outpus of sth. 
+        # instead of printing &#39;has already been calculated in a previous traversion&#39; create an input to the update() function
+        #
+        # --- signals needed *indirectly* for s30 (through state update) --
+        # -&gt; S osc_excitement
+        # -&gt; S s22
+        # --- signals needed for s30 --
+        # -&gt; S osc_excitement
+        # .  has already been calculated in a previous traversion
+
+
+        # find out which singnals must be further computed to allow a state-update of the blocks
+        dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+
+        # add the system inputs needed to update the states
+        simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
+
+        # iterate
+        order = order + 1
+        if len(dependencySignals__) == 0:
+            print(Fore.GREEN + &#34;All dependencies are resolved.&#34;)
+
+            break
+
+        if order == 1000:
+            raise BaseException(Fore.GREEN + &#34;Maximal number of iterations reached -- this is likely because of an algebraic loop or your simulation is very complex&#34;)
+            break
+
+
+
+
+    # Build API to update the states: e.g. c++ function updateStates()
+    commandToUpdateStates = PutAPIFunction( nameAPI = &#39;updateStates&#39;, 
+                                            inputSignals=list(simulationInputSignalsToUpdateStates), 
+                                            outputSignals=[], 
+                                            executionCommands=commandsToExecuteForStateUpdate,
+                                            generate_wrappper_functions = not reduce_uneeded_code )
+
+    # code to reset add blocks in the simulation
+    commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All)
+
+    # create an API-function resetStates()
+    commandToResetStates = PutAPIFunction( nameAPI = &#39;resetStates&#39;, 
+                                            inputSignals=[], 
+                                            outputSignals=[], 
+                                            executionCommands=[commandsToExecuteForStateReset],
+                                            generate_wrappper_functions = not reduce_uneeded_code )
+
+
+    # define the interfacing class
+    command_to_execute_system = PutSystem(    system = system,
+                                                    resetCommand = commandToResetStates, 
+                                                    updateCommand = commandToUpdateStates,
+                                                    outputCommand = commandToPublishTheResults
+                                                )
+
+    # collect all (needed) inputs to this system
+    allinputs = set(( simulationInputSignalsToUpdateStates ))
+    allinputs.update( simulationInputSignalsToCalculateOutputs )
+    allinputs = list(allinputs)
+
+    # build the manifest for the compiled system
+    manifest = SystemManifest( command_to_execute_system )
+
+    compleResults = CompileResults( manifest, command_to_execute_system)
+
+    compleResults.inputSignals                             = allinputs
+    compleResults.simulationInputSignalsToUpdateStates     = simulationInputSignalsToUpdateStates
+    compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
+    compleResults.outputSignals                            = outputSignals
+
+    
+    #
+    return compleResults</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.compile_single_system"><code class="name flex">
+<span>def <span class="ident">compile_single_system</span></span>(<span>system, reduce_uneeded_code=False, enable_print: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=0):
+
+    # the primary output signals are the outputs of the compiled system
+    outputSignals = system.primary_outputs
+
+    # prepare (input filter of the given signals)
+    resolveUndeterminedSignals(outputSignals)
+
+    # remove all anonymous signal
+    system.resolve_anonymous_signals()
+
+
+
+    #
+    # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
+    # at runtime.
+    #
+
+
+
+    #
+    # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
+    #
+
+    E=BuildExecutionPath()
+
+    print(&#34;determining the computation order...&#34;)
+
+    # append all execution lines to this structure
+    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
+
+
+
+
+
+
+
+    #
+    # look for blocks mandatory to be computed (e.g., sink blocks)
+    # and the required signals. NOTE: currently only sinks are supported
+    # that are triggered on state update.
+    #
+
+    sink_blocks_using_state_update = []
+    inputs_through_state_update_for_sinks = []
+
+    for blk in system.blocks_in_system:
+        if blk.output_signals is not None:
+            if len(blk.output_signals) == 0: # no output signals --&gt; must be a sink
+
+                # print(Style.BRIGHT, &#34;found a sink-type block&#34;, blk.name)
+
+                inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
+                if inputs_to_update_states_tmp is not None:
+                    # a sink that needs inputs for its state update
+                    sink_blocks_using_state_update.append(blk)
+
+                    # print(&#34;signals needed *indirectly* to compute sink (through state update)&#34; )
+
+                    # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+                    resolveUndeterminedSignals( inputs_to_update_states_tmp )
+
+                    # add the signals that are required to perform the state update
+                    inputs_through_state_update_for_sinks.extend( inputs_to_update_states_tmp )
+
+                    # for signal in inputsToUpdateStatesTmp:
+                    #     print(Fore.MAGENTA + &#34;-&gt; S &#34; + signal.name )
+
+
+
+    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
+
+    # add
+    executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
+
+
+
+
+
+
+
+
+    #
+    # look for output signals to be computed
+    #
+
+    signals_to_compute = set()
+    signals_to_compute.update( set(outputSignals) )
+    signals_to_compute.update( set(system.signals_mandatory_to_compute) )
+
+    for s in list(signals_to_compute):
+
+        elForOutputS = E.getExecutionLine( s )
+
+        if enable_print &gt; 1:
+            elForOutputS.printExecutionLine()
+
+        # merge all lines into one
+        # TODO use sets inside &#39;appendExecutionLine&#39; some block are present twiche
+        executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+
+
+
+
+
+
+
+
+
+
+
+    print(&#34;building execution paths...&#34;)
+
+    # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
+    # element. Also collect the newly appearing dependency signals in a list and also 
+    # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
+    # finally concatenare the execution lines
+
+    # start with following signals to be computed
+    simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
+    blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
+    dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
+
+    # counter for the order (i.e. step through all delays present in the system)
+    order = 0
+
+    # execution line per order
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, 
+                                                                executionLineToCalculateOutputs, 
+                                                                signals_to_compute,
+                                                                no_memory_for_output_variables = True, 
+                                                                output_signals=outputSignals )
+
+    #
+    # cache all signals that are calculated so far
+    # TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
+    #
+
+    signalsToCache = []
+    for s in executionLineToCalculateOutputs.signalOrder:
+
+        if isinstance(s, UndeterminedSignal):
+            raise BaseException(&#34;found anonymous signal during compilation&#34;)
+
+        if isinstance(s, BlockOutputSignal) and not s.is_crossing_system_boundary(system):
+
+            # only implement caching for intermediate computation results.
+            # I.e. exclude the simulation input signals
+
+            signalsToCache.append( s )
+
+    commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
+
+    # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
+    # Further, it stores intermediate results
+    commandToPublishTheResults = PutAPIFunction(&#34;calcResults_1&#34;, 
+                                                inputSignals=simulationInputSignalsToCalculateOutputs,
+                                                outputSignals=outputSignals, 
+                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
+                                                generate_wrappper_functions = not reduce_uneeded_code )
+
+    # Initialize the list of commands to execute to update the states
+    commandsToExecuteForStateUpdate = []
+
+    # restore the cache of output signals to update the states
+    commandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
+
+    # the simulation intputs needed to perform the state update
+    simulationInputSignalsToUpdateStates = set()
+
+    # the list of blocks that are updated. Note: So far this list is only used to prevent
+    # double updates.
+    blocksWhoseStatesToUpdate_All = []
+
+    # find out which signals must be further computed to allow a state-update of the blocks
+    dependencySignals__ = dependencySignalsThroughStates + simulationInputSignalsToCalculateOutputs
+
+    dependency_signals_through_states_that_are_already_computed = set()
+    
+
+    while True:
+
+        if enable_print &gt; 0:
+            print(&#34;--------- Computing order &#34;+ str(order) + &#34; --------&#34;)
+        
+        # backwards jump over the blocks that compute dependencySignals through their states.
+        # The result is dependencySignals__ which are the inputs to these blocks
+        if enable_print &gt; 0:
+            print(Style.DIM + &#34;These sources are translated to (through their blocks via state-update):&#34;)
+
+        # print the list of signals
+        if enable_print &gt; 0:
+            print(&#34;-- dependencySignalsThroughStates signals __ --&#34;)
+            for s in dependencySignalsThroughStates:
+                print(&#34;  - &#34; + s.name)
+
+        # collect all executions lines build in this order in:
+        executionLinesForCurrentOrder = []
+
+        # iterate over all needed input signals and find out how to compute each signal
+        for s in dependencySignalsThroughStates:
+
+            # get execution line to calculate s
+            executionLineForS = E.getExecutionLine(s)
+
+            # store this execution line
+            executionLinesForCurrentOrder.append(executionLineForS)
+
+
+        # merge all lines temporarily stored in &#39;executionLinesForCurrentOrder&#39; into one &#39;executionLineForCurrentOrder&#39;
+        executionLineForCurrentOrder = ExecutionLine( [], [], [], [], [] )
+        for e in executionLinesForCurrentOrder:
+
+            # append execution line
+            executionLineForCurrentOrder.appendExecutionLine( e )
+
+        # update the list
+        dependency_signals_through_states_that_are_already_computed.update( dependencySignalsThroughStates )
+
+
+        # create a command to calcurate executionLineForCurrentOrder and append to the
+        # list of commands for state update: &#39;commandsToExecuteForStateUpdate&#39;
+        
+        #
+        # TODO (DONE): ensure somehow that variables are reserved for the inputs to the blocks
+        #              whose states are updated
+        #  executionLineForCurrentOrder.dependencySignalsSimulationInputs contains a list of input needed to update
+        #  the states.
+        #
+
+        signals_from_system_states = signalsToCache
+
+        commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, 
+                                                                        executionLineForCurrentOrder, 
+                                                                        dependencySignals__, 
+                                                                        signals_from_system_states=signals_from_system_states, 
+                                                                        no_memory_for_output_variables = False) )
+
+        #
+        # find out which blocks need a call to update their states:
+        # create commands for the blocks that have dependencySignals as outputs
+        #
+
+        if enable_print &gt; 0:
+            print(&#34;state update of blocks that yield the following output signals:&#34;)
+
+
+
+        # TODO: rework this loop: use a set instead
+        # blocksToUpdateStates Is already computed
+
+        blocksWhoseStatesToUpdate = []
+
+        for blk in blocksToUpdateStates:
+
+            if not blk in blocksWhoseStatesToUpdate_All:
+                # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
+                # dependencySignals are outputs of the same block)
+                blocksWhoseStatesToUpdate.append( blk )
+                blocksWhoseStatesToUpdate_All.append( blk )
+
+                # added  blk.toStr
+            else:
+                #
+                # already added blk.toStr()
+                pass
+
+
+
+
+        # create state update command and append to the list of commnds to execute for state-update
+        sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
+        commandsToExecuteForStateUpdate.append( sUpCmd )
+
+        # get the dependendy singals of the current order
+        # TODO important: remove the signals that are already computable from this list
+        #dependencySignals = executionLineForCurrentOrder.dependencySignals
+        dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
+        blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
+        dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+
+        # TODO: handle special case in which a simulation input is requried for the state update of a block
+        #       and was before found to be required to calculate the outpus of sth. 
+        # instead of printing &#39;has already been calculated in a previous traversion&#39; create an input to the update() function
+        #
+        # --- signals needed *indirectly* for s30 (through state update) --
+        # -&gt; S osc_excitement
+        # -&gt; S s22
+        # --- signals needed for s30 --
+        # -&gt; S osc_excitement
+        # .  has already been calculated in a previous traversion
+
+
+        # find out which singnals must be further computed to allow a state-update of the blocks
+        dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+
+        # add the system inputs needed to update the states
+        simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
+
+        # iterate
+        order = order + 1
+        if len(dependencySignals__) == 0:
+            print(Fore.GREEN + &#34;All dependencies are resolved.&#34;)
+
+            break
+
+        if order == 1000:
+            raise BaseException(Fore.GREEN + &#34;Maximal number of iterations reached -- this is likely because of an algebraic loop or your simulation is very complex&#34;)
+            break
+
+
+
+
+    # Build API to update the states: e.g. c++ function updateStates()
+    commandToUpdateStates = PutAPIFunction( nameAPI = &#39;updateStates&#39;, 
+                                            inputSignals=list(simulationInputSignalsToUpdateStates), 
+                                            outputSignals=[], 
+                                            executionCommands=commandsToExecuteForStateUpdate,
+                                            generate_wrappper_functions = not reduce_uneeded_code )
+
+    # code to reset add blocks in the simulation
+    commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All)
+
+    # create an API-function resetStates()
+    commandToResetStates = PutAPIFunction( nameAPI = &#39;resetStates&#39;, 
+                                            inputSignals=[], 
+                                            outputSignals=[], 
+                                            executionCommands=[commandsToExecuteForStateReset],
+                                            generate_wrappper_functions = not reduce_uneeded_code )
+
+
+    # define the interfacing class
+    command_to_execute_system = PutSystem(    system = system,
+                                                    resetCommand = commandToResetStates, 
+                                                    updateCommand = commandToUpdateStates,
+                                                    outputCommand = commandToPublishTheResults
+                                                )
+
+    # collect all (needed) inputs to this system
+    allinputs = set(( simulationInputSignalsToUpdateStates ))
+    allinputs.update( simulationInputSignalsToCalculateOutputs )
+    allinputs = list(allinputs)
+
+    # build the manifest for the compiled system
+    manifest = SystemManifest( command_to_execute_system )
+
+    compleResults = CompileResults( manifest, command_to_execute_system)
+
+    compleResults.inputSignals                             = allinputs
+    compleResults.simulationInputSignalsToUpdateStates     = simulationInputSignalsToUpdateStates
+    compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
+    compleResults.outputSignals                            = outputSignals
+
+    
+    #
+    return compleResults</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram"><code class="flex name class">
+<span>class <span class="ident">CompileDiagram</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompileDiagram: # TODO: does this need to be a class? so far no.
+
+    def __init__(self):
+
+        # self._manifest = None
+        self._compleResults = None
+
+    @property
+    def compileResults(self):
+        return self._compleResults
+    
+    def traverseSubSystems(self, system : System, level):
+
+        is_top_level_system = system.upper_level_system is None
+
+        # go deeper and compile subsystems first
+        command_list_for_all_subsystems = []
+
+        for subSystem in system.subsystems:
+            compileResult = self.traverseSubSystems(subSystem, level=level+1)
+
+            command_list_for_all_subsystems.append( compileResult.command_to_execute )
+
+        # notify each block about the compilation of all subsystems in the system
+        for block in system.blocks:
+            block.blockPrototype.compile_callback_all_subsystems_compiled()
+
+        #
+        print(&#34;compiling system &#34; + system.name + &#34; (level &#34; + str(level) + &#34;)... &#34; )
+
+        # compile the system
+
+        # TODO: when the inner system gets compiled, the system is okay (unmodified)
+        #       as code generation is triggered, modified I/O signals are present which cases 
+        #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
+
+
+
+        compile_result = compile_single_system( system, reduce_uneeded_code = not is_top_level_system )
+
+
+        # # produre commands for building/executing
+        # command_list_for_all_subsystems = []
+        # for subsystem in system.subsystems:
+        #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
+
+
+        # replace the execution command by one that wraps all subsystems along with the main system
+        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.command_to_execute, commands_to_put_subsystems=command_list_for_all_subsystems )
+        compile_result.set_command_to_execute( execution_command )
+
+        # store the compilation result in the system&#39;s structure (TODO: is this needed?)
+        system.compile_result = compile_result
+
+        if is_top_level_system:
+            self._compleResults = compile_result
+
+        return compile_result
+
+
+
+    def compile(self, system):
+        #
+        # The datatypes of all signals must be determined here
+        #
+
+        if system.upper_level_system is not None:#
+            # compilation can only start at top level subsystems
+            raise BaseException(&#34;given system is not a top-level system (but instead a sub-system of sth.)&#34;)
+
+        main_compile_result = self.traverseSubSystems(system, level = 0)
+
+        if main_compile_result is None:
+            raise BaseException(&#34;failed to obtain the compilation results&#34;)
+
+        self._compleResults = main_compile_result
+
+        return main_compile_result</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compileResults"><code class="name">var <span class="ident">compileResults</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def compileResults(self):
+    return self._compleResults</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compile"><code class="name flex">
+<span>def <span class="ident">compile</span></span>(<span>self, system)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compile(self, system):
+    #
+    # The datatypes of all signals must be determined here
+    #
+
+    if system.upper_level_system is not None:#
+        # compilation can only start at top level subsystems
+        raise BaseException(&#34;given system is not a top-level system (but instead a sub-system of sth.)&#34;)
+
+    main_compile_result = self.traverseSubSystems(system, level = 0)
+
+    if main_compile_result is None:
+        raise BaseException(&#34;failed to obtain the compilation results&#34;)
+
+    self._compleResults = main_compile_result
+
+    return main_compile_result</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.traverseSubSystems"><code class="name flex">
+<span>def <span class="ident">traverseSubSystems</span></span>(<span>self, system: <a title="openrtdynamics2.lang.diagram_core.system.System" href="system.html#openrtdynamics2.lang.diagram_core.system.System">System</a>, level)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def traverseSubSystems(self, system : System, level):
+
+    is_top_level_system = system.upper_level_system is None
+
+    # go deeper and compile subsystems first
+    command_list_for_all_subsystems = []
+
+    for subSystem in system.subsystems:
+        compileResult = self.traverseSubSystems(subSystem, level=level+1)
+
+        command_list_for_all_subsystems.append( compileResult.command_to_execute )
+
+    # notify each block about the compilation of all subsystems in the system
+    for block in system.blocks:
+        block.blockPrototype.compile_callback_all_subsystems_compiled()
+
+    #
+    print(&#34;compiling system &#34; + system.name + &#34; (level &#34; + str(level) + &#34;)... &#34; )
+
+    # compile the system
+
+    # TODO: when the inner system gets compiled, the system is okay (unmodified)
+    #       as code generation is triggered, modified I/O signals are present which cases 
+    #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
+
+
+
+    compile_result = compile_single_system( system, reduce_uneeded_code = not is_top_level_system )
+
+
+    # # produre commands for building/executing
+    # command_list_for_all_subsystems = []
+    # for subsystem in system.subsystems:
+    #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
+
+
+    # replace the execution command by one that wraps all subsystems along with the main system
+    execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.command_to_execute, commands_to_put_subsystems=command_list_for_all_subsystems )
+    compile_result.set_command_to_execute( execution_command )
+
+    # store the compilation result in the system&#39;s structure (TODO: is this needed?)
+    system.compile_result = compile_result
+
+    if is_top_level_system:
+        self._compleResults = compile_result
+
+    return compile_result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults"><code class="flex name class">
+<span>class <span class="ident">CompileResults</span></span>
+<span>(</span><span>manifest, command_to_execute)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>compilation results for one system
+(excluding subsystems)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompileResults(object):
+    &#34;&#34;&#34;
+        compilation results for one system
+        (excluding subsystems)
+    &#34;&#34;&#34;
+    
+    def __init__(self, manifest, command_to_execute):
+        self._command_to_execute = command_to_execute
+        self._manifest = manifest
+
+    @property
+    def manifest(self):
+        return self._manifest
+
+    @property
+    def command_to_execute(self):
+        return self._command_to_execute
+
+    def set_command_to_execute(self, command_to_execute):
+        self._command_to_execute = command_to_execute </code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.command_to_execute"><code class="name">var <span class="ident">command_to_execute</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def command_to_execute(self):
+    return self._command_to_execute</code></pre>
+</details>
+</dd>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.manifest"><code class="name">var <span class="ident">manifest</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def manifest(self):
+    return self._manifest</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.set_command_to_execute"><code class="name flex">
+<span>def <span class="ident">set_command_to_execute</span></span>(<span>self, command_to_execute)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_command_to_execute(self, command_to_execute):
+    self._command_to_execute = command_to_execute </code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="openrtdynamics2.lang.diagram_core" href="index.html">openrtdynamics2.lang.diagram_core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.compile_single_system" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.compile_single_system">compile_single_system</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram">CompileDiagram</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compile" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compile">compile</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compileResults" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.compileResults">compileResults</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.traverseSubSystems" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileDiagram.traverseSubSystems">traverseSubSystems</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults">CompileResults</a></code></h4>
+<ul class="">
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.command_to_execute" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.command_to_execute">command_to_execute</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.manifest" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.manifest">manifest</a></code></li>
+<li><code><a title="openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.set_command_to_execute" href="#openrtdynamics2.lang.diagram_core.diagram_compiler.CompileResults.set_command_to_execute">set_command_to_execute</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
