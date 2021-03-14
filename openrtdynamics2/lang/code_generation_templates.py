@@ -181,9 +181,76 @@ class TargetGenericCpp:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+class TargetRawCpp(TargetGenericCpp):
+    """
+        generates basic c++ code 
+    """
+
+    def __init__(self, enable_tracing = False ):
+
+        TargetGenericCpp.__init__(self, enable_tracing=enable_tracing)
+
+        self.initCodeTemplate()
+
+        
+    def code_gen(self):
+
+        # call helper to fill in some generic elements into the template
+        code_gen_results = TargetGenericCpp.code_gen(self)
+
+        self.sourceCode = self.template
+
+        code_gen_results['sourcecode'] = self.sourceCode
+        return code_gen_results
+
+
+    def initCodeTemplate(self):
+
+        #
+        # template for main function in c++
+        #
+
+        self.template = """
+            
+#include <math.h>
+#include <stdio.h>
+
+//
+// implementation of $mainSimulationName
+//
+
+$algorithmCode
+
+            
+        """        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class TargetBasicExecutable(TargetGenericCpp):
     """
-        generates code for the runtime environment
+        generates code for the runtime evironment
     """
 
     def __init__(self, i_max : int, input_signals_mapping = {} ):

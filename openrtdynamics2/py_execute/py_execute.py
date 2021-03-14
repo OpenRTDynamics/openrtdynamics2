@@ -156,13 +156,14 @@ class SystemInstance:
         
         
 
-def run_batch_simulation(system_instance : SystemInstance, input_data, N, output_keys=None, reset_system=True ):
+def run_batch_simulation(system_instance : SystemInstance, input_data, N=None, output_keys=None, reset_system=True ):
     """
         Run a simulation
         
         system_instance : SystemInstance - the instance of the system to simulate
         input_data                       - hash array containing the input data stored in arrays
-        N                                - the number of steps to simulate
+        N                                - optional: the number of steps to simulate; when None, N is determined
+                                           automatically given the input data.
         output_keys                      - a list of output signals of which the traces are stored
         reset_system                     - reset the system before starting the simulation (if false, a
                                            previous simulation can be continued)
@@ -192,9 +193,6 @@ def run_batch_simulation(system_instance : SystemInstance, input_data, N, output
     if output_keys is None:
         output_keys = system_instance.manifest['io']['outputs']['calculate_output']['names']
     
-    # allocate memory for output signals
-    storage = { k : np.zeros(N) for k in output_keys }
-
     # detect single values in input_data which will be treated as constants
     input_data_without_const_values = {}
     for k in input_data.keys():
@@ -208,6 +206,21 @@ def run_batch_simulation(system_instance : SystemInstance, input_data, N, output
             else:
                 input_data_without_const_values[k] = val
 
+    # determine the number of samples to simulate: find minimal N from given data
+    if N is None:
+
+        Nset = [ np.size(data) for k, data in input_data_without_const_values.items() ]
+
+        if len(Nset) == 0:
+            N = 1
+        else:
+            N = np.min(Nset)
+
+        # print('determined N ', N)
+
+
+    # allocate memory for output signals
+    storage = { k : np.zeros(N) for k in output_keys }
                 
     # reset system 
     if reset_system:
@@ -272,3 +285,8 @@ def show_required_inputs(testsim):
 
     print(x)
     
+
+
+
+
+
