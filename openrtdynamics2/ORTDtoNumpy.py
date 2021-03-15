@@ -3,8 +3,6 @@ import functools
 from . import lang as dy
 from . import py_execute as dyexe
 
-
-
 class ORTDtoNumpy:
     """
     Function decorator: autoconversion of systems in the OpenRTDynamics framework to functions that do batch processing using numpy in- and output arrays
@@ -38,7 +36,7 @@ class ORTDtoNumpy:
         
     def compile_system(self, input_signal_names):
 
-        
+        # put ORTD-code and define the schematic
         dy.clear()
         system = dy.enter_system()
         
@@ -74,8 +72,7 @@ class ORTDtoNumpy:
             
         self.output_signal_names = output_signal_names
         
-            
-        # generate code for Web Assembly (wasm), requires emcc (emscripten) to build
+        # generate c++ code
         self.code_gen_results = dy.generate_code(template=dy.TargetRawCpp(enable_tracing=False))    
     
         # run c++ compiler
@@ -93,28 +90,37 @@ class ORTDtoNumpy:
         
         if not self.is_compiled:
             
+            #
             input_signal_names = []
-            input_signal_counter = 1
+            
+            # find the function parameters that are annotated being ORTD-signals
+            # and add these signals to the list of input signals
+            for par_name, ann in self.func.__annotations__.items():
+                
+                if ann is dy.SignalUserTemplate:
+                    # print("ORTD input signal detected: ", par_name)
+                    
+                    input_signal_names.append(par_name)
+                    
+                else:
+                    raise BaseException('parameters that do not describe a ORTD-signal are not supported')
+                    
+                
+            # collect the position depended function parameters and add them as ORTD-signals
+            input_signal_counter = 1           
             
             for a in args:
-                input_signal_names.append('input_' + str(input_signal_counter))
-                input_signal_counter += 1
                 
-            
-
-            for k, v in kwargs.items():
-                # this is not implemented
-                
-                raise BaseException('Not implemented')
-                # print(k, '-->', v)
+                # print( repr(a), a )
                 
                 input_signal_names.append('input_' + str(input_signal_counter))
                 input_signal_counter += 1
                 
-                
+            #   
             self.input_signal_names = input_signal_names
+            
+            # compile the system described by the function
             self.compile_system(input_signal_names)
-        
             self.is_compiled = True
         
         
@@ -126,16 +132,33 @@ class ORTDtoNumpy:
         
         simulation_instance = dyexe.SystemInstance(self.compiled_system)
         
+        
+        # collect input data
         input_data = {}
+
+        
+        # input data from parameters that have been annotated as ORTD signals
+        for k, data in kwargs.items():
+            input_data[ k ] = data
+            
+
+        
+        # input data from position dependent parameters
         input_signal_counter = 1
+        
         for a in args:
             
             input_data[ 'input_' + str(input_signal_counter) ] = a            
             input_signal_counter += 1
 
                 
+                
+                
+                
+        # run the simulation
         sim_results = dyexe.run_batch_simulation(simulation_instance, input_data )
         
+        # return the results in the desired format
         if len(self.output_signal_names) > 1:
             
             # form a tuple used to return the computed data
@@ -158,37 +181,5 @@ class ORTDtoNumpy:
 
 
         
-        
-
-# @ORTDtoNumpy
-# def distance_to_line_np( xs, ys, xe, ye, x_test, y_test ):
-    
-#     Delta_l, distance_s_to_projection = distance_to_line(xs, ys, xe, ye, x_test, y_test)
-    
-#     return Delta_l, distance_s_to_projection
 
 
-
-# @ORTDtoNumpy
-# def test_fn( a, b ):
-    
-#     c = a + b
-#     d = a * b
-    
-#     return c, d
-
-
-# @ORTDtoNumpy
-# def test_fn2( a, b ):
-    
-#     c = a + b
-    
-#     return c
-
-
-# @ORTDtoNumpy
-# def test_fn2( u ):
-    
-#     y = dy.dtf_lowpass_1_order(u, 0.6)
-    
-#     return y
