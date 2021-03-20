@@ -50,13 +50,32 @@ By combination of these elements (and potentially others), more sophisticated si
 
 See also this [notebook](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/minimal_demo.ipynb) that contains a running example.
 
-## Generated code
+## Numpy interface
 
-The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost any target that understands traditional c++, for example, micro-controllers, nodes in the Robot Operating System (ROS) or any codebase written in c++.
+For convenient design and rapid prototyping, models can be executed directly inside the Python environment taking Numpy arrays as in- and outputs. I.e., the fastest way to run a simulation of a model in Python is given by the following example:
+
+    import numpy as np
+    import openrtdynamics2.lang as dy
+    from openrtdynamics2.ORTDtoNumpy import ORTDtoNumpy
+
+    @ORTDtoNumpy()
+    def low_pass( u, z_inf ):
+        y = dy.dtf_lowpass_1_order(u, z_inf)
+        return y
+
+    y1 = low_pass( np.ones(100), 0.9 )
+
+    # y1 is a numpy array containing the data for the output signal y
+
+A more detailed insight can be obtained in [example](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/numpy_interface.ipynb).
 
 ## Example Models
 
 A good starting point is given in [Simulation of controlled ODEs](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/pandemic_control.ipynb). Herein, some basic concepts are explained in an intuitive example.
+
+## Generated code
+
+The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost any target that understands traditional c++, for example, micro-controllers, nodes in the Robot Operating System (ROS) or any codebase written in c++.
 
 ## Documentation
 
