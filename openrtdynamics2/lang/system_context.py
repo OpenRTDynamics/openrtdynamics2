@@ -1,47 +1,39 @@
 from .diagram_core.system import System
+from typing import Dict, List
 from . import signal_interface as si
 
 
 current_simulation_context = None
-simulation_stack = []
+system_stack = []
 counter_of_created_systems = 1000
+list_of_code_sources = {}
 
 def init_simulation_context():
-    global simulation_stack
+    global system_stack
     global current_simulation_context
     global counter_of_created_systems
+    global list_of_code_sources
 
     current_simulation_context = None
-    simulation_stack = []
+    system_stack = []
     counter_of_created_systems = 1000
-
-
-def generate_subsystem_name():
-    """
-        automatically created unique name for a system
-    """
-    global counter_of_created_systems
-
-    name = 'Subsystem' + str(counter_of_created_systems)
-    counter_of_created_systems += 1
-
-    return name
+    list_of_code_sources = {}
 
 def push_simulation_context(sim):
-    global simulation_stack
+    global system_stack
     global current_simulation_context
 
     current_simulation_context = sim
-    simulation_stack.append(sim)
+    system_stack.append(sim)
 
 def pop_simulation_context():
-    global simulation_stack
+    global system_stack
     global current_simulation_context
 
-    old_context = simulation_stack.pop()
+    old_context = system_stack.pop()
 
-    if not len(simulation_stack) == 0:
-        new_context = simulation_stack[-1]
+    if not len(system_stack) == 0:
+        new_context = system_stack[-1]
     else:
         new_context = None
 
@@ -49,10 +41,21 @@ def pop_simulation_context():
 
     return new_context
 
-
 def get_system_context():
     global current_simulation_context
     return current_simulation_context
+
+
+def generate_subsystem_name():
+    """
+        automatically created a unique name for a system
+    """
+    global counter_of_created_systems
+
+    name = 'Subsystem' + str(counter_of_created_systems)
+    counter_of_created_systems += 1
+
+    return name
 
 def enter_system(name : str = 'simulation', upper_level_system = None):
     """
@@ -92,6 +95,7 @@ def set_primary_outputs(output_signals, names = None):
 
     get_system_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
+# TODO: rename!
 def append_primay_ouput(output_signal, export_name : str = None):
     """
         add an output to the current system
@@ -102,3 +106,19 @@ def append_primay_ouput(output_signal, export_name : str = None):
 
     get_system_context().append_primay_ouput(output_signal.unwrap)
     
+def include_cpp_code(identifier : str, code : str = None, include_files : List[str] = None, library_names : List[str] = None):
+    """
+    Include the given c++ source code into the code generation process
+    """
+
+    global list_of_code_sources
+
+    list_of_code_sources[identifier] = { 
+        'code' : code, 
+        'include_files' : include_files, 
+        'library_names' : library_names 
+    }
+
+def get_list_of_code_sources():
+    global list_of_code_sources
+    return list_of_code_sources

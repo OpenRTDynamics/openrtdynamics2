@@ -1,7 +1,7 @@
 from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
 from .code_generation_templates import TargetGenericCpp
-from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput
+from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput, get_list_of_code_sources
 
 import os
 import pathlib as pl
@@ -93,9 +93,6 @@ def compile_system(system = None):
     #
     return compile_results
 
-# def compile_current_system():
-#     return compile_system( get_system_context() )
-
 
 def show_execution_lines(compile_results):
 
@@ -103,12 +100,22 @@ def show_execution_lines(compile_results):
     print(Style.BRIGHT + "-------- List all execution lines and commands  --------")
     print()
 
+    # TODO: seems broken needs update 21.3.2021
+
     compile_results.command_to_execute.print_execution()
 
 
-def generate_code(template : TargetGenericCpp, folder=None, build=False, include_code_list : t.List[str] = [] ):
+def generate_code(template : TargetGenericCpp, folder=None, build=False, list_of_code_sources = {} ):
+    """
+    Generate code from the current system given a template
+    """
 
-    template.add_code_to_include(include_code_list)
+    # get includes
+    template.add_code_to_include(list_of_code_sources)
+
+    # includes that were specified by the command 'dy.include_cpp_code'
+    template.add_code_to_include(get_list_of_code_sources())
+
 
     # Compile system (propagate datatypes)
     compile_results = compile_system()

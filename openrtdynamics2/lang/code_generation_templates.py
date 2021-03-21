@@ -9,14 +9,14 @@ import json
 from pathlib import Path
 
 
-def _generate_algorithm_code( compile_results, enable_tracing=False, included_systems={}, include_code_list : List[str] = [] ):
+def _generate_algorithm_code( compile_results, enable_tracing=False, included_systems={}, list_of_code_sources = {} ):
     """
         generate code for the given compile result
 
         compile_results    - the compilation results of the a system
         enable_tracing     - include debuging
         included_systems   - unused so far
-        include_code_list  - list of strings containing code to include
+        list_of_code_sources  - list of strings containing code to include
     """
 
     main_command = compile_results.command_to_execute
@@ -29,9 +29,13 @@ def _generate_algorithm_code( compile_results, enable_tracing=False, included_sy
         main_command.command_to_put_main_system.set_tracing_infrastructure(True)
 
     # concatenate the custom code to include
-    if include_code_list is not None:
-        for code in include_code_list:
-            algorithm_code += '// custom code\n' + code + '\n// end of custom code\n\n'
+    if list_of_code_sources is not None:
+        for identifier, code_source in list_of_code_sources.items():
+
+            if 'code' in code_source:
+                algorithm_code += '// custom code\n' + code_source['code'] + '\n// end of custom code\n\n'
+            else:
+                raise BaseException('not implemented')
 
     # combine (concatenate) the code from the library entries
     for include in included_systems:
@@ -68,13 +72,13 @@ class TargetGenericCpp:
         # those are set via set_compile_results after a system is compiled
         self.compileResults = None
         self.main_command = None
-        self._include_code_list = None
+        self._list_of_code_sources = {}
 
         #
         self._algorithm_code = None
 
         # list of systems to include
-        self._includedSystems = []
+        self._included_systems = []
 
         self._enable_tracing = enable_tracing
 
@@ -83,10 +87,10 @@ class TargetGenericCpp:
         self.main_command = compile_results.command_to_execute
 
     def include_systems(self, system : SystemLibraryEntry):
-        self._includedSystems = system
+        self._included_systems = system
 
-    def add_code_to_include(self, include_code_list : List[str] = []):
-        self._include_code_list = include_code_list
+    def add_code_to_include(self, list_of_code_sources = {}):
+        self._list_of_code_sources = { **self._list_of_code_sources, **list_of_code_sources }
 
     def get_algorithm_code(self):
         """
@@ -102,8 +106,8 @@ class TargetGenericCpp:
         self.manifest, self._algorithm_code = _generate_algorithm_code(
             self.compileResults, 
             self._enable_tracing, 
-            self._includedSystems, 
-            self._include_code_list
+            self._included_systems, 
+            self._list_of_code_sources
         )
 
         
