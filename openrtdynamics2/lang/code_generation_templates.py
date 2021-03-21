@@ -142,7 +142,7 @@ class TargetGenericCpp:
         inputAll_NamesCSVList, inputAll_NamesVarDef, inputAll_PrinfPattern = makeStrings( allInputs )
 
         # the names of input and output signals of the outputCommand combined
-        calcOutputsArgs = cgh.signal_list_to_name_list( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
+        calcOutputsArgs = cgh.signal_list_to_names_string( self.main_command.command_to_put_main_system.outputCommand.outputSignals + self.main_command.command_to_put_main_system.outputCommand.inputSignals )
 
         # fill in template
         self.template = Template(self.template).safe_substitute(  
@@ -250,7 +250,8 @@ $algorithmCode
 
 class TargetBasicExecutable(TargetGenericCpp):
     """
-        generates code for the runtime evironment
+        Generates a basic program running the simulation in a loop using the default input signals
+        and printing the values for the output signals.
     """
 
     def __init__(self, i_max : int, input_signals_mapping = {} ):
@@ -259,7 +260,7 @@ class TargetBasicExecutable(TargetGenericCpp):
 
         TargetGenericCpp.__init__(self)
 
-        self.input_signals_mapping = input_signals_mapping
+        self.input_signals_mapping = input_signals_mapping  # TODO: remove and replace by information from manifest
         self.initCodeTemplate()
 
         
@@ -290,14 +291,12 @@ class TargetBasicExecutable(TargetGenericCpp):
 
         self.codeFolder = folder
 
-        f = open(os.path.join( folder + "main.cpp"), "w")
+        f = open( Path( folder ) / "main.cpp", "w")
         f.write( self.sourceCode )
         f.close()
 
-
     def build(self):
         os.system("c++ " + self.codeFolder + "main.cpp -o " + self.codeFolder + "main")
-
 
     def run(self):
         # run the generated executable
@@ -360,7 +359,7 @@ int main () {
     // output signals
     $outputNamesVarDef
 
-    // const assignments of the input signals
+    // assign constants to the input signals
     $inputConstAssignment
 
     // reset the simulation
