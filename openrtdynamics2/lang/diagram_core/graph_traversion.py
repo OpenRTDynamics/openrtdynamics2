@@ -1,5 +1,7 @@
 from .signal_network.signals import *
 from .signal_network.Block import *
+# from .system import * 
+
 
 from typing import Dict, List
 from colorama import init,  Fore, Back, Style
@@ -272,27 +274,6 @@ class BuildExecutionPath:
 
         self._show_print = show_print
 
-        # # list of signals the computation depends on (the tips of the execution tree)
-        # dependencySignals = []
-
-        # dependency_signals_through_states = []
-
-        # # the list of signals to compute in correct order 
-        # execution_order = []
-
-        # # the list of simulation input signals required for the computation
-        # dependency_signals_simulation_inputs = []
-
-        # # For each signgal execution_order there might be a blocks that
-        # # has an internal memory. It is required to build a list of those blocks
-        # # that need a state update after their output(s) are calculated.
-        # blocks_to_update_states = []
-
-
-
-
-
-
         # list of marked signals (important to reset their visited flags)
         self.markedSignals = []
 
@@ -304,11 +285,11 @@ class BuildExecutionPath:
         self.resetMarkers()
 
 
-    def getExecutionLine(self, signalToCalculte : Signal):
+    def getExecutionLine(self, signal_to_calculate : Signal, current_system):
 
         """
             get the order of computation steps and their order that have
-            to be performed to compute 'signalToCalculte'
+            to be performed to compute 'signal_to_calculate'
             
             For each call to this function, a list is generated that does not contain
             signals that are already part of a previous list (that are already computed)
@@ -321,7 +302,7 @@ class BuildExecutionPath:
 
             execution_order contains the list of signals to comute in the correct order including
             the target signals. Not included in this list are signals that cross the border to the simulation
-            specified by signalToCalculte.system (coming from an outer system). Further, not included are
+            specified by signal_to_calculate.system (coming from an outer system). Further, not included are
             signals that have been computet in a previous call to getExecutionLine().
 
             dependency_signals contains all signals that are required to comput signalToCalculate
@@ -335,13 +316,8 @@ class BuildExecutionPath:
         if self._show_print > 0:
             print("getExecutionLine on level " + str(self.level) )
 
-  
-
-        # search within this system        # NOTE: !THIS IS WRONG
-        self.system = signalToCalculte.sim
-
         # compute by traversing the tree
-        execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states = self.backwardTraverseSignalsExec__(startSignal=signalToCalculte, depthCounter = 0)
+        execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states = self.backwardTraverseSignalsExec__(startSignal=signal_to_calculate, depthCounter = 0, current_system=current_system)
 
         # the iteration level
         self.level = self.level + 1
@@ -369,7 +345,7 @@ class BuildExecutionPath:
         return signal.graphTraversionMarkerMarkIsVisited()
 
     # Start backward traversion starting from the given startSignal
-    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, system_context = None):
+    def backwardTraverseSignalsExec__(self, startSignal : Signal, depthCounter : int, current_system):
         # WARNING: This is a recursive function!
 
         # the list of signals to compute in correct order 
@@ -416,7 +392,7 @@ class BuildExecutionPath:
             raise BaseException('not implemented or internal error: unexpected type of signal ' + startSignal.name)
 
         # check if the signal is a system input signal
-        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
+        is_crossing_simulation_border = startSignal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
 
         # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not computed)
         #  and not isinstance(startSignal, SimulationInputSignal)
@@ -448,7 +424,7 @@ class BuildExecutionPath:
             return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
 
         if is_crossing_simulation_border:
-            # signal is an input to the simulation
+            # signal is an input to the system
             # add to the list of dependent inputs
 
             if self._show_print > 1:
@@ -544,7 +520,7 @@ class BuildExecutionPath:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
             # R E C U R S I O N
-            A_execution_order, A_dependency_signals, A_dependency_signals_simulation_inputs, A_blocks_to_update_states, A_dependency_signals_through_states = self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1 )
+            A_execution_order, A_dependency_signals, A_dependency_signals_simulation_inputs, A_blocks_to_update_states, A_dependency_signals_through_states = self.backwardTraverseSignalsExec__( signal, depthCounter = depthCounter + 1, current_system=current_system )
 
             execution_order.extend(                      A_execution_order )
             dependency_signals.extend(                   A_dependency_signals )

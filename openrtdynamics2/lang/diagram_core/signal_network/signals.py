@@ -114,7 +114,7 @@ class Signal(object):
         # check if this signal is coming from an upper/outer system 
         # (if not it comes from a parallel system that cannot be accessed: this is an error)
 
-        # go up in the system-nesting hirachy starting at system
+        # go up in the system-nesting hierarchy starting at system
         system_iter = system
 
         while system_iter.parent_system is not None:

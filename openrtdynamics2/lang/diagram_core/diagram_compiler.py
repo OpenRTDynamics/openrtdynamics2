@@ -206,7 +206,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     for s in list(signals_to_compute):
 
-        elForOutputS = E.getExecutionLine( s )
+        elForOutputS = E.getExecutionLine( s, system )
 
         if enable_print > 1:
             elForOutputS.printExecutionLine()
@@ -317,7 +317,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         for s in dependencySignalsThroughStates:
 
             # get execution line to calculate s
-            executionLineForS = E.getExecutionLine(s)
+            executionLineForS = E.getExecutionLine(s, system)
 
             # store this execution line
             executionLinesForCurrentOrder.append(executionLineForS)
