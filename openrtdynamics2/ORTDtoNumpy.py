@@ -6,7 +6,7 @@ from . import py_execute as dyexe
 import functools
 
 
-def ORTDtoNumpy(**kwargs_decorator):
+def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **kwargs_decorator):
     """
     Function decorator: autoconversion of systems in the OpenRTDynamics framework to functions that do batch processing using numpy in- and output arrays
 
@@ -46,7 +46,7 @@ def ORTDtoNumpy(**kwargs_decorator):
             compile the system that is defined by a given function
             
             func                 - the function that describes the system
-            kwargs               - constant parameters to the function (non signals)
+            kwargs               - constant parameters to the function (no signals)
             input_signal_names_p - names of the input signals that are passed via position dependent parameters (the order is important)
             input_signal_names   - names of the input signals that are passed via named parameters
             
@@ -173,11 +173,27 @@ def ORTDtoNumpy(**kwargs_decorator):
                 input_data[ 'input_' + str(input_signal_counter) ] = a            
                 input_signal_counter += 1
 
+            #
             # run the simulation
-            sim_results = dyexe.run_batch_simulation(ORTDtoNumpy_inner.simulation_instance, input_data )
+            #
 
+            # ORTDtoNumpy_inner.kwargs_decorator
+            if ORTDtoNumpy_inner.custom_simulator_loop is None:
+                sim_results = dyexe.run_batch_simulation(ORTDtoNumpy_inner.simulation_instance, input_data )
+            else:
+                # run the user-provided simulation loop
+                sim_results = ORTDtoNumpy_inner.custom_simulator_loop(ORTDtoNumpy_inner.simulation_instance, input_data )
+
+
+            #
             # return the results in the desired format
-            if len(ORTDtoNumpy_inner.output_signal_names) > 1:
+            #
+
+            if ORTDtoNumpy_inner.outputs_in_hash_array:
+
+                return sim_results
+
+            elif len(ORTDtoNumpy_inner.output_signal_names) > 1:
 
                 # form a tuple used to return the computed data
                 return_value_in_tuple_form = ()
@@ -199,11 +215,12 @@ def ORTDtoNumpy(**kwargs_decorator):
         #
         # 'member vars' of class instance 'ORTDtoNumpy_inner' (which is a python function used as a class)
         #
-                
-        # is the system that is defined by the function already compiled?
-        ORTDtoNumpy_inner.kwargs_decorator = kwargs_decorator
         
-        ORTDtoNumpy_inner.is_compiled           = False        
+        ORTDtoNumpy_inner.kwargs_decorator      = kwargs_decorator
+        ORTDtoNumpy_inner.custom_simulator_loop = custom_simulator_loop
+        ORTDtoNumpy_inner.outputs_in_hash_array = outputs_in_hash_array
+        
+        ORTDtoNumpy_inner.is_compiled           = False # is the system that is defined by the function already compiled?     
         ORTDtoNumpy_inner.code_gen_results      = None
         ORTDtoNumpy_inner.compiled_system       = None
 
