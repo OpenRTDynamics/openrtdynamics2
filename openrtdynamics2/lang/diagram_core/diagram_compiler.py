@@ -38,11 +38,11 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
     def __init__(self):
 
         # self._manifest = None
-        self._compleResults = None
+        self._comple_results = None
 
     @property
     def compileResults(self):
-        return self._compleResults
+        return self._comple_results
     
     def traverseSubSystems(self, system : System, level):
 
@@ -88,7 +88,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         system.compile_result = compile_result
 
         if is_top_level_system:
-            self._compleResults = compile_result
+            self._comple_results = compile_result
 
         return compile_result
 
@@ -108,13 +108,13 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         if main_compile_result is None:
             raise BaseException("failed to obtain the compilation results")
 
-        self._compleResults = main_compile_result
+        self._comple_results = main_compile_result
 
         return main_compile_result
 
 
 
-def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=1):
+def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=0):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -164,7 +164,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         if blk.output_signals is not None:
             if len(blk.output_signals) == 0: # no output signals --> must be a sink
 
-                print(Style.BRIGHT, "found a sink-type block in (sub)system", blk.name, system.name)
+                # print(Style.BRIGHT, "found a sink-type block in (sub)system", blk.name, system.name)
 
                 inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
                 if inputs_to_update_states_tmp is not None:
@@ -206,7 +206,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     for s in list(signals_to_compute):
 
-        elForOutputS = E.getExecutionLine( s, system )
+        elForOutputS = E.determine_execution_order( s, system )
 
         if enable_print > 1:
             elForOutputS.printExecutionLine()
@@ -227,9 +227,9 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     print("building execution paths...")
 
-    # look into executionLineToCalculateOutputs.dependencySignals and use E.getExecutionLine( ) for each
+    # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
     # element. Also collect the newly appearing dependency signals in a list and also 
-    # call E.getExecutionLine( ) on them. Stop until no further dependend signal appear.
+    # call E.determine_execution_order( ) on them. Stop until no further dependend signal appear.
     # finally concatenare the execution lines
 
     # start with following signals to be computed
@@ -317,7 +317,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         for s in dependencySignalsThroughStates:
 
             # get execution line to calculate s
-            executionLineForS = E.getExecutionLine(s, system)
+            executionLineForS = E.determine_execution_order(s, system)
 
             # store this execution line
             executionLinesForCurrentOrder.append(executionLineForS)
