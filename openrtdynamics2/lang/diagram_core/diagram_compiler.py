@@ -71,7 +71,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-        compile_result = compile_single_system( system, reduce_uneeded_code = not is_top_level_system )
+        compile_result = compile_single_system( system, reduce_not_needed_code = not is_top_level_system )
 
 
         # # produre commands for building/executing
@@ -114,7 +114,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=0):
+def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=1):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -164,7 +164,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
         if blk.output_signals is not None:
             if len(blk.output_signals) == 0: # no output signals --> must be a sink
 
-                # print(Style.BRIGHT, "found a sink-type block", blk.name)
+                print(Style.BRIGHT, "found a sink-type block in (sub)system", blk.name, system.name)
 
                 inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
                 if inputs_to_update_states_tmp is not None:
@@ -212,7 +212,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
             elForOutputS.printExecutionLine()
 
         # merge all lines into one
-        # TODO use sets inside 'appendExecutionLine' some block are present twiche
+        # TODO use sets inside 'appendExecutionLine' some block are present twice
         executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
 
 
@@ -273,7 +273,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
                                                 inputSignals=simulationInputSignalsToCalculateOutputs,
                                                 outputSignals=outputSignals, 
                                                 executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
-                                                generate_wrappper_functions = not reduce_uneeded_code )
+                                                generate_wrappper_functions = not reduce_not_needed_code )
 
     # Initialize the list of commands to execute to update the states
     commandsToExecuteForStateUpdate = []
@@ -384,11 +384,11 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
 
 
 
-        # create state update command and append to the list of commnds to execute for state-update
+        # create state update command and append to the list of commands to execute for state-update
         sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
         commandsToExecuteForStateUpdate.append( sUpCmd )
 
-        # get the dependendy singals of the current order
+        # get the denpendent singals of the current order
         # TODO important: remove the signals that are already computable from this list
         #dependencySignals = executionLineForCurrentOrder.dependencySignals
         dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
@@ -396,19 +396,19 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
         dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
 
 
-        # TODO: handle special case in which a simulation input is requried for the state update of a block
+        # TODO: handle special case in which a simulation input is required for the state update of a block
         #       and was before found to be required to calculate the outpus of sth. 
-        # instead of printing 'has already been calculated in a previous traversion' create an input to the update() function
+        # instead of printing 'has already been calculated in a previous traversal' create an input to the update() function
         #
         # --- signals needed *indirectly* for s30 (through state update) --
         # -> S osc_excitement
         # -> S s22
         # --- signals needed for s30 --
         # -> S osc_excitement
-        # .  has already been calculated in a previous traversion
+        # .  has already been calculated in a previous traversal
 
 
-        # find out which singnals must be further computed to allow a state-update of the blocks
+        # find out which signals must be further computed to allow a state-update of the blocks
         dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
 
         # add the system inputs needed to update the states
@@ -433,7 +433,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
                                             inputSignals=list(simulationInputSignalsToUpdateStates), 
                                             outputSignals=[], 
                                             executionCommands=commandsToExecuteForStateUpdate,
-                                            generate_wrappper_functions = not reduce_uneeded_code )
+                                            generate_wrappper_functions = not reduce_not_needed_code )
 
     # code to reset add blocks in the simulation
     commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All)
@@ -443,7 +443,7 @@ def compile_single_system(system, reduce_uneeded_code = False, enable_print:int=
                                             inputSignals=[], 
                                             outputSignals=[], 
                                             executionCommands=[commandsToExecuteForStateReset],
-                                            generate_wrappper_functions = not reduce_uneeded_code )
+                                            generate_wrappper_functions = not reduce_not_needed_code )
 
 
     # define the interfacing class

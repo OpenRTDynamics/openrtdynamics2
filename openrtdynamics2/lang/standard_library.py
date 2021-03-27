@@ -335,7 +335,7 @@ def counter():
     if not 'counter' in dy.get_system_context().components:
         # no counter has been defined in this system so far. Hence, create one.
 
-        increase = dy.const(1, dy.DataTypeInt32(1) )
+        increase = dy.const(1, dy.DataTypeInt32(1) ).set_name('cnt_increase')
         cnt = dy.signal()
         tmp = dy.delay(cnt + increase)
         cnt << tmp 
