@@ -34,46 +34,26 @@ class Signal(object):
         # used by graph_traversion as a helper variable to perform a marking of the graph nodes
         self.graphTraversionMarker = -1
 
-        # inherit the datatype for this anonymous signals from the signal refered to by inherit_datatype_of_signal
+        # inherit the datatype for this anonymous signals from the signal referred to by inherit_datatype_of_signal
         self.inherit_datatype_of_signal = None
 
-
-
-
-
-
-
-        # In case not None: the data/value of the signal are aboutained from the given signal
+        # In case not None: the data/value of the signal are obtained from the given signal
         # NOTE: not used so far.
         self._data_link = None
-
-
-
-
-
-
-
-
 
         # NOTE: this mus be the last in the list
         # notify the creation of this signal
         self.sim.datatype_propagation_instance.notifySignal(self)
 
         # properties (user)
-        self._properties = None
+        self.properties = {}
 
         # properties (internal, controlled by block prototypes)
         self.properties_internal = {}
 
-        # optional: port number of input / output w.r.t. to the system 'sim'
+        # optional: port number of input / output w.r.t. the system 'sim'
         self.port = None
 
-    @property
-    def properties(self):
-        return self.lookupSource()._properties
-
-    def set_properties(self, p):
-        self.lookupSource()._properties = p
 
     # TODO: remove
     def getDatatype(self):
@@ -175,7 +155,7 @@ class Signal(object):
 
         return self
 
-    # set the name of this signal (this method shall not get overwritten)
+    # set the name of this signal (this method shall not be overwritten)
     def set_name_raw(self, name):
         self.lookupSource()._name = name
 

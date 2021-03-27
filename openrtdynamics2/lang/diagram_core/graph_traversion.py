@@ -397,7 +397,7 @@ class BuildExecutionPath:
         # check if the signal is a system input signal
         is_crossing_simulation_border = startSignal.is_crossing_system_boundary(self.system) #  self.system != startSignal.sim
 
-        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not comuted)
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not computed)
         #  and not isinstance(startSignal, SimulationInputSignal)
         if startSignal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
             # - a previously computed signal has been reached

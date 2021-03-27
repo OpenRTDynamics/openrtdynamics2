@@ -58,7 +58,7 @@ class SignalUserTemplate(object):
     @property
     def properties(self):
         """
-        A hash array of properties
+        A hash array of properties describing the signal
         """
         return self._wrapped_signal.properties
 
@@ -66,7 +66,7 @@ class SignalUserTemplate(object):
         """
         Set the properties of the signal
         """
-        self._wrapped_signal.set_properties(p)
+        self._wrapped_signal.properties = { **self._wrapped_signal.properties, **p }
         return self
 
     def set_datatype(self, datatype):
@@ -81,6 +81,7 @@ class SignalUserTemplate(object):
         self._wrapped_signal.set_name(name)
         return self
 
+    # TODO: can this be removed?
     def set_name_raw(self, name):
         self._wrapped_signal.set_name_raw(name)
         return self
@@ -88,7 +89,7 @@ class SignalUserTemplate(object):
 
     def extend_name(self, name):
         """
-        Extand the current signal identifier by appending characters at the end of the string
+        Extend the current signal identifier by appending characters at the end of the string
         """
         self._wrapped_signal.set_name( self._wrapped_signal.name + name )
         return self
@@ -221,32 +222,13 @@ class SignalUser(SignalUserTemplate):
 
 
 
-    # only ananymous signal
+    # only for anonymous (feedback) signals
     def __lshift__(self, other): 
         # close a feedback loop by connecting the signals self and other        
         self.unwrap.setequal(other.unwrap)
         
         return other
 
-
-
-
-# #
-# # TODO: is this still needed?
-# #
-# class SubsystemOutputLinkUser(SignalUser):
-#     """
-#         A signal that serves as a placeholder for a subsystem output to be used in the embedding
-#         system. A datatype must be specified.
-
-#         Signals of this kind are automatically generated during the compilation process when cutting the signals comming 
-#         from the subsystem blocks. 
-#     """
-
-#     def __init__(self, sim, original_signal : Signal):
-#         self._original_signal = original_signal
-
-#         SignalUser.__init__(self, sim)
 
 
 
@@ -269,7 +251,7 @@ class BlockOutputSignalUser(SignalUserTemplate):
 
 class SimulationInputSignalUser(SignalUserTemplate):
     """
-        A special signal that markes an input to a simulation.
+        A special signal that marks an input to a simulation.
     """
 
     def __init__(self, sim, datatype = None):

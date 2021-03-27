@@ -54,7 +54,7 @@ class DatatypePropagation:
 
         # fill in to self.signalsWithUpdatedDeterminedTypes or self.signalsWithUnderminedTypes
 
-        if signal.getDatatype() is None:
+        if signal.datatype is None:
 
             # put to the list of signals with undetermined datatypes
             self.signalsWithUnderminedTypes.append( signal )
