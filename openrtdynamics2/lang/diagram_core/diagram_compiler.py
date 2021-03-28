@@ -164,7 +164,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         if blk.output_signals is not None:
             if len(blk.output_signals) == 0: # no output signals --> must be a sink
 
-                print(Style.BRIGHT, "found a sink-type block in (sub)system", blk.name, system.name)
+                # print(Style.BRIGHT, "found a sink-type block in (sub)system", blk.name, system.name)
 
                 inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
                 if inputs_to_update_states_tmp is not None:

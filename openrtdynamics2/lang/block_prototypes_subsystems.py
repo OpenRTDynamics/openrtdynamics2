@@ -78,14 +78,6 @@ class GenericSubsystem(bi.BlockPrototype):
 
         return self._embedded_subsystem
 
-    # def set_anonymous_output_signal_to_connect(self, anonymous_output_signals):
-    #     """
-    #         store a list of anonymous signals to connect to the outputs of the subsystems
-    #         after running the post_compile_callback
-    #     """
-    #     # List of raw signals 
-    #     self.anonymous_output_signals = anonymous_output_signals
-
     def compile_callback_all_subsystems_compiled(self):
 
         embedded_system = self._embedded_subsystem
@@ -201,26 +193,6 @@ class GenericSubsystem(bi.BlockPrototype):
 
         # define the inputs
         self.update_input_config( self.allInputs )
-
-        # # connect the outputs signals
-        # if self.anonymous_output_signals is not None:
-
-        #     print(" -- Nesting block: connecting anonymous signals -- ")
-
-        #     Ns = len(self.outputSignals)
-
-        #     if not Ns == len(  self.anonymous_output_signals ):
-        #         raise BaseException(" missmatch in the number of output signals")
-
-        #     for i in range(0,Ns):
-                
-        #         s_ananon = self.anonymous_output_signals[i]
-        #         s_source = self.outputSignals[i]
-
-        #         print("connecting the output " + s_ananon.toStr() + " of the embedding block")
-        #         s_ananon.setequal( s_source )
-
-
 
         # for code generation
         self.instanceVarname = self.getUniqueVarnamePrefix() + '_subsystem_' + self.manifest.API_name
