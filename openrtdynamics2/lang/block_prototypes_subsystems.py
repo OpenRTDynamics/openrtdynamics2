@@ -44,9 +44,9 @@ class GenericSubsystem(bi.BlockPrototype):
             else:
                 raise BaseException("N_outputs and a manifest specified at the same time")
 
-        # output signals that were created by sth. ourside of this prototype
-        # and that need to be connected to the actual outputs when init() is called.
-        self.anonymous_output_signals = None
+        # # output signals that were created by sth. ourside of this prototype
+        # # and that need to be connected to the actual outputs when init() is called.
+        # self.anonymous_output_signals = None
 
         # optional (in case this block is in charge of putting the code for the subsystem)
         self.compileResult = None
@@ -78,13 +78,13 @@ class GenericSubsystem(bi.BlockPrototype):
 
         return self._embedded_subsystem
 
-    def set_anonymous_output_signal_to_connect(self, anonymous_output_signals):
-        """
-            store a list of anonymous signals to connect to the outputs of the subsystems
-            after running the post_compile_callback
-        """
-        # List of raw signals 
-        self.anonymous_output_signals = anonymous_output_signals
+    # def set_anonymous_output_signal_to_connect(self, anonymous_output_signals):
+    #     """
+    #         store a list of anonymous signals to connect to the outputs of the subsystems
+    #         after running the post_compile_callback
+    #     """
+    #     # List of raw signals 
+    #     self.anonymous_output_signals = anonymous_output_signals
 
     def compile_callback_all_subsystems_compiled(self):
 
@@ -196,29 +196,29 @@ class GenericSubsystem(bi.BlockPrototype):
         self.allInputs.extend( self.inputsToUpdateStates )
 
         #
-        # now initialize the propotype
+        # now initialize the prototype
         #
 
         # define the inputs
         self.update_input_config( self.allInputs )
 
-        # connect the outputs signals
-        if self.anonymous_output_signals is not None:
+        # # connect the outputs signals
+        # if self.anonymous_output_signals is not None:
 
-            print(" -- Nesting block: connecting anonymous signals -- ")
+        #     print(" -- Nesting block: connecting anonymous signals -- ")
 
-            Ns = len(self.outputSignals)
+        #     Ns = len(self.outputSignals)
 
-            if not Ns == len(  self.anonymous_output_signals ):
-                raise BaseException(" missmatch in the number of output signals")
+        #     if not Ns == len(  self.anonymous_output_signals ):
+        #         raise BaseException(" missmatch in the number of output signals")
 
-            for i in range(0,Ns):
+        #     for i in range(0,Ns):
                 
-                s_ananon = self.anonymous_output_signals[i]
-                s_source = self.outputSignals[i]
+        #         s_ananon = self.anonymous_output_signals[i]
+        #         s_source = self.outputSignals[i]
 
-                print("connecting the output " + s_ananon.toStr() + " of the embedding block")
-                s_ananon.setequal( s_source )
+        #         print("connecting the output " + s_ananon.toStr() + " of the embedding block")
+        #         s_ananon.setequal( s_source )
 
 
 

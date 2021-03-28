@@ -145,7 +145,7 @@ class sub_if:
         dy.leave_system()
 
         #
-        # now in the system in which the embeder block (including the logic) shall be placed.
+        # now in the system in which the embeding block (including the logic) shall be placed.
         #
 
         # create the embedder prototype
