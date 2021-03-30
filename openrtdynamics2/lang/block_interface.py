@@ -52,6 +52,7 @@ class BlockPrototype(object):
 
         self.block.configOutputSignals( self._outputSignals )
 
+    # TODO: remove
     def update_input_config(self, input_signals):
         """
             The input signal might be unknown on construction. 

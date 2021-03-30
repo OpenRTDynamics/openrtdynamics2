@@ -124,6 +124,9 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
     def compile_callback_all_subsystems_compiled(self):
 
+        # call back of the embedding of the subsystem
+        self._subsystem_prototype.callback_on_system_compiled( self.getUniqueVarnamePrefix() )
+
         # Get all input signals required by the subsystem
         set_of_all_inputs = set()
         set_of_all_inputs.update( self._subsystem_prototype.inputs )
@@ -132,6 +135,8 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         set_of_all_inputs.update( self._control_inputs )
 
         self._list_of_all_inputs = list(set_of_all_inputs)
+
+ 
 
     def compile_callback_all_datatypes_defined(self):
         pass

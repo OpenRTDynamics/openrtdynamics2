@@ -126,6 +126,10 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         set_of_all_inputs = set()
 
         for subsystem_prototype in self._subsystem_prototypes:
+
+            # call back of the embedding of the subsystem
+            subsystem_prototype.callback_on_system_compiled( self.getUniqueVarnamePrefix() )
+
             set_of_all_inputs.update( subsystem_prototype.inputs )
 
         self._list_of_all_subsystem_inputs = list( set_of_all_inputs )

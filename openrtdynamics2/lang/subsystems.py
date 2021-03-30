@@ -54,10 +54,13 @@ class sub_if:
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
 
         # create generic subsystem block prototype
-        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-                                                    manifest=None, inputSignals=None, 
-                                                    embedded_subsystem=embedded_subsystem,
-                                                    N_outputs=len(self._outputs_of_embedded_subsystem) )
+        # self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
+        #                                             manifest=None, inputSignals=None, 
+        #                                             embedded_subsystem=embedded_subsystem,
+        #                                             N_outputs=len(self._outputs_of_embedded_subsystem) )
+
+
+        self._subsystem_block_prototype = bp.SystemEmbedder(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -151,10 +154,12 @@ class sub_loop:
         embedded_subsystem.set_primary_outputs(  all_output_signals  )
 
         # create generic subsystem block prototype
-        self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-                                                    manifest=None, inputSignals=None, 
-                                                    embedded_subsystem=embedded_subsystem,
-                                                    N_outputs=len(all_output_signals) )
+        # self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
+        #                                             manifest=None, inputSignals=None, 
+        #                                             embedded_subsystem=embedded_subsystem,
+        #                                             N_outputs=len(all_output_signals) )
+
+        self._subsystem_block_prototype = bp.SystemEmbedder(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -357,16 +362,18 @@ class SwitchedSubsystemPrototype:
         embedded_subsystem = dy.get_system_context()
 
         #
-        number_of_subsystem_outputs = len(self._outputs_of_embedded_subsystem)
+        # number_of_subsystem_outputs = len(self._outputs_of_embedded_subsystem)
 
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
 
         # create generic subsystem block prototype
-        self._embeddedingBlockPrototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-                                                    manifest=None, inputSignals=None, 
-                                                    embedded_subsystem=embedded_subsystem,
-                                                    N_outputs=number_of_subsystem_outputs )
+        # self._embeddedingBlockPrototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
+        #                                             manifest=None, inputSignals=None, 
+        #                                             embedded_subsystem=embedded_subsystem,
+        #                                             N_outputs=number_of_subsystem_outputs )
+
+        self._embeddedingBlockPrototype = bp.SystemEmbedder(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()

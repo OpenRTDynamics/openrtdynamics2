@@ -429,29 +429,34 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
 
     # Build API to update the states: e.g. c++ function updateStates()
-    commandToUpdateStates = PutAPIFunction( nameAPI = 'updateStates', 
-                                            inputSignals=list(simulationInputSignalsToUpdateStates), 
-                                            outputSignals=[], 
-                                            executionCommands=commandsToExecuteForStateUpdate,
-                                            generate_wrappper_functions = not reduce_not_needed_code )
+    commandToUpdateStates = PutAPIFunction(
+        nameAPI = 'updateStates', 
+        inputSignals=list(simulationInputSignalsToUpdateStates), 
+        outputSignals=[], 
+        executionCommands=commandsToExecuteForStateUpdate,
+        generate_wrappper_functions = not reduce_not_needed_code
+    )
 
     # code to reset add blocks in the simulation
     commandsToExecuteForStateReset = CommandResetStates( blockList=blocksWhoseStatesToUpdate_All)
 
     # create an API-function resetStates()
-    commandToResetStates = PutAPIFunction( nameAPI = 'resetStates', 
-                                            inputSignals=[], 
-                                            outputSignals=[], 
-                                            executionCommands=[commandsToExecuteForStateReset],
-                                            generate_wrappper_functions = not reduce_not_needed_code )
+    commandToResetStates = PutAPIFunction(
+        nameAPI = 'resetStates', 
+        inputSignals=[], 
+        outputSignals=[], 
+        executionCommands=[commandsToExecuteForStateReset],
+        generate_wrappper_functions = not reduce_not_needed_code
+    )
 
 
     # define the interfacing class
-    command_to_execute_system = PutSystem(    system = system,
-                                                    resetCommand = commandToResetStates, 
-                                                    updateCommand = commandToUpdateStates,
-                                                    outputCommand = commandToPublishTheResults
-                                                )
+    command_to_execute_system = PutSystem(
+        system = system,
+        resetCommand = commandToResetStates, 
+        updateCommand = commandToUpdateStates,
+        outputCommand = commandToPublishTheResults
+    )
 
     # collect all (needed) inputs to this system
     allinputs = set(( simulationInputSignalsToUpdateStates ))
