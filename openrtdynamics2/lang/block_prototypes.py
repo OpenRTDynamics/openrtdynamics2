@@ -25,61 +25,7 @@ from typing import Dict, List
 
 
 
-
-
-# # REMOVE THIS
-# def embed_subsystem(language, system_prototype, ouput_signals_name=None, calculate_outputs = True, update_states = False ):
-#     """  
-#         generate code to call a subsystem (TODO: this is obsolete remove it!)
-
-#         - system_prototype   - the block prototype including the subsystem - type: : dy.GenericSubsystem
-#         - ouput_signals_name - list of variable names to which the output signals of the subsystem are assigned to
-#         - calculate_outputs  - generate a call to the output computation API function of the subsystem
-#         - update_states      - generate a call to the state update API function of the subsystem
-#     """
-
-
-#     lines = '{ // subsystem ' + system_prototype.embedded_subsystem.name + '\n'
-
-#     innerLines = ''
-
-#     #
-#     # system_prototype is of type GenericSubsystem. call the code generation routine of the subsystem
-#     #
-
-#     # generate code for calculating the outputs 
-#     if calculate_outputs:
-
-#         innerLines += system_prototype.generate_code_output_list(language, system_prototype.outputs)
-
-#         if len(system_prototype.outputs) != len(ouput_signals_name):
-#             raise BaseException('len(system_prototype.outputs) != len(ouput_signals_name)')
-
-
-
-
-#         for i in range( 0, len( ouput_signals_name ) ): # NOTE:
-#             innerLines += asign( system_prototype.outputs[i].name, ouput_signals_name[i] )
-
-#     # generate code for updating the states
-#     if update_states:
-#         innerLines += system_prototype.generate_code_update(language)
-
-
-#     lines += indent(innerLines)
-#     lines += '}\n'
-
-#     return lines
-
-
-
-
-
-
-
-
-
-class TruggeredSubsystem(SingleSubsystemEmbedder):
+class TriggeredSubsystem(SingleSubsystemEmbedder):
     """
         Include a triggered sub-system
 
@@ -91,15 +37,17 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : System, control_input : Signal, subsystem_prototype : GenericSubsystem,  prevent_output_computation = False ):
+    def __init__(self, system : System, control_input : Signal, subsystem_wrapper : SystemWrapper,  prevent_output_computation = False ):
         
         self._control_input = control_input
         self.prevent_output_computation = prevent_output_computation
 
-        SingleSubsystemEmbedder.__init__(self, sim, 
-                                        control_inputs=[control_input], 
-                                        subsystem_prototype=subsystem_prototype, 
-                                        number_of_control_outputs=0 )
+        SingleSubsystemEmbedder.__init__(
+            self, system, 
+            control_inputs=[control_input], 
+            subsystem_wrapper=subsystem_wrapper, 
+            number_of_control_outputs=0
+        )
 
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
@@ -108,11 +56,11 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         if language == 'c++':
             
             # generate code to call subsystem output(s)
-            code_compute_output = embed_subsystem3(
+            code_compute_output = embed_subsystem(
                 language, 
-                subsystem_prototype=self._subsystem_prototype, 
+                system_wrapper=self._subsystem_wrapper, 
                 assign_to_signals=signals, 
-                ouput_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
+                output_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
                 calculate_outputs = True, update_states = False 
             )
 
@@ -138,9 +86,9 @@ class TruggeredSubsystem(SingleSubsystemEmbedder):
         if language == 'c++':
 
             # generate code to compute the state update of the subsystem
-            code_compute_state_update = embed_subsystem3(
+            code_compute_state_update = embed_subsystem(
                 language, 
-                subsystem_prototype=self._subsystem_prototype, 
+                system_wrapper=self._subsystem_wrapper, 
                 calculate_outputs = False, update_states = True
             )
 
@@ -162,8 +110,8 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
     """
 
-    def __init__(self, sim : System, max_iterations : int, 
-                    subsystem_prototype : GenericSubsystem, 
+    def __init__(self, system : System, max_iterations : int, 
+                    subsystem_wrapper : SystemWrapper, 
                     until_signal : Signal = None, yield_signal : Signal = None ):
         
         self.max_iter = max_iterations
@@ -178,10 +126,12 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
             number_of_control_outputs += 1
 
 
-        SingleSubsystemEmbedder.__init__(self, sim, 
-                                        control_inputs=[],   # TODO: add N_iter signal here 
-                                        subsystem_prototype=subsystem_prototype, 
-                                        number_of_control_outputs=number_of_control_outputs )
+        SingleSubsystemEmbedder.__init__(
+            self, system, 
+            control_inputs=[],   # TODO: add N_iter signal here 
+            subsystem_wrapper=subsystem_wrapper, 
+            number_of_control_outputs=number_of_control_outputs
+        )
 
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
@@ -190,10 +140,10 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
         if language == 'c++':
 
             assign_to_signals = []
-            ouput_signals_of_subsystem = []
+            output_signals_of_subsystem = []
 
             assign_to_signals.extend(signals)
-            ouput_signals_of_subsystem.extend(self.outputs_map_from_embedding_block_to_subsystem.map( signals )) # output signal mapping lookup
+            output_signals_of_subsystem.extend(self.outputs_map_from_embedding_block_to_subsystem.map( signals )) # output signal mapping lookup
 
             control_output_index = 0
 
@@ -203,7 +153,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
                 # add list of signals to assign
                 assign_to_signals.append( self._until_signal )
-                ouput_signals_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index] )
+                output_signals_of_subsystem.append( self._control_signals_from_embedded_system[control_output_index] )
             
                 control_output_index += 1
 
@@ -214,25 +164,25 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
                 # add list of signals to assign
                 assign_to_signals.append( self._yield_signal )
-                ouput_signals_of_subsystem.append( self._control_signals_from_embeded_system[control_output_index] )
+                output_signals_of_subsystem.append( self._control_signals_from_embedded_system[control_output_index] )
 
                 control_output_index += 1
 
 
 
-            calc_outputs = embed_subsystem3(
+            calc_outputs = embed_subsystem(
                 language, 
-                subsystem_prototype=self._subsystem_prototype, 
+                system_wrapper=self._subsystem_wrapper, 
                 assign_to_signals=assign_to_signals, 
-                ouput_signals_of_subsystem=ouput_signals_of_subsystem,
+                output_signals_of_subsystem=output_signals_of_subsystem,
                 calculate_outputs = True, update_states = False
             )
 
             
 
-            update_states = embed_subsystem3(
+            update_states = embed_subsystem(
                 language, 
-                subsystem_prototype=self._subsystem_prototype, 
+                system_wrapper=self._subsystem_wrapper, 
                 calculate_outputs = False, update_states = True
             )
 
@@ -245,9 +195,9 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
             if self._until_signal is not None:
 
-                code_reset_subsystem = embed_subsystem3(
+                code_reset_subsystem = embed_subsystem(
                     language, 
-                    subsystem_prototype=self._subsystem_prototype, 
+                    system_wrapper=self._subsystem_wrapper, 
                     calculate_outputs = False, update_states = False,
                     reset_states = True
                 )
@@ -276,38 +226,23 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class SwitchSubsystems(MultiSubsystemEmbedder):
     """
         A system that embeds multiple subsystems and a control input to switch in-between.
         The outputs of the currently active subsystem are forwarded.
     """
 
-    def __init__(self, sim : System, control_input : Signal, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
+    def __init__(self, system : System, control_input : Signal, subsystem_wrappers : List [SystemWrapper], reference_outputs : List [Signal] ):
         
         self._control_input = control_input
 
-        MultiSubsystemEmbedder.__init__(self, sim, 
-                                        control_inputs=[control_input], 
-                                        subsystem_prototypes=subsystem_prototypes, 
-                                        switch_reference_outputs=reference_outputs,
-                                        number_of_control_outputs=0 )
+        MultiSubsystemEmbedder.__init__(
+            self, system, 
+            control_inputs=[control_input], 
+            subsystem_wrappers=subsystem_wrappers, 
+            switch_reference_outputs=reference_outputs,
+            number_of_control_outputs=0
+        )
 
     def generate_code_defStates(self, language):
         lines = MultiSubsystemEmbedder.generate_code_defStates(self, language)
@@ -358,20 +293,22 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
         self.state_output  - 
     """
 
-    def __init__(self, sim : System, subsystem_prototypes : List [GenericSubsystem], reference_outputs : List [Signal] ):
+    def __init__(self, system : System, subsystem_wrappers : List [SystemWrapper], reference_outputs : List [Signal] ):
         
-        MultiSubsystemEmbedder.__init__(self, sim, 
-                                        control_inputs=[], 
-                                        subsystem_prototypes=subsystem_prototypes, 
-                                        switch_reference_outputs=reference_outputs,
-                                        number_of_control_outputs = 1 )
+        MultiSubsystemEmbedder.__init__(
+            self, system, 
+            control_inputs=[], 
+            subsystem_wrappers=subsystem_wrappers, 
+            switch_reference_outputs=reference_outputs,
+            number_of_control_outputs = 1
+        )
 
         # how to add more outputs?
         self.state_output.setDatatype( dt.DataTypeInt32(1) )
 
         # this output signals must be compted in any way
         # also in case it is not used by other blocks
-        sim.add_signal_mandatory_to_compute( self.state_output )
+        system.add_signal_mandatory_to_compute( self.state_output )
 
 
     @property
@@ -420,7 +357,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
         condition_list = []
 
         subsystem_counter = 0
-        for system_prototype in self._subsystem_prototypes:
+        for system_prototype in self._subsystem_wrappers:
 
             code_reset_states = MultiSubsystemEmbedder.generate_reset( self, language, system_index=subsystem_counter ) 
 

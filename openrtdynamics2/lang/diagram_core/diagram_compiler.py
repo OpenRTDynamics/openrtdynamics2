@@ -269,11 +269,13 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
     # Further, it stores intermediate results
-    commandToPublishTheResults = PutAPIFunction("calcResults_1", 
-                                                inputSignals=simulationInputSignalsToCalculateOutputs,
-                                                outputSignals=outputSignals, 
-                                                executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
-                                                generate_wrappper_functions = not reduce_not_needed_code )
+    commandToPublishTheResults = PutAPIFunction(
+        "calcResults_1", 
+        inputSignals=simulationInputSignalsToCalculateOutputs,
+        outputSignals=outputSignals, 
+        executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
+        generate_wrappper_functions = not reduce_not_needed_code
+    )
 
     # Initialize the list of commands to execute to update the states
     commandsToExecuteForStateUpdate = []
@@ -427,11 +429,13 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
 
 
+    # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten
+    simulation_input_signals_to_update_states_fixed_list = list(simulationInputSignalsToUpdateStates)
 
     # Build API to update the states: e.g. c++ function updateStates()
     commandToUpdateStates = PutAPIFunction(
         nameAPI = 'updateStates', 
-        inputSignals=list(simulationInputSignalsToUpdateStates), 
+        inputSignals=simulation_input_signals_to_update_states_fixed_list, 
         outputSignals=[], 
         executionCommands=commandsToExecuteForStateUpdate,
         generate_wrappper_functions = not reduce_not_needed_code
@@ -469,8 +473,8 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
     compleResults = CompileResults( manifest, command_to_execute_system)
 
     compleResults.inputSignals                             = allinputs
-    compleResults.simulationInputSignalsToUpdateStates     = list(simulationInputSignalsToUpdateStates)
-    compleResults.simulationInputSignalsToCalculateOutputs = list(simulationInputSignalsToCalculateOutputs)
+    compleResults.simulationInputSignalsToUpdateStates     = simulation_input_signals_to_update_states_fixed_list
+    compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
     compleResults.outputSignals                            = outputSignals
 
     

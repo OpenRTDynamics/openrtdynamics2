@@ -13,7 +13,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
           (this is class to be derived, e.g. by XX, XX)
 
         - control_inputs                        - inputs used to control the execution (e.g. the condition for if)
-        - subsystem_prototype                   - the prototypes the subsystem (of type GenericSubsystem)
+        - subsystem_wrapper                     - the prototypes the subsystem (of type SystemWrapper)
         - reference_outputs                     - output signals of the reference subsystem from which the output datatypes are inherited
         - number_of_control_outputs             - the number of outputs of the subsystem used to control execution
 
@@ -52,24 +52,24 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         -----------------------
 
         self.outputs                                           - all outputs of the embeding block
-        self._subsystem_prototype.outputs                      - all outputs of the subsystem that are initially present
-        self._subsystem_prototype.compileResult.outputSignals  - all outputs of the subsystem that are present after compilation
+        self.subsystem_wrapper.outputs                         - all outputs of the subsystem that are initially present
+        self.subsystem_wrapper.compile_result.outputSignals    - all outputs of the subsystem that are present after compilation
         signals (parameter for generate_code_output_list)      - outputs out of self.outputs that need to be computed
 
     """
-    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_prototype : GenericSubsystem, number_of_control_outputs : int = 0 ):
+    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_wrapper : SystemWrapper, number_of_control_outputs : int = 0 ):
 
         # the prototypes of the subsystem
-        self._subsystem_prototype = subsystem_prototype
+        self._subsystem_wrapper = subsystem_wrapper
         
         # analyze the default subsystem (the first) to get the output datatypes to use
-        reference_subsystem = self._subsystem_prototype
+        reference_subsystem = self._subsystem_wrapper
 
         # the number of outputs besides the subsystems outputs
         self._number_of_control_outputs = number_of_control_outputs
 
         self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
-        self._number_of_normal_outputs = len(self._subsystem_prototype.outputs) - number_of_control_outputs
+        self._number_of_normal_outputs = len(self._subsystem_wrapper.outputs) - number_of_control_outputs
 
         if self._number_of_normal_outputs < 0:
             raise BaseException("The number of control outputs is bigger than the total number of outputs provided by the subsystem.")
@@ -95,21 +95,21 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         # inherit output datatypes of this block from the embedded subsystem
         setup_output_datatype_inheritance( 
             normal_outputs_of_embedding_block=self.normal_outouts, 
-            subsystem_prototype=self._subsystem_prototype 
+            subsystem_prototype=self._subsystem_wrapper 
         )
 
         self.outputs_map_from_embedding_block_to_subsystem = OutputMapEmbeddingBlockToSubsystem( 
             normal_outputs_of_embedding_block=self.normal_outouts, 
-            subsystem_prototype=self._subsystem_prototype 
+            subsystem_prototype=self._subsystem_wrapper 
         )
 
 
         # build a list of control signals (TODO: add to MultiSubsystemEmbedder)
-        self._control_signals_from_embeded_system = []
+        self._control_signals_from_embedded_system = []
         
         # iterate over the control outputs of the embedded subsystem
         for i in range(self._number_of_normal_outputs, self._number_of_normal_outputs + self._number_of_control_outputs ):
-            self._control_signals_from_embeded_system.append( self._subsystem_prototype.outputs[i] )
+            self._control_signals_from_embedded_system.append( self._subsystem_wrapper.outputs[i] )
 
 
     # unused / reserved for future use
@@ -125,11 +125,11 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
     def compile_callback_all_subsystems_compiled(self):
 
         # call back of the embedding of the subsystem
-        self._subsystem_prototype.callback_on_system_compiled( self.getUniqueVarnamePrefix() )
+        self._subsystem_wrapper.callback_on_system_compiled( self.getUniqueVarnamePrefix() )
 
         # Get all input signals required by the subsystem
         set_of_all_inputs = set()
-        set_of_all_inputs.update( self._subsystem_prototype.inputs )
+        set_of_all_inputs.update( self._subsystem_wrapper.inputs )
 
         # add the control inputs
         set_of_all_inputs.update( self._control_inputs )
@@ -165,7 +165,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         if language == 'c++':
 
             lines = ''
-            lines += self._subsystem_prototype.generate_code_defStates(language)
+            lines += self._subsystem_wrapper.generate_code_defStates(language)
 
             return lines
 
@@ -175,6 +175,6 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
 
             lines = '// reset state of subsystem embedded by ' + self.name + '\n'
-            lines += self._subsystem_prototype.generate_code_reset(language)
+            lines += self._subsystem_wrapper.generate_code_reset(language)
 
             return lines

@@ -60,7 +60,7 @@ class sub_if:
         #                                             N_outputs=len(self._outputs_of_embedded_subsystem) )
 
 
-        self._subsystem_block_prototype = bp.SystemEmbedder(embedded_subsystem)
+        self._subsystem_block_prototype = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -70,9 +70,9 @@ class sub_if:
         #
 
         # create the embedder prototype
-        embeddedingBlockPrototype = bp.TruggeredSubsystem( sim=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.TriggeredSubsystem( system=dy.get_system_context(), 
                 control_input=si.unwrap( self._condition_signal ), 
-                subsystem_prototype=self._subsystem_block_prototype,
+                subsystem_wrapper=self._subsystem_block_prototype,
                 prevent_output_computation = self._prevent_output_computation)
 
 
@@ -159,7 +159,7 @@ class sub_loop:
         #                                             embedded_subsystem=embedded_subsystem,
         #                                             N_outputs=len(all_output_signals) )
 
-        self._subsystem_block_prototype = bp.SystemEmbedder(embedded_subsystem)
+        self._subsystem_block_prototype = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -169,9 +169,9 @@ class sub_loop:
         #
 
         # create the embeeder prototype
-        embeddedingBlockPrototype = bp.LoopUntilSubsystem( sim=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.LoopUntilSubsystem( system=dy.get_system_context(), 
                 max_iterations=self._max_iterations, 
-                subsystem_prototype=self._subsystem_block_prototype,
+                subsystem_wrapper=self._subsystem_block_prototype,
                 until_signal=self._until_signal,
                 yield_signal=self._yield_signal)
 
@@ -241,7 +241,7 @@ class SwitchPrototype:
         self._number_of_control_outputs = number_of_control_outputs
         self._number_of_switched_outputs = None
 
-        # List [ bp.GenericSubsystem ]
+        # List [ bp.SystemWrapper ]
         self._subsystem_prototypes = None
 
         # List [ switch_single_sub ]
@@ -262,7 +262,7 @@ class SwitchPrototype:
         """
             called when all subsystems have been added to the switch
 
-            subsystem_prototypes - the list of subsystem block prototypes of type bp.GenericSubsystem
+            subsystem_prototypes - the list of subsystem block prototypes of type bp.SystemWrapper
         """
         raise BaseException("to be implemented")
 
@@ -373,7 +373,7 @@ class SwitchedSubsystemPrototype:
         #                                             embedded_subsystem=embedded_subsystem,
         #                                             N_outputs=number_of_subsystem_outputs )
 
-        self._embeddedingBlockPrototype = bp.SystemEmbedder(embedded_subsystem)
+        self._embeddedingBlockPrototype = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -434,9 +434,9 @@ class sub_switch(SwitchPrototype):
     def on_exit(self, subsystem_prototypes):
 
         # create the embedding prototype
-        embeddedingBlockPrototype = bp.SwitchSubsystems( sim=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.SwitchSubsystems( system=dy.get_system_context(), 
                 control_input=self._select_signal.unwrap, 
-                subsystem_prototypes=subsystem_prototypes, 
+                subsystem_wrappers=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         # connect the normal outputs via links
@@ -522,8 +522,8 @@ class sub_statemachine(SwitchPrototype):
     def on_exit(self, subsystem_prototypes):
 
         # create the embedding prototype
-        embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( sim=dy.get_system_context(), 
-                subsystem_prototypes=subsystem_prototypes, 
+        embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( system=dy.get_system_context(), 
+                subsystem_wrappers=subsystem_prototypes, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         # connect the normal outputs via links

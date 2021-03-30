@@ -46,7 +46,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
 
         - control_inputs                        - inputs used to control the switching strategy
-        - subsystem_prototypes                  - a list of the prototypes of all subsystems (of type GenericSubsystem)
+        - subsystem_wrappers                    - a list of wrappers for all subsystems (of type SystemWrapper)
         - switch_reference_outputs              - output signals of the reference subsystem from which the output datatypes are inherited
         - number_of_control_outputs             - the number of outputs of the subsystems used to control the execution
 
@@ -54,15 +54,15 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
         - self.generate_switch(), generate_reset()
     """
-    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_prototypes : List [GenericSubsystem], switch_reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
+    def __init__(self, sim : System, control_inputs : List [Signal], subsystem_wrappers : List [SystemWrapper], switch_reference_outputs : List [Signal], number_of_control_outputs : int = 0 ):
 
         assert number_of_control_outputs >= 0
 
         # a list of the prototypes of all subsystems
-        self._subsystem_prototypes = subsystem_prototypes
+        self._subsystem_wrappers = subsystem_wrappers
         
         # analyze the default subsystem (the first) to get the output datatypes to use
-        reference_subsystem_prototype = self._subsystem_prototypes[0] # [0] DIFF
+        reference_subsystem_prototype = self._subsystem_wrappers[0] # [0] DIFF
 
         # the number of outputs besides the subsystems outputs
         self._number_of_control_outputs = number_of_control_outputs
@@ -76,7 +76,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem_prototype.outputs)
 
         # assertion
-        for subsystem_prototype in self._subsystem_prototypes:
+        for subsystem_prototype in self._subsystem_wrappers:
             if not len(subsystem_prototype.outputs) == self._total_number_of_subsystem_outputs:
                 raise BaseException("all subsystems must have the same number of outputs")
 
@@ -125,7 +125,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         # in a set.
         set_of_all_inputs = set()
 
-        for subsystem_prototype in self._subsystem_prototypes:
+        for subsystem_prototype in self._subsystem_wrappers:
 
             # call back of the embedding of the subsystem
             subsystem_prototype.callback_on_system_compiled( self.getUniqueVarnamePrefix() )
@@ -186,7 +186,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         condition_list = []
 
         subsystem_counter = 0
-        for system_prototype in self._subsystem_prototypes:
+        for system_prototype in self._subsystem_wrappers:
 
             if calculate_outputs:
 
@@ -196,11 +196,11 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
                     tmp.append( system_prototype.outputs[i] )
 
                 # generate code to call subsystem output(s)
-                code_compute_output = embed_subsystem3(
+                code_compute_output = embed_subsystem(
                     language, 
-                    subsystem_prototype=system_prototype, 
+                    system_wrapper=system_prototype, 
                     assign_to_signals=assign_to_signals, 
-                    ouput_signals_of_subsystem = tmp,
+                    output_signals_of_subsystem = tmp,
                     calculate_outputs = True, update_states = False 
                 )
 
@@ -209,9 +209,9 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
 
             if update_states:
-                code_compute_state_update = embed_subsystem3(
+                code_compute_state_update = embed_subsystem(
                     language, 
-                    subsystem_prototype=system_prototype, 
+                    system_wrapper=system_prototype, 
                     calculate_outputs = False, update_states = True
                 )
             else:
@@ -236,7 +236,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
             # implement state definition for each subsystem
             lines = ''
-            for system_prototype in self._subsystem_prototypes:
+            for system_prototype in self._subsystem_wrappers:
                 lines += system_prototype.generate_code_defStates(language)
 
             return lines
@@ -246,7 +246,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
             helper fn for code generation
         """
 
-        system_to_reset = self._subsystem_prototypes[ system_index ]
+        system_to_reset = self._subsystem_wrappers[ system_index ]
 
         lines = system_to_reset.generate_code_reset(language)
 
@@ -257,7 +257,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
             # reset all subsystems
             lines = '// reset state of all subsystems in multisubsystem ' + self.name + '\n'
-            for system_prototype in self._subsystem_prototypes:
+            for system_prototype in self._subsystem_wrappers:
                 lines += system_prototype.generate_code_reset(language)
 
             return lines
