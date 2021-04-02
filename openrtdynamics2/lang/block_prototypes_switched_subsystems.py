@@ -28,8 +28,8 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
                     |                           |       +----------+ normal               |   /    | switched            |
                     |                           |       |          | outputs   +--------->+ o      | control outputs     | self.control_outputs
                     |                           +-------> subsys 2 +-----------+          |      o +------+------------------>
-                    |                                   |          |                      |    /   |      |              |
-                    |                                   |          | control    +-------->+ o      |      |              |
+                    |                                   |          |                      |    /   |      |              | Those signals must be marked with
+                    |                                   |          | control    +-------->+ o      |      |              | system.add_signal_mandatory_to_compute()
                     |                                   |          | outputs    |         +---+----+      |              |
                     |                                   |          +------------+             ^           |              |
                     |                                   |          |                          |           |              |
@@ -62,18 +62,18 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         self._subsystem_wrappers = subsystem_wrappers
         
         # analyze the default subsystem (the first) to get the output datatypes to use
-        reference_subsystem_prototype = self._subsystem_wrappers[0] # [0] DIFF
+        reference_subsystem_wrapper = self._subsystem_wrappers[0] # [0] DIFF
 
         # the number of outputs besides the subsystems outputs
         self._number_of_control_outputs = number_of_control_outputs
 
-        self._total_number_of_subsystem_outputs = len(reference_subsystem_prototype.outputs)
+        self._total_number_of_subsystem_outputs = len(reference_subsystem_wrapper.outputs)
         self._number_of_switched_outputs = len(switch_reference_outputs)  # DIFF:  self._number_of_normal_outputs
 
         if self._number_of_switched_outputs + number_of_control_outputs != self._total_number_of_subsystem_outputs:
             raise BaseException("given number of total subsystem outputs does not match")
 
-        self._number_of_outputs_of_all_nested_systems = len(reference_subsystem_prototype.outputs)
+        self._number_of_outputs_of_all_nested_systems = len(reference_subsystem_wrapper.outputs)
 
         # assertion
         for subsystem_prototype in self._subsystem_wrappers:
@@ -81,7 +81,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
                 raise BaseException("all subsystems must have the same number of outputs")
 
 
-        # now call the constructor for block prototypes and make input and output signals available
+        # now call the constructor for block prototype and make input and output signals available
         bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._total_number_of_subsystem_outputs )
 
         # control inputs that are used to control how the subsystems are handled
@@ -98,14 +98,14 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         # inherit output datatypes of this block from the embedded subsystem
         setup_output_datatype_inheritance( 
             normal_outputs_of_embedding_block=self.switched_normal_outputs, 
-            subsystem_prototype=reference_subsystem_prototype
+            subsystem_prototype=reference_subsystem_wrapper
         )
 
         # build the mapping between the signals of the embedding block and the (reference) embedded block
-        # please note that this consideres normal ouputs and control outputs combined.
+        # please note that this consideres normal outputs and control outputs combined.
         self.outputs_map_from_embedding_block_to_subsystem = OutputMapEmbeddingBlockToSubsystem( 
             normal_outputs_of_embedding_block=self.outputs, 
-            subsystem_prototype=reference_subsystem_prototype 
+            subsystem_prototype=reference_subsystem_wrapper 
         )
 
 
@@ -156,7 +156,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
     def config_request_define_state_update_input_dependencies(self, outputSignal):
  
-        # NOTE: This is a simplified so far..
+        # NOTE: This is a simplified v so far..
         #       The update depends on every signal
 
         return self._list_of_all_inputs
@@ -164,20 +164,21 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
 
     # for code_gen
-    def codegen_help_generate_switch( self, language, switch_control_signal_name, switch_ouput_signals=None, calculate_outputs = True, update_states = False, additional_outputs=None ):
+    def codegen_help_generate_switch(
+        self, language, 
+        switch_control_signal_name, 
+        switch_output_signals=None, 
+        calculate_outputs = True, 
+        update_states = False
+    ):
         """
             code generation helper to embed multiple subsystems and a switch for the outputs
         """
 
         if calculate_outputs:
-            # combine all output names to one list: normal subsystem outputs and control outputs
-            assign_to_signals = []
-            assign_to_signals.extend( switch_ouput_signals )
-            if additional_outputs is not None:
-                assign_to_signals.extend( additional_outputs )
 
-            #
-            indices_of_outputs_to_compute = self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( assign_to_signals )
+            # mapping of output indices
+            indices_of_outputs_to_compute = self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( switch_output_signals )
 
         # code gen
         lines = ''
@@ -186,21 +187,16 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
         condition_list = []
 
         subsystem_counter = 0
-        for system_prototype in self._subsystem_wrappers:
+        for system_wrapper in self._subsystem_wrappers:
 
             if calculate_outputs:
-
-                # Ah well.. this is supposed to do: system_prototype.outputs[  indices_of_outputs_to_compute  ]
-                tmp = []
-                for i in indices_of_outputs_to_compute:
-                    tmp.append( system_prototype.outputs[i] )
 
                 # generate code to call subsystem output(s)
                 code_compute_output = embed_subsystem(
                     language, 
-                    system_wrapper=system_prototype, 
-                    assign_to_signals=assign_to_signals, 
-                    output_signals_of_subsystem = tmp,
+                    system_wrapper=system_wrapper, 
+                    assign_to_signals=switch_output_signals, 
+                    indices_of_output_signals_of_subsystem = indices_of_outputs_to_compute,
                     calculate_outputs = True, update_states = False 
                 )
 
@@ -211,7 +207,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
             if update_states:
                 code_compute_state_update = embed_subsystem(
                     language, 
-                    system_wrapper=system_prototype, 
+                    system_wrapper=system_wrapper, 
                     calculate_outputs = False, update_states = True
                 )
             else:
@@ -224,7 +220,7 @@ class MultiSubsystemEmbedder(bi.BlockPrototype):
 
             subsystem_counter += 1
 
-        # combine conditions and their repective actions
+        # combine conditions and their respective actions
         lines += cgh.generate_if_else(language, condition_list, action_list)
 
         return lines

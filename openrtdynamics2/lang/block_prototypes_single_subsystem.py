@@ -56,6 +56,12 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         self.subsystem_wrapper.compile_result.outputSignals    - all outputs of the subsystem that are present after compilation
         signals (parameter for generate_code_output_list)      - outputs out of self.outputs that need to be computed
 
+        Number of outputs
+        -----------------
+        self.number_of_normal_outputs
+        self.number_of_control_outputs
+        self.total_number_of_subsystem_outputs
+
     """
     def __init__(self, sim : System, control_inputs : List [Signal], subsystem_wrapper : SystemWrapper, number_of_control_outputs : int = 0 ):
 
@@ -66,12 +72,12 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         reference_subsystem = self._subsystem_wrapper
 
         # the number of outputs besides the subsystems outputs
-        self._number_of_control_outputs = number_of_control_outputs
+        self.number_of_control_outputs = number_of_control_outputs
 
-        self._total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
-        self._number_of_normal_outputs = len(self._subsystem_wrapper.outputs) - number_of_control_outputs
+        self.total_number_of_subsystem_outputs = len(reference_subsystem.outputs)
+        self.number_of_normal_outputs = len(self._subsystem_wrapper.outputs) - number_of_control_outputs
 
-        if self._number_of_normal_outputs < 0:
+        if self.number_of_normal_outputs < 0:
             raise BaseException("The number of control outputs is bigger than the total number of outputs provided by the subsystem.")
 
         self._number_of_outputs_of_all_nested_systems = len(reference_subsystem.outputs)
@@ -79,7 +85,7 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
 
         # now call the constructor for block prototypes and make input and output signals available
-        bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self._number_of_normal_outputs )
+        bi.BlockPrototype.__init__(self, sim=sim, inputSignals=None, N_outputs = self.number_of_normal_outputs )
 
 
 
@@ -108,20 +114,20 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
         self._control_signals_from_embedded_system = []
         
         # iterate over the control outputs of the embedded subsystem
-        for i in range(self._number_of_normal_outputs, self._number_of_normal_outputs + self._number_of_control_outputs ):
+        for i in range(self.number_of_normal_outputs, self.number_of_normal_outputs + self.number_of_control_outputs ):
             self._control_signals_from_embedded_system.append( self._subsystem_wrapper.outputs[i] )
 
 
     # unused / reserved for future use
     @property
     def control_outputs(self):
-        return self.outputs[ self._number_of_normal_outputs: ]
+        return self.outputs[ self.number_of_normal_outputs: ]
 
     @property
     def normal_outouts(self):
-        return self.outputs[ 0:self._number_of_normal_outputs ]
+        return self.outputs[ 0:self.number_of_normal_outputs ]
 
-
+        
     def compile_callback_all_subsystems_compiled(self):
 
         # call back of the embedding of the subsystem

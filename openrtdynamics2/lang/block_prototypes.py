@@ -60,7 +60,7 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
                 language, 
                 system_wrapper=self._subsystem_wrapper, 
                 assign_to_signals=signals, 
-                output_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map( signals ),
+                indices_of_output_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( signals ),
                 calculate_outputs = True, update_states = False 
             )
 
@@ -106,25 +106,27 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
 
 class LoopUntilSubsystem(SingleSubsystemEmbedder):
     """
-        Embed a loop sub-system
-
+        Embed a sub-system wrapped into a loop
     """
 
     def __init__(self, system : System, max_iterations : int, 
                     subsystem_wrapper : SystemWrapper, 
-                    until_signal : Signal = None, yield_signal : Signal = None ):
+                    add_until_control : Signal = False, add_yield_control : Signal = False ):
         
         self.max_iter = max_iterations
-        self._until_signal = until_signal
-        self._yield_signal = yield_signal
+        self._add_until_control = add_until_control
+        self._add_yield_control = add_yield_control
 
         number_of_control_outputs = 0
-        if self._until_signal is not None:
+        if self._add_until_control:
             number_of_control_outputs += 1
 
-        if self._yield_signal is not None:
+        if self._add_yield_control:
             number_of_control_outputs += 1
 
+        # could also add extra output signals 'until_output' and 'yield_output' and mark them with 
+        # system.add_signal_mandatory_to_compute( self.until_output )
+        # system.add_signal_mandatory_to_compute( self.yield_output )
 
         SingleSubsystemEmbedder.__init__(
             self, system, 
@@ -139,32 +141,39 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
         lines = ''
         if language == 'c++':
 
-            assign_to_signals = []
-            output_signals_of_subsystem = []
+            assign_to_variables = []
+            indices_of_output_signals_of_subsystem = []
 
-            assign_to_signals.extend(signals)
-            output_signals_of_subsystem.extend(self.outputs_map_from_embedding_block_to_subsystem.map( signals )) # output signal mapping lookup
+            assign_to_variables.extend( cgh.signal_list_to_name_list(signals) )
 
-            control_output_index = 0
+            indices_of_output_signals_of_subsystem.extend(
+                self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( signals )
+            ) # output signal mapping lookup
 
-            if self._until_signal is not None:
+
+            # The outputs of the embedded system are referred to by indices.
+            # In this case, count the control outputs that start after the normal outputs
+            control_output_index = self.number_of_normal_outputs
+
+            if self._add_until_control:
+
                 # define tmp-var for self._until_signal instead of a block output
-                lines += cgh.defineVariables( [self._until_signal] )
+                lines += 'bool _until_condition;\n'
 
                 # add list of signals to assign
-                assign_to_signals.append( self._until_signal )
-                output_signals_of_subsystem.append( self._control_signals_from_embedded_system[control_output_index] )
+                assign_to_variables.append( '_until_condition' )
+                indices_of_output_signals_of_subsystem.append( control_output_index )
             
                 control_output_index += 1
 
 
-            if self._yield_signal is not None:
-                # define tmp-var for self._yield_signal instead of a block output
-                lines += cgh.defineVariables( [self._yield_signal] )
+            if self._add_yield_control:
 
+                # define tmp-var for self._yield_signal instead of a block output
+                lines += 'bool _yield_condition;\n'
                 # add list of signals to assign
-                assign_to_signals.append( self._yield_signal )
-                output_signals_of_subsystem.append( self._control_signals_from_embedded_system[control_output_index] )
+                assign_to_variables.append( '_yield_condition' )
+                indices_of_output_signals_of_subsystem.append( control_output_index )
 
                 control_output_index += 1
 
@@ -173,8 +182,8 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
             calc_outputs = embed_subsystem(
                 language, 
                 system_wrapper=self._subsystem_wrapper, 
-                assign_to_signals=assign_to_signals, 
-                output_signals_of_subsystem=output_signals_of_subsystem,
+                assign_to_variable_names=assign_to_variables, 
+                indices_of_output_signals_of_subsystem=indices_of_output_signals_of_subsystem,
                 calculate_outputs = True, update_states = False
             )
 
@@ -190,10 +199,10 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
             code +=  calc_outputs 
             code += update_states
 
-            if self._yield_signal is not None:
-                code += cgh.generate_loop_break(language, condition=self._yield_signal.name)
+            if self._add_yield_control:
+                code += cgh.generate_loop_break(language, condition='_yield_condition')
 
-            if self._until_signal is not None:
+            if self._add_until_control:
 
                 code_reset_subsystem = embed_subsystem(
                     language, 
@@ -202,7 +211,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                     reset_states = True
                 )
 
-                code += cgh.generate_loop_break(language, condition=self._until_signal.name, code_before_break=code_reset_subsystem)
+                code += cgh.generate_loop_break(language, condition='_until_condition', code_before_break=code_reset_subsystem)
 
             lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code  )
 
@@ -212,11 +221,7 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
         lines = ''
         if language == 'c++':
-
-            if self._until_signal is not None:
-                pass    
-                #lines += self._subsystem_prototype.generate_code_reset(language)
-
+            pass    
 
         return lines
 
@@ -257,8 +262,7 @@ class SwitchSubsystems(MultiSubsystemEmbedder):
             lines += self.codegen_help_generate_switch( 
                 language=language,
                 switch_control_signal_name=self._control_input.name,
-                switch_ouput_signals=signals,
-                additional_outputs=[],
+                switch_output_signals=signals,
                 calculate_outputs = True, update_states = False
             )
 
@@ -337,13 +341,16 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
+        # NOTE: 'signals' automatically contains 'self.state_output' as it is marked with 'system.add_signal_mandatory_to_compute'
+
         lines = ''
         if language == 'c++':
 
-            lines += self.codegen_help_generate_switch( language=language, 
-                                            switch_control_signal_name=  self._state_memory ,
-                                            switch_ouput_signals=signals,
-                                            additional_outputs=[self.state_output] )
+            lines += self.codegen_help_generate_switch( 
+                language=language, 
+                switch_control_signal_name=self._state_memory,
+                switch_output_signals=signals
+            )
 
         return lines
 
@@ -357,7 +364,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
         condition_list = []
 
         subsystem_counter = 0
-        for system_prototype in self._subsystem_wrappers:
+        for system_prototype in self._subsystem_wrappers:  # TODO: whats wrong here?
 
             code_reset_states = MultiSubsystemEmbedder.generate_reset( self, language, system_index=subsystem_counter ) 
 
@@ -368,7 +375,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
 
             subsystem_counter += 1
 
-        # combine conditions and their repective actions
+        # combine conditions and their respective actions
         lines += cgh.generate_if_else(language, condition_list, action_list)
 
         return lines

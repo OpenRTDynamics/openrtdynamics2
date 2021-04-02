@@ -159,21 +159,21 @@ class sub_loop:
         #                                             embedded_subsystem=embedded_subsystem,
         #                                             N_outputs=len(all_output_signals) )
 
-        self._subsystem_block_prototype = bp.SystemWrapper(embedded_subsystem)
+        self._subsystem_wrapper = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
 
         #
-        # now in the system in which the embeder block (including the logic) shall be placed.
+        # now in the system in which the embedder block (including the logic) shall be placed.
         #
 
-        # create the embeeder prototype
+        # create the embedder prototype
         embeddedingBlockPrototype = bp.LoopUntilSubsystem( system=dy.get_system_context(), 
                 max_iterations=self._max_iterations, 
-                subsystem_wrapper=self._subsystem_block_prototype,
-                until_signal=self._until_signal,
-                yield_signal=self._yield_signal)
+                subsystem_wrapper=self._subsystem_wrapper,
+                add_until_control=self._until_signal is not None,
+                add_yield_control=self._yield_signal is not None)
 
 
                 # subsystem_prototypes=subsystem_prototypes, 
@@ -225,7 +225,7 @@ class SwitchPrototype:
 
         - methods to be defined -
 
-        on_exit(subsystem_prototypes)  - callback once all subsystems were defined
+        on_exit(subsystem_wrapper)  - callback once all subsystems were defined
                                          during this callback self._switch_output_links must be defined
 
     """
@@ -242,7 +242,7 @@ class SwitchPrototype:
         self._number_of_switched_outputs = None
 
         # List [ bp.SystemWrapper ]
-        self._subsystem_prototypes = None
+        self._subsystem_wrapper = None
 
         # List [ switch_single_sub ]
         self._subsystem_list = None
@@ -254,22 +254,22 @@ class SwitchPrototype:
     def __enter__(self):
 
         self._subsystem_list = []
-        self._subsystem_prototypes = []
+        self._subsystem_wrapper = []
 
         return self
 
-    def on_exit(self, subsystem_prototypes):
+    def on_exit(self, subsystem_wrapper):
         """
             called when all subsystems have been added to the switch
 
-            subsystem_prototypes - the list of subsystem block prototypes of type bp.SystemWrapper
+            subsystem_wrapper - the list of subsystem wrappers of type bp.SystemWrapper
         """
         raise BaseException("to be implemented")
 
     def __exit__(self, type, value, traceback):
         # collect all prototyes that embed the subsystems
         for system in self._subsystem_list:
-            self._subsystem_prototypes.append( system.subsystem_prototype )
+            self._subsystem_wrapper.append( system.subsystem_prototype )
 
         # analyze the default subsystem (the first) to get the output datatypes to use
         for subsystem in [ self._subsystem_list[0] ]:
@@ -281,7 +281,7 @@ class SwitchPrototype:
 
             self._number_of_switched_outputs = self._total_number_of_subsystem_outputs - self._number_of_control_outputs
 
-        self.on_exit( self._subsystem_prototypes )
+        self.on_exit( self._subsystem_wrapper )
 
     @property
     def outputs(self):
@@ -331,7 +331,7 @@ class SwitchedSubsystemPrototype:
 
     def set_switched_outputs(self, signals):
         """
-            connect a list of outputs to the switch that switches between multple subsystems of this kind
+            connect a list of outputs to the switch that switches between multiple subsystems of this kind
 
             use self.set_switched_outputs_prototype in the derived classes to set this
         """
@@ -340,7 +340,7 @@ class SwitchedSubsystemPrototype:
 
     def set_switched_outputs_prototype(self, signals):
         """
-            connect a list of outputs to the switch that switches between multple subsystems of this kind
+            connect a list of outputs to the switch that switches between multiple subsystems of this kind
         """
 
         if self._outputs_of_embedded_subsystem is None:
@@ -398,7 +398,7 @@ class SwitchedSubsystemPrototype:
 
 class SwitchedSubsystem(SwitchedSubsystemPrototype):
     """
-        A single subsystem as part of a switch (implemented by SwitchPrototype) inbeween multiple subsystems
+        A single subsystem as part of a switch (implemented by SwitchPrototype) in between multiple subsystems
 
         - methods to be called by the user -
 
@@ -411,7 +411,7 @@ class SwitchedSubsystem(SwitchedSubsystemPrototype):
 
     def set_switched_outputs(self, signals):
         """
-            connect a list of outputs to the switch that switches between multple subsystems of this kind
+            connect a list of outputs to the switch that switches between multiple subsystems of this kind
         """
 
         self.set_switched_outputs_prototype(signals)
@@ -431,12 +431,12 @@ class sub_switch(SwitchPrototype):
         return system
 
 
-    def on_exit(self, subsystem_prototypes):
+    def on_exit(self, subsystem_wrappers):
 
         # create the embedding prototype
         embeddedingBlockPrototype = bp.SwitchSubsystems( system=dy.get_system_context(), 
                 control_input=self._select_signal.unwrap, 
-                subsystem_wrappers=subsystem_prototypes, 
+                subsystem_wrappers=subsystem_wrappers, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
 
         # connect the normal outputs via links

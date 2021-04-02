@@ -134,7 +134,7 @@ def generate_compare_equality_to_constant( language, signal_name, constant ):
 
 def define_variable_line( signal, make_a_reference = False ):
     """
-        create a sting containing e.g.
+        create a string containing e.g.
 
         'double signalName;\n'
     """

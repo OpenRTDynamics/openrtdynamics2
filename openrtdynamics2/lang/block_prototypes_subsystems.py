@@ -71,17 +71,28 @@ class SystemWrapper:
             # and remove the prev. style
             #
 
+            # create temporary variables for each output signal
+            output_variable_names = []
+
             for s in self.outputs: # for each output of the subsystem reservate a variable
-                lines += cgh.define_variable_line( s ) 
 
                 if s not in signals:
                     lines += '// NOTE: unused output signal' + s.name + '\n'
                 else:
                     lines += ''                
 
-            lines += self._instance_varname + '.' + self._manifest.getAPIFunctionName('calculate_output') +  '(' + cgh.signal_list_to_names_string(self.outputs + self.inputsToCalculateOutputs) + ');\n'
+                output_var_name = '_' + s.name
+                output_variable_names.append( output_var_name )
+                lines +=  s.datatype.cpp_define_variable( output_var_name ) + ';\n'
 
-        return lines
+
+            lines += cgh.call_function_from_varnames(
+                fn_name = self._instance_varname + '.' + self._manifest.getAPIFunctionName('calculate_output'),
+                input_names = cgh.signal_list_to_name_list(self.inputsToCalculateOutputs),
+                output_names = output_variable_names
+            )
+
+        return lines, output_variable_names
 
 
 
@@ -115,14 +126,24 @@ def collectDependingSignals(signals, manifestFunctionInputs):
 
 
 # helper fn for classes that are derived from SingleSubsystemEmbedder and XX
-def embed_subsystem(language, system_wrapper : SystemWrapper, assign_to_signals=None, output_signals_of_subsystem=None, calculate_outputs = True, update_states = False, reset_states=False ):
+def embed_subsystem(
+    language, 
+    system_wrapper : SystemWrapper, 
+    assign_to_signals=None, 
+    assign_to_variable_names=None,
+    indices_of_output_signals_of_subsystem=None, 
+    calculate_outputs = True, 
+    update_states = False, 
+    reset_states=False
+):
     """  
         generate code to call a subsystem given a system wrapper
 
         - system_wrapper      - the system wrapper including the subsystem - type: : dy.SystemWrapper
-        - assign_to_signals   - list of signals to which the output signals of the subsystem are assigned to
+        - assign_to_signals / assign_to_variable_names   
+             - list of signals / variable names to which the output signals of the subsystem are assigned to
         
-        - output_signals_of_subsystem - the output signals of the embedded subsystem
+        - indices_of_output_signals_of_subsystem - the indices of the output signals of the embedded subsystem
 
         - calculate_outputs   - generate a call to the output computation API function of the subsystem
         - update_states       - generate a call to the state update API function of the subsystem
@@ -145,21 +166,24 @@ def embed_subsystem(language, system_wrapper : SystemWrapper, assign_to_signals=
     if calculate_outputs:
 
         # extract the signals names
-        assign_to_signals_names = cgh.signal_list_to_name_list(assign_to_signals)
-        output_signal_names_of_subsystem = cgh.signal_list_to_name_list(output_signals_of_subsystem)
+        if assign_to_signals is not None and assign_to_variable_names is None:
+            assign_to_variable_names = cgh.signal_list_to_name_list(assign_to_signals)
+        elif assign_to_variable_names is not None:
+            pass
+        else:   
+            raise BaseException('incorrect call')
 
 
-        innerLines += system_wrapper.generate_code_output_list(language, system_wrapper.outputs)
+        wrapper_code, output_variable_names_of_subsystem = system_wrapper.generate_code_output_list(language, system_wrapper.outputs)
+        innerLines += wrapper_code
 
-        if len(output_signal_names_of_subsystem) != len(assign_to_signals_names):
-            raise BaseException('len(output_signal_names_of_subsystem) != len(output_signals_name)')
+        # copy the output values of the subsystem to the variables name 'assign_to_variable_names'
+        for i in range( 0, len( indices_of_output_signals_of_subsystem ) ):
 
-        #
-        # REWORK: read out the outputs.* structure
-        #
+            output_signal_index = indices_of_output_signals_of_subsystem[i]
+            output_variable_name_of_subsystem = output_variable_names_of_subsystem[output_signal_index]
 
-        for i in range( 0, len( assign_to_signals_names ) ):
-            innerLines += cgh.asign( output_signal_names_of_subsystem[i], assign_to_signals_names[i] )
+            innerLines += cgh.asign( output_variable_name_of_subsystem, assign_to_variable_names[i] )
 
     # generate code for updating the states
     if update_states:
@@ -207,7 +231,10 @@ class OutputMapEmbeddingBlockToSubsystem():
 
         for i in range(0, len(normal_outputs_of_embedding_block) ):
             # fill in mapping table
-            output_signal_mapping[ normal_outputs_of_embedding_block[i] ] = subsystem_prototype.outputs[i]
+            
+            if subsystem_prototype is not None:
+                output_signal_mapping[ normal_outputs_of_embedding_block[i] ] = subsystem_prototype.outputs[i]
+
             output_signal_index_mapping[ normal_outputs_of_embedding_block[i] ] = i
 
 
