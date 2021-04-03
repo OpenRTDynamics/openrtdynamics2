@@ -39,8 +39,8 @@ class SystemWrapper:
         self._instance_varname = unique_variable_prefix + '_subsystem_' + self._manifest.API_name
 
         # input signals for calculating the outputs and updating the states. The lists are ordered
-        self.inputsToCalculateOutputs = self._system.compile_result.simulationInputSignalsToCalculateOutputs
-        self.inputsToUpdateStates     = self._system.compile_result.simulationInputSignalsToUpdateStates
+        self.inputs_to_calculate_outputs = self._system.compile_result.simulationInputSignalsToCalculateOutputs
+        self.inputs_to_update_states     = self._system.compile_result.simulationInputSignalsToUpdateStates
 
 
     def generate_code_defStates(self, language):
@@ -55,7 +55,7 @@ class SystemWrapper:
             return self._instance_varname + '.' + self._manifest.getAPIFunctionName('reset') +  '();\n'
 
     def generate_code_update(self, language):
-        return self._instance_varname + '.' + self._manifest.getAPIFunctionName('state_update') +  '(' + cgh.signal_list_to_names_string(self.inputsToUpdateStates) + ');\n'
+        return self._instance_varname + '.' + self._manifest.getAPIFunctionName('state_update') +  '(' + cgh.signal_list_to_names_string(self.inputs_to_update_states) + ');\n'
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
@@ -88,7 +88,7 @@ class SystemWrapper:
 
             lines += cgh.call_function_from_varnames(
                 fn_name = self._instance_varname + '.' + self._manifest.getAPIFunctionName('calculate_output'),
-                input_names = cgh.signal_list_to_name_list(self.inputsToCalculateOutputs),
+                input_names = cgh.signal_list_to_name_list(self.inputs_to_calculate_outputs),
                 output_names = output_variable_names
             )
 

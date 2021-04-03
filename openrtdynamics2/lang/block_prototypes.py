@@ -29,11 +29,12 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
     """
         Include a triggered sub-system
 
-        Optional:
+        Optional argument:
 
             prevent_output_computation = True: 
-                The subsystems outputs are only computed when triggered. Please note that the outputs
-                of the subsystem are uninitialized until the subsystem is triggered for the first time.
+                The subsystems outputs are only computed when triggered. Please note that, in this case,
+                the outputs of the subsystem is uninitialized until the subsystem is triggered for 
+                the first time.
 
     """
 
@@ -50,6 +51,34 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
         )
 
 
+    def config_request_define_feedforward_input_dependencies(self, outputSignal):
+
+        # determine inputs needed directly to compute the outputs
+        required_inputs = set()
+        required_inputs.update(self._subsystem_wrapper.inputs_to_calculate_outputs)
+
+        # the trigger input signal self._control_input is only used for state updates
+        # and, hence, not required for computing the outputs of the if-subsystem block.
+        #
+        # If, however, the flag self.prevent_output_computation is activated,
+        # the outputs are directly influenced by the trigger signals. Therefore,
+        # it is added to the list of required inputs.
+
+        if self.prevent_output_computation:
+            required_inputs.update([self._control_input])
+
+        return list(required_inputs)
+
+    def config_request_define_state_update_input_dependencies(self, outputSignal):
+
+        # determine inputs needed to update the states of the subsystem
+        required_inputs = set()
+        required_inputs.update(self._subsystem_wrapper.inputs_to_update_states)
+        required_inputs.update([self._control_input])
+
+        return list(required_inputs)
+
+
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
         lines = ''
@@ -58,10 +87,11 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
             # generate code to call subsystem output(s)
             code_compute_output = embed_subsystem(
                 language, 
-                system_wrapper=self._subsystem_wrapper, 
-                assign_to_signals=signals, 
-                indices_of_output_signals_of_subsystem=self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( signals ),
-                calculate_outputs = True, update_states = False 
+                system_wrapper                         = self._subsystem_wrapper, 
+                assign_to_signals                      = signals, 
+                indices_of_output_signals_of_subsystem = self.outputs_map_from_embedding_block_to_subsystem.map_to_output_index( signals ),
+                calculate_outputs                      = True,
+                update_states                          = False 
             )
 
             if self.prevent_output_computation:
@@ -88,8 +118,9 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
             # generate code to compute the state update of the subsystem
             code_compute_state_update = embed_subsystem(
                 language, 
-                system_wrapper=self._subsystem_wrapper, 
-                calculate_outputs = False, update_states = True
+                system_wrapper    = self._subsystem_wrapper, 
+                calculate_outputs = False,
+                update_states     = True
             )
 
             # the subsystems update is only performed when triggered

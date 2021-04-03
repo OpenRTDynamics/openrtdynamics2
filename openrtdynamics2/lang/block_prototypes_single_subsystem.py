@@ -142,6 +142,8 @@ class SingleSubsystemEmbedder(bi.BlockPrototype):
 
         self._list_of_all_inputs = list(set_of_all_inputs)
 
+        # determine inputs needed directly to compute the outputs
+
  
 
     def compile_callback_all_datatypes_defined(self):
