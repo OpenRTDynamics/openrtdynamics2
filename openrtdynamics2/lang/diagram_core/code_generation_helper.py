@@ -128,9 +128,11 @@ def generate_compare_equality_to_constant( language, signal_name, constant ):
     return signal_name + ' == ' + str(constant)
 
 
+def generate_compare_equality( language, variable_name_1, variable_name_2 ):
+    return variable_name_1 + ' == ' + variable_name_2
 
-
-
+def generate_and( language, condition1, condition2 ):
+    return condition1 + ' && ' + condition2
 
 def define_variable_line( signal, make_a_reference = False ):
     """
@@ -292,15 +294,17 @@ def generate_loop_break(language, condition, code_before_break = None):
     return abort_code
 
 
-def generate_loop( language, max_iterations, code_to_exec  ):
+def generate_loop( language, max_iterations, code_to_exec, counter_variable_name = '_i'  ):
     """
         generate a loop
 
         - max_iterations - the maximal number of loop iterations
         - code_to_exec   - the code to execute in the loop
+
+        TODO: issue an error once the maximal number of iterations has passed.
     """
 
-    lines = 'for (int i = 0; i < ' + max_iterations + '; ++i) ' + brackets_no_newline( code_to_exec ) + ';\n'
+    lines = 'for (int ' +counter_variable_name+ ' = 0; ' +counter_variable_name+ ' < ' + str(max_iterations) + '; ++' +counter_variable_name+ ') ' + brackets_no_newline( code_to_exec ) + ';\n'
     return lines
 
 

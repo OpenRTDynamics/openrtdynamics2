@@ -20,7 +20,12 @@ class sub_if:
     """
 
 
-    def __init__(self, condition_signal : dy.SignalUserTemplate, subsystem_name = None, prevent_output_computation = False ):
+    def __init__(
+            self, 
+            condition_signal : dy.SignalUserTemplate, 
+            subsystem_name              = None, 
+            prevent_output_computation  = False
+        ):
 
         if subsystem_name is not None:
             self._subsystem_name = subsystem_name
@@ -460,7 +465,10 @@ class state_sub(SwitchedSubsystemPrototype):
         set_switched_outputs(signals, state_signal)  - connect a list of signals to the output of the state machine
     """
 
-    def __init__(self, subsystem_name = None ):
+    def __init__(
+            self, 
+            subsystem_name = None
+        ):
         SwitchedSubsystemPrototype.__init__(self, subsystem_name)
 
         self._output_signals = None
@@ -497,7 +505,14 @@ class sub_statemachine(SwitchPrototype):
 
         self.state - status signal of the state machine (available after 'with sub_statemachine' has findished)
     """
-    def __init__(self, switch_subsystem_name):
+    def __init__(
+            self, 
+            switch_subsystem_name  : str,
+            immediate_state_switch : bool         = False            
+        ):
+
+        self._immediate_state_switch = immediate_state_switch
+
         number_of_control_outputs = 1 # add one control output to inform about the current state
 
         SwitchPrototype.__init__(self, switch_subsystem_name, number_of_control_outputs )
@@ -522,13 +537,16 @@ class sub_statemachine(SwitchPrototype):
     def on_exit(self, subsystem_prototypes):
 
         # create the embedding prototype
-        embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( system=dy.get_system_context(), 
-                subsystem_wrappers=subsystem_prototypes, 
-                reference_outputs=  si.unwrap_list( self._reference_outputs ) )
+        embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( 
+            system                 = dy.get_system_context(), 
+            subsystem_wrappers     = subsystem_prototypes, 
+            reference_outputs      = si.unwrap_list( self._reference_outputs ),
+            immediate_state_switch = self._immediate_state_switch
+        )
 
         # connect the normal outputs via links
         self._switch_output_links = si.wrap_signal_list( embeddedingBlockPrototype.switched_normal_outputs )
 
         # connect the additional (control) outputs
-        self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
+        self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_control )
 

@@ -328,26 +328,35 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
         self.state_output  - 
     """
 
-    def __init__(self, system : System, subsystem_wrappers : List [SystemWrapper], reference_outputs : List [Signal] ):
+    def __init__(
+            self, 
+            system                 : System, 
+            subsystem_wrappers     : List [SystemWrapper], 
+            reference_outputs      : List [Signal],
+            immediate_state_switch : bool                   = False
+        ):
         
         MultiSubsystemEmbedder.__init__(
             self, system, 
-            control_inputs=[], 
-            subsystem_wrappers=subsystem_wrappers, 
-            switch_reference_outputs=reference_outputs,
+            control_inputs            = [], 
+            subsystem_wrappers        = subsystem_wrappers, 
+            switch_reference_outputs  = reference_outputs,
             number_of_control_outputs = 1
         )
 
+        self._immediate_state_switch = immediate_state_switch
+        self._number_of_states       = len(subsystem_wrappers)
+
         # how to add more outputs?
-        self.state_output.setDatatype( dt.DataTypeInt32(1) )
+        self.state_control.setDatatype( dt.DataTypeInt32(1) )
 
         # this output signals must be compted in any way
         # also in case it is not used by other blocks
-        system.add_signal_mandatory_to_compute( self.state_output )
+        system.add_signal_mandatory_to_compute( self.state_control )
 
 
     @property
-    def state_output(self):
+    def state_control(self):
         return self.control_outputs[0]
 
 
@@ -372,16 +381,90 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
 
-        # NOTE: 'signals' automatically contains 'self.state_output' as it is marked with 'system.add_signal_mandatory_to_compute'
+        # NOTE: 'signals' automatically contains 'self.state_control' as it is marked with 'system.add_signal_mandatory_to_compute'
 
         lines = ''
         if language == 'c++':
 
-            lines += self.codegen_help_generate_switch( 
-                language=language, 
-                switch_control_signal_name=self._state_memory,
-                switch_output_signals=signals
-            )
+            if not self._immediate_state_switch:
+
+                lines += self.codegen_help_generate_switch( 
+                    language                   = language, 
+                    switch_control_signal_name = self._state_memory,
+                    switch_output_signals      = signals
+                )
+
+            else:
+                
+                # The algorithm works as follows:
+                #
+                # int _state_to_try = 'self._state_memory'
+                # int _state_control_tmp;
+                # int _counter = 0;
+                #
+                # while(1) {
+                #
+                #   _state_control_tmp = 'calculate control output of subsystem identified by _state_to_try'
+                #
+                #   if ( 'self.state_control' == -1 and _counter == 0 ) break;
+                #   if ( 'self.state_control' == _state_to_try ) break;
+                #   if ( 'self.state_control' == -1 ) { 'self.state_control' = _state_to_try; break; }
+                #   
+                #   _state_to_try = 'self.state_control'
+                #
+                #   ++_counter;
+                #   if (_counter >= 'self._number_of_states') {
+                #     'raise error'
+                #     break;
+                #   }
+                #
+                # }
+                #
+                lines += 'int _state_to_try;\n'
+                lines += cgh.asign( self._state_memory, '_state_to_try' )
+
+                # loop
+                in_loop_lines = ''
+
+                in_loop_lines += self.codegen_help_generate_switch( 
+                    language                   = language, 
+                    switch_control_signal_name = '_state_to_try',
+                    switch_output_signals      = signals   # NOTE: signals includes self.state_control as it is marked as mandatory to be computed
+                )
+
+                # if ( 'self.state_control' == -1 and _counter == 0 ) break;
+                in_loop_lines += cgh.generate_loop_break(
+                    language, 
+                    condition = cgh.generate_and(
+                        language, 
+                        cgh.generate_compare_equality_to_constant( language, self.state_control.name, -1 ),
+                        cgh.generate_compare_equality_to_constant( language, '_counter', 0 )
+                    )
+                )
+
+                # if ( 'self.state_control' == _state_to_try ) break;
+                in_loop_lines += cgh.generate_loop_break(
+                    language, 
+                    condition = cgh.generate_compare_equality( language, self.state_control.name, '_state_to_try' )
+                )
+
+                # if ( 'self.state_control' == -1 ) { 'self.state_control' = _state_to_try; break; }
+                in_loop_lines += cgh.generate_loop_break(
+                    language, 
+                    condition         = cgh.generate_compare_equality_to_constant( language, self.state_control.name, -1 ),
+                    code_before_break = cgh.asign( '_state_to_try', self.state_control.name )
+                )
+
+                in_loop_lines += cgh.asign( self.state_control.name, '_state_to_try' )
+
+                lines += cgh.generate_loop(
+                    language,
+                    max_iterations        = self._number_of_states, 
+                    code_to_exec          = in_loop_lines,
+                    counter_variable_name = '_counter'
+                )
+                # end loop
+
 
         return lines
 
@@ -424,7 +507,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
             )
 
             # get the signal issued by the currently active subsystem that describes the requests for a stare transition
-            state_control_signal_from_subsystems = self.state_output
+            state_control_signal_from_subsystems = self.state_control
 
             # reset current subsystem in case a state transition is requested
             lines_reset_subsystem = self.generate_switch_to_reset_leaving_subsystem(language, self._state_memory )
