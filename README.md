@@ -1,5 +1,7 @@
 # OpenRTDynamics 2
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OpenRTDynamics/openrtdynamics2/HEAD)
+
 Open Real-Time Dynamics 2 - A modelling framework for dynamic systems 
 
 http://openrtdynamics.github.io/
@@ -77,6 +79,10 @@ A good starting point is given in [Simulation of controlled ODEs](https://github
 
 A more [sophisticated example](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/interpolation_of_async_data.ipynb) demonstrates the control structures (if, loop, state machines) in a practically relevant setting in which asynchronous input trajectories shall be sampled and interpolated.  
 
+Further, you might have a look into the [tests folder](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/tests), that serves as a reference containing a lot of examples for basic functions. 
+
+All examples can be executed and modified online at [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OpenRTDynamics/openrtdynamics2/HEAD). (Please note that the site might take some time to load)
+
 ## Generated code
 
 The example above also explains how to use the generated source code which basically consists of a set of c++ classes. The memory layout is static (i.e., no calls to malloc/new are required). Thus, it should be convenient to embed the generated code into almost any target that understands traditional c++, for example, micro-controllers, nodes in the Robot Operating System (ROS) or any codebase written in c++.
@@ -87,7 +93,7 @@ For the available blocks and other functions, an [auto generated documentation](
 
 ## Algebraic loop
 
-Watch out for algebraic loops!
+Watch out for algebraic loops! (More information in comming soon)
 
 ## Custom code
 
