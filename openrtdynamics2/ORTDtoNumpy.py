@@ -98,7 +98,7 @@ def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **k
         # run c++ compiler
         compiled_system = dyexe.CompiledCode(code_gen_results) 
         
-        return compiled_system, output_signal_names
+        return compiled_system, output_signal_names, code_gen_results
 
         
     def inner(func):
@@ -142,7 +142,7 @@ def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **k
 
 
                 # compile the system described by the function
-                ORTDtoNumpy_inner.compiled_system, ORTDtoNumpy_inner.output_signal_names = compile_system(func, ORTDtoNumpy_inner.kwargs_decorator, ORTDtoNumpy_inner.input_signal_names_p, ORTDtoNumpy_inner.input_signal_names)
+                ORTDtoNumpy_inner.compiled_system, ORTDtoNumpy_inner.output_signal_names, ORTDtoNumpy_inner.code_gen_results = compile_system(func, ORTDtoNumpy_inner.kwargs_decorator, ORTDtoNumpy_inner.input_signal_names_p, ORTDtoNumpy_inner.input_signal_names)
                 ORTDtoNumpy_inner.is_compiled = True
 
 
@@ -223,6 +223,7 @@ def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **k
         ORTDtoNumpy_inner.is_compiled           = False # is the system that is defined by the function already compiled?     
         ORTDtoNumpy_inner.code_gen_results      = None
         ORTDtoNumpy_inner.compiled_system       = None
+        ORTDtoNumpy_inner.code_gen_results      = None
 
         # signal names for in- and output
         ORTDtoNumpy_inner.output_signal_names   = None
