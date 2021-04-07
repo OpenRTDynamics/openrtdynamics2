@@ -1,7 +1,7 @@
 from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
 from .code_generation_templates import TargetGenericCpp
-from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_primay_ouput, get_list_of_code_sources
+from .system_context import init_simulation_context, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_output, get_list_of_code_sources
 
 import os
 import pathlib as pl

@@ -16,7 +16,7 @@ def test_basic_code_gen():
     output = dy.delay(tmp)
 
     # define output(s)
-    dy.append_primay_ouput(output, 'outputs')
+    dy.append_output(output, 'outputs')
 
     # generate code
     code_gen_results = dy.generate_code(template=dy.TargetWasm(), folder="generated/", build=False)

@@ -85,7 +85,7 @@ def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **k
         for output_signal in output_signals:
             output_signal_name = 'output_' + str(output_signal_counter)
 
-            dy.append_primay_ouput(output_signal, output_signal_name)
+            dy.append_output(output_signal, output_signal_name)
 
             output_signal_names.append( output_signal_name )
             output_signal_counter += 1

@@ -95,7 +95,7 @@ class System:
     def set_primary_outputs(self, outputSignals):
         self._output_signals = outputSignals
 
-    def append_primay_ouput(self, outputSignals):
+    def append_output(self, outputSignals):
         self._output_signals.append(outputSignals)
     
     @property

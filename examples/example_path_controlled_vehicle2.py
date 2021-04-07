@@ -78,20 +78,20 @@ tracked_index, Delta_index, closest_distance = tracker(path, x, y)
 second_closest_distance, index_second_star = find_second_closest( path, x, y, index_star=tracked_index )
 interpolated_closest_distance = compute_distance_from_linear_interpolation( second_closest_distance, closest_distance  )
 
-dy.append_primay_ouput(interpolated_closest_distance, 'interpolated_closest_distance')
-dy.append_primay_ouput(second_closest_distance, 'second_closest_distance')
+dy.append_output(interpolated_closest_distance, 'interpolated_closest_distance')
+dy.append_output(second_closest_distance, 'second_closest_distance')
 
 if advanced_control:
     Delta_index_ahead, distance_residual, Delta_index_ahead_i1 = tracker_distance_ahead(path, current_index=tracked_index, distance_ahead=distance_ahead)
 
-    dy.append_primay_ouput(distance_residual, 'distance_residual')
-    dy.append_primay_ouput(Delta_index_ahead_i1, 'Delta_index_ahead_i1')
-    dy.append_primay_ouput(Delta_index_ahead, 'Delta_index_ahead')
+    dy.append_output(distance_residual, 'distance_residual')
+    dy.append_output(Delta_index_ahead_i1, 'Delta_index_ahead_i1')
+    dy.append_output(Delta_index_ahead, 'Delta_index_ahead')
 
 # verify
 if False:
     index_closest_compare, distance_compare, index_start_compare = lookup_closest_point( N=path['samples'], path_distance_storage=path['D'], path_x_storage=path['X'], path_y_storage=path['Y'], x=x, y=y )
-    dy.append_primay_ouput(index_closest_compare, 'index_closest_compare')
+    dy.append_output(index_closest_compare, 'index_closest_compare')
 
 
 # get the reference
@@ -108,8 +108,8 @@ x_r, y_r, psi_rr, K_r = sample_path(path, index=tracked_index + dy.int32(1) )  #
 #
 psi_r, psi_r_dot = compute_path_orientation_from_curvature( Ts, velocity, psi_rr, K_r, L=1.0 ) 
 
-dy.append_primay_ouput(psi_rr,     'psi_rr')
-dy.append_primay_ouput(psi_r_dot, 'psi_r_dot')
+dy.append_output(psi_rr,     'psi_rr')
+dy.append_output(psi_r_dot, 'psi_r_dot')
 
 #
 # verify the data
@@ -121,14 +121,14 @@ if False:
     distance_km1 = distance_between( x_r_km1, y_r_km1, x, y )
     distance_kp1 = distance_between( x_r_kp1, y_r_kp1, x, y )
 
-    dy.append_primay_ouput(distance_km1, 'distance_km1')
-    dy.append_primay_ouput(distance_kp1, 'distance_kp1')
+    dy.append_output(distance_km1, 'distance_km1')
+    dy.append_output(distance_kp1, 'distance_kp1')
 
 
 if advanced_control:
     x_r_ahead, y_r_ahead, psi_r_ahead, K_r_ahead = sample_path(path, index=tracked_index + Delta_index_ahead )
 
-    dy.append_primay_ouput(K_r_ahead, 'K_r_ahead')
+    dy.append_output(K_r_ahead, 'K_r_ahead')
 
 # add sign information to the distance
 Delta_l = distance_to_Delta_l( closest_distance, psi_r, x_r, y_r, x, y )
@@ -149,14 +149,14 @@ if advanced_control:
 else:
     Delta_l_r = dy.float64(0.0)
 
-dy.append_primay_ouput(Delta_l_r, 'Delta_l_r')
+dy.append_output(Delta_l_r, 'Delta_l_r')
 
 
 # feedback control
 Delta_l_filt = dy.dtf_lowpass_1_order( dy.dtf_lowpass_1_order(Delta_l, z_inf_compensator), z_inf_compensator )
 u = dy.PID_controller(r=Delta_l_r, y=Delta_l_filt, Ts=Ts, kp=k_p, ki = dy.float64(0.0), kd = dy.float64(0.0)) # 
 
-dy.append_primay_ouput(Delta_l_filt, 'Delta_l_filt')
+dy.append_output(Delta_l_filt, 'Delta_l_filt')
 
 # model of lateral distance
 z_inf_compensator_ = 0.9
@@ -174,7 +174,7 @@ Delta_l_model = z_tf( u, L_Delta_l )
 
 
 
-dy.append_primay_ouput(Delta_l_model, 'Delta_l_model')
+dy.append_output(Delta_l_model, 'Delta_l_model')
 
 
 # path tracking
@@ -183,8 +183,8 @@ Delta_u = dy.asin( dy.saturate(u / velocity, -0.99, 0.99) )
 steering =  psi_r - psi + Delta_u
 steering = dy.unwrap_angle(angle=steering, normalize_around_zero = True)
 
-dy.append_primay_ouput(Delta_u, 'Delta_u')
-dy.append_primay_ouput(u, 'l_dot_r')
+dy.append_output(Delta_u, 'Delta_u')
+dy.append_output(u, 'l_dot_r')
 
 
 #
@@ -197,14 +197,14 @@ dy.append_primay_ouput(u, 'l_dot_r')
 # compute nominal steering and steering angle from curvature
 delta_from_K, delta_dot_from_K, psi_dot_from_K = compute_nominal_steering_from_curvature( Ts=Ts, l_r=wheelbase, v=velocity, K_r=K_r )
 
-dy.append_primay_ouput( delta_from_K,     'delta_from_K'     )
-dy.append_primay_ouput( delta_dot_from_K, 'delta_dot_from_K' )
+dy.append_output( delta_from_K,     'delta_from_K'     )
+dy.append_output( delta_dot_from_K, 'delta_dot_from_K' )
 
 # compute nominal steering and carbody orientation from path heading
 delta_from_heading, psi_from_heading, psi_dot_from_heading = compute_nominal_steering_from_path_heading( Ts=Ts, l_r=wheelbase, v=velocity, psi_r=psi_r )
 
-dy.append_primay_ouput( delta_from_heading, 'delta_from_heading' )
-dy.append_primay_ouput( psi_from_heading,   'psi_from_heading' )
+dy.append_output( delta_from_heading, 'delta_from_heading' )
+dy.append_output( psi_from_heading,   'psi_from_heading' )
 
 # compute the nominal acceleration and the boundaries for the steering rate
 a_lat_nominal, a_long_nominal = compute_accelearation( velocity, v_dot, delta=delta_from_K, delta_dot=delta_dot_from_K, psi_dot=psi_dot_from_K )
@@ -212,10 +212,10 @@ a_lat_nominal, a_long_nominal = compute_accelearation( velocity, v_dot, delta=de
 a_lat_min = a_lat_nominal - dy.float64(1.5)
 a_lat_max = a_lat_nominal + dy.float64(1.5)
 
-dy.append_primay_ouput( a_lat_nominal,   'a_lat_nominal' )
+dy.append_output( a_lat_nominal,   'a_lat_nominal' )
 
-dy.append_primay_ouput( a_lat_min,   'a_lat_min' )
-dy.append_primay_ouput( a_lat_max,   'a_lat_max' )
+dy.append_output( a_lat_min,   'a_lat_min' )
+dy.append_output( a_lat_max,   'a_lat_max' )
 
 # compute boundaries for the steering command to ensure constraints on lateral acceleration and velocity
 # Question: for delta and psi_dot use the nominal (psi_dot_from_K, delta_from_K) or measured (psi_dot, delta)
@@ -224,15 +224,15 @@ dy.append_primay_ouput( a_lat_max,   'a_lat_max' )
 delta_min, delta_max, delta_dot_min, delta_dot_max = compute_steering_constraints( velocity, v_dot, psi_dot=psi_dot_from_K, delta=delta_from_K, a_l_min=a_lat_min, a_l_max=a_lat_max )
 
 
-dy.append_primay_ouput( delta_dot_min,   'delta_dot_min' )
-dy.append_primay_ouput( delta_dot_max,   'delta_dot_max' )
+dy.append_output( delta_dot_min,   'delta_dot_min' )
+dy.append_output( delta_dot_max,   'delta_dot_max' )
 
 # estimate steering rate of the real vehicle
 # delta_dot_hat = dy.dtf_lowpass_1_order( dy.diff( steering, initial_state=steering ) / dy.float64(Ts), 0.1)
-# dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
+# dy.append_output( delta_dot_hat,   'delta_dot_hat' )
 
 delta_dot_hat_nosat = dy.diff( steering, initial_state=steering ) / dy.float64(Ts)
-dy.append_primay_ouput( delta_dot_hat_nosat,   'delta_dot_hat_nosat' )
+dy.append_output( delta_dot_hat_nosat,   'delta_dot_hat_nosat' )
 
 #
 # apply saturation to the steering control variable
@@ -242,7 +242,7 @@ steering = dy.saturate(steering, delta_min, delta_max)
 steering = dy.rate_limit( steering, Ts, delta_dot_min, delta_dot_max, initial_state=steering )
 
 delta_dot_hat = dy.diff( steering, initial_state=steering ) / dy.float64(Ts)
-dy.append_primay_ouput( delta_dot_hat,   'delta_dot_hat' )
+dy.append_output( delta_dot_hat,   'delta_dot_hat' )
 
 
 #
@@ -279,22 +279,22 @@ a_lat   << a_lat_
 
 
 
-dy.append_primay_ouput(x, 'x')
-dy.append_primay_ouput(y, 'y')
-dy.append_primay_ouput(psi, 'psi')
+dy.append_output(x, 'x')
+dy.append_output(y, 'y')
+dy.append_output(psi, 'psi')
 
-dy.append_primay_ouput(steering, 'steering')
+dy.append_output(steering, 'steering')
 
-dy.append_primay_ouput(x_r, 'x_r')
-dy.append_primay_ouput(y_r, 'y_r')
-dy.append_primay_ouput(psi_r, 'psi_r')
+dy.append_output(x_r, 'x_r')
+dy.append_output(y_r, 'y_r')
+dy.append_output(psi_r, 'psi_r')
 
-dy.append_primay_ouput(Delta_l, 'Delta_l')
+dy.append_output(Delta_l, 'Delta_l')
 
-dy.append_primay_ouput(steering_disturbance, 'steering_disturbance')
-# dy.append_primay_ouput(disturbed_steering, 'disturbed_steering')
-dy.append_primay_ouput(tracked_index, 'tracked_index')
-dy.append_primay_ouput(Delta_index, 'Delta_index')
+dy.append_output(steering_disturbance, 'steering_disturbance')
+# dy.append_output(disturbed_steering, 'disturbed_steering')
+dy.append_output(tracked_index, 'tracked_index')
+dy.append_output(Delta_index, 'Delta_index')
 
 
 

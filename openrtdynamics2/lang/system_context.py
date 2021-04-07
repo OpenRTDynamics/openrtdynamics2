@@ -95,8 +95,7 @@ def set_primary_outputs(output_signals, names = None):
 
     get_system_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
-# TODO: rename!
-def append_primay_ouput(output_signal, export_name : str = None):
+def append_output(output_signal, export_name : str = None):
     """
         add an output to the current system
     """
@@ -104,7 +103,7 @@ def append_primay_ouput(output_signal, export_name : str = None):
     if export_name is not None:
         output_signal.set_name_raw(export_name)
 
-    get_system_context().append_primay_ouput(output_signal.unwrap)
+    get_system_context().append_output(output_signal.unwrap)
     
 def include_cpp_code(identifier : str, code : str = None, include_files : List[str] = None, library_names : List[str] = None):
     """
