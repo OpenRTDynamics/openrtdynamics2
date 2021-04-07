@@ -183,7 +183,7 @@ def embed_subsystem(
             output_signal_index = indices_of_output_signals_of_subsystem[i]
             output_variable_name_of_subsystem = output_variable_names_of_subsystem[output_signal_index]
 
-            innerLines += cgh.asign( output_variable_name_of_subsystem, assign_to_variable_names[i] )
+            innerLines += cgh.assign( output_variable_name_of_subsystem, assign_to_variable_names[i] )
 
     # generate code for updating the states
     if update_states:

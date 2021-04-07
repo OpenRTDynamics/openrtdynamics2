@@ -3,13 +3,13 @@ from . import lang as dy
 
 cpp_class_code = """
 
-class Ringbuffer {
+class CircularBuffer {
 public:
 
     double *state_memory;
     int n, write_cnt, abs_cnt;
 
-    Ringbuffer(int n) {
+    CircularBuffer(int n) {
     
         this->state_memory = new double[n];
         this->n         = n;
@@ -17,7 +17,7 @@ public:
         this->abs_cnt   = 0;   
     }
     
-    ~Ringbuffer() {
+    ~CircularBuffer() {
     
         delete[] this->state_memory;
     }
@@ -79,14 +79,14 @@ public:
 
 };
 
-typedef Ringbuffer *RingbufferPtr;
+typedef CircularBuffer *CircularBufferPtr;
 """
 
-def new_ringbuffer_float64(n : int):
+def new_circular_buffer_float64(n : int):
     
-    dy.include_cpp_code(identifier = 'Ringbuffer', code = cpp_class_code)
-    dafatype_ringbuffer = dy.DataTypePointer( cpp_type_name_class = 'Ringbuffer' )  
-    shared_ptr   = dy.cpp_allocate_class( datatype=dafatype_ringbuffer, code_constructor_call='Ringbuffer(' + str(n) + ')' )
+    dy.include_cpp_code(identifier = 'CircularBuffer', code = cpp_class_code)
+    dafatype_circular_buffer = dy.DataTypePointer( cpp_type_name_class = 'CircularBuffer' )  
+    shared_ptr   = dy.cpp_allocate_class( datatype=dafatype_circular_buffer, code_constructor_call='CircularBuffer(' + str(n) + ')' )
     
     return shared_ptr
 

@@ -421,7 +421,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
                 # }
                 #
                 lines += 'int _state_to_try;\n'
-                lines += cgh.asign( self._state_memory, '_state_to_try' )
+                lines += cgh.assign( self._state_memory, '_state_to_try' )
 
                 # loop
                 in_loop_lines = ''
@@ -452,10 +452,10 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
                 in_loop_lines += cgh.generate_loop_break(
                     language, 
                     condition         = cgh.generate_compare_equality_to_constant( language, self.state_control.name, -1 ),
-                    code_before_break = cgh.asign( '_state_to_try', self.state_control.name )
+                    code_before_break = cgh.assign( '_state_to_try', self.state_control.name )
                 )
 
-                in_loop_lines += cgh.asign( self.state_control.name, '_state_to_try' )
+                in_loop_lines += cgh.assign( self.state_control.name, '_state_to_try' )
 
                 lines += cgh.generate_loop(
                     language,

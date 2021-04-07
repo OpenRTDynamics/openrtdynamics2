@@ -110,9 +110,9 @@ def defineVariables( signals, make_a_reference = False ):
 
 
 
-def asign( from_signal_name, to_signal_name ):
+def assign( from_signal_name, to_signal_name ):
     """
-        generate code to asign a value
+        generate code to assign a value
 
         - from_signal_name
         - to_signal_name
