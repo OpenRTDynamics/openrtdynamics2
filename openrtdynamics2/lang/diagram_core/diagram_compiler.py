@@ -140,7 +140,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     E=BuildExecutionPath()
 
-    print("determining the computation order...")
+    # print("determining the computation order...")
 
     # append all execution lines to this structure
     executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
@@ -225,7 +225,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
 
 
-    print("building execution paths...")
+    # print("building execution paths...")
 
     # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
     # element. Also collect the newly appearing dependency signals in a list and also 
@@ -419,7 +419,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         # iterate
         order = order + 1
         if len(dependencySignals__) == 0:
-            print(Fore.GREEN + "All dependencies are resolved.")
+            # print(Fore.GREEN + "All dependencies are resolved.")
 
             break
 
