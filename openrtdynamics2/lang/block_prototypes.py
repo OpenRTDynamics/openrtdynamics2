@@ -226,6 +226,13 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
                 calculate_outputs = False, update_states = True
             )
 
+            code_reset_subsystem = embed_subsystem(
+                language, 
+                system_wrapper=self._subsystem_wrapper, 
+                calculate_outputs = False, update_states = False,
+                reset_states = True
+            )
+
             code = ''
             code +=  calc_outputs 
             code += update_states
@@ -235,16 +242,11 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
 
             if self._add_until_control:
 
-                code_reset_subsystem = embed_subsystem(
-                    language, 
-                    system_wrapper=self._subsystem_wrapper, 
-                    calculate_outputs = False, update_states = False,
-                    reset_states = True
-                )
-
                 code += cgh.generate_loop_break(language, condition='_until_condition', code_before_break=code_reset_subsystem)
 
-            lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code  )
+
+            # TODO: issue an error once the maximal number of iterations has passed.
+            lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code, code_to_exec_on_abort = code_reset_subsystem  )
 
         return lines
 
@@ -255,6 +257,15 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
             pass    
 
         return lines
+
+
+
+
+
+
+
+
+
 
 
 

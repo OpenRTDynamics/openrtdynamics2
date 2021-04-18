@@ -294,17 +294,25 @@ def generate_loop_break(language, condition, code_before_break = None):
     return abort_code
 
 
-def generate_loop( language, max_iterations, code_to_exec, counter_variable_name = '_i'  ):
+def generate_loop( language, max_iterations, code_to_exec, code_to_exec_on_abort='', counter_variable_name = '_i'  ):
     """
         generate a loop
 
-        - max_iterations - the maximal number of loop iterations
-        - code_to_exec   - the code to execute in the loop
-
-        TODO: issue an error once the maximal number of iterations has passed.
+        - max_iterations        - the maximal number of loop iterations
+        - code_to_exec          - the code to execute in the loop
+        - code_to_exec_on_abort - the code to exec when the maximal number of iterations is reached
     """
 
-    lines = 'for (int ' +counter_variable_name+ ' = 0; ' +counter_variable_name+ ' < ' + str(max_iterations) + '; ++' +counter_variable_name+ ') ' + brackets_no_newline( code_to_exec ) + ';\n'
+
+    code_loop = brackets_no_newline( 
+        code_to_exec + generate_if_else(
+            language, 
+            condition_list = [ counter_variable_name+ ' >= ' + str(max_iterations) ] ,
+            action_list = [ code_to_exec_on_abort + 'break;' ]
+        )
+    )
+
+    lines = 'for (int ' +counter_variable_name+ ' = 0; ' + '; ++' +counter_variable_name+ ') ' + code_loop + ';\n'
     return lines
 
 
