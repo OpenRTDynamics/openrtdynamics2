@@ -12,6 +12,68 @@ from typing import Dict, List
 """
 
 
+class structure:
+    """
+    A structure to combine multiple signals
+    
+    It behaves similarly to a python hash array.
+    Further, the keys are used as (part of) the variable names in the generated code. 
+    """
+    def __init__(self, *args, **kwargs):
+        
+        if len(args) == 1:
+            self._entries = args[0]
+        else:
+            self._entries = kwargs
+        
+        # list of signals; deterministic order
+        self._signals = []
+        self._keys    = []
+        
+        for k, s in self._entries.items():
+            s.set_name( k )
+            self._signals.append(s)
+            self._keys.append(k)
+        
+    def __getitem__(self, key):
+        return self._entries[key]
+
+    def __setitem__(self, key, signal):
+        signal.set_name( key )
+        
+        self._entries[key] = signal
+        self._signals.append(signal)
+        self._keys.append(key)
+
+    def items(self):
+        """
+        items function - like a hash array has
+        """
+        return self._entries.items()
+    
+    def to_list(self):
+        """
+        return an ordered list of the signals stored in this structure
+        """
+        return self._signals
+    
+    def replace_signals(self, signals):
+        """
+        replace the signals stored in this structure with the given list of signals. 
+        The given list shall have the same order like the list returned by to_list(). 
+        """
+        
+        for i in range(0, len(signals)):
+            s = signals[i]
+            k = self._keys[i]
+            
+            self._entries[k] = s
+            
+        self._signals = signals
+            
+            
+
+
 def convert_python_constant_val_to_const_signal(val):
 
     if isinstance(val, SignalUserTemplate):
@@ -24,7 +86,7 @@ def convert_python_constant_val_to_const_signal(val):
     if type(val) == float:
         return dy.float64(val)
 
-    raise BaseException('unable to convert given constant ' + str(val) + ' to a signal object.')
+    raise BaseException('unable to convert given source ' + str(val) + ' to a signal object.')
 
 
 # internal helper

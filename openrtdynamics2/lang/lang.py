@@ -10,4 +10,4 @@ from .system_context import init_simulation_context, get_system_context, enter_s
 from .standard_library import *
 from .subsystems import sub_if, sub_loop, sub_switch, state_sub, sub_statemachine
 from .high_level_user_commands import *
-from .signal_interface import SignalUserTemplate
+from .signal_interface import SignalUserTemplate, structure
