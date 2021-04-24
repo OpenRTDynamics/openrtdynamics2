@@ -82,7 +82,16 @@ def boolean(value):
         return value
     else:
         # create a new constant
-        return dy.const(value, dy.DataTypeBoolean(1) )
+        if type(value) is bool:
+            if value:
+                v = 1
+            else:
+                v = 0
+
+        elif type(value) is int:
+            v = value
+
+        return dy.const(v, dy.DataTypeBoolean(1) )
 
 
 
