@@ -53,7 +53,7 @@ class ExecutionCommand(object):
 
         # object to define the tracing infrastructure (e.g. printf)
         # in case of None, tracing is deactivated
-        self._tracing_infrastructure = None
+        self._tracing_infrastructure = True
 
     @property
     def treeLevel(self):
@@ -65,6 +65,11 @@ class ExecutionCommand(object):
         self.treeLevel_ = context.treeLevel + 1
 
     def set_tracing_infrastructure(self, tracing_infrastructure):
+        print('enabling tracking for', self)
+
+        if isinstance(self, PutSystem):
+            print('system name', self.API_name)
+
         self._tracing_infrastructure = tracing_infrastructure
 
         for cmd in self.executionCommands:
@@ -453,7 +458,15 @@ class PutAPIFunction(ExecutionCommand):
     # Creates an API-function to return the calculated values that might depend on input values
     # 
 
-    def __init__(self, nameAPI : str, inputSignals : List[ Signal ], outputSignals : List[ Signal ], executionCommands, generate_wrappper_functions = True):
+    def __init__(
+        self, 
+        nameAPI : str, 
+        inputSignals : List[ Signal ], 
+        outputSignals : List[ Signal ], 
+        executionCommands, 
+        generate_wrappper_functions = True,
+        subsystem_nesting_level : int = 0
+    ):
         ExecutionCommand.__init__(self)
 
         self.outputSignals = outputSignals
@@ -461,6 +474,7 @@ class PutAPIFunction(ExecutionCommand):
         self.executionCommands = executionCommands
         self._nameAPI = nameAPI
         self._generate_wrappper_functions = generate_wrappper_functions
+        self._subsystem_nesting_level = subsystem_nesting_level
 
         # check if there are no common signal names in in/output
         for so in self.outputSignals:
@@ -524,8 +538,13 @@ class PutAPIFunction(ExecutionCommand):
 
                 # place tracing (begin)
                 if self._tracing_infrastructure is not None:
-                    function_code += cgh.create_printf(intro_string='ENTR: ' + self.contextCommand.API_name + '/' + self.nameAPI, 
-                                                    signals=self.inputSignals)
+
+                    space = cgh.tabs(self._subsystem_nesting_level)
+
+                    function_code += cgh.create_printf(
+                        intro_string = Fore.GREEN + space + 'ENTR: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
+                        signals      = self.inputSignals
+                    )
 
                     function_code += '\n'
                 
@@ -541,8 +560,13 @@ class PutAPIFunction(ExecutionCommand):
 
                 # place tracing (end)
                 if self._tracing_infrastructure is not None:
-                    function_code += cgh.create_printf(intro_string='EXIT: ' + self.contextCommand.API_name + '/' + self.nameAPI, 
-                                                    signals=self.outputSignals)
+
+                    space = cgh.tabs(self._subsystem_nesting_level)
+
+                    function_code += cgh.create_printf(
+                        intro_string = Fore.RED + space + 'EXIT: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
+                        signals     = self.outputSignals
+                    )
 
                     function_code += '\n'
 
@@ -771,8 +795,8 @@ class PutSystem(ExecutionCommand):
 
 class PutSystemAndSubsystems(ExecutionCommand):
     """
-        Represents a system and its subsystem togehter that is represented by multiple classes in c++.
-        Addiitionally, they are packed into a namespace.
+        Represents a system and its subsystem togethter that is represented by multiple classes in c++.
+        Aditionally, they are packed into a namespace.
     """
 
     def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):

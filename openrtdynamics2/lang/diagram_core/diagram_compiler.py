@@ -71,17 +71,24 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-        compile_result = compile_single_system( system, reduce_not_needed_code = not is_top_level_system )
+        compile_result = compile_single_system(
+            system, 
+            reduce_not_needed_code = not is_top_level_system,
+            subsytem_nesting_level = level
+        )
 
 
-        # # produre commands for building/executing
+        # # procedure commands for building/executing
         # command_list_for_all_subsystems = []
         # for subsystem in system.subsystems:
         #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
 
 
         # replace the execution command by one that wraps all subsystems along with the main system
-        execution_command = PutSystemAndSubsystems( command_to_put_main_system=compile_result.command_to_execute, commands_to_put_subsystems=command_list_for_all_subsystems )
+        execution_command = PutSystemAndSubsystems(
+            command_to_put_main_system = compile_result.command_to_execute, 
+            commands_to_put_subsystems = command_list_for_all_subsystems 
+        )
         compile_result.set_command_to_execute( execution_command )
 
         # store the compilation result in the system's structure (TODO: is this needed?)
@@ -114,7 +121,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=0):
+def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=0, subsytem_nesting_level : int = 0):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -274,7 +281,8 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
         inputSignals=simulationInputSignalsToCalculateOutputs,
         outputSignals=outputSignals, 
         executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
-        generate_wrappper_functions = not reduce_not_needed_code
+        generate_wrappper_functions = not reduce_not_needed_code,
+        subsystem_nesting_level  = subsytem_nesting_level
     )
 
     # Initialize the list of commands to execute to update the states
@@ -424,7 +432,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
             break
 
         if order == 1000:
-            raise BaseException(Fore.GREEN + "Maximal number of iterations reached -- this is likely because of an algebraic loop or your simulation is very complex")
+            raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
             break
 
 
@@ -435,10 +443,11 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
     # Build API to update the states: e.g. c++ function updateStates()
     commandToUpdateStates = PutAPIFunction(
         nameAPI = 'updateStates', 
-        inputSignals=simulation_input_signals_to_update_states_fixed_list, 
-        outputSignals=[], 
-        executionCommands=commandsToExecuteForStateUpdate,
-        generate_wrappper_functions = not reduce_not_needed_code
+        inputSignals                = simulation_input_signals_to_update_states_fixed_list, 
+        outputSignals               = [], 
+        executionCommands           = commandsToExecuteForStateUpdate,
+        generate_wrappper_functions = not reduce_not_needed_code,
+        subsystem_nesting_level     = subsytem_nesting_level
     )
 
     # code to reset add blocks in the simulation
@@ -446,11 +455,12 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
 
     # create an API-function resetStates()
     commandToResetStates = PutAPIFunction(
-        nameAPI = 'resetStates', 
-        inputSignals=[], 
-        outputSignals=[], 
-        executionCommands=[commandsToExecuteForStateReset],
-        generate_wrappper_functions = not reduce_not_needed_code
+        nameAPI                     = 'resetStates', 
+        inputSignals                = [], 
+        outputSignals               = [], 
+        executionCommands           = [commandsToExecuteForStateReset],
+        generate_wrappper_functions = not reduce_not_needed_code,
+        subsystem_nesting_level     = subsytem_nesting_level
     )
 
 
