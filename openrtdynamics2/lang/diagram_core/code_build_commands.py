@@ -53,7 +53,7 @@ class ExecutionCommand(object):
 
         # object to define the tracing infrastructure (e.g. printf)
         # in case of None, tracing is deactivated
-        self._tracing_infrastructure = True
+        self._tracing_infrastructure = None
 
     @property
     def treeLevel(self):

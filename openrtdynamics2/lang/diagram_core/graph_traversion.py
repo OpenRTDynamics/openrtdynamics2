@@ -520,6 +520,9 @@ class BuildExecutionPath:
             if self._show_print > 1:
                 print(Fore.MAGENTA + tabs + "-> S " + signal.name )
 
+            if depth_counter > 100:
+                raise BaseException('maximal number of iterations reached in system ' + signal.system.name + 'signal ' + signal.name)
+
             # R E C U R S I O N
             A_execution_order, A_dependency_signals, A_dependency_signals_simulation_inputs, A_blocks_to_update_states, A_dependency_signals_through_states = self.backwards_traverse_signals_exec__( signal, depth_counter = depth_counter + 1, current_system=current_system )
 

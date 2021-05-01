@@ -58,14 +58,8 @@ class sub_if:
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
 
-        # create generic subsystem block prototype
-        # self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-        #                                             manifest=None, inputSignals=None, 
-        #                                             embedded_subsystem=embedded_subsystem,
-        #                                             N_outputs=len(self._outputs_of_embedded_subsystem) )
 
-
-        self._subsystem_block_prototype = bp.SystemWrapper(embedded_subsystem)
+        self._subsystem_wrapper = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
@@ -75,10 +69,12 @@ class sub_if:
         #
 
         # create the embedder prototype
-        embeddedingBlockPrototype = bp.TriggeredSubsystem( system=dy.get_system_context(), 
-                control_input=si.unwrap( self._condition_signal ), 
-                subsystem_wrapper=self._subsystem_block_prototype,
-                prevent_output_computation = self._prevent_output_computation)
+        embeddedingBlockPrototype = bp.TriggeredSubsystem( 
+            system=dy.get_system_context(), 
+            control_input=si.unwrap( self._condition_signal ), 
+            subsystem_wrapper=self._subsystem_wrapper,
+            prevent_output_computation = self._prevent_output_computation
+        )
 
 
         # connect the normal outputs via links
@@ -91,7 +87,7 @@ class sub_if:
     def outputs(self):
 
         if self._output_links is None:
-            BaseException("Please close the subsystem before querying its outputs")
+            BaseException("Please close the subsystem before querying its outputs: Maybe one less tab when calling this function?")
         
         return self._output_links
     

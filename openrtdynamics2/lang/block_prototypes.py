@@ -50,7 +50,7 @@ class TriggeredSubsystem(SingleSubsystemEmbedder):
             number_of_control_outputs=0
         )
 
-
+    # TODO: rename to direct feedthrough
     def config_request_define_feedforward_input_dependencies(self, outputSignal):
 
         # determine inputs needed directly to compute the outputs
