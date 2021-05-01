@@ -473,7 +473,8 @@ class TargetWasm(TargetGenericCpp):
 
     def build(self):
 
-        buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder , "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder , "main.js" )
+        # buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder , "main.cpp") + " -g4 -s -o " + os.path.join( self.codeFolder , "main.js" )
+        buildCommand = 'emcc --bind -s MODULARIZE=1 -s EXPORT_NAME="ORTD_simulator" '  + os.path.join(self.codeFolder , "main.cpp") + " -O2 -s -o " + os.path.join( self.codeFolder , "main.js" )
         print("Running compiler: " + buildCommand)
 
         returnCode = os.system(buildCommand)
