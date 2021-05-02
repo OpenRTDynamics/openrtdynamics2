@@ -65,10 +65,9 @@ class ExecutionCommand(object):
         self.treeLevel_ = context.treeLevel + 1
 
     def set_tracing_infrastructure(self, tracing_infrastructure):
-        print('enabling tracking for', self)
 
         if isinstance(self, PutSystem):
-            print('system name', self.API_name)
+            print('enabled tracing for system ' + str( self.API_name ))
 
         self._tracing_infrastructure = tracing_infrastructure
 
@@ -810,6 +809,20 @@ class PutSystemAndSubsystems(ExecutionCommand):
     @property
     def command_to_put_main_system(self):
         return self._command_to_put_main_system
+
+
+    def set_tracing_infrastructure(self, tracing_infrastructure):
+
+        self._tracing_infrastructure = tracing_infrastructure
+        
+        # forward to the main system
+        self._command_to_put_main_system.set_tracing_infrastructure( tracing_infrastructure )
+
+        # forward to all subsystems
+        for cmd in self._commands_to_put_subsystems:
+            cmd.set_tracing_infrastructure( tracing_infrastructure )
+
+
 
     def print_execution(self):
 

@@ -91,9 +91,15 @@ The example above also explains how to use the generated source code which basic
 
 For the available blocks and other functions, an [auto generated documentation](https://openrtdynamics.github.io/openrtdynamics2/generated/) is given for reference purposes (a cleanup of the (auto-) formatting is needed though). The information is also available via the doc-strings, thus also shown in various editors (e.g., by pressing Shift-Tab in Juypter).
 
-## Algebraic loop
+## Algebraic loops
 
-Watch out for algebraic loops! (More information in comming soon)
+Watch out for algebraic loops - currently they are not automatically detected in any case! This will change soon.
+
+## Tracing and debugging
+
+Execution flows especially involving subsystems and state machines might get complex with increasing diagram complexity. Therefore, the execution flow (i.e., which subsystem is called when) can be traced. Currently, this is printf-based, however, also a visualization with timing diagrams might be feasible to implement.  
+
+[Tracing and debugging](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/tracing_and_debugging.ipynb)
 
 ## Custom code
 

@@ -26,7 +26,7 @@ def _generate_algorithm_code( compile_results, enable_tracing=False, included_sy
     # enable tracing for all execution commands
     if enable_tracing:
         # TODO: instead of putting True create an obj with a tracing infrastructure. So far printf is used automatically
-        main_command.command_to_put_main_system.set_tracing_infrastructure(True)
+        main_command.set_tracing_infrastructure(True)
 
     # concatenate the custom code to include
     if list_of_code_sources is not None:
