@@ -143,6 +143,9 @@ class sub_loop:
 
         embedded_subsystem = dy.get_system_context()
 
+        if self._until_signal is None and self._yield_signal is None:
+            raise BaseException('sub_loop: Please specify either an abort or a yield condition. This can be achieved by the methods system.loop_until(condition) or system.loop_yield(condition).')
+
         # collect all outputs
         all_output_signals = []
         all_output_signals.extend(self._outputs_of_embedded_subsystem)
@@ -153,12 +156,6 @@ class sub_loop:
 
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs(  all_output_signals  )
-
-        # create generic subsystem block prototype
-        # self._subsystem_block_prototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-        #                                             manifest=None, inputSignals=None, 
-        #                                             embedded_subsystem=embedded_subsystem,
-        #                                             N_outputs=len(all_output_signals) )
 
         self._subsystem_wrapper = bp.SystemWrapper(embedded_subsystem)
 
@@ -176,15 +173,9 @@ class sub_loop:
                 add_until_control=self._until_signal is not None,
                 add_yield_control=self._yield_signal is not None)
 
-
-                # subsystem_prototypes=subsystem_prototypes, 
-                # reference_outputs=  si.unwrap_list( self._reference_outputs ) )
-
         # connect the normal outputs via links
         self._output_links = si.wrap_signal_list( embeddedingBlockPrototype.outputs )
 
-        # connect the additional (control) outputs
-        # self._state_output = si.wrap_signal( embeddedingBlockPrototype.state_output )
 
     @property
     def outputs(self):
@@ -316,7 +307,7 @@ class SwitchedSubsystemPrototype:
 
         self._system = None
         self._anonymous_output_signals = None
-        self._embeddedingBlockPrototype = None
+        self._subsystem_wrapper = None
 
     @property
     def system(self):
@@ -362,26 +353,17 @@ class SwitchedSubsystemPrototype:
     def __exit__(self, type, value, traceback):
         embedded_subsystem = dy.get_system_context()
 
-        #
-        # number_of_subsystem_outputs = len(self._outputs_of_embedded_subsystem)
-
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
 
-        # create generic subsystem block prototype
-        # self._embeddedingBlockPrototype = bp.GenericSubsystem( sim=embedded_subsystem.upper_level_system, 
-        #                                             manifest=None, inputSignals=None, 
-        #                                             embedded_subsystem=embedded_subsystem,
-        #                                             N_outputs=number_of_subsystem_outputs )
-
-        self._embeddedingBlockPrototype = bp.SystemWrapper(embedded_subsystem)
+        self._subsystem_wrapper = bp.SystemWrapper(embedded_subsystem)
 
         # leave the context of the subsystem
         dy.leave_system()
 
     @property
     def subsystem_prototype(self):
-        return self._embeddedingBlockPrototype
+        return self._subsystem_wrapper
 
 
 ##
