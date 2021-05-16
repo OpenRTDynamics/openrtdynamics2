@@ -28,7 +28,7 @@ class sub_if:
         ):
 
         if subsystem_name is not None:
-            self._subsystem_name = subsystem_name
+            self._subsystem_name = generate_subsystem_name() + '_' + subsystem_name
         else:
             self._subsystem_name = generate_subsystem_name()
 
@@ -106,7 +106,7 @@ class sub_loop:
     def __init__(self, max_iterations : int, subsystem_name = None ):
 
         if subsystem_name is not None:
-            self._subsystem_name = subsystem_name
+            self._subsystem_name = generate_subsystem_name() + '_' + subsystem_name
         else:
             self._subsystem_name = generate_subsystem_name()
 

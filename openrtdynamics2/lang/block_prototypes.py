@@ -248,6 +248,9 @@ class LoopUntilSubsystem(SingleSubsystemEmbedder):
             # TODO: issue an error once the maximal number of iterations has passed.
             lines += cgh.generate_loop( language, max_iterations=str(self.max_iter), code_to_exec=code, code_to_exec_on_abort = code_reset_subsystem  )
 
+            # wrap all into brackets to avoid naming conflicts in the defined variables
+            lines = cgh.brackets(lines) 
+
         return lines
 
     def generate_code_update(self, language):
@@ -475,6 +478,9 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
                     counter_variable_name = '_counter'
                 )
                 # end loop
+
+                # wrap all into brackets to avoid naming conflicts in the defined variables
+                lines = cgh.brackets(lines) 
 
 
         return lines
