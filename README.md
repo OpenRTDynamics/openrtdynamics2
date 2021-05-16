@@ -1,8 +1,8 @@
 # OpenRTDynamics 2
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OpenRTDynamics/openrtdynamics2/HEAD)
+Live demo: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OpenRTDynamics/openrtdynamics2/HEAD)
 
-Open Real-Time Dynamics 2 - A modelling framework for dynamic systems 
+Open Real-Time Dynamics 2 - A modeling framework for dynamic systems 
 
 http://openrtdynamics.github.io/
 
@@ -113,11 +113,26 @@ To come..
 
 ## Missing pieces
 
-This list might be considered as a list of things to do.
+These lists might be considered as a list of things to do.
 
+### Base framework
+
+- Accidentally introduced algebraic loops are not handled well. Here, an error message is needed. Further, there are some cases in combination with subsystems where the handling of algebraic loops is too conservative meaning the compiler fails though there is not a real algebraic loop.
+- A better framework for tracing and debugging, e.g., timing diagrams. Currently, this is printf-based. 
+- vectorial/matrix signals are not implemented; the package Eigen might be used therefor.
+- ability to yield exceptions that indicate errors in the computation 
+
+- signals directly passed from the input to the output of a system causes fail code compilation. A workaround is to introduce a dummy computation, e.g., output = 1 * input
 - In case there is a common name among the input and outputs of a system, compilation fails.
-- Signals are limited to be single valued, i.e., vectorial signals are not implemented.
-- If there is an unconnected input, the html export fails to run
+
+### Targets
+
+- HTML export: If there is an unconnected input, the html export fails to run.
+- Introduce real-time targets for Linux rt-preempt, Arduino and similar micro-controllers.
+
+### Graphical user interface
+
+- Introduce an online-editor, e.g., using [React Diagrams](https://github.com/projectstorm/react-diagrams).
 
 ## Background
 
