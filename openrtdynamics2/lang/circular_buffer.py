@@ -34,6 +34,16 @@ public:
     
     void get_current_absolute_write_index(int & index) {
         index = this->abs_cnt;
+
+        // printf( "get_current_absolute_write_index (%p): %d\\n", this, this->abs_cnt );
+    }
+
+    void get_absolute_minimal_index(int & index) {
+        index = this->abs_cnt - this->n;
+
+        if (index < 0) {
+            index = 0;
+        }
     }
 
     void read_from_absolute_index(double & output, int abs_index) {
@@ -49,11 +59,13 @@ public:
         if (arr_index >= this->n) { // check this
         
             // error
+            // printf("read_from_absolute_index: bad index %d (maximal valid index: %d)\\n", abs_index, this->abs_cnt-1);
             output = NAN;
             
         } else if ( arr_index < 0 ) {
         
             // error
+            // printf("read_from_absolute_index: bad index %d (maximal valid index: %d)\\n", abs_index, this->abs_cnt-1);
             output = NAN;
             
         } else {
@@ -75,6 +87,9 @@ public:
             // wrap
             this->write_cnt = 0;
         }
+
+        // printf( "append_to_buffer (%p): %d %f\\n", this, this->abs_cnt, value );
+
     }
 
 };
@@ -121,6 +136,23 @@ def get_current_absolute_write_index(shared_states_ptr):
     )
     
     return value[0]
+
+def get_absolute_minimal_index(shared_states_ptr):
+    
+    value = dy.cpp_call_class_member_function(
+        ptr_signal    = shared_states_ptr,
+
+        input_signals = [  ],
+        input_types   = [  ],
+        output_types  = [ dy.DataTypeInt32(1) ],
+
+        # call the function read_from_index        
+        member_function_name_to_calc_outputs = 'get_absolute_minimal_index'
+    )
+    
+    return value[0]
+
+
 
 
 def append_to_buffer(shared_states_ptr, value_to_write):
