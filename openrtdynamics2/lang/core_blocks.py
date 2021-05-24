@@ -189,6 +189,41 @@ def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTem
 
     return wrap_signal( ConditionalOverwrite(dy.get_system_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
 
+def if_else(condition : SignalUserTemplate, if_true : SignalUserTemplate, if_false : SignalUserTemplate  ):
+    """
+    IF/ELSE - select one of two input signals given a condition
+
+    The output is given by
+
+        if_true     for condition==true
+        if_false    for condition==false
+
+    Parameters
+    ----------
+    condition : SignalUserTemplate
+        the boolean condition for when to overwrite signal
+    if_true : SignalUserTemplate
+        the input signal
+    if_false : SignalUserTemplate
+        the value with is used to replace the input in case the condition is true
+
+    Returns
+    -------
+    SignalUserTemplate
+        the output signal
+    """
+
+    return wrap_signal( 
+            ConditionalOverwrite(
+                dy.get_system_context(), 
+                if_false.unwrap, 
+                condition.unwrap, 
+                if_true.unwrap
+            ).outputs[0] 
+        )
+
+
+
 def sqrt(u : SignalUserTemplate ):
     """
     Square root
