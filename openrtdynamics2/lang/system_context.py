@@ -2,7 +2,6 @@ from .diagram_core.system import System
 from typing import Dict, List
 from . import signal_interface as si
 
-
 current_simulation_context = None
 system_stack = []
 counter_of_created_systems = 1000
@@ -95,17 +94,48 @@ def set_primary_outputs(output_signals, names = None):
 
     get_system_context().set_primary_outputs( si.unwrap_list( output_signals ) )
 
+
 def append_output(output_signal, export_name : str = None):
     """
         add an output to the current system
+
+        output_signal: SignalUserTemplate, structure
+            either a signal of type 
+        export_name: str
+            name of the signal or prefix of the names of the signals in the structure
     """
 
-    if export_name is not None:
-        output_signal.set_name_raw(export_name)
+    if isinstance(output_signal, si.SignalUserTemplate ): 
 
-    get_system_context().append_output(output_signal.unwrap)
-    
-def include_cpp_code(identifier : str, code : str = None, include_files : List[str] = None, library_names : List[str] = None):
+        # set name
+        if export_name is not None:
+            output_signal.set_name_raw(export_name)
+
+        # add to outputs
+        get_system_context().append_output(output_signal.unwrap)
+
+    elif isinstance(output_signal, si.structure ):
+
+        for name, signal in output_signal.items():
+
+            # set name
+            if export_name is not None:
+                # use export_name as a prefix
+                signal.set_name_raw( export_name + '_' + name )
+            else:
+                signal.set_name_raw( name )
+
+            # add to outputs
+            get_system_context().append_output(signal.unwrap)
+
+
+def include_cpp_code(
+        identifier : str,
+        code : str = None,
+        include_files : List[str] = None,
+        library_names : List[str] = None
+    ):
+
     """
     Include the given c++ source code into the code generation process
     """
