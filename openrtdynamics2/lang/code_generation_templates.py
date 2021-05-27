@@ -48,9 +48,36 @@ def _generate_algorithm_code( compile_results, enable_tracing=False, included_sy
 
     # the manifest containts meta-information about the simulation and its interface
     # i.e. input and output signals names and datatypes
-    manifest = compile_results.manifest.export_json()
+    manifest = compile_results.manifest # .export_json()
 
     return manifest, algorithm_code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -169,12 +196,12 @@ class TargetGenericCpp:
                                                     calcOutputsArgs=calcOutputsArgs )
 
 
-        return {'sourcecode' : self.template, 'manifest' : self.manifest, 'algorithm_sourcecode' : self._algorithm_code }
+        return {'sourcecode' : self.template, 'manifest' : self.manifest.export_json(), 'algorithm_sourcecode' : self._algorithm_code }
 
     def writeFiles(self, folder):
 
         with open( os.path.join( folder + '//simulation_manifest.json' ), 'w') as outfile:  
-            json.dump(self.manifest, outfile)
+            json.dump(self.manifest.export_json(), outfile)
 
     def build(self):
         pass
