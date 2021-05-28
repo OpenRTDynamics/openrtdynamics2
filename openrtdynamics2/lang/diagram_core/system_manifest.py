@@ -72,7 +72,7 @@ class SystemManifest(object):
         return self.API_functionNames[identifier]
     
 
-
+    # rename to to_structure
     def export_json(self):
         self.manifest = {}
         self.manifest['api_name'] = self.mainSimulation.API_name

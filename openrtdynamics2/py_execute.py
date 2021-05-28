@@ -1,39 +1,84 @@
 import numpy as np
 from typing import Dict, List
-
+from .manifest_import import get_all_inputs
 system_instance_counter = 0
 
 #__all__ = []
 #__all__ = ['show_required_inputs', 'run_batch_simulation', 'SystemInstance', 'CompiledCode']
 
 
+# def fill_default_input_values( manifest, inputs ):
+
+#     manifest_in_o = manifest['io']['inputs']['calculate_output']
+#     manifest_in_u = manifest['io']['inputs']['state_update']
+
+#     def fill_in(inputs, manifest_in):
+
+#         for i in range(len(manifest_in['names'])):
+
+#             k = manifest_in['names'][i]
+
+#             if not 'properties' in manifest_in:
+#                 break
+
+#             properties = manifest_in['properties'][i]
+
+#             if not 'default_value' in properties:
+#                 break
+
+#             default_val = properties['default_value']
+
+#             setattr(inputs, k, default_val)
+
+
+#     fill_in(inputs, manifest_in=manifest_in_o)
+#     fill_in(inputs, manifest_in=manifest_in_u)
+
+
+
+# def get_all_inputs( manifest, only_inputs_with_default_values = True ):
+#     """
+#         return a key-value struct containing all inputs which have a default value
+#     """
+#     ret = {}
+
+#     manifest_in_o = manifest['io']['inputs']['calculate_output']
+#     manifest_in_u = manifest['io']['inputs']['state_update']
+
+#     def fill_in(manifest_in):
+
+#         for i in range(len(manifest_in['names'])):
+
+#             # introduce new struct
+#             s = {}
+
+#             k = manifest_in['names'][i]
+
+#             s['cpptype'] =  manifest_in['cpptypes'][i]
+
+#             if 'properties' in manifest_in:
+    
+#                 properties = manifest_in['properties'][i]
+#                 s['properties']    = properties
+
+#                 if not 'default_value' in properties and only_inputs_with_default_values:
+#                     break
+
+#             # fill in struct
+#             ret[k] = s
+
+#     fill_in(manifest_in=manifest_in_o)
+#     fill_in(manifest_in=manifest_in_u)
+
+#     return ret
+
+
 def fill_default_input_values( manifest, inputs ):
 
-    manifest_in_o = manifest['io']['inputs']['calculate_output']
-    manifest_in_u = manifest['io']['inputs']['state_update']
+    ret = get_all_inputs( manifest, inputs, only_inputs_with_default_values = True )
 
-    def fill_in(inputs, manifest_in):
-
-        for i in range(len(manifest_in['names'])):
-
-            k = manifest_in['names'][i]
-
-            if not 'properties' in manifest_in:
-                break
-
-            properties = manifest_in['properties'][i]
-
-            if not 'default_value' in properties:
-                break
-
-            default_val = properties['default_value']
-
-            setattr(inputs, k, default_val)
-
-
-    fill_in(inputs, manifest_in=manifest_in_o)
-    fill_in(inputs, manifest_in=manifest_in_u)
-
+    for k, v in ret.items():
+        setattr(inputs, k, v['properties']['default_value'])
 
 
 
