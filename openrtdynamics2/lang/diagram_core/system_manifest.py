@@ -10,9 +10,13 @@ def makeSignalDescription(signals, json : bool):
 
     signalDescription['properties'] = []
     signalDescription['port_numbers'] = []
+    signalDescription['printf_patterns'] = []
+
     for s in signals:
         signalDescription['properties'].append( s.properties )
         signalDescription['port_numbers'].append( s.port )
+        signalDescription['printf_patterns'].append( s.datatype.cpp_printf_pattern )
+
 
     if not json:
         # types will not be available when exported to JSON
