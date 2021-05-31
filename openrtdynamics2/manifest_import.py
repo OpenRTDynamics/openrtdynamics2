@@ -2,14 +2,18 @@
 
 
 
-def get_all_inputs( manifest, only_inputs_with_default_values = True ):
+def get_all_inputs( 
+        manifest, 
+        only_inputs_with_default_values    = True, 
+        return_inputs_to_update_states     = True,
+        return_inputs_to_calculate_outputs = True,
+        return_inputs_to_reset_states      = True
+    ):
     """
         return a key-value struct containing all inputs
     """
     ret = {}
 
-    manifest_in_o = manifest['io']['inputs']['calculate_output']
-    manifest_in_u = manifest['io']['inputs']['state_update']
 
     def fill_in(manifest_in):
 
@@ -34,8 +38,17 @@ def get_all_inputs( manifest, only_inputs_with_default_values = True ):
             # fill in struct
             ret[k] = s
 
-    fill_in(manifest_in=manifest_in_o)
-    fill_in(manifest_in=manifest_in_u)
+    if return_inputs_to_calculate_outputs:
+        manifest_in_o = manifest['io']['inputs']['calculate_output']
+        fill_in(manifest_in=manifest_in_o)
+    
+    if return_inputs_to_update_states:
+        manifest_in_u = manifest['io']['inputs']['state_update']
+        fill_in(manifest_in=manifest_in_u)
+
+    if return_inputs_to_reset_states:
+        manifest_in_r = manifest['io']['inputs']['reset']
+        fill_in(manifest_in=manifest_in_r)
 
     return ret
 
