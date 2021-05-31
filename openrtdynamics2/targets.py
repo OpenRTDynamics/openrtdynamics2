@@ -74,6 +74,7 @@ class TargetTemplate:
         self._list_of_code_sources = {}
         
         self.files = None
+        self.folder = None
 
         #
         self._algorithm_code = None
@@ -133,6 +134,8 @@ class TargetTemplate:
             'algorithm_sourcecode' : self._algorithm_code }
 
     def write_code(self, folder):
+
+        self.folder = folder
             
         for fname, content in self.files.items():
             fullname = os.path.join( folder + '//' + fname )
