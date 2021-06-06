@@ -2,10 +2,12 @@ from .lang.diagram_core.code_build_commands import *
 from .lang.diagram_core.system_manifest import *
 from .lang.diagram_core import diagram_compiler
 from .lang.libraries import *
+from .manifest_import import get_all_inputs, get_all_outputs
 
-import subprocess
-import os
 import json
+import os
+import string
+import subprocess
 from pathlib import Path
 
 
@@ -159,7 +161,55 @@ class TargetTemplate:
 #
 #
 
-class CppMain(TargetTemplate):
+
+
+
+class TargetCppMinimal(TargetTemplate):
+    """
+        minimal c++ export
+    """
+
+    def __init__(self, enable_tracing=False ):
+        """
+        i_max is the number of simulated steps.
+        """
+        
+        TargetTemplate.__init__(self, enable_tracing)
+
+    def build(self):
+        print("Build not supported")
+        
+        
+    def code_gen(self):
+        # build code of system
+        res = TargetTemplate.code_gen(self)
+        
+        # get the system manifest and c++ class name
+        m = res['manifest']
+        simulation_name = m['api_name']
+        
+        # headers
+        headers = '#include <stdio.h>\n'
+        
+        
+        
+        #
+        # build main.cpp
+        #
+        
+        main_cpp = headers + '\n' + res['algorithm_sourcecode'] + '\n'
+        
+        self.files[simulation_name + '.cpp'] = main_cpp
+        
+        # return
+        return res
+
+
+
+
+
+
+class TargetCppMain(TargetTemplate):
     """
         generate a simple main.cpp program
 
@@ -293,7 +343,7 @@ int main () {
 
 
 
-class CppWASM(TargetTemplate):
+class TargetCppWASM(TargetTemplate):
     """
         Export to Web Assembly using the c++ compiler emscripten 
         
@@ -418,7 +468,10 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
             'Outputs_' + m['api_functions']['calculate_output'],
             
             get_all_outputs( 
-                m
+                m,
+                return_inputs_to_update_states     = False,
+                return_inputs_to_calculate_outputs = True,
+                return_inputs_to_reset_states      = False
             )
         )
 
@@ -441,18 +494,45 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
         binding_code += generate_binding_code(
 
             simulation_name, 
+            'Outputs_' + m['api_functions']['state_update'],
+            
+            get_all_outputs( 
+                m,
+                return_inputs_to_update_states     = True,
+                return_inputs_to_calculate_outputs = False,
+                return_inputs_to_reset_states      = False
+            )
+        )
+
+
+
+
+        binding_code += generate_binding_code(
+
+            simulation_name, 
             'Inputs_' + m['api_functions']['reset'],
             
             get_all_inputs( 
                 m,
-                only_inputs_with_default_values    = False, 
                 return_inputs_to_update_states     = False,
                 return_inputs_to_calculate_outputs = False,
                 return_inputs_to_reset_states      = True
             )
         )
         
-        
+        binding_code += generate_binding_code(
+
+            simulation_name, 
+            'Outputs_' + m['api_functions']['reset'],
+            
+            get_all_outputs( 
+                m,
+                return_inputs_to_update_states     = False,
+                return_inputs_to_calculate_outputs = False,
+                return_inputs_to_reset_states      = True
+            )
+        )
+
         binding_code += '\n}\n'
         
         #
@@ -474,4 +554,3 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 
 
 
-        

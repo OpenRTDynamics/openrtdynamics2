@@ -53,7 +53,12 @@ def get_all_inputs(
     return ret
 
 
-def get_all_outputs( manifest ):
+def get_all_outputs(
+        manifest,
+        return_inputs_to_update_states     = True,
+        return_inputs_to_calculate_outputs = True,
+        return_inputs_to_reset_states      = True
+    ):
     """
         return a key-value struct containing all outputs
     """
@@ -81,6 +86,18 @@ def get_all_outputs( manifest ):
             # fill in struct
             ret[k] = s
 
-    fill_in(manifest['io']['outputs']['calculate_output'])
+    # fill_in(manifest['io']['outputs']['calculate_output'])
+
+    if return_inputs_to_calculate_outputs:
+        manifest_in_o = manifest['io']['outputs']['calculate_output']
+        fill_in(manifest_in=manifest_in_o)
+    
+    if return_inputs_to_update_states:
+        manifest_in_u = manifest['io']['outputs']['state_update']
+        fill_in(manifest_in=manifest_in_u)
+
+    if return_inputs_to_reset_states:
+        manifest_in_r = manifest['io']['outputs']['reset']
+        fill_in(manifest_in=manifest_in_r)
 
     return ret

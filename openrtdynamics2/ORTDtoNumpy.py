@@ -1,7 +1,6 @@
-import functools
 from . import lang as dy
 from . import py_execute as dyexe
-
+import openrtdynamics2.targets as tg
 
 import functools
 
@@ -93,7 +92,7 @@ def ORTDtoNumpy(outputs_in_hash_array = False, custom_simulator_loop = None, **k
         output_signal_names = output_signal_names
 
         # generate c++ code
-        code_gen_results = dy.generate_code(template=dy.TargetRawCpp(enable_tracing=False))    
+        code_gen_results = dy.generate_code(template=tg.TargetCppMinimal(enable_tracing=False))    
 
         # run c++ compiler
         compiled_system = dyexe.CompiledCode(code_gen_results) 
