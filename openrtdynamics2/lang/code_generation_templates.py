@@ -1,3 +1,7 @@
+#
+# TODO: remove this file in favor of targets.py
+#
+
 from .diagram_core.code_build_commands import *
 from .diagram_core.system_manifest import *
 from .diagram_core import diagram_compiler

@@ -95,7 +95,7 @@ For the available blocks and other functions, an [auto generated documentation](
 
 Watch out for algebraic loops - currently they are not automatically detected in any case! This will change soon.
 
-### Targets for code generation
+## Targets for code generation
 
 In the most simple form, the generated source code can simply be copy & pasted into the user's project. However, in addition target templates can be specified to automatically generate libraries or executables for various targets (e.g., a command line program, a library for the web, ...). 
 
@@ -138,7 +138,7 @@ These lists might be considered as a list of things to do.
 - signals directly passed from the input to the output of a system causes fail code compilation. A workaround is to introduce a dummy computation, e.g., output = 1 * input
 - In case there is a common name among the input and outputs of a system, compilation fails.
 
-### Graphical user interface
+## Graphical user interface
 
 - Introduce an online-editor, e.g., using [React Diagrams](https://github.com/projectstorm/react-diagrams).
 
