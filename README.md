@@ -95,6 +95,19 @@ For the available blocks and other functions, an [auto generated documentation](
 
 Watch out for algebraic loops - currently they are not automatically detected in any case! This will change soon.
 
+### Targets for code generation
+
+In the most simple form, the generated source code can simply be copy & pasted into the user's project. However, in addition target templates can be specified to automatically generate libraries or executables for various targets (e.g., a command line program, a library for the web, ...). 
+
+Targets are combined in the 'openrtdynamics2.targets' sub-module.
+
+- minimal target for c++ which exports the generated code for inclusion into existing code ('TargetCppMinimal')
+- target for a basic c++ program executing a simulation in a loop ('TargetCppMain')
+- Web Assembly target for exporting simulation to HTML ('TargetCppWASM'); NOTE: If there is an unconnected input, the html export fails to run.
+
+To come:
+- real-time targets for Linux rt-preempt, Simulink S-function, Arduino and similar micro-controllers, ...
+
 ## Tracing and debugging
 
 Execution flows especially involving subsystems and state machines might get complex with increasing diagram complexity. Therefore, the execution flow (i.e., which subsystem is called when) can be traced. Currently, this is printf-based, however, also a visualization with timing diagrams might be feasible to implement.  
@@ -107,9 +120,9 @@ Sensors, actuators, means of communication, external libraries, and any other ki
 
 ## Custom targets
 
-In the most simple form, the generated source code can simply be copy & pasted into the user's project. However, in addition target templates can be specified to automatically generate libraries or executables for various targets (e.g., a command line program, a library for the web, ...). Target types can also be implemented by the user.
+Code generation targets can be implemented by the user.
 
-To come..
+Please consider [custom target example](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/custom_target.ipynb) for further information.
 
 ## Missing pieces
 
@@ -124,11 +137,6 @@ These lists might be considered as a list of things to do.
 
 - signals directly passed from the input to the output of a system causes fail code compilation. A workaround is to introduce a dummy computation, e.g., output = 1 * input
 - In case there is a common name among the input and outputs of a system, compilation fails.
-
-### Targets
-
-- HTML export: If there is an unconnected input, the html export fails to run.
-- Introduce real-time targets for Linux rt-preempt, Arduino and similar micro-controllers.
 
 ### Graphical user interface
 
