@@ -556,3 +556,326 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 
 
 
+
+#
+# Simulink s-function target
+#
+
+class CppSimulinkSFunction(TargetTemplate):
+    """
+        Target for Simulink s-functions
+        
+        sfun_name - a string describing the name of the s-function.
+        
+        A file 'sfun_name'.cpp will be generated that contains the code for the s-function.
+        It can be compiled from the Matlab command line using the command
+        
+            mex 'sfun_name'.cpp
+            
+        Then, the compiled system can be interfaced via the s-function block in Simulink.
+        The input-/output ports are enumerated as they are defined in the system implementation.
+    """
+
+    def __init__(self, enable_tracing=False, sfun_name : str = 'sfunction'):
+        TargetTemplate.__init__(self, enable_tracing)
+        self.sfun_name = sfun_name
+
+    def code_gen(self):
+        # build code of system        
+        res = TargetTemplate.code_gen(self)
+        
+        # get the system manifest and c++ class name
+        m = res['manifest']
+        simulation_name = m['api_name']
+        
+        # headers
+        headers =  '#include <stdio.h>\n'
+        headers += '#include <math.h>\n'
+        
+        # define structs for I/O
+        io_variables_define = simulation_name + '::Inputs inputs;\n' + simulation_name + '::Outputs outputs;\n'
+
+        
+        #
+        # create a list of all system inputs
+        #
+        
+        inputs = get_all_inputs( m )
+        
+        number_of_inputs = len(inputs)
+
+        get_s_inputs            = '' 
+        fill_input_values       = ''
+        define_input_port_sizes = ''
+        
+        for input_name, v in inputs.items():
+            
+            port_number_str = str( v['port_number'] )
+            
+            get_s_inputs            += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            fill_input_values       += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
+            define_input_port_sizes += 'ssSetInputPortWidth(S, '+ port_number_str +', 1);\n'
+
+            
+        #
+        # create a list of the system inputs needed to compute the blocks outputs
+        #
+        
+        inputs_for_block_outputs = get_all_inputs( 
+            m, 
+            return_inputs_to_calculate_outputs=True, 
+            return_inputs_to_reset_states=False,
+            return_inputs_to_update_states=False
+        )
+        
+        get_s_inputs_for_model_outputs      = '' 
+        fill_input_values_for_model_outputs = ''
+        set_direct_feedthrough              = ''
+        
+        for input_name, v in inputs_for_block_outputs.items():
+            
+            port_number_str = str( v['port_number'] )
+            
+            get_s_inputs_for_model_outputs      += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            fill_input_values_for_model_outputs += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
+            set_direct_feedthrough              += 'ssSetInputPortDirectFeedThrough(S, ' + port_number_str + ', 1);\n'
+       
+        #
+        # create a list of the system inputs needed to update the systems states
+        #
+        
+        inputs_for_state_update = get_all_inputs( 
+            m, 
+            return_inputs_to_calculate_outputs=False, 
+            return_inputs_to_reset_states=False,
+            return_inputs_to_update_states=True
+        )
+        
+        get_s_inputs_for_state_update      = '' 
+        fill_input_values_for_state_update = ''
+        
+        for input_name, v in inputs_for_state_update.items():
+            
+            port_number_str = str( v['port_number'] )
+            
+            get_s_inputs_for_state_update      += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            fill_input_values_for_state_update += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
+       
+            
+        #
+        # create a list of the system outputs
+        #
+        
+        outputs = get_all_outputs( m )
+        number_of_outputs = len(outputs)
+
+        get_outputs              = ''
+        fill_output_values       = ''
+        define_output_port_sizes = ''
+        
+        j = 0 # output port index for simulink, starting at 0
+        for output_name, v in outputs.items():
+
+            port_number_str = str( j )
+            
+            get_outputs              += 'real_T  *y' + port_number_str + ' = ssGetOutputPortRealSignal(S, ' + port_number_str + ');\n'
+            fill_output_values       += 'y' + port_number_str + '[0] = outputs.' + output_name + ';\n'
+            define_output_port_sizes += 'ssSetOutputPortWidth(S, ' + port_number_str + ', 1);\n'
+            
+            j += 1
+        
+        
+        
+        # filename of cpp file
+        cpp_fname = self.sfun_name + '.cpp'
+
+        # code template
+        main_fn = """
+
+/*  File    : """ + cpp_fname + """
+ *  Abstract:
+ *
+ *      Code automatically built from an OpenRTDynamics 2 system
+ *      using the Simulink s-function target.
+ *
+ *      Do not edit manually, your changes might be lost.
+ */
+
+#include <iostream>
+
+""" + headers + '\n' + res['algorithm_sourcecode'] + """
+
+
+
+#define S_FUNCTION_LEVEL 2
+#define S_FUNCTION_NAME  """ + self.sfun_name + """
+
+#include "simstruc.h"
+
+#define IS_PARAM_DOUBLE(pVal) (mxIsNumeric(pVal) && !mxIsLogical(pVal) &&\
+!mxIsEmpty(pVal) && !mxIsSparse(pVal) && !mxIsComplex(pVal) && mxIsDouble(pVal))
+
+//
+// S-function methods
+//
+
+#define MDL_CHECK_PARAMETERS
+#if defined(MDL_CHECK_PARAMETERS)  && defined(MATLAB_MEX_FILE)
+static void mdlCheckParameters(SimStruct *S)
+{
+
+    const mxArray *pVal0 = ssGetSFcnParam(S,0);
+
+    if ( !IS_PARAM_DOUBLE(pVal0)) {
+        ssSetErrorStatus(S, "Parameter to S-function must be a double scalar");
+        return;
+    } 
+}
+#endif
+
+
+static void mdlInitializeSizes(SimStruct *S)
+{
+    ssSetNumSFcnParams(S, 1);  /* Number of expected parameters */
+#if defined(MATLAB_MEX_FILE)
+    if (ssGetNumSFcnParams(S) == ssGetSFcnParamsCount(S)) {
+        mdlCheckParameters(S);
+        if (ssGetErrorStatus(S) != NULL) {
+            return;
+        }
+    } else {
+        return; /* Parameter mismatch will be reported by Simulink */
+    }
+#endif
+    ssSetSFcnParamTunable(S, 0, 0);
+
+    // number of cont and discrete states
+    ssSetNumContStates(S, 0);
+    ssSetNumDiscStates(S, 0);
+
+    // number of input ports
+    if (!ssSetNumInputPorts(S, """ + str(number_of_inputs) + """  )) return;
+    
+""" + indent( define_input_port_sizes, '    ' ) + """
+
+""" + indent( set_direct_feedthrough, '    ' ) + """
+
+    // number of output ports
+    if (!ssSetNumOutputPorts(S, """ + str(number_of_outputs) + """)) return;
+    
+""" + indent( define_output_port_sizes, '    ' ) + """
+
+    // sample times
+    ssSetNumSampleTimes(S, 1);
+    
+    // storage
+    ssSetNumRWork(S, 0);
+    ssSetNumIWork(S, 0);
+    ssSetNumPWork(S, 1); // reserve element in the pointers vector
+    ssSetNumModes(S, 0); // to store a C++ object
+    ssSetNumNonsampledZCs(S, 0);
+
+    // operating point
+    ssSetOperatingPointCompliance(S, USE_DEFAULT_OPERATING_POINT);
+
+    // general options
+    ssSetOptions(S, 0);         
+}
+
+
+
+
+static void mdlInitializeSampleTimes(SimStruct *S)
+{
+    ssSetSampleTime(S, 0, mxGetScalar(ssGetSFcnParam(S, 0)));
+    ssSetOffsetTime(S, 0, 0.0);
+    ssSetModelReferenceSampleTimeDefaultInheritance(S);
+}
+
+#define MDL_START
+#if defined(MDL_START) 
+  static void mdlStart(SimStruct *S)
+  {
+      ssGetPWork(S)[0] = (void *) new """ + simulation_name + """; // store new C++ object in the
+
+      """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+      
+      // ORTD I/O structures
+""" + indent( io_variables_define, '      ' ) + """
+      // reset system
+      c->step( outputs, inputs, false, false, true ); 
+  }
+#endif /*  MDL_START */
+
+static void mdlOutputs(SimStruct *S, int_T tid)
+{
+    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+    
+    // InputRealPtrsType uPtrs1 = ssGetInputPortRealSignalPtrs(S,0);
+""" + indent(get_s_inputs_for_model_outputs, '    ') + """
+    
+    // outputs
+""" + indent(get_outputs, '    ') + """
+
+    // ORTD I/O structures
+""" + indent( io_variables_define, '    ' ) + """
+    
+""" + indent(fill_input_values_for_model_outputs, '    ') + """
+
+    // compute the system outputs
+    c->step( outputs, inputs, true, false, false ); 
+    
+""" + indent(fill_output_values, '    ') + """
+    
+    UNUSED_ARG(tid);
+}                                                
+
+
+#define MDL_UPDATE
+static void mdlUpdate(SimStruct *S, int_T tid)
+{
+    InputRealPtrsType uPtrs  = ssGetInputPortRealSignalPtrs(S,0);
+    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+
+""" + indent( io_variables_define, '    ' ) + """
+""" + indent(get_s_inputs_for_state_update, '    ') + """
+
+    UNUSED_ARG(tid); /* not used in single tasking mode */
+    
+""" + indent(fill_input_values_for_state_update, '    ') + """
+
+    // update the states of the system
+    c->step( outputs, inputs, false, true, false ); 
+}
+
+
+static void mdlTerminate(SimStruct *S)
+{
+    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0]; // retrieve and destroy C++
+    delete c;                                  // object in the termination
+}                                              // function
+
+/*=============================*
+ * Required S-function trailer *
+ *=============================*/
+
+#ifdef  MATLAB_MEX_FILE    /* Is this file being compiled as a MEX-file? */
+#include "simulink.c"      /* MEX-file interface mechanism */
+#else
+#include "cg_sfun.h"       /* Code generation registration function */
+#endif
+
+
+        
+        """
+        
+        #
+        # build main.cpp
+        #
+        main_cpp = main_fn
+        
+        
+        self.files[cpp_fname] = main_cpp
+        
+        # return
+        return res
