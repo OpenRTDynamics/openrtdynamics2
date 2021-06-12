@@ -4,7 +4,7 @@
 
 def get_all_inputs( 
         manifest, 
-        only_inputs_with_default_values    = True, 
+        only_inputs_with_default_values    = False, 
         return_inputs_to_update_states     = True,
         return_inputs_to_calculate_outputs = True,
         return_inputs_to_reset_states      = True
@@ -15,21 +15,22 @@ def get_all_inputs(
     ret = {}
 
 
-    def fill_in(manifest_in):
+    def fill_in(ports):
 
-        for i in range(len(manifest_in['names'])):
+        for i in range(len(ports['names'])):
 
             # introduce new struct
             s = {}
 
-            k = manifest_in['names'][i]
+            k = ports['names'][i]
 
-            s['cpptype'] =  manifest_in['cpptypes'][i]
-            s['printf_pattern'] =  manifest_in['printf_patterns'][i]
+            s['cpptype']        =  ports['cpptypes'][i]
+            s['printf_pattern'] =  ports['printf_patterns'][i]
+            s['port_number']    =  ports['port_numbers'][i]
 
-            if 'properties' in manifest_in:
+            if 'properties' in ports:
     
-                properties = manifest_in['properties'][i]
+                properties         = ports['properties'][i]
                 s['properties']    = properties
 
                 if not 'default_value' in properties and only_inputs_with_default_values:
@@ -40,15 +41,15 @@ def get_all_inputs(
 
     if return_inputs_to_calculate_outputs:
         manifest_in_o = manifest['io']['inputs']['calculate_output']
-        fill_in(manifest_in=manifest_in_o)
+        fill_in(ports=manifest_in_o)
     
     if return_inputs_to_update_states:
         manifest_in_u = manifest['io']['inputs']['state_update']
-        fill_in(manifest_in=manifest_in_u)
+        fill_in(ports=manifest_in_u)
 
     if return_inputs_to_reset_states:
         manifest_in_r = manifest['io']['inputs']['reset']
-        fill_in(manifest_in=manifest_in_r)
+        fill_in(ports=manifest_in_r)
 
     return ret
 
@@ -65,39 +66,38 @@ def get_all_outputs(
     ret = {}
 
 
-    def fill_in(manifest_in):
+    def fill_in(ports):
 
-        for i in range(len(manifest_in['names'])):
+        for i in range(len(ports['names'])):
 
             # introduce new struct
             s = {}
 
-            k = manifest_in['names'][i]
+            k = ports['names'][i]
 
-            s['cpptype'] =  manifest_in['cpptypes'][i]
-            s['printf_pattern'] =  manifest_in['printf_patterns'][i]
+            s['cpptype']        =  ports['cpptypes'][i]
+            s['printf_pattern'] =  ports['printf_patterns'][i]
+            s['port_number']    =  ports['port_numbers'][i]
 
-            if 'properties' in manifest_in:
+            if 'properties' in ports:
     
-                properties = manifest_in['properties'][i]
+                properties         = ports['properties'][i]
                 s['properties']    = properties
 
 
             # fill in struct
             ret[k] = s
 
-    # fill_in(manifest['io']['outputs']['calculate_output'])
-
     if return_inputs_to_calculate_outputs:
         manifest_in_o = manifest['io']['outputs']['calculate_output']
-        fill_in(manifest_in=manifest_in_o)
+        fill_in(ports=manifest_in_o)
     
     if return_inputs_to_update_states:
         manifest_in_u = manifest['io']['outputs']['state_update']
-        fill_in(manifest_in=manifest_in_u)
+        fill_in(ports=manifest_in_u)
 
     if return_inputs_to_reset_states:
         manifest_in_r = manifest['io']['outputs']['reset']
-        fill_in(manifest_in=manifest_in_r)
+        fill_in(ports=manifest_in_r)
 
     return ret
