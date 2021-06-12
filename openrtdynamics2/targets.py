@@ -189,7 +189,8 @@ class TargetCppMinimal(TargetTemplate):
         simulation_name = m['api_name']
         
         # headers
-        headers = '#include <stdio.h>\n'
+        headers =  '#include <stdio.h>\n'
+        headers += '#include <math.h>\n'
         
         
         
@@ -245,9 +246,10 @@ class TargetCppMain(TargetTemplate):
         simulation_name = m['api_name']
         
         # headers
-        headers = '#include <stdio.h>\n'
+        headers =  '#include <stdio.h>\n'
+        headers += '#include <math.h>\n'
         
-        # define structs for I/O
+        # define structures for I/O
         variables = simulation_name + ' system_instance;\n' + simulation_name + '::Inputs inputs;\n' + simulation_name + '::Outputs outputs;\n'
         
         
