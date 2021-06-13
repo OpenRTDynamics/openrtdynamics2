@@ -101,12 +101,33 @@ In the most simple form, the generated source code can simply be copy & pasted i
 
 Targets are combined in the 'openrtdynamics2.targets' sub-module.
 
-- minimal target for c++ which exports the generated code for inclusion into existing code ('TargetCppMinimal')
-- target for a basic c++ program executing a simulation in a loop ('TargetCppMain')
-- Web Assembly target for exporting simulation to HTML ('TargetCppWASM'); NOTE: If there is an unconnected input, the html export fails to run.
+### Minimal target
 
-To come:
-- real-time targets for Linux rt-preempt, Simulink S-function, Arduino and similar micro-controllers, ...
+This is a minimal target to export generic c++ code that can be used in existing code ('TargetCppMinimal').
+
+### Basic executable
+
+To generate a basic command line executable that performs multiple simulation steps in a loop this target can be used ('TargetCppMain'). 
+
+### Web Assembly
+
+To export systems to a web (HTML) environment, the Web Assembly target can be used ('TargetCppWASM'). The system can be integrated into custom JavaScript code. Further, a JavaScript library is provided with which a simulation environment can be integrated into existing html-pages.
+
+<img width="851" alt="HTMLexport" src="https://user-images.githubusercontent.com/4620523/121796863-81935880-cc1c-11eb-8da6-033d5c7baed0.png">
+
+Consider, e.g., [pandemic_control_openloop.html](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/pandemic_control_openloop.html) and [pandemic_control.ipynb](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/pandemic_control.ipynb)
+
+NOTE: If there is an unconnected input, the html export fails to run.
+
+### Simulink
+
+Systems can be exported and integrated into Simulink diagrams using the Simulink s-function target. You might consider the example given in [Simulink s-function demo](https://openrtdynamics.github.io/openrtdynamics2/tree/master/examples/Simulink_sfunction_target) which includes a python notebook to generate code and a Simulink diagram the code can be executed with.
+
+![simulink s-function](https://user-images.githubusercontent.com/4620523/121796812-1fd2ee80-cc1c-11eb-9f1b-8b7f756f0ab8.png)
+
+### Ideas for targets to come:
+- real-time targets for Linux rt-preempt, Arduino and similar micro-controllers, ..., (contributions are welcome)
+
 
 ## Tracing and debugging
 
