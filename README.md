@@ -121,12 +121,12 @@ NOTE: If there is an unconnected input, the html export fails to run.
 
 ### Simulink
 
-Systems can be exported and integrated into Simulink diagrams using the Simulink s-function target. You might consider the example given in [Simulink s-function demo](https://openrtdynamics.github.io/openrtdynamics2/tree/master/examples/Simulink_sfunction_target) which includes a python notebook to generate code and a Simulink diagram the code can be executed with.
+Systems can be exported and integrated into Simulink diagrams using the Simulink s-function target ('TargetCppSimulinkSFunction'). You might consider the example given in [Simulink s-function demo](https://github.com/OpenRTDynamics/openrtdynamics2/tree/master/examples/Simulink_sfunction_target) which includes a python notebook to generate code and a Simulink diagram the code can be executed with.
 
 ![simulink s-function](https://user-images.githubusercontent.com/4620523/121796812-1fd2ee80-cc1c-11eb-9f1b-8b7f756f0ab8.png)
 
 ### Ideas for targets to come:
-- real-time targets for Linux rt-preempt, Arduino and similar micro-controllers, ..., (contributions are welcome)
+- real-time targets for Linux rt-preempt, Arduino and similar micro-controllers, ... (contributions are welcome)
 
 
 ## Tracing and debugging
