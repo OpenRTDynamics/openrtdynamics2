@@ -22,9 +22,9 @@
 
 
     // state update
+    double block_13_mem;
     double block_15_mem;
     double block_11_mem;
-    double block_13_mem;
 
 
     // state update
@@ -34,19 +34,19 @@
     // cached output values
     //
 
+    double y__block_13;
     double psi__block_15;
     double s10__block_7;
     double s11__block_8;
     double psi_dot__block_9;
     double x__block_11;
-    double y__block_13;
 
     // API-function resetStates
     void resetStates() { // created by cpp_define_function
 
+      block_13_mem = 0;
       block_15_mem = 0;
       block_11_mem = 0;
-      block_13_mem = 0;
     }
     // output signals of  resetStates
     struct Outputs_resetStates{
@@ -68,43 +68,43 @@
     }
     // API-function updateStates
     void updateStates(double delta, double v) { // created by cpp_define_function
+      double s7;
+      double s8;
+      double s9;
+      double s15;
       double s17;
       double s4;
       double s5;
       double s6;
       double s13;
-      double s7;
-      double s8;
-      double s9;
-      double s15;
 
 
-      // restoring the signals psi, s10, s11, psi_dot, x, y from the states 
+      // restoring the signals y, psi, s10, s11, psi_dot, x from the states 
+      double &y = y__block_13;
       double &psi = psi__block_15;
       double &s10 = s10__block_7;
       double &s11 = s11__block_8;
       double &psi_dot = psi_dot__block_9;
       double &x = x__block_11;
-      double &y = y__block_13;
 
 
-      // calculating the block outputs in the following order s17, s4, s5, s6, s13, s7, s8, s9, s15
+      // calculating the block outputs in the following order s7, s8, s9, s15, s17, s4, s5, s6, s13
       // that depend on v, delta
       // dependencies that require a state update are  
 
+      s7 = delta + psi;
+      s8 = sin(s7);
+      s9 = v * s8;
+      s15 = 1 * y + 0.01 * s9;
       s17 = 1 * psi + 0.01 * psi_dot;
       s4 = delta + psi;
       s5 = cos(s4);
       s6 = v * s5;
       s13 = 1 * x + 0.01 * s6;
-      s7 = delta + psi;
-      s8 = sin(s7);
-      s9 = v * s8;
-      s15 = 1 * y + 0.01 * s9;
 
+      block_13_mem = s15;
       block_15_mem = s17;
       block_11_mem = s13;
-      block_13_mem = s15;
 
       // calculating the block outputs in the following order 
       // that depend on 
@@ -137,24 +137,24 @@
       double s11;
 
 
-      // calculating the block outputs in the following order psi, s10, s11, psi_dot, x, y
+      // calculating the block outputs in the following order y, psi, s10, s11, psi_dot, x
       // that depend on v, wheelbase, delta
-      // dependencies that require a state update are s17, s13, s15 
+      // dependencies that require a state update are s15, s17, s13 
 
+      y = block_13_mem;
       psi = block_15_mem;
       s10 = v / wheelbase;
       s11 = sin(delta);
       psi_dot = s10 * s11;
       x = block_11_mem;
-      y = block_13_mem;
 
-      // saving the signals psi, s10, s11, psi_dot, x, y into the states 
+      // saving the signals y, psi, s10, s11, psi_dot, x into the states 
+      y__block_13 = y;
       psi__block_15 = psi;
       s10__block_7 = s10;
       s11__block_8 = s11;
       psi_dot__block_9 = psi_dot;
       x__block_11 = x;
-      y__block_13 = y;
     }
     // output signals of  calcResults_1
     struct Outputs_calcResults_1{

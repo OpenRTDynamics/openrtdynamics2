@@ -561,7 +561,7 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 # Simulink s-function target
 #
 
-class CppSimulinkSFunction(TargetTemplate):
+class TargetCppSimulinkSFunction(TargetTemplate):
     """
         Target for Simulink s-functions
         
