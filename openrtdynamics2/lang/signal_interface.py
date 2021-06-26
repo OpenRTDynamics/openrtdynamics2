@@ -313,11 +313,13 @@ class BlockOutputSignalUser(SignalUserTemplate):
 
 class SimulationInputSignalUser(SignalUserTemplate):
     """
-        A special signal that marks an input to a simulation.
+        A special signal that is an input to a simulation.
     """
 
-    def __init__(self, sim, datatype = None):
-        SignalUserTemplate.__init__( self, system=sim, wrapped_signal=SimulationInputSignal(sim, datatype=datatype)  )
+    def __init__(self, system, datatype = None):
+
+        input_signal = SimulationInputSignal(system, datatype=datatype)
+        SignalUserTemplate.__init__( self, system=system, wrapped_signal=input_signal  )
 
 
 

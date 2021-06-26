@@ -2,57 +2,114 @@ from .diagram_core.system import System
 from typing import Dict, List
 from . import signal_interface as si
 
-current_simulation_context = None
-system_stack = []
-counter_of_created_systems = 1000
-list_of_code_sources = {}
+# remove
+# current_simulation_context = None
+# system_stack = []
+# counter_of_created_systems = 1000
+# list_of_code_sources = {}
+
+
+
+
+
+
+_system_context = None
+
+
+class _SystemContext:
+    """
+        internal class to store information about the system
+    """
+    def __init__(self):
+        self.current_system = None
+        self.system_stack = []
+        self.counter_of_created_systems = 1000
+        self.list_of_code_sources = {}
+
+        self.main_system_inputs_signals = []
+
+    def append_main_system_input(self, signal : si.SimulationInputSignalUser):
+        self.main_system_inputs_signals.append(signal)
+
+
+
+
 
 def init_simulation_context():
-    global system_stack
-    global current_simulation_context
-    global counter_of_created_systems
-    global list_of_code_sources
 
-    current_simulation_context = None
-    system_stack = []
-    counter_of_created_systems = 1000
-    list_of_code_sources = {}
+    # remove
+    # global system_stack
+    # global current_simulation_context
+    # global counter_of_created_systems
+    # global list_of_code_sources
 
-def push_simulation_context(sim):
-    global system_stack
-    global current_simulation_context
+    # current_simulation_context = None
+    # system_stack = []
+    # counter_of_created_systems = 1000
+    # list_of_code_sources = {}
 
-    current_simulation_context = sim
-    system_stack.append(sim)
+
+
+
+
+
+    global _system_context
+    _system_context = _SystemContext()
+
+
+def push_simulation_context(system):
+    # global system_stack
+    # global current_simulation_context
+
+    # current_simulation_context = sim
+    # system_stack.append(sim)
+
+
+    global _system_context
+    _system_context.current_system = system
+    _system_context.system_stack.append(system)
+
 
 def pop_simulation_context():
-    global system_stack
-    global current_simulation_context
+    # global system_stack
+    # global current_simulation_context
 
-    old_context = system_stack.pop()
+    global _system_context
 
-    if not len(system_stack) == 0:
-        new_context = system_stack[-1]
+    old_context = _system_context.system_stack.pop()
+
+    if not len(_system_context.system_stack) == 0:
+        new_context = _system_context.system_stack[-1]
     else:
         new_context = None
 
-    current_simulation_context = new_context
+    _system_context.current_system = new_context
 
     return new_context
 
+# rename to 'get_current_system'
 def get_system_context():
-    global current_simulation_context
-    return current_simulation_context
+    global _system_context
+
+    # global current_simulation_context
+    return _system_context.current_system
+
+
+# rename to 'get_system_context2'
+def get_system_context2():
+    global _system_context
+    return _system_context
 
 
 def generate_subsystem_name():
     """
         automatically created a unique name for a system
     """
-    global counter_of_created_systems
+    # global counter_of_created_systems
+    global _system_context
 
-    name = 'Sys' + str(counter_of_created_systems)
-    counter_of_created_systems += 1
+    name = 'Sys' + str(_system_context.counter_of_created_systems)
+    _system_context.counter_of_created_systems += 1
 
     return name
 
@@ -140,14 +197,16 @@ def include_cpp_code(
     Include the given c++ source code into the code generation process
     """
 
-    global list_of_code_sources
+    # global list_of_code_sources
+    global _system_context
 
-    list_of_code_sources[identifier] = { 
+    _system_context.list_of_code_sources[identifier] = { 
         'code' : code, 
         'include_files' : include_files, 
         'library_names' : library_names 
     }
 
 def get_list_of_code_sources():
-    global list_of_code_sources
-    return list_of_code_sources
+    global _system_context
+    # global list_of_code_sources
+    return _system_context.list_of_code_sources

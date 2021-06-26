@@ -890,7 +890,7 @@ def sum2(u : SignalUserTemplate, initial_state=0):
 
     return y_k, y_kp1
 
-def euler_integrator( u : SignalUserTemplate, Ts, initial_state = 0.0):
+def euler_integrator( u : SignalUserTemplate, Ts, initial_state = 0.0, lower_limit = None, upper_limit = None):
     """Euler (forward) integrator
 
     Parameters
@@ -901,7 +901,11 @@ def euler_integrator( u : SignalUserTemplate, Ts, initial_state = 0.0):
     Ts : float
         the sampling time
     initial_state : float, SignalUserTemplate
-        the initial state of the integrator
+        the initial state of the integrator (optional)
+    lower_limit : SignalUserTemplate
+        lower bound for the integrator state (optional)
+    upper_limit : SignalUserTemplate
+        upper bound for the integrator state (optional)
 
     Returns
     -------
@@ -921,7 +925,10 @@ def euler_integrator( u : SignalUserTemplate, Ts, initial_state = 0.0):
     else:
         i = yFb + Ts * u
 
-    y = dy.delay( i, initial_state )
+    y = dy.delay( 
+        dy.saturate( i, lower_limit=lower_limit, upper_limit=upper_limit ), 
+        initial_state
+    )
 
     yFb << y
 

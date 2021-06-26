@@ -44,7 +44,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
     def compileResults(self):
         return self._comple_results
     
-    def traverseSubSystems(self, system : System, level):
+    def traverseSubSystems(self, system : System, level, input_signals = None):
 
         is_top_level_system = system.upper_level_system is None
 
@@ -74,7 +74,8 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         compile_result = compile_single_system(
             system, 
             reduce_not_needed_code = not is_top_level_system,
-            subsytem_nesting_level = level
+            subsytem_nesting_level = level,
+            expected_system_inputs = input_signals
         )
 
 
@@ -101,7 +102,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-    def compile(self, system):
+    def compile(self, system, input_signals = None):
         #
         # The datatypes of all signals must be determined here
         #
@@ -110,10 +111,10 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
             # compilation can only start at top level subsystems
             raise BaseException("given system is not a top-level system (but instead a sub-system of sth.)")
 
-        main_compile_result = self.traverseSubSystems(system, level = 0)
+        main_compile_result = self.traverseSubSystems(system, level = 0, input_signals = input_signals)
 
         if main_compile_result is None:
-            raise BaseException("failed to obtain the compilation results")
+            raise BaseException("failed to compile system")
 
         self._comple_results = main_compile_result
 
@@ -121,7 +122,13 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 
 
-def compile_single_system(system, reduce_not_needed_code = False, enable_print:int=0, subsytem_nesting_level : int = 0):
+def compile_single_system(
+    system, 
+    reduce_not_needed_code = False, 
+    enable_print:int=0, 
+    subsytem_nesting_level : int = 0,    # 0 is the higher level system (the main system). 1 - is the first subsystem nesting level
+    expected_system_inputs       = None  # the list of expected system inputs (optional)
+):
 
     # the primary output signals are the outputs of the compiled system
     outputSignals = system.primary_outputs
@@ -478,7 +485,7 @@ def compile_single_system(system, reduce_not_needed_code = False, enable_print:i
     allinputs = list(allinputs)
 
     # build the manifest for the compiled system
-    manifest = SystemManifest( command_to_execute_system )
+    manifest = SystemManifest( command_to_execute_system, expected_system_inputs )
 
     compleResults = CompileResults( manifest, command_to_execute_system)
 

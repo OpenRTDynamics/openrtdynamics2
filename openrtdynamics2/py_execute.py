@@ -225,47 +225,47 @@ def run_batch_simulation(system_instance : SystemInstance, input_data, N=None, o
     return storage
 
 
-def show_required_inputs(testsim):
-    """
-        Print a table containing all input signals as required by the simulator functions
-        of the implemented system.
+# def show_required_inputs(testsim):
+#     """
+#         Print a table containing all input signals as required by the simulator functions
+#         of the implemented system.
 
-        system_instance : SystemInstance - the instance of the system
-    """
+#         system_instance : SystemInstance - the instance of the system
+#     """
 
-    from prettytable import PrettyTable
+#     from prettytable import PrettyTable
 
-    s_o_1 = testsim.manifest['io']['inputs']['calculate_output']['names']
-    s_u = testsim.manifest['io']['inputs']['state_update']['names']
-    s_r = testsim.manifest['io']['inputs']['reset']['names']
+#     s_o_1 = testsim.manifest['io']['inputs']['calculate_output']['names']
+#     s_u = testsim.manifest['io']['inputs']['state_update']['names']
+#     s_r = testsim.manifest['io']['inputs']['reset']['names']
 
-    all_signals = list(set(s_o_1 + s_u + s_r) )
+#     all_signals = list(set(s_o_1 + s_u + s_r) )
 
-    table_rows = []
-    for k in all_signals:
+#     table_rows = []
+#     for k in all_signals:
 
-        o_1, u, r = '', '', ''
+#         o_1, u, r = '', '', ''
 
-        if k in s_o_1:
-            o_1 = 'X'
+#         if k in s_o_1:
+#             o_1 = 'X'
 
-        if k in s_u:
-            u = 'X'
+#         if k in s_u:
+#             u = 'X'
 
-        if k in s_r:
-            r = 'X'
+#         if k in s_r:
+#             r = 'X'
 
-        row = [ k, o_1, u, r ]
+#         row = [ k, o_1, u, r ]
 
-        table_rows.append(row)
+#         table_rows.append(row)
 
 
-    x = PrettyTable()
-    x.field_names = ["input signal,  needed for -->", "calc. outputs", "update", "reset"]
+#     x = PrettyTable()
+#     x.field_names = ["input signal,  needed for -->", "calc. outputs", "update", "reset"]
 
-    x.add_rows(table_rows)
+#     x.add_rows(table_rows)
 
-    print(x)
+#     print(x)
     
 
 

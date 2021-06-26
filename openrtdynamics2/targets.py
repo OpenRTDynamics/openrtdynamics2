@@ -2,7 +2,7 @@ from .lang.diagram_core.code_build_commands import *
 from .lang.diagram_core.system_manifest import *
 from .lang.diagram_core import diagram_compiler
 from .lang.libraries import *
-from .manifest_import import get_all_inputs, get_all_outputs
+from .manifest_import import get_all_inputs, get_all_outputs, show_inputs, show_outputs
 
 import json
 import os
@@ -558,12 +558,12 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 
 
 #
-# Simulink s-function target
+# MATLAB/Simulink s-function target
 #
 
 class TargetCppSimulinkSFunction(TargetTemplate):
     """
-        Target for Simulink s-functions
+        Target for MATLAB/Simulink s-functions
         
         sfun_name - a string describing the name of the s-function.
         
@@ -587,26 +587,48 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         # get the system manifest and c++ class name
         m = res['manifest']
         simulation_name = m['api_name']
+
+        # filenames
+        cpp_fname       = self.sfun_name + '.cpp'
+        interface_fname = self.sfun_name + '_block_mask_commands.m'
         
         # headers
         headers =  '#include <stdio.h>\n'
         headers += '#include <math.h>\n'
         
-        # define structs for I/O
+        # define structures for I/O
         io_variables_define = simulation_name + '::Inputs inputs;\n' + simulation_name + '::Outputs outputs;\n'
 
-        
         #
-        # create a list of all system inputs
+        # create a list of all system inputs including those that are
+        # not needed to run the system.
+        #
+
+        all_input_signals = m['io']['all_inputs_by_port_number']
+
+        define_input_port_sizes = ''
+        icon_drawing_commands  = '% copy and paste these commands into the field \'icon drawing commands\' of the block mask: \n'
+        icon_drawing_commands += '% right-click on block -> \'Mask\' -> \'Edit Mask\' -> \'Mask Editor\' -> \'Icons & Ports\'\n\n'
+        number_of_inputs = len(all_input_signals)
+
+        for port_number in range(0, number_of_inputs ):
+
+            port_number_str = str( port_number )
+            signal_name     = all_input_signals[port_number]['name']
+
+            define_input_port_sizes += 'ssSetInputPortWidth(S, '+ port_number_str +', 1); // '+ signal_name  +' \n'
+            icon_drawing_commands += 'port_label(\'input\', ' + str(port_number + 1) + ', \'' + signal_name + '\')\n'
+
+
+        #
+        # create a list of all system inputs that are used 
+        # (not all declared inputs might be used in the system)
         #
         
         inputs = get_all_inputs( m )
-        
-        number_of_inputs = len(inputs)
 
         get_s_inputs            = '' 
         fill_input_values       = ''
-        define_input_port_sizes = ''
         
         for input_name, v in inputs.items():
             
@@ -614,7 +636,6 @@ class TargetCppSimulinkSFunction(TargetTemplate):
             
             get_s_inputs            += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
             fill_input_values       += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
-            define_input_port_sizes += 'ssSetInputPortWidth(S, '+ port_number_str +', 1);\n'
 
             
         #
@@ -623,9 +644,9 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         inputs_for_block_outputs = get_all_inputs( 
             m, 
-            return_inputs_to_calculate_outputs=True, 
-            return_inputs_to_reset_states=False,
-            return_inputs_to_update_states=False
+            return_inputs_to_calculate_outputs = True, 
+            return_inputs_to_reset_states      = False,
+            return_inputs_to_update_states     = False
         )
         
         get_s_inputs_for_model_outputs      = '' 
@@ -635,10 +656,10 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         for input_name, v in inputs_for_block_outputs.items():
             
             port_number_str = str( v['port_number'] )
-            
+
             get_s_inputs_for_model_outputs      += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
             fill_input_values_for_model_outputs += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
-            set_direct_feedthrough              += 'ssSetInputPortDirectFeedThrough(S, ' + port_number_str + ', 1);\n'
+            set_direct_feedthrough              += 'ssSetInputPortDirectFeedThrough(S, ' + port_number_str + ', 1); // ' + input_name +  '\n'
        
         #
         # create a list of the system inputs needed to update the systems states
@@ -646,9 +667,9 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         inputs_for_state_update = get_all_inputs( 
             m, 
-            return_inputs_to_calculate_outputs=False, 
-            return_inputs_to_reset_states=False,
-            return_inputs_to_update_states=True
+            return_inputs_to_calculate_outputs = False, 
+            return_inputs_to_reset_states      = False,
+            return_inputs_to_update_states     = True
         )
         
         get_s_inputs_for_state_update      = '' 
@@ -673,32 +694,38 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         fill_output_values       = ''
         define_output_port_sizes = ''
         
-        j = 0 # output port index for simulink, starting at 0
+        port_number = 0 # output port index for simulink, starting at 0
         for output_name, v in outputs.items():
 
-            port_number_str = str( j )
+            port_number_str = str( port_number )
             
             get_outputs              += 'real_T  *y' + port_number_str + ' = ssGetOutputPortRealSignal(S, ' + port_number_str + ');\n'
             fill_output_values       += 'y' + port_number_str + '[0] = outputs.' + output_name + ';\n'
-            define_output_port_sizes += 'ssSetOutputPortWidth(S, ' + port_number_str + ', 1);\n'
+            define_output_port_sizes += 'ssSetOutputPortWidth(S, ' + port_number_str + ', 1); // ' + output_name + '\n'
+            icon_drawing_commands    += 'port_label(\'output\', ' + str(port_number + 1) + ', \'' + output_name + '\')\n'
             
-            j += 1
+            port_number += 1
         
         
-        
-        # filename of cpp file
-        cpp_fname = self.sfun_name + '.cpp'
-
+    
         # code template
-        main_fn = """
-
-/*  File    : """ + cpp_fname + """
+        main_fn = """/*  File    : """ + cpp_fname + """
  *  Abstract:
  *
  *      Code automatically built from an OpenRTDynamics 2 system
  *      using the Simulink s-function target.
  *
- *      Do not edit manually, your changes might be lost.
+ *      Do not edit manually. Your changes might be lost.
+ *
+ *
+ *  Configured input signals:
+ *
+""" + indent( show_inputs(m, do_not_print=True) , ' *  ') + """
+ *
+ *  Configured output signals:
+ *
+""" + indent( show_outputs(m, do_not_print=True) , ' *  ') + """
+ *
  */
 
 #include <iostream>
@@ -756,19 +783,18 @@ static void mdlInitializeSizes(SimStruct *S)
     // number of input ports
     if (!ssSetNumInputPorts(S, """ + str(number_of_inputs) + """  )) return;
     
+    // set sizes 
 """ + indent( define_input_port_sizes, '    ' ) + """
-
+    // set direct feedthough (for input signals that are needed to compute the system outputs)
 """ + indent( set_direct_feedthrough, '    ' ) + """
-
     // number of output ports
     if (!ssSetNumOutputPorts(S, """ + str(number_of_outputs) + """)) return;
-    
-""" + indent( define_output_port_sizes, '    ' ) + """
 
+""" + indent( define_output_port_sizes, '    ' ) + """
     // sample times
     ssSetNumSampleTimes(S, 1);
     
-    // storage
+    // define storage
     ssSetNumRWork(S, 0);
     ssSetNumIWork(S, 0);
     ssSetNumPWork(S, 1); // reserve element in the pointers vector
@@ -811,7 +837,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 {
     """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
     
-    // InputRealPtrsType uPtrs1 = ssGetInputPortRealSignalPtrs(S,0);
+    // inputs
 """ + indent(get_s_inputs_for_model_outputs, '    ') + """
     
     // outputs
@@ -874,8 +900,8 @@ static void mdlTerminate(SimStruct *S)
         #
         main_cpp = main_fn
         
-        
         self.files[cpp_fname] = main_cpp
+        self.files[interface_fname] = icon_drawing_commands
         
         # return
         return res

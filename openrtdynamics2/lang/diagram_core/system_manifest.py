@@ -3,7 +3,7 @@ from . import code_generation_helper as cgh
 
 
     
-def makeSignalDescription(signals, json : bool):
+def make_signal_description(signals, json : bool):
     signalDescription = {}
     signalDescription['names'] = cgh.signal_list_to_name_list(signals)
     signalDescription['cpptypes'] = cgh.signalListHelper_typeNames(signals)
@@ -27,7 +27,7 @@ def makeSignalDescription(signals, json : bool):
 
 class SystemManifest(object):
 
-    def __init__(self, mainSimulation ):
+    def __init__(self, mainSimulation, system_inputs = None ):
 
         self.mainSimulation = mainSimulation
 
@@ -41,14 +41,16 @@ class SystemManifest(object):
         # I/O
         self._io_inputs = {}
         self._io_outputs = {}
+        self.system_inputs = system_inputs
 
         #
         # make strings
         # 
 
         for functionExportName, API_command in self.API_functions.items():
-             self._io_inputs[functionExportName] = makeSignalDescription( API_command.inputSignals, json=False )
-             self._io_outputs[functionExportName] = makeSignalDescription( API_command.outputSignals, json=False )
+             self._io_inputs[functionExportName] = make_signal_description( API_command.inputSignals, json=False )
+             self._io_outputs[functionExportName] = make_signal_description( API_command.outputSignals, json=False )
+
 
 
     @property
@@ -87,12 +89,31 @@ class SystemManifest(object):
         io_outputs = {}
 
         for functionExportName, API_command in self.API_functions.items():
-             io_inputs[functionExportName] = makeSignalDescription( API_command.inputSignals, json=True )
-             io_outputs[functionExportName] = makeSignalDescription( API_command.outputSignals, json=True )
+             io_inputs[functionExportName] = make_signal_description( API_command.inputSignals, json=True )
+             io_outputs[functionExportName] = make_signal_description( API_command.outputSignals, json=True )
 
 
         self.manifest['io'] = {}
         self.manifest['io']['outputs'] = io_outputs
         self.manifest['io']['inputs'] = io_inputs
 
+        # create a list of all inputs in an array whose index is the port index
+        if self.system_inputs is not None:
+
+            self.manifest['io']['all_inputs_by_port_number'] = [ None for tmo in self.system_inputs ]
+
+            for s in self.system_inputs:
+
+                signal_description = {}
+                
+                signal_description['name']            = s.name
+                signal_description['properties']      = s.properties
+                signal_description['cpptype']        = s.datatype.cpp_datatype_string
+                signal_description['printf_patterns'] = s.datatype.cpp_printf_pattern
+
+                self.manifest['io']['all_inputs_by_port_number'][s.port] = signal_description
+
+
+
         return self.manifest
+

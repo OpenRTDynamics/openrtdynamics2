@@ -1,0 +1,152 @@
+{
+    "api_name": "simulation",
+    "api_functions": {
+        "calculate_output": "calcResults_1",
+        "state_update": "updateStates",
+        "reset": "resetStates"
+    },
+    "io": {
+        "outputs": {
+            "calculate_output": {
+                "names": [
+                    "x",
+                    "y",
+                    "psi",
+                    "psi_dot"
+                ],
+                "cpptypes": [
+                    "double",
+                    "double",
+                    "double",
+                    "double"
+                ],
+                "properties": [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
+                "port_numbers": [
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "printf_patterns": [
+                    "%f",
+                    "%f",
+                    "%f",
+                    "%f"
+                ]
+            },
+            "state_update": {
+                "names": [],
+                "cpptypes": [],
+                "properties": [],
+                "port_numbers": [],
+                "printf_patterns": []
+            },
+            "reset": {
+                "names": [],
+                "cpptypes": [],
+                "properties": [],
+                "port_numbers": [],
+                "printf_patterns": []
+            }
+        },
+        "inputs": {
+            "calculate_output": {
+                "names": [
+                    "v",
+                    "wheelbase",
+                    "delta"
+                ],
+                "cpptypes": [
+                    "double",
+                    "double",
+                    "double"
+                ],
+                "properties": [
+                    {
+                        "title": "velocity"
+                    },
+                    {
+                        "title": "wheelbase"
+                    },
+                    {
+                        "title": "steering angle"
+                    }
+                ],
+                "port_numbers": [
+                    1,
+                    2,
+                    0
+                ],
+                "printf_patterns": [
+                    "%f",
+                    "%f",
+                    "%f"
+                ]
+            },
+            "state_update": {
+                "names": [
+                    "v",
+                    "delta"
+                ],
+                "cpptypes": [
+                    "double",
+                    "double"
+                ],
+                "properties": [
+                    {
+                        "title": "velocity"
+                    },
+                    {
+                        "title": "steering angle"
+                    }
+                ],
+                "port_numbers": [
+                    1,
+                    0
+                ],
+                "printf_patterns": [
+                    "%f",
+                    "%f"
+                ]
+            },
+            "reset": {
+                "names": [],
+                "cpptypes": [],
+                "properties": [],
+                "port_numbers": [],
+                "printf_patterns": []
+            }
+        },
+        "all_inputs_by_port_number": [
+            {
+                "name": "delta",
+                "properties": {
+                    "title": "steering angle"
+                },
+                "cpptype": "double",
+                "printf_patterns": "%f"
+            },
+            {
+                "name": "v",
+                "properties": {
+                    "title": "velocity"
+                },
+                "cpptype": "double",
+                "printf_patterns": "%f"
+            },
+            {
+                "name": "wheelbase",
+                "properties": {
+                    "title": "wheelbase"
+                },
+                "cpptype": "double",
+                "printf_patterns": "%f"
+            }
+        ]
+    }
+}

@@ -1,12 +1,33 @@
-
-
 /*  File    : kinematic_vehicle.cpp
  *  Abstract:
  *
  *      Code automatically built from an OpenRTDynamics 2 system
  *      using the Simulink s-function target.
  *
- *      Do not edit manually, your changes might be lost.
+ *      Do not edit manually. Your changes might be lost.
+ *
+ *
+ *  Configured input signals:
+ *
+ *  +-------+-----------------------+---------+--------+-------+----------------+----------------+
+ *  | #port | input signal,  to --> | outputs | update | reset | datatype (c++) | description    |
+ *  +-------+-----------------------+---------+--------+-------+----------------+----------------+
+ *  |   0   |         delta         |    X    |   X    |       |     double     | steering angle |
+ *  |   1   |           v           |    X    |   X    |       |     double     | velocity       |
+ *  |   2   |       wheelbase       |    X    |        |       |     double     | wheelbase      |
+ *  +-------+-----------------------+---------+--------+-------+----------------+----------------+
+ *
+ *  Configured output signals:
+ *
+ *  +-------+--------------+----------------+
+ *  | #port | input signal | datatype (c++) |
+ *  +-------+--------------+----------------+
+ *  |   0   |      x       |     double     |
+ *  |   1   |      y       |     double     |
+ *  |   2   |     psi      |     double     |
+ *  |   3   |   psi_dot    |     double     |
+ *  +-------+--------------+----------------+
+ *
  */
 
 #include <iostream>
@@ -22,8 +43,8 @@
 
 
     // state update
-    double block_13_mem;
     double block_15_mem;
+    double block_13_mem;
     double block_11_mem;
 
 
@@ -34,18 +55,18 @@
     // cached output values
     //
 
-    double y__block_13;
     double psi__block_15;
     double s10__block_7;
     double s11__block_8;
     double psi_dot__block_9;
+    double y__block_13;
     double x__block_11;
 
     // API-function resetStates
     void resetStates() { // created by cpp_define_function
 
-      block_13_mem = 0;
       block_15_mem = 0;
+      block_13_mem = 0;
       block_11_mem = 0;
     }
     // output signals of  resetStates
@@ -67,43 +88,43 @@
       return outputs;
     }
     // API-function updateStates
-    void updateStates(double delta, double v) { // created by cpp_define_function
+    void updateStates(double v, double delta) { // created by cpp_define_function
+      double s17;
       double s7;
       double s8;
       double s9;
       double s15;
-      double s17;
       double s4;
       double s5;
       double s6;
       double s13;
 
 
-      // restoring the signals y, psi, s10, s11, psi_dot, x from the states 
-      double &y = y__block_13;
+      // restoring the signals psi, s10, s11, psi_dot, y, x from the states 
       double &psi = psi__block_15;
       double &s10 = s10__block_7;
       double &s11 = s11__block_8;
       double &psi_dot = psi_dot__block_9;
+      double &y = y__block_13;
       double &x = x__block_11;
 
 
-      // calculating the block outputs in the following order s7, s8, s9, s15, s17, s4, s5, s6, s13
+      // calculating the block outputs in the following order s17, s7, s8, s9, s15, s4, s5, s6, s13
       // that depend on v, delta
       // dependencies that require a state update are  
 
+      s17 = 1 * psi + 0.01 * psi_dot;
       s7 = delta + psi;
       s8 = sin(s7);
       s9 = v * s8;
       s15 = 1 * y + 0.01 * s9;
-      s17 = 1 * psi + 0.01 * psi_dot;
       s4 = delta + psi;
       s5 = cos(s4);
       s6 = v * s5;
       s13 = 1 * x + 0.01 * s6;
 
-      block_13_mem = s15;
       block_15_mem = s17;
+      block_13_mem = s15;
       block_11_mem = s13;
 
       // calculating the block outputs in the following order 
@@ -119,15 +140,15 @@
     };
     // input signals of updateStates
     struct Inputs_updateStates{
-      double delta;
       double v;
+      double delta;
 
     };
     // wrapper function for updateStates
     Outputs_updateStates updateStates__(Inputs_updateStates inputs) {
       Outputs_updateStates outputs;
 
-      updateStates(inputs.delta, inputs.v);
+      updateStates(inputs.v, inputs.delta);
 
       return outputs;
     }
@@ -137,23 +158,23 @@
       double s11;
 
 
-      // calculating the block outputs in the following order y, psi, s10, s11, psi_dot, x
+      // calculating the block outputs in the following order psi, s10, s11, psi_dot, y, x
       // that depend on v, wheelbase, delta
-      // dependencies that require a state update are s15, s17, s13 
+      // dependencies that require a state update are s17, s15, s13 
 
-      y = block_13_mem;
       psi = block_15_mem;
       s10 = v / wheelbase;
       s11 = sin(delta);
       psi_dot = s10 * s11;
+      y = block_13_mem;
       x = block_11_mem;
 
-      // saving the signals y, psi, s10, s11, psi_dot, x into the states 
-      y__block_13 = y;
+      // saving the signals psi, s10, s11, psi_dot, y, x into the states 
       psi__block_15 = psi;
       s10__block_7 = s10;
       s11__block_8 = s11;
       psi_dot__block_9 = psi_dot;
+      y__block_13 = y;
       x__block_11 = x;
     }
     // output signals of  calcResults_1
@@ -181,9 +202,9 @@
     }
     // all system inputs and outputs combined
     struct Inputs{
-      double delta;
       double wheelbase;
       double v;
+      double delta;
 
     };
     struct Outputs{
@@ -204,7 +225,7 @@
 
       }
       if (update_states) {
-        updateStates(inputs.delta, inputs.v);
+        updateStates(inputs.v, inputs.delta);
 
       }
 
@@ -265,29 +286,28 @@ static void mdlInitializeSizes(SimStruct *S)
     // number of input ports
     if (!ssSetNumInputPorts(S, 3  )) return;
     
-    ssSetInputPortWidth(S, 1, 1);
-    ssSetInputPortWidth(S, 2, 1);
-    ssSetInputPortWidth(S, 0, 1);
+    // set sizes 
+    ssSetInputPortWidth(S, 0, 1); // delta 
+    ssSetInputPortWidth(S, 1, 1); // v 
+    ssSetInputPortWidth(S, 2, 1); // wheelbase 
 
-
-    ssSetInputPortDirectFeedThrough(S, 1, 1);
-    ssSetInputPortDirectFeedThrough(S, 2, 1);
-    ssSetInputPortDirectFeedThrough(S, 0, 1);
-
+    // set direct feedthough (for input signals that are needed to compute the system outputs)
+    ssSetInputPortDirectFeedThrough(S, 1, 1); // v
+    ssSetInputPortDirectFeedThrough(S, 2, 1); // wheelbase
+    ssSetInputPortDirectFeedThrough(S, 0, 1); // delta
 
     // number of output ports
     if (!ssSetNumOutputPorts(S, 4)) return;
-    
-    ssSetOutputPortWidth(S, 0, 1);
-    ssSetOutputPortWidth(S, 1, 1);
-    ssSetOutputPortWidth(S, 2, 1);
-    ssSetOutputPortWidth(S, 3, 1);
 
+    ssSetOutputPortWidth(S, 0, 1); // x
+    ssSetOutputPortWidth(S, 1, 1); // y
+    ssSetOutputPortWidth(S, 2, 1); // psi
+    ssSetOutputPortWidth(S, 3, 1); // psi_dot
 
     // sample times
     ssSetNumSampleTimes(S, 1);
     
-    // storage
+    // define storage
     ssSetNumRWork(S, 0);
     ssSetNumIWork(S, 0);
     ssSetNumPWork(S, 1); // reserve element in the pointers vector
@@ -332,7 +352,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 {
     simulation *c = (simulation *) ssGetPWork(S)[0];
     
-    // InputRealPtrsType uPtrs1 = ssGetInputPortRealSignalPtrs(S,0);
+    // inputs
     InputRealPtrsType uPtrs1 = ssGetInputPortRealSignalPtrs(S,1);
     InputRealPtrsType uPtrs2 = ssGetInputPortRealSignalPtrs(S,2);
     InputRealPtrsType uPtrs0 = ssGetInputPortRealSignalPtrs(S,0);
@@ -377,14 +397,14 @@ static void mdlUpdate(SimStruct *S, int_T tid)
     simulation::Inputs inputs;
     simulation::Outputs outputs;
 
-    InputRealPtrsType uPtrs0 = ssGetInputPortRealSignalPtrs(S,0);
     InputRealPtrsType uPtrs1 = ssGetInputPortRealSignalPtrs(S,1);
+    InputRealPtrsType uPtrs0 = ssGetInputPortRealSignalPtrs(S,0);
 
 
     UNUSED_ARG(tid); /* not used in single tasking mode */
     
-    inputs.delta = *uPtrs0[0];
     inputs.v = *uPtrs1[0];
+    inputs.delta = *uPtrs0[0];
 
 
     // update the states of the system

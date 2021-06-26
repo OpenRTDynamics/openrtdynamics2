@@ -145,7 +145,7 @@ class System:
 
 
     def exportGraph(self):
-        # TODO: remove from this class and move to aonther class 'visualization' or 'editor'
+        # TODO: remove from this class and move to an other class 'visualization' or 'editor'
 
         def createBlockNode(nodes_array_index, block):
             idstr = 'bid_' + str( block.id )
