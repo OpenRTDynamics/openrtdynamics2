@@ -13,16 +13,15 @@ can be used to adapt the generated code to different targets.
 While the first version of this framework was built on top of the scientific computing language Scilab, the new, second
 version now is based on Python.
 
-Please note: in its current state, the library is considered experimental and the interface might be subjected to 
-changes. Further, up to now, it is limited to discrete-time systems - no continuous ODE-integrators.
+**Please note:** The library currently under development and is its interface / API is considered experimental. Error messages might be missing, and some functions might be renamed or re-designed in the future. Further, up to now, simulation is limited to discrete-time systems and fixed-step simulation of continuous systems as the main target is real time simulation. Advanced continuous ODE-integrators, zero-crossings, etc. are missing so far.
 
-The following features are implemented
+The features implemented so far include:
 
 - basic signal processing: transfer functions, rate limiters, different signal sources, ...
-- conrtol structures acting on subsystems: loops, triggered systems (if statements)
-- state machines implemented in form of a set of subsystems of which one is active at a time
-- a simulator to execute models inside Python/Numpy (through code generation and just-in-time compilation thanks to [cppyy](https://cppyy.readthedocs.io/en/latest/)
-- some templates for code generation: generic printf-based command-line, web assembly (to run in models in Javascript) 
+- control structures acting on subsystems: loops, triggered systems (if statements),
+- state machines implemented in form of a set of subsystems one of which is active at a time,
+- a simulator to execute models inside Python/Numpy (through code generation and just-in-time compilation thanks to [cppyy](https://cppyy.readthedocs.io/en/latest/),
+- code generation and templates for code export: generic command-line executable, HTML/Javascript, MATLAB/Simulink.
 
 ## Installation
 
@@ -44,7 +43,7 @@ A simple model is given by
     x = z + u                               # x[k] = z[k] + u[k]
     z << dy.delay(x, initial_state = 2.0)   # z[k+1] = x[k], z[0] = 2.0
 
-Herein, a signal variable $z$ is introduced that is combined with the system input u. The resulting intermediate variable x is then delayed and assigned to z closing the feedback loop. The delay has an initial value z[0] = 2.0.
+Herein, a signal variable z is introduced that is combined with the system input u. The resulting intermediate variable x is then delayed and assigned to z closing the feedback loop. The delay has an initial value z[0] = 2.0.
 
 Given u[k] = 1.0, for k>=0, the output sequence for y is then { 2, 3, 4, 5, ...  }.
 
