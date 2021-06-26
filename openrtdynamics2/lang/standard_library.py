@@ -341,7 +341,7 @@ def counter():
 
     """
 
-    if not 'counter' in dy.get_system_context().components:
+    if not 'counter' in dy.get_current_system().components:
         # no counter has been defined in this system so far. Hence, create one.
 
         increase = dy.const(1, dy.DataTypeInt32(1) ).set_name('cnt_increase')
@@ -352,11 +352,11 @@ def counter():
         tmp.set_name('shared_counter')
 
         # store the output signal of the counter as it might be used again. 
-        dy.get_system_context().components['counter'] = __Counter(tmp)
+        dy.get_current_system().components['counter'] = __Counter(tmp)
 
     else:
         # use the output of an already created counter
-        tmp = dy.get_system_context().components['counter'].output
+        tmp = dy.get_current_system().components['counter'].output
 
     return tmp
 

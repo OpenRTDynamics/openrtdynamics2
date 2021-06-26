@@ -1,7 +1,7 @@
 from .diagram_core import diagram_compiler as dc
 from . import signal_interface as si
 from .code_generation_templates import TargetGenericCpp
-from .system_context import init_simulation_context, get_system_context, get_system_context2, enter_system, leave_system, clear, set_primary_outputs, append_output, get_list_of_code_sources
+from .system_context import init_simulation_context, get_current_system, get_system_context, enter_system, leave_system, clear, set_primary_outputs, append_output, get_list_of_code_sources
 
 import os
 import pathlib as pl
@@ -18,7 +18,7 @@ def signal():
     """
 
     # return an anonymous signal
-    return si.SignalUser(get_system_context())
+    return si.SignalUser(get_current_system())
 
 
 
@@ -33,12 +33,12 @@ def system_input(datatype, name : str = None, default_value=None, value_range=No
         title         - the description of the signal
     """
 
-    signal = si.SimulationInputSignalUser(get_system_context(), datatype)
+    signal = si.SimulationInputSignalUser(get_current_system(), datatype)
 
-    if get_system_context().upper_level_system is not None:
+    if get_current_system().upper_level_system is not None:
         raise BaseException('system_input() is not available for subsystems')
 
-    get_system_context2().append_main_system_input( signal )
+    get_system_context().append_main_system_input( signal )
 
     #
     if name is not None:
@@ -63,7 +63,7 @@ def system_input(datatype, name : str = None, default_value=None, value_range=No
 def export_graph(filename, system = None):
 
     if system is None:
-        system = get_system_context() 
+        system = get_current_system() 
 
     graph = system.exportGraph()
 
@@ -76,7 +76,7 @@ def show_blocks(system = None):
     """
 
     if system is None:
-        system = get_system_context() 
+        system = get_current_system() 
 
     print()
     print(Style.BRIGHT + "-------- list of blocks --------")
@@ -87,7 +87,7 @@ def show_blocks(system = None):
 def compile_system(system = None):
 
     if system is None:
-        system = get_system_context() 
+        system = get_current_system() 
 
     system.propagate_datatypes()
 
@@ -99,7 +99,7 @@ def compile_system(system = None):
     compiler = dc.CompileDiagram()
     compile_results = compiler.compile( 
         system, 
-        input_signals =  si.unwrap_list( get_system_context2().main_system_inputs_signals )
+        input_signals =  si.unwrap_list( get_system_context().main_system_inputs_signals )
     )
 
     #

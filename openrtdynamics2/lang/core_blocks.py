@@ -12,13 +12,13 @@ from typing import Dict, List
 
 
 def generic_subsystem( manifest, inputSignals : List[SignalUserTemplate] ):
-    return wrap_signal_list( GenericSubsystem(dy.get_system_context(), manifest, unwrap_hash(inputSignals) ).outputSignals )
+    return wrap_signal_list( GenericSubsystem(dy.get_current_system(), manifest, unwrap_hash(inputSignals) ).outputSignals )
 
 def const(constant, datatype ):
-    return wrap_signal( Const(dy.get_system_context(), constant, datatype).outputs[0] )
+    return wrap_signal( Const(dy.get_current_system(), constant, datatype).outputs[0] )
 
 def gain(u : SignalUserTemplate, gain : float ):
-    return wrap_signal( Gain(dy.get_system_context(), u.unwrap, gain).outputs[0] )
+    return wrap_signal( Gain(dy.get_current_system(), u.unwrap, gain).outputs[0] )
 
 def convert(u : SignalUserTemplate, target_type : dt.DataType ):
     """
@@ -38,7 +38,7 @@ def convert(u : SignalUserTemplate, target_type : dt.DataType ):
     SignalUserTemplate
         the output signal with the given type
     """
-    return wrap_signal( ConvertDatatype(dy.get_system_context(), u.unwrap, target_type).outputs[0] )
+    return wrap_signal( ConvertDatatype(dy.get_current_system(), u.unwrap, target_type).outputs[0] )
 
 def add(input_signals : List[SignalUserTemplate], factors : List[float]):
     """
@@ -48,10 +48,10 @@ def add(input_signals : List[SignalUserTemplate], factors : List[float]):
 
         input_signals[0] * factors[0] + input_signals[1] * factors[1] + ...
     """
-    return wrap_signal( Add(dy.get_system_context(), unwrap_list( input_signals ), factors).outputs[0] )
+    return wrap_signal( Add(dy.get_current_system(), unwrap_list( input_signals ), factors).outputs[0] )
 
 def operator1(inputSignals : List[SignalUserTemplate], operator : str ):
-    return wrap_signal( Operator1(dy.get_system_context(), unwrap_list( inputSignals ), operator).outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), unwrap_list( inputSignals ), operator).outputs[0] )
 
 
 #
@@ -65,7 +65,7 @@ def logic_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
         u1 && u2
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=' && ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list([u1,u2]), operator=' && ').outputs[0] )
 
 def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
     """
@@ -74,7 +74,7 @@ def logic_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
         u1 || u2
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' || ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list( [u1,u2] ), operator=' || ').outputs[0] )
 
 
 def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
@@ -84,7 +84,7 @@ def logic_xor(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
         u1 ^ u2
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' ^ ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list( [u1,u2] ), operator=' ^ ').outputs[0] )
 
 
 def bitwise_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
@@ -94,7 +94,7 @@ def bitwise_and(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
         u1 & u2
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list([u1,u2]), operator=' & ').outputs[0] )
 
 def bitwise_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
     """
@@ -103,7 +103,7 @@ def bitwise_or(u1 : SignalUserTemplate, u2 : SignalUserTemplate):
         u1 | u2
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list( [u1,u2] ), operator=' | ').outputs[0] )
 
 
 def bitwise_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
@@ -113,7 +113,7 @@ def bitwise_shift_left(u : SignalUserTemplate, shift : SignalUserTemplate):
         u << shift
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=' << ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list( [u,shift] ), operator=' << ').outputs[0] )
 
 
 def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
@@ -123,7 +123,7 @@ def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
         u >> shift
     """
 
-    return wrap_signal( Operator1(dy.get_system_context(), inputSignals=unwrap_list( [u,shift] ), operator=' >> ').outputs[0] )
+    return wrap_signal( Operator1(dy.get_current_system(), inputSignals=unwrap_list( [u,shift] ), operator=' >> ').outputs[0] )
 
 
 
@@ -134,7 +134,7 @@ def bitwise_shift_right(u : SignalUserTemplate, shift : SignalUserTemplate):
 
 
 def comparison(left : SignalUserTemplate, right : SignalUserTemplate, operator : str ):
-    return wrap_signal( ComparisionOperator(dy.get_system_context(), left.unwrap, right.unwrap, operator).outputs[0] )
+    return wrap_signal( ComparisionOperator(dy.get_current_system(), left.unwrap, right.unwrap, operator).outputs[0] )
 
 def switchNto1( state : SignalUserTemplate, inputs : List[SignalUserTemplate] ):
     """N to one signal switch
@@ -158,7 +158,7 @@ def switchNto1( state : SignalUserTemplate, inputs : List[SignalUserTemplate] ):
     SignalUserTemplate
         the output signal of the switch
     """
-    return wrap_signal( SwitchNto1(dy.get_system_context(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
+    return wrap_signal( SwitchNto1(dy.get_current_system(), state.unwrap, unwrap_list(inputs) ).outputs[0] )
 
 def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTemplate, new_value ):
     """
@@ -187,7 +187,7 @@ def conditional_overwrite(signal : SignalUserTemplate, condition : SignalUserTem
     if isinstance(new_value, SignalUserTemplate):
         new_value = new_value.unwrap
 
-    return wrap_signal( ConditionalOverwrite(dy.get_system_context(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
+    return wrap_signal( ConditionalOverwrite(dy.get_current_system(), signal.unwrap, condition.unwrap, new_value).outputs[0] )
 
 def if_else(condition : SignalUserTemplate, if_true : SignalUserTemplate, if_false : SignalUserTemplate  ):
     """
@@ -215,7 +215,7 @@ def if_else(condition : SignalUserTemplate, if_true : SignalUserTemplate, if_fal
 
     return wrap_signal( 
             ConditionalOverwrite(
-                dy.get_system_context(), 
+                dy.get_current_system(), 
                 if_false.unwrap, 
                 condition.unwrap, 
                 if_true.unwrap
@@ -228,25 +228,25 @@ def sqrt(u : SignalUserTemplate ):
     """
     Square root
     """
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'sqrt').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'sqrt').outputs[0] )
 
 def sin(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'sin').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'sin').outputs[0] )
 
 def cos(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'cos').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'cos').outputs[0] )
 
 def tan(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'tan').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'tan').outputs[0] )
 
 def atan(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'atan').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'atan').outputs[0] )
 
 def asin(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'asin').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'asin').outputs[0] )
 
 def acos(u : SignalUserTemplate ):
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'acos').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'acos').outputs[0] )
 
 def abs(u : SignalUserTemplate ):
     """
@@ -254,7 +254,7 @@ def abs(u : SignalUserTemplate ):
 
     Computes the absolute value |u|.
     """
-    return wrap_signal( StaticFnByName_1To1(dy.get_system_context(), u.unwrap, 'abs').outputs[0] )
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'abs').outputs[0] )
 
 
 
@@ -277,7 +277,7 @@ def logic_not(u : SignalUserTemplate ):
     returns 
         !u
     """
-    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, '!').outputs[0] )
+    return wrap_signal( Operator0(dy.get_current_system(), u.unwrap, '!').outputs[0] )
 
 def bitwise_not(u : SignalUserTemplate ):
     """
@@ -298,7 +298,7 @@ def bitwise_not(u : SignalUserTemplate ):
     returns 
         ~u
     """
-    return wrap_signal( Operator0(dy.get_system_context(), u.unwrap, '~').outputs[0] )
+    return wrap_signal( Operator0(dy.get_current_system(), u.unwrap, '~').outputs[0] )
 
 
 def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
@@ -325,7 +325,7 @@ def atan2(y : SignalUserTemplate, x : SignalUserTemplate ):
             atan2(x,y)
 
     """
-    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), y.unwrap, x.unwrap, 'atan2').outputs[0] )
+    return wrap_signal( StaticFnByName_2To1(dy.get_current_system(), y.unwrap, x.unwrap, 'atan2').outputs[0] )
 
 def pow(x : SignalUserTemplate, y : SignalUserTemplate ):
     """
@@ -350,7 +350,7 @@ def pow(x : SignalUserTemplate, y : SignalUserTemplate ):
             returns pow(x,y)
 
     """
-    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, 'pow').outputs[0] )
+    return wrap_signal( StaticFnByName_2To1(dy.get_current_system(), x.unwrap, y.unwrap, 'pow').outputs[0] )
 
 def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
     """
@@ -375,7 +375,7 @@ def fmod(x : SignalUserTemplate, y : SignalUserTemplate ):
             returns fmod(x,y)
 
     """
-    return wrap_signal( StaticFnByName_2To1(dy.get_system_context(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
+    return wrap_signal( StaticFnByName_2To1(dy.get_current_system(), x.unwrap, y.unwrap, 'fmod').outputs[0] )
 
 
 
@@ -395,7 +395,7 @@ def cpp_allocate_class(datatype, code_constructor_call):
             the code to initialize the class instance
 
     """
-    return wrap_signal( AllocateClass(dy.get_system_context(), datatype, code_constructor_call).outputs[0] )
+    return wrap_signal( AllocateClass(dy.get_current_system(), datatype, code_constructor_call).outputs[0] )
 
 
 
@@ -443,7 +443,7 @@ def cpp_call_class_member_function(
 
     """
     bp = CallClassMemberFunction(
-        dy.get_system_context(), 
+        dy.get_current_system(), 
         unwrap_list(input_signals), 
         input_types, 
         output_types, 
@@ -513,10 +513,10 @@ def generic_cpp_static(
         output2 = outputs[1]
         output3 = outputs[2]
     """
-    return wrap_signal_list( GenericCppStatic(dy.get_system_context(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
+    return wrap_signal_list( GenericCppStatic(dy.get_current_system(), unwrap_list(input_signals), input_names, input_types, output_names, output_types, cpp_source_code  ).outputs )
 
 def delay__(u : SignalUserTemplate, initial_state = None):
-    return wrap_signal( Delay(dy.get_system_context(), u.unwrap, initial_state ).outputs[0] )
+    return wrap_signal( Delay(dy.get_current_system(), u.unwrap, initial_state ).outputs[0] )
 
 
 def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUserTemplate, initial_state = False, no_delay = False):
@@ -543,7 +543,7 @@ def flipflop(activate_trigger : SignalUserTemplate, disable_trigger : SignalUser
 
     """
     
-    return wrap_signal( Flipflop(dy.get_system_context(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, no_delay=no_delay ).outputs[0] )
+    return wrap_signal( Flipflop(dy.get_current_system(), activate_trigger.unwrap, disable_trigger.unwrap, initial_state = initial_state, no_delay=no_delay ).outputs[0] )
 
 
 
@@ -580,9 +580,9 @@ def memory(datatype, constant_array, write_index : SignalUserTemplate = None, va
     """
 
     if write_index is not None and value is not None:
-        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
+        return wrap_signal( Memory(dy.get_current_system(), datatype, constant_array, write_index.unwrap, value.unwrap).outputs[0] )
     elif write_index is None and value is None:
-        return wrap_signal( Memory(dy.get_system_context(), datatype, constant_array).outputs[0] )
+        return wrap_signal( Memory(dy.get_current_system(), datatype, constant_array).outputs[0] )
     else:
         raise BaseException('memory: write_index and value were not properly defined')
 
@@ -602,4 +602,4 @@ def memory_read( memory : SignalUserTemplate, index : SignalUserTemplate ):
     List[SignalUserTemplate]
         returns the value of the element
     """
-    return wrap_signal( MemoryRead(dy.get_system_context(), memory.unwrap, index.unwrap ).outputs[0] )
+    return wrap_signal( MemoryRead(dy.get_current_system(), memory.unwrap, index.unwrap ).outputs[0] )

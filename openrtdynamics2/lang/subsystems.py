@@ -53,7 +53,7 @@ class sub_if:
 
     def __exit__(self, type, value, traceback):
 
-        embedded_subsystem = dy.get_system_context()
+        embedded_subsystem = dy.get_current_system()
 
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
@@ -70,7 +70,7 @@ class sub_if:
 
         # create the embedder prototype
         embeddedingBlockPrototype = bp.TriggeredSubsystem( 
-            system=dy.get_system_context(), 
+            system=dy.get_current_system(), 
             control_input=si.unwrap( self._condition_signal ), 
             subsystem_wrapper=self._subsystem_wrapper,
             prevent_output_computation = self._prevent_output_computation
@@ -141,7 +141,7 @@ class sub_loop:
 
     def __exit__(self, type, value, traceback):
 
-        embedded_subsystem = dy.get_system_context()
+        embedded_subsystem = dy.get_current_system()
 
         if self._until_signal is None and self._yield_signal is None:
             raise BaseException('sub_loop: Please specify either an abort or a yield condition. This can be achieved by the methods system.loop_until(condition) or system.loop_yield(condition).')
@@ -167,7 +167,7 @@ class sub_loop:
         #
 
         # create the embedder prototype
-        embeddedingBlockPrototype = bp.LoopUntilSubsystem( system=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.LoopUntilSubsystem( system=dy.get_current_system(), 
                 max_iterations=self._max_iterations, 
                 subsystem_wrapper=self._subsystem_wrapper,
                 add_until_control=self._until_signal is not None,
@@ -351,7 +351,7 @@ class SwitchedSubsystemPrototype:
 
 
     def __exit__(self, type, value, traceback):
-        embedded_subsystem = dy.get_system_context()
+        embedded_subsystem = dy.get_current_system()
 
         # set the outputs of the system
         embedded_subsystem.set_primary_outputs( si.unwrap_list( self._outputs_of_embedded_subsystem ) )
@@ -417,7 +417,7 @@ class sub_switch(SwitchPrototype):
     def on_exit(self, subsystem_wrappers):
 
         # create the embedding prototype
-        embeddedingBlockPrototype = bp.SwitchSubsystems( system=dy.get_system_context(), 
+        embeddedingBlockPrototype = bp.SwitchSubsystems( system=dy.get_current_system(), 
                 control_input=self._select_signal.unwrap, 
                 subsystem_wrappers=subsystem_wrappers, 
                 reference_outputs=  si.unwrap_list( self._reference_outputs ) )
@@ -516,7 +516,7 @@ class sub_statemachine(SwitchPrototype):
 
         # create the embedding prototype
         embeddedingBlockPrototype = bp.StatemachineSwitchSubsystems( 
-            system                 = dy.get_system_context(), 
+            system                 = dy.get_current_system(), 
             subsystem_wrappers     = subsystem_prototypes, 
             reference_outputs      = si.unwrap_list( self._reference_outputs ),
             immediate_state_switch = self._immediate_state_switch
