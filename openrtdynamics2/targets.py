@@ -595,6 +595,29 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         # headers
         headers =  '#include <stdio.h>\n'
         headers += '#include <math.h>\n'
+
+        # define map c++ to simulink datatypes
+        def datatypes_c_to_simulink( cpptype : str, what_index : int = 0 ):
+
+            map_datatypes_c_to_simulink = {
+                'double'     : ['SS_DOUBLE',  'real_T',     'InputRealPtrsType'],
+                'real'       : ['SS_SINGLE',  ''],
+
+                'int8_t'     : ['SS_INT8',    'int8_T',     'InputInt8PtrsType'],
+                'uint8_t'    : ['SS_UINT8',   ''],
+                'int16_t'    : ['SS_INT16',   'int16_T',    'InputInt16PtrsType'],
+                'uint16_t'   : ['SS_UINT16',  ''],
+                'int32_t'    : ['SS_INT32',   'int32_T',    'InputInt32PtrsType'],
+                'uint32_t'   : ['SS_UINT32',  ''],
+
+                'bool'       : ['SS_BOOLEAN', 'boolean_T',  'InputBooleanPtrsType']
+            }
+
+            if cpptype in map_datatypes_c_to_simulink: 
+                return map_datatypes_c_to_simulink[cpptype][what_index]
+            else:
+                raise BaseException('Not implemented: datatype ' + cpptype + ' cannot be converted to a Simulink datatype' )
+
         
         # define structures for I/O
         io_variables_define = simulation_name + '::Inputs inputs;\n' + simulation_name + '::Outputs outputs;\n'
@@ -606,18 +629,22 @@ class TargetCppSimulinkSFunction(TargetTemplate):
 
         all_input_signals = m['io']['all_inputs_by_port_number']
 
-        define_input_port_sizes = ''
-        icon_drawing_commands  = '% copy and paste these commands into the field \'icon drawing commands\' of the block mask: \n'
-        icon_drawing_commands += '% right-click on block -> \'Mask\' -> \'Edit Mask\' -> \'Mask Editor\' -> \'Icons & Ports\'\n\n'
+        define_input_port_sizes     = ''
+        define_input_port_datatypes = ''
+        icon_drawing_commands       = '% copy and paste these commands into the field \'icon drawing commands\' of the block mask: \n'
+        icon_drawing_commands      += '% right-click on block -> \'Mask\' -> \'Edit Mask\' -> \'Mask Editor\' -> \'Icons & Ports\'\n\n'
         number_of_inputs = len(all_input_signals)
 
         for port_number in range(0, number_of_inputs ):
 
-            port_number_str = str( port_number )
-            signal_name     = all_input_signals[port_number]['name']
+            port_number_str      = str( port_number )
+            signal_name          = all_input_signals[port_number]['name']
+            signal_type          = all_input_signals[port_number]['cpptype']
+            signal_simulink_type = datatypes_c_to_simulink(signal_type)
 
-            define_input_port_sizes += 'ssSetInputPortWidth(S, '+ port_number_str +', 1); // '+ signal_name  +' \n'
-            icon_drawing_commands += 'port_label(\'input\', ' + str(port_number + 1) + ', \'' + signal_name + '\')\n'
+            define_input_port_sizes     += 'ssSetInputPortWidth(S, '    + port_number_str +', 1); // '+ signal_name  + '\n'
+            define_input_port_datatypes += 'ssSetInputPortDataType(S, ' + port_number_str +', ' + signal_simulink_type + '); // ' + signal_name  + ' (' + signal_type + ')\n'
+            icon_drawing_commands       += 'port_label(\'input\', '     + str(port_number + 1) + ', \'' + signal_name + '\')\n'
 
 
         #
@@ -632,9 +659,13 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         for input_name, v in inputs.items():
             
-            port_number_str = str( v['port_number'] )
+            port_number     = v['port_number']
+            port_number_str = str( port_number )
+
+            simulink_c_type     = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=1  )
+            simulink_c_ptr_type = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=2  )
             
-            get_s_inputs            += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            get_s_inputs            += simulink_c_ptr_type + ' uPtrs' + port_number_str + ' = (' + simulink_c_ptr_type + ') ssGetInputPortSignalPtrs(S,' + port_number_str + ');\n'
             fill_input_values       += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
 
             
@@ -655,9 +686,13 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         for input_name, v in inputs_for_block_outputs.items():
             
-            port_number_str = str( v['port_number'] )
+            port_number     = v['port_number']
+            port_number_str = str( port_number )
 
-            get_s_inputs_for_model_outputs      += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            simulink_c_type     = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=1  )
+            simulink_c_ptr_type = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=2  )
+
+            get_s_inputs_for_model_outputs      += simulink_c_ptr_type + ' uPtrs' + port_number_str + ' = (' + simulink_c_ptr_type + ') ssGetInputPortSignalPtrs(S,' + port_number_str + ');\n'
             fill_input_values_for_model_outputs += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
             set_direct_feedthrough              += 'ssSetInputPortDirectFeedThrough(S, ' + port_number_str + ', 1); // ' + input_name +  '\n'
        
@@ -677,11 +712,15 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         for input_name, v in inputs_for_state_update.items():
             
-            port_number_str = str( v['port_number'] )
-            
-            get_s_inputs_for_state_update      += 'InputRealPtrsType uPtrs' + port_number_str + ' = ssGetInputPortRealSignalPtrs(S,' + port_number_str + ');\n'
+            port_number     = v['port_number']
+            port_number_str = str( port_number )
+
+            simulink_c_type     = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=1  )
+            simulink_c_ptr_type = datatypes_c_to_simulink(  all_input_signals[port_number]['cpptype'], what_index=2  )
+
+            get_s_inputs_for_state_update      += simulink_c_ptr_type + ' uPtrs' + port_number_str + ' = (' + simulink_c_ptr_type + ') ssGetInputPortSignalPtrs(S,' + port_number_str + ');\n'
             fill_input_values_for_state_update += 'inputs.' + input_name + ' = *uPtrs' + port_number_str + '[0];\n'
-       
+
             
         #
         # create a list of the system outputs
@@ -690,19 +729,28 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         outputs = get_all_outputs( m )
         number_of_outputs = len(outputs)
 
-        get_outputs              = ''
-        fill_output_values       = ''
-        define_output_port_sizes = ''
+        get_outputs                  = ''
+        fill_output_values           = ''
+        define_output_port_sizes     = ''
+        define_output_port_datatypes = ''
         
         port_number = 0 # output port index for simulink, starting at 0
         for output_name, v in outputs.items():
 
             port_number_str = str( port_number )
+
+            signal_type               = v['cpptype']
+            signal_simulink_type      = datatypes_c_to_simulink(signal_type)
+            simulink_c_type           = datatypes_c_to_simulink(signal_type, what_index=1)
+            #simulink_c_ptr_type       = datatypes_c_to_simulink(signal_type, what_index=2)
             
-            get_outputs              += 'real_T  *y' + port_number_str + ' = ssGetOutputPortRealSignal(S, ' + port_number_str + ');\n'
+            get_outputs              += simulink_c_type + ' *y' + port_number_str + ' = (' + simulink_c_type + ' *) ssGetOutputPortSignal(S, ' + port_number_str + ');\n'
+
             fill_output_values       += 'y' + port_number_str + '[0] = outputs.' + output_name + ';\n'
             define_output_port_sizes += 'ssSetOutputPortWidth(S, ' + port_number_str + ', 1); // ' + output_name + '\n'
             icon_drawing_commands    += 'port_label(\'output\', ' + str(port_number + 1) + ', \'' + output_name + '\')\n'
+
+            define_output_port_datatypes += 'ssSetOutputPortDataType(S, ' + port_number_str + ', ' + signal_simulink_type + '); // ' + output_name  + ' (' + signal_type + ')\n'
             
             port_number += 1
         
@@ -712,10 +760,14 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         main_fn = """/*  File    : """ + cpp_fname + """
  *  Abstract:
  *
- *      Code automatically built from an OpenRTDynamics 2 system
- *      using the Simulink s-function target.
+ *      This is code that was automatically generated from an OpenRTDynamics 2 system
+ *      using the Simulink s-function target. From the Matlab command prompt type
  *
- *      Do not edit manually. Your changes might be lost.
+ *          mex """ + cpp_fname + """
+ * 
+ *      to compile the s-function.
+ *
+ *      WARNING: Do not edit this file manually. Your changes might be lost.
  *
  *
  *  Configured input signals:
@@ -785,12 +837,15 @@ static void mdlInitializeSizes(SimStruct *S)
     
     // set sizes 
 """ + indent( define_input_port_sizes, '    ' ) + """
+    // set datatypes 
+""" + indent( define_input_port_datatypes, '    ' ) + """
     // set direct feedthough (for input signals that are needed to compute the system outputs)
 """ + indent( set_direct_feedthrough, '    ' ) + """
     // number of output ports
     if (!ssSetNumOutputPorts(S, """ + str(number_of_outputs) + """)) return;
 
 """ + indent( define_output_port_sizes, '    ' ) + """
+""" + indent( define_output_port_datatypes, '    ' ) + """
     // sample times
     ssSetNumSampleTimes(S, 1);
     
@@ -842,7 +897,6 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     
     // outputs
 """ + indent(get_outputs, '    ') + """
-
     // ORTD I/O structures
 """ + indent( io_variables_define, '    ' ) + """
     

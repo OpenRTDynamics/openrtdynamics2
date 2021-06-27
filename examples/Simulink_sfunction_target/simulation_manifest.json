@@ -90,8 +90,8 @@
             },
             "state_update": {
                 "names": [
-                    "v",
-                    "delta"
+                    "delta",
+                    "v"
                 ],
                 "cpptypes": [
                     "double",
@@ -99,15 +99,15 @@
                 ],
                 "properties": [
                     {
-                        "title": "velocity"
+                        "title": "steering angle"
                     },
                     {
-                        "title": "steering angle"
+                        "title": "velocity"
                     }
                 ],
                 "port_numbers": [
-                    1,
-                    0
+                    0,
+                    1
                 ],
                 "printf_patterns": [
                     "%f",
