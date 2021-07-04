@@ -226,7 +226,7 @@ def if_else(condition : SignalUserTemplate, if_true : SignalUserTemplate, if_fal
 
 def sqrt(u : SignalUserTemplate ):
     """
-    Square root
+        Square root of u
     """
     return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'sqrt').outputs[0] )
 
@@ -255,6 +255,19 @@ def abs(u : SignalUserTemplate ):
     Computes the absolute value |u|.
     """
     return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'abs').outputs[0] )
+
+
+def isnan(u : SignalUserTemplate ):
+    """
+    Test if u is not a number (nan)
+    """
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'isnan').outputs[0] )
+
+def isinf(u : SignalUserTemplate ):
+    """
+    Test if u is infinity
+    """
+    return wrap_signal( StaticFnByName_1To1(dy.get_current_system(), u.unwrap, 'isinf').outputs[0] )
 
 
 

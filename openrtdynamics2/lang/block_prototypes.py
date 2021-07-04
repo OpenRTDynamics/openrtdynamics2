@@ -1,3 +1,5 @@
+import math
+
 from .diagram_core.system import System
 from .diagram_core import datatypes as dt
 from .diagram_core.signal_network.signals import Signal
@@ -545,7 +547,7 @@ class StatemachineSwitchSubsystems(MultiSubsystemEmbedder):
 
 
 
-
+  
 
 #
 # Sources
@@ -561,7 +563,7 @@ class Const(bi.StaticSource_To1):
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + str( self.constant ) + ';\n'
+            return signals[0].name + ' = ' + cgh.float_to_c_str( self.constant ) + ';\n'
 
 
 
@@ -580,7 +582,7 @@ class Gain(bi.StaticFn_1To1):
 
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
-            return signals[0].name + ' = ' + str(self._factor) + ' * ' + self.inputs[0].name +  ';\n'
+            return signals[0].name + ' = ' + cgh.float_to_c_str(self._factor) + ' * ' + self.inputs[0].name + ';\n'
 
 
 
@@ -603,7 +605,7 @@ class ConvertDatatype(bi.StaticFn_1To1):
     def generate_code_output_list(self, language, signals : List [ Signal ] ):
         if language == 'c++':
             # TODO: only = is used and the c++ compiler decides how to convert...
-            return signals[0].name + ' = ' + self.inputs[0].name + ';\n'
+            return signals[0].name + ' = ' + self.inputs[0].name + '; // type conversion\n'
 
 
 
@@ -627,7 +629,7 @@ class Add(bi.StaticFn_NTo1):
             strs = []
             i = 0
             for s in self.inputSignals:
-                strs.append(  str(self.factors[i]) + ' * ' + s.name )
+                strs.append(  cgh.float_to_c_str(self.factors[i]) + ' * ' + s.name )
                 i = i + 1
 
             sumline = ' + '.join( strs )
@@ -812,7 +814,7 @@ class Operator0(bi.StaticFn_1To1):
 
 
 #
-# static functinos that map 2 --> 1
+# static functions that map 2 --> 1
 #
 
 class StaticFnByName_2To1(bi.StaticFn_NTo1):

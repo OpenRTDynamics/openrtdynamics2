@@ -4,7 +4,7 @@
 
 
 import textwrap as tw
-
+import math
 
 
 def tabs(N):
@@ -445,3 +445,15 @@ def create_printf(intro_string, signals):
         code = 'printf("' + intro_string +  '\\n");' + '\n'
 
     return code
+
+
+#
+
+def float_to_c_str(val : float):
+    if math.isnan(val):
+        return 'NAN'
+    elif math.isinf(val):
+        return 'INFINITY'
+    else:
+        return str(float(val))
+      
