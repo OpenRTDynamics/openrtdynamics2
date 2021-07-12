@@ -586,7 +586,7 @@ class TargetCppSimulinkSFunction(TargetTemplate):
         
         # get the system manifest and c++ class name
         m = res['manifest']
-        simulation_name = m['api_name']
+        system_name = m['api_name']
 
         # filenames
         cpp_fname       = self.sfun_name + '.cpp'
@@ -620,7 +620,7 @@ class TargetCppSimulinkSFunction(TargetTemplate):
 
         
         # define structures for I/O
-        io_variables_define = simulation_name + '::Inputs inputs;\n' + simulation_name + '::Outputs outputs;\n'
+        io_variables_define = system_name + '::Inputs inputs;\n' + system_name + '::Outputs outputs;\n'
 
         #
         # create a list of all system inputs including those that are
@@ -877,9 +877,9 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #if defined(MDL_START) 
   static void mdlStart(SimStruct *S)
   {
-      ssGetPWork(S)[0] = (void *) new """ + simulation_name + """; // store new C++ object in the
+      ssGetPWork(S)[0] = (void *) new """ + system_name + """; // store new C++ object in the
 
-      """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+      """ + system_name + """ *c = (""" + system_name + """ *) ssGetPWork(S)[0];
       
       // ORTD I/O structures
 """ + indent( io_variables_define, '      ' ) + """
@@ -890,7 +890,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 
 static void mdlOutputs(SimStruct *S, int_T tid)
 {
-    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+    """ + system_name + """ *c = (""" + system_name + """ *) ssGetPWork(S)[0];
     
     // inputs
 """ + indent(get_s_inputs_for_model_outputs, '    ') + """
@@ -915,7 +915,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 static void mdlUpdate(SimStruct *S, int_T tid)
 {
     InputRealPtrsType uPtrs  = ssGetInputPortRealSignalPtrs(S,0);
-    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0];
+    """ + system_name + """ *c = (""" + system_name + """ *) ssGetPWork(S)[0];
 
 """ + indent( io_variables_define, '    ' ) + """
 """ + indent(get_s_inputs_for_state_update, '    ') + """
@@ -931,7 +931,7 @@ static void mdlUpdate(SimStruct *S, int_T tid)
 
 static void mdlTerminate(SimStruct *S)
 {
-    """ + simulation_name + """ *c = (""" + simulation_name + """ *) ssGetPWork(S)[0]; // retrieve and destroy C++
+    """ + system_name + """ *c = (""" + system_name + """ *) ssGetPWork(S)[0]; // retrieve and destroy C++
     delete c;                                  // object in the termination
 }                                              // function
 
@@ -956,6 +956,323 @@ static void mdlTerminate(SimStruct *S)
         
         self.files[cpp_fname] = main_cpp
         self.files[interface_fname] = icon_drawing_commands
+        
+        # return
+        return res
+
+
+
+
+
+
+
+
+
+
+    
+class TargetLinuxRealtime(TargetTemplate):
+    """
+        generate a main.cpp program that executes the system in real-time
+
+        C.f. https://wiki.linuxfoundation.org/realtime/start
+
+        activate_print - activate printf to print the system output values
+    """
+
+    def __init__(self, enable_tracing=False, activate_print = True ):
+        
+        TargetTemplate.__init__(self, enable_tracing)
+        self.activate_print = activate_print
+
+    def build(self):
+        
+        main_cpp    = os.path.join( self.folder, 'main.cpp' )
+        main_binary = os.path.join( self.folder, 'main' )
+        build_command = "c++ " + main_cpp + " -o " + main_binary
+        
+        print("Running build command: " + build_command)
+        
+        return_code = os.system(build_command)
+        print( "Compilation result: ", return_code )
+        
+        
+    def code_gen(self):
+        # build code of system
+        res = TargetTemplate.code_gen(self)
+        
+        # get the system manifest and c++ class name
+        m = res['manifest']
+        system_name = m['api_name']
+        
+        # headers
+        headers =  '#include <stdio.h>\n'
+        headers += '#include <math.h>\n'
+        
+        # define structures for I/O
+        variables = system_name + ' system_instance;\n' + system_name + '::Inputs inputs;\n' + system_name + '::Outputs outputs;\n'
+        
+        
+        #
+        # create a list of the system inputs
+        #
+        
+        inputs = get_all_inputs( m, only_inputs_with_default_values = True )
+
+        fill_input_values = ''
+        for input_name, v in inputs.items():
+            
+            print(input_name, v['properties']['default_value'], v['cpptype'])
+            
+            fill_input_values += 'inputs.' + input_name + ' = ' + str( v['properties']['default_value'] ) + ';\n' #, v['cpptype']
+
+        #
+        # create a list of the system outputs and a printf to print the data
+        #
+        
+        outputs = get_all_outputs( m )
+
+        printf_patterns   = []
+        printf_parameters = []
+        
+        for output_name, v in outputs.items():
+            printf_patterns.append( v['printf_pattern'] )
+            printf_parameters.append( 'outputs.' + output_name )
+            
+        
+        outputs_printf = 'printf("' + ' '.join(printf_patterns) + '\\n", ' + ', '.join(printf_parameters) + ');\n'
+
+        if not self.activate_print:
+            outputs_printf = '// ' + outputs_printf # comment out
+        
+        if not '__ORTD_CONTROL_delta_time__' in outputs:
+            raise BaseException('The control output __ORTD_CONTROL_delta_time__ that is needed to control the real-time sampling time is not defined.')
+
+        #
+        # template code
+        #
+        
+        main_fn = """
+//
+// Code generated by OpenRTDynamics 2 using the Linux real-time target.
+//
+// https://wiki.linuxfoundation.org/realtime/start
+//
+
+#include <sched.h>
+
+#include <time.h>
+#include <sys/time.h>
+
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+
+#include <sys/mman.h>
+#include <pthread.h>
+#include <sys/sysinfo.h>
+#include <signal.h>
+
+
+""" + headers + '\n' + res['algorithm_sourcecode'] + '\n' + """
+
+#define ORTD_RT_REALTIMETASK 1
+#define ORTD_RT_NORMALTASK 2
+
+#define MAX_SAFE_STACK (8*1024) /* The maximum stack size which is guaranteed safe to access without faulting */
+#define NSEC_PER_SEC    (1000000000) // The number of nsecs per sec.
+#define USEC_PER_SEC	(1000000)
+
+
+static inline void tsnorm(struct timespec *ts)
+{
+    while (ts->tv_nsec >= NSEC_PER_SEC) {
+        ts->tv_nsec -= NSEC_PER_SEC;
+        ts->tv_sec++;
+    }
+}
+
+static inline double calc_diff(struct timespec t1, struct timespec t2)
+{
+    long diff;
+    diff = USEC_PER_SEC * ((int) t1.tv_sec - (int) t2.tv_sec);
+    diff += ((int) t1.tv_nsec - (int) t2.tv_nsec) / 1000;
+    return (1e-6*diff);
+}
+
+void ortd_rt_stack_prefault(void) {
+
+    unsigned char dummy[MAX_SAFE_STACK];
+
+    memset(dummy, 0, MAX_SAFE_STACK);
+    return;
+}
+
+long int ortd_mu_time()
+{
+    struct timeval mytime;
+    struct timezone myzone;
+
+    gettimeofday(&mytime, &myzone);
+    return (1000000*mytime.tv_sec+mytime.tv_usec);
+}
+
+int ortd_rt_change_priority(unsigned int flags, int priority)
+{
+    if (flags & ORTD_RT_REALTIMETASK) {
+
+        /* Lock memory */
+        if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1) {
+            perror(\"mlockall failed\");
+            return(-2);
+        }
+
+        ortd_rt_stack_prefault();
+
+        /* Declare ourself as a real-time task */
+
+        struct sched_param param;
+
+        param.sched_priority = priority;
+        if(sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
+            perror(\"sched_setscheduler failed\");
+            return(-1);
+        }
+
+
+        fprintf(stderr, \"initialized a real-time thread\\n\");
+
+        return 0;
+
+    } else {
+
+        ortd_rt_stack_prefault();
+
+        struct sched_param param;
+
+        param.sched_priority = priority;
+        if(sched_setscheduler(0, SCHED_OTHER, &param) == -1) {
+            perror(\"sched_setscheduler failed\");
+            return -1;
+        }
+
+        fprintf(stderr, \"initialized a non real-time thread\\n\");
+
+        return 0;
+    }
+}
+
+void ortd_thread_exit_handler(int sig)
+{
+    pthread_exit(0);
+}
+
+void ortd_thread_install_signal_handler() {
+
+    struct sigaction actions;
+    memset(&actions, 0, sizeof(actions));
+    sigemptyset(&actions.sa_mask);
+    actions.sa_flags = 0;
+    actions.sa_handler = ortd_thread_exit_handler;
+    int rc = sigaction(SIGUSR1,&actions,NULL);
+
+}
+
+
+//
+// exit on signal
+//
+
+// global var
+static volatile int end = 0;
+
+void endme(int n)
+{
+    fprintf(stderr, \"Received signal to terminate\\n\");
+    end = 1;    
+}
+
+
+
+int main () {
+""" + indent(variables, '    ') + """
+    
+    // set const inputs
+""" + indent(fill_input_values, '    ') + """
+    
+    // reset system
+    system_instance.step( outputs, inputs, false, false, true );
+    
+    // set signal handlers
+    signal(SIGINT, endme);
+    signal(SIGKILL, endme);
+
+    //
+    // set scheduling priority and enter real-time
+    //
+    // in case of ORTD_RT_REALTIMETASK: 1-99 as described in 'man sched_setscheduler'
+    // in case of ORTD_RT_NORMALTASK this is the nice-value (higher value means less priority)
+    //
+
+    int flags    = ORTD_RT_REALTIMETASK;
+    int priority = 0; 
+
+    if ( ortd_rt_change_priority(flags, priority) < 0 ) {
+
+        fprintf(stderr, \"WARNING: Cannot set FIFO real-time scheduling priority\\n\");
+
+        if ( ortd_rt_change_priority(ORTD_RT_NORMALTASK, priority) < 0 ) {
+            exit(1);
+        }
+
+    }
+
+    // variables for execution time t and the interval
+    struct timespec t, interval;
+
+    // measure current time
+    clock_gettime(CLOCK_MONOTONIC,&t);
+
+    // enter loop
+    while (!end) {
+        
+        // calculate outputs
+        system_instance.step( outputs, inputs, true, false, false );
+        
+        // update states
+        system_instance.step( outputs, inputs, false, true, false );
+    
+        // print outputs
+""" + indent(outputs_printf, '        ') + """
+
+        double T_pause = outputs.__ORTD_CONTROL_delta_time__;
+
+        // calculate the time instant for the next execution
+        interval.tv_sec =  0L;
+        interval.tv_nsec = (long)1e9* (T_pause);
+        tsnorm(&interval);
+
+        t.tv_sec+=interval.tv_sec;
+        t.tv_nsec+=interval.tv_nsec;
+        tsnorm(&t);
+
+        // sleep
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);        
+    } 
+    
+    return 0;
+}
+        
+        """
+        
+        #
+        # build main.cpp
+        #
+        
+        main_cpp = main_fn
+        
+        self.files['main.cpp'] = main_cpp
         
         # return
         return res
