@@ -124,6 +124,15 @@ Systems can be exported and integrated into Simulink diagrams using the Simulink
 
 ![simulink s-function](https://user-images.githubusercontent.com/4620523/121796812-1fd2ee80-cc1c-11eb-9f1b-8b7f756f0ab8.png)
 
+
+### Linux real-time
+
+Using this target, ('TargetLinuxRealtime'), code for Linux can be generated that is executed in real-time. Herein, the sampling time can be controlled by the system. Two modes are available: A soft real-time mode, which does not required special permissions to run. In the second mode, the scheduling policy of the process is changed to FIFO-mode using the Linux system call 'sched_setscheduler'. This requires special permissions (e.g., root) to run.
+
+[Example](https://github.com/OpenRTDynamics/openrtdynamics2/blob/master/examples/real-time/real-Time_linux.ipynb)
+
+Please see https://wiki.linuxfoundation.org/realtime/start for further details
+
 ### Ideas for targets to come:
 - real-time targets for Linux rt-preempt, Arduino and similar micro-controllers, ... (contributions are welcome)
 
