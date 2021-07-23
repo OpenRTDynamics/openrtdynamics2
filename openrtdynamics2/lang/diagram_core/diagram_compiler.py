@@ -255,11 +255,13 @@ def compile_single_system(
     order = 0
 
     # execution line per order
-    commandToCalcTheResultsToPublish = CommandCalculateOutputs(system, 
-                                                                executionLineToCalculateOutputs, 
-                                                                signals_to_compute,
-                                                                no_memory_for_output_variables = True, 
-                                                                output_signals=outputSignals )
+    commandToCalcTheResultsToPublish = CommandCalculateOutputs(
+        system, 
+        executionLineToCalculateOutputs, 
+        signals_to_compute,
+        no_memory_for_output_variables = True, 
+        output_signals=outputSignals
+    )
 
     #
     # cache all signals that are calculated so far

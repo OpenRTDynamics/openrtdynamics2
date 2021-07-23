@@ -259,10 +259,640 @@ class ExecutionLine():
 
 
 
+class DependencyTreeNode():
+    def __init__(self, planned_for_computation_at_level):
+
+        self.this_node_is_a_junction = False
+        self.needed_by = []
+        self.planned_for_computation_at_level = planned_for_computation_at_level
+
 
 
 
 class BuildExecutionPath:
+    """
+        Find out the order in which signals have to be computed such that a given signal
+        'signal_to_calculate' can be calculated. This means finding out all dependencies of
+        'signal_to_calculate'. For each call to 'determine_execution_order' only the signals that
+        were not already marked as a dependency in previous calls are returned.
+        Each call to 'determine_execution_order' gives an instance 'ExecutionLine'
+    """
+    def __init__(self, show_print : int = 1):
+
+        self._show_print = show_print
+
+        # list of marked signals (important to reset their visited flags)
+        self.marked_signals = []
+
+        # number of calls to determine_execution_order()
+        self.level = 0
+
+        # list of previously queried signals to compute. 
+        # Thus is used to detect algebraic loops:
+        # 
+        self.already_queried_signals = []
+
+    def __del__(self):
+        # reset the markers stored in the signals
+        self.reset_markers()
+
+    def printExecutionLine(self):
+        pass
+
+
+
+
+
+    def reset_markers(self):
+        # reset graph traversion markers
+        for signal in self.marked_signals:
+            signal.graphTraversionMarkerReset()
+
+            #del signal.dependency_tree_node
+
+        # reset status variables
+        self.marked_signals = []
+        self.level = 0
+
+    def place_marker_for_current_level(self, signal):
+        # mark the node/signal as being visited (meaning computed)
+        
+
+        dependency_tree_node = DependencyTreeNode(self.level)
+
+        signal.graphTraversionMarkerMarkVisited(self.level)
+        signal.dependency_tree_node = dependency_tree_node
+
+        self.marked_signals.append(signal)
+
+    # NOTE: unused
+    def is_signal_already_computable(self, signal : Signal):
+
+        return signal.graphTraversionMarkerMarkIsVisited()
+
+
+
+
+
+
+    def determine_execution_order(
+        self, 
+        signal_to_calculate : Signal, 
+        current_system
+    ):
+
+        """
+            get the order of computation steps and their order (computation plan) that have
+            to be performed to compute 'signal_to_calculate'
+            
+            For each call to this function, a list is generated that does not contain
+            signals that are already part of a previous list (that are already planned to be computed)
+            
+            This function can be called multiple times and returns only the necessary 
+            computations. Computations already planned in previous calls of this function
+            are not listed again. (until reset_markers() is called)
+
+            -- results --
+
+            execution_order contains the list of signals to comute in the correct order including
+            the target signals. Not included in this list are signals that cross the border to the simulation
+            specified by signal_to_calculate.system (coming from an outer system). Further, not included are
+            signals that have been computet in a previous call to determine_execution_order().
+
+            dependency_signals contains all signals that are required to comput signalToCalculate
+            and either cross the border of a simulation, 
+        """
+
+        # TODO: dependency signals should stay as they are but reachableSignals should not contain signals
+        #       that already have been calculated. Further, reachableSignals shall also contain dependency if they 
+        #       were not already calculated
+
+        if self._show_print > 0:
+            print("determine_execution_order on level " + str(self.level) )
+
+        # compute by traversing the tree
+        # execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states = self.backwards_traverse_signals_exec__(start_signal=signal_to_calculate, depth_counter = 0, current_system=current_system)
+
+        execution_line = self.find_signals_needed_to_compute(signal_to_calculate, current_system)
+
+        # the iteration level
+        self.level = self.level + 1
+
+        # 
+        self.already_queried_signals.append( signal_to_calculate )
+
+
+    def find_signals_needed_to_compute(self, signal_to_calculate, current_system):
+
+        # the list of signals planned to be computed in the given correct order 
+        execution_order = []
+
+        # list of signals the computation depends on (the tips of the execution tree)
+        dependency_signals = []
+
+        # the list of simulation input signals required for the computation
+        dependency_signals_simulation_inputs = []
+
+        # For each signgal execution_order there might be a blocks that
+        # has an internal memory. It is required to build a list of those blocks
+        # that need a state update after their output(s) are calculated.
+        blocks_to_update_states = []
+
+        #
+        dependency_signals_through_states = []
+
+        #
+        iteration_counter = 0
+
+        iteration_stack_signal_to_compute = [ signal_to_calculate ]
+
+        while True:
+
+            if len(iteration_stack_signal_to_compute) == 0:
+                # all signals are planned to be computed --> abort the loop
+                break
+
+            # get latest item (signal) in the stack of signals to compute
+            signal = iteration_stack_signal_to_compute[ -1 ]           
+            iteration_counter += 1
+
+            # check if the signal is a system input signal
+            is_crossing_simulation_border = signal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
+
+            if self.check_if_signal_was_already_planned_in_previous_query(signal):
+                dependency_signals.append( signal )
+
+                if is_crossing_simulation_border: # needed?
+                    dependency_signals_simulation_inputs.append( signal )
+
+                # done / signal already computed
+                iteration_stack_signal_to_compute.pop()
+                continue
+
+            if self.check_if_signal_was_already_planned_in_this_query(signal):
+                continue
+
+            if is_crossing_simulation_border:
+                # signal is an input to the system
+                # add to the list of dependent inputs
+
+                if self._show_print > 1:
+                    print(Fore.YELLOW + tabs + "  --> crosses system bounds")
+
+                # startSignal is at the top of the tree, so add it to the dependencies
+                dependency_signals.append( signal )
+
+                # also note down that this is a (actually used) simulation input
+                dependency_signals_simulation_inputs.append( signal )
+
+                if self._show_print > 1:
+                    print(Style.DIM + tabs + "added input dependency " + signal.toStr())
+
+                # mark the node/signal as being visited (meaning computed)
+                self.place_marker_for_current_level(signal)
+                iteration_stack_signal_to_compute.pop()
+
+                continue
+
+            #
+            found_dependencies_via_state_update, block_whose_states_to_update, signals_needed_via_a_state_update = self.find_dependencies_via_a_state_update(signal)
+            if found_dependencies_via_state_update:
+
+                # add the signals that are required to perform the state update
+                dependency_signals_through_states.extend( signals_needed_via_a_state_update )
+                blocks_to_update_states.append( block_whose_states_to_update )
+
+
+
+
+
+            directly_depending_signals = self.find_dependencies_via_a_direct_feedthrough(signal)
+
+
+            if len(directly_depending_signals) == 0:
+                # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
+
+                # block startSignal.getSourceBlock() --> startSignal is a starting point
+
+                # startSignal is at the top of the tree, so add it to the dependencies
+                dependency_signals.append( signal )
+
+                #
+                if self._show_print > 1:
+                    print(Style.DIM + tabs + "scheduled " + signal.name )
+        
+                execution_order.append( signal )
+
+                # mark the node/signal as being visited (meaning computed)
+                self.place_marker_for_current_level(signal)
+                iteration_stack_signal_to_compute.pop()
+
+    
+            else:
+                # put all dependencies on the stack of signals to investigate
+                iteration_stack_signal_to_compute.extend( directly_depending_signals )
+    
+
+            # continue in loop
+            continue
+
+
+
+
+
+
+
+
+        #
+        return ExecutionLine( 
+                execution_order,
+                dependency_signals,
+                dependency_signals_simulation_inputs,
+                blocks_to_update_states,
+                dependency_signals_through_states
+            )
+
+
+
+
+    def check_if_signal_was_already_planned_in_previous_query(self, signal):
+
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not computed)
+        #  and not isinstance(startSignal, SimulationInputSignal)
+        if signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
+            # - a previously computed signal has been reached
+
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
+
+            # dependency_signals.append( signal )
+
+
+
+            # NEEDED?
+
+            # # in case startSignal is a simulation input, still add it to the list of simulation input dependencies
+            # # though it has already been computed
+            # if is_crossing_simulation_border:
+
+            #     if self._show_print > 1:
+            #         print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
+
+            #     # also note down that this is a (actually used) simulation input
+            #     dependency_signals_simulation_inputs.append( signal )
+
+
+
+
+            return True
+
+        return False
+
+
+    def check_if_signal_was_already_planned_in_this_query(self, signal):
+
+        if signal.graphTraversionMarkerMarkIsVisited():
+
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in this traversion") 
+
+            return True
+
+        return False
+
+
+    def find_dependencies_via_a_state_update(self, signal):
+
+
+        # get the blocks prototype function to calculate startSignal
+        block_whose_states_to_update = signal.getSourceBlock()
+        blocksPrototype = block_whose_states_to_update.getBlockPrototype()
+
+        #
+        # check if the block that yields startSignal uses internal-states to compute startSignal
+        #
+
+        signals_needed_via_a_state_update = blocksPrototype.config_request_define_state_update_input_dependencies( signal )
+        if signals_needed_via_a_state_update is not None:
+
+            if self._show_print > 1:
+                print(tabs + "--- signals needed *indirectly* to compute " + signal.name + " (through state update) --" )
+
+            # 
+
+            # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+            resolveUndeterminedSignals( signals_needed_via_a_state_update )
+
+            # add the signals that are required to perform the state update
+            #dependency_signals_through_states.extend( inputs_to_update_states_tmp )
+            #blocks_to_update_states.append( block )
+
+            if self._show_print > 1:
+                for s in signals_needed_via_a_state_update:
+                    print(Fore.MAGENTA + tabs + "-> S " + s.name )        
+
+
+            return True, block_whose_states_to_update, signals_needed_via_a_state_update
+
+        return False, None, None
+
+
+
+    def find_dependencies_via_a_direct_feedthrough(self, signal):
+
+
+        # get the blocks prototype function to calculate startSignal
+        blocks_prototype = signal.getSourceBlock().getBlockPrototype()
+
+
+        #
+        # find out the links to other signals but only the ones that are 
+        # needed to calculate 'startSignal'
+        #
+
+
+        depending_signals = blocks_prototype.config_request_define_feedforward_input_dependencies(signal)
+        resolveUndeterminedSignals( depending_signals )
+
+        if self._show_print > 1:
+            
+            print(tabs + "--- direct dependencies to calculate " + signal.name + " --" )
+
+            for s in depending_signals:
+                print(Fore.MAGENTA + tabs + "-> S " + s.name )        
+
+
+        return depending_signals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # Start backward traversion starting from the given startSignal
+    def backwards_traverse_signals_exec__(self, start_signal : Signal, depth_counter : int, current_system):
+        # WARNING: This is a recursive function!
+
+        # the list of signals planned to be computed in the given correct order 
+        execution_order = []
+
+        # list of signals the computation depends on (the tips of the execution tree)
+        dependency_signals = []
+
+        # the list of simulation input signals required for the computation
+        dependency_signals_simulation_inputs = []
+
+        # For each signgal execution_order there might be a blocks that
+        # has an internal memory. It is required to build a list of those blocks
+        # that need a state update after their output(s) are calculated.
+        blocks_to_update_states = []
+
+        #
+        dependency_signals_through_states = []
+
+
+
+
+        #
+        # check if the datatype of startSignal is defined
+        #
+
+        if start_signal.datatype is None:
+            raise BaseException('Unknown datatype for signal ' + start_signal.name + ': no datatype has been specified or could be determined automatically.')
+
+
+        #
+        #
+        #
+
+        
+        tabs = ''
+        for i in range(0, depth_counter):
+            tabs += '.  '
+
+
+        if not (isinstance(start_signal, SimulationInputSignal) or isinstance(start_signal, BlockOutputSignal)):
+            
+            # this case must be an error..                  
+            raise BaseException('not implemented or internal error: unexpected type of signal ' + start_signal.name)
+
+        # check if the signal is a system input signal
+        is_crossing_simulation_border = start_signal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
+
+
+
+        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not computed)
+        #  and not isinstance(startSignal, SimulationInputSignal)
+        if start_signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
+            # - a previously computed signal has been reached
+
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
+
+            dependency_signals.append( start_signal )
+
+            # in case startSignal is a simulation input, still add it to the list of simulation input dependencies
+            # though it has already been computed
+            if is_crossing_simulation_border:
+
+                if self._show_print > 1:
+                    print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
+
+                # also note down that this is a (actually used) simulation input
+                dependency_signals_simulation_inputs.append( start_signal )
+
+            return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
+
+
+
+
+
+
+
+
+        if start_signal.graphTraversionMarkerMarkIsVisited():
+
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "has already been calculated in this traversion") 
+
+            return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
+
+
+
+
+
+
+
+
+        if is_crossing_simulation_border:
+            # signal is an input to the system
+            # add to the list of dependent inputs
+
+            if self._show_print > 1:
+                print(Fore.YELLOW + tabs + "  --> crosses system bounds")
+
+            # startSignal is at the top of the tree, so add it to the dependencies
+            dependency_signals.append( start_signal )
+
+            # also note down that this is a (actually used) simulation input
+            dependency_signals_simulation_inputs.append( start_signal )
+
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "added input dependency " + start_signal.toStr())
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(start_signal)
+
+            return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
+
+
+
+
+
+
+
+
+        # get the blocks prototype function to calculate startSignal
+        block = start_signal.getSourceBlock()
+        blocksPrototype = block.getBlockPrototype()
+
+        #
+        # check if the block that yields startSignal uses internal-states to compute startSignal
+        #
+
+        inputs_to_update_states_tmp = blocksPrototype.config_request_define_state_update_input_dependencies( start_signal )
+        if inputs_to_update_states_tmp is not None:
+
+            if self._show_print > 1:
+                print(tabs + "--- signals needed *indirectly* to compute " + start_signal.name + " (through state update) --" )
+
+            # 
+            blocks_to_update_states.append( block )
+
+            # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+            resolveUndeterminedSignals( inputs_to_update_states_tmp )
+
+            # add the signals that are required to perform the state update
+            dependency_signals_through_states.extend( inputs_to_update_states_tmp )
+
+            if self._show_print > 1:
+                for signal in inputs_to_update_states_tmp:
+                    print(Fore.MAGENTA + tabs + "-> S " + signal.name )
+
+
+
+
+
+
+        #
+        # find out the links to other signals but only the ones that are 
+        # needed to calculate 'startSignal'
+        #
+
+        if self._show_print > 1:
+            print(tabs + "--- signals needed for " + start_signal.name + " --" )
+
+        dependingSignals = blocksPrototype.config_request_define_feedforward_input_dependencies(start_signal)
+
+        # please note: blocksPrototype.config_request_define_feedforward_input_dependencies might return some undetermined signals that are resolved here
+        resolveUndeterminedSignals( dependingSignals )
+
+        if len(dependingSignals) == 0:
+            # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "  (no signals needed) "  )
+
+            # block startSignal.getSourceBlock() --> startSignal is a starting point
+
+            # startSignal is at the top of the tree, so add it to the dependencies
+            dependency_signals.append( start_signal )
+
+            #
+            if self._show_print > 1:
+                print(Style.DIM + tabs + "added " + start_signal.toStr())
+    
+            execution_order.append( start_signal )
+
+            # mark the node/signal as being visited (meaning computed)
+            self.place_marker_for_current_level(start_signal)
+
+            return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
+
+
+
+        #
+        # ITERATE: go through all signals needed to calculate startSignal
+        #          only in case there are any, we come to this point
+        #
+
+        for signal in dependingSignals:
+
+            if self._show_print > 1:
+                print(Fore.MAGENTA + tabs + "-> S " + signal.name )
+
+            if depth_counter > 100:
+                raise BaseException('maximal number of iterations reached in system ' + signal.system.name + 'signal ' + signal.name)
+
+            # R E C U R S I O N
+            A_execution_order, A_dependency_signals, A_dependency_signals_simulation_inputs, A_blocks_to_update_states, A_dependency_signals_through_states = self.backwards_traverse_signals_exec__( signal, depth_counter = depth_counter + 1, current_system=current_system )
+
+            execution_order.extend(                      A_execution_order )
+            dependency_signals.extend(                   A_dependency_signals )
+            dependency_signals_simulation_inputs.extend( A_dependency_signals_simulation_inputs )
+            blocks_to_update_states.extend(              A_blocks_to_update_states )
+            dependency_signals_through_states.extend(    A_dependency_signals_through_states )
+
+
+        #
+        # FINALIZE: now also startSignal can be computed
+        #
+
+        #
+        # store startSignal as reachable (put it on the execution list)
+        # NOTE: if startSignal is the tip of the tree (no dependingSignals) it is excluded
+        #       from this list. However, it is still in the list of dependencySignals.
+        #
+
+        if self._show_print > 1:
+            print(Style.DIM + tabs + "added " + start_signal.toStr())
+
+        execution_order.append( start_signal )
+
+        # mark the node/signal as being visited (meaning computed)
+        self.place_marker_for_current_level(start_signal)
+
+
+        return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class BuildExecutionPath__original:
     """
         Find out the order in which signals have to be computed such that a given signal
         'signal_to_calculate' can be calculated. This means finding out all dependencies of
@@ -281,18 +911,18 @@ class BuildExecutionPath:
         self.level = 0
 
     def __del__(self):
-        # reset the grap markers stored in the signals
+        # reset the markers stored in the signals
         self.reset_markers()
 
 
     def determine_execution_order(self, signal_to_calculate : Signal, current_system):
 
         """
-            get the order of computation steps and their order that have
+            get the order of computation steps and their order (computation plan) that have
             to be performed to compute 'signal_to_calculate'
             
             For each call to this function, a list is generated that does not contain
-            signals that are already part of a previous list (that are already computed)
+            signals that are already part of a previous list (that are already planned to be computed)
             
             This function can be called multiple times and returns only the necessary 
             computations. Computations already planned in previous calls of this function
@@ -349,7 +979,7 @@ class BuildExecutionPath:
     def backwards_traverse_signals_exec__(self, start_signal : Signal, depth_counter : int, current_system):
         # WARNING: This is a recursive function!
 
-        # the list of signals to compute in correct order 
+        # the list of signals planned to be computed in the given correct order 
         execution_order = []
 
         # list of signals the computation depends on (the tips of the execution tree)
@@ -475,7 +1105,7 @@ class BuildExecutionPath:
 
 
         #
-        # find out the links to other signals but only these ones that are 
+        # find out the links to other signals but only the ones that are 
         # needed to calculate 'startSignal'
         #
 
