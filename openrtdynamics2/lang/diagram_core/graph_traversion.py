@@ -9,136 +9,6 @@ init(autoreset=True)
 
 
 
-#
-# NOTE: this is not used 
-#
-class graph_traversion2:
-
-    def __init__(self):
-
-        # the list of reachable blocks
-        self.reachableBlocks = []
-
-
-
-
-    # Start forward traversion starting from the given startBlock
-    def forwardTraverse(self, startBlock : Block):
-        self.reachableBlocks = []
-
-        # fill in self.reachableBlocks
-        self.forwardTraverse__(startBlock, depthCounter = 0)
-
-        # reset graph traversion markers
-        for block in self.reachableBlocks:
-            block.graphTraversionMarkerReset()
-
-        return self.reachableBlocks
-
-    # Start forward traversion starting from the given startBlock
-    def forwardTraverse__(self, startBlock : Block, depthCounter : int):
-        
-        tabs = ''
-        for i in range(0, depthCounter):
-            tabs += '   '
-
-        # print(tabs + "....... depth " + str( depthCounter )  )
-
-        #
-        if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.name + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
-            return
-
-        # store this block as it is reachable
-        self.reachableBlocks.append( startBlock )
-
-        # make the node as visited
-        startBlock.graphTraversionMarkerMarkVisited()
-
-        print(tabs + "-- " + startBlock.name + " (" + str( startBlock.id ) + ") --" )
-
-
-
-        # find out the links to other blocks
-        for signal in startBlock.getOutputSignals():
-            # for each output signal
-
-            print(tabs + "-> S " + signal.name )
-
-            if len( signal.getDestinationBlocks() ) == 0:
-                print(tabs + '-- none --')
-
-            for destinationBlock in signal.getDestinationBlocks():
-                # destinationBlock is a link to a connected block
-
-                print( tabs + "*", destinationBlock.name, "(", destinationBlock.id, ")"  )
-
-                # recursion
-                self.forwardTraverse__( destinationBlock, depthCounter = depthCounter + 1 )
-
-
-    # Start backward traversion starting from the given startBlock
-    #
-    # Note this is not fully tested 
-    # DELETE SOON, if it is not needed
-    #
-    def backwardTraverseExec(self, startBlock : Block):
-        self.reachableBlocks = []
-
-        # fill in self.reachableBlocks
-        self.backwardTraverseExec__(startBlock, depthCounter = 0)
-
-        # reset graph traversion markers
-        for block in self.reachableBlocks:
-            block.graphTraversionMarkerReset()
-
-        return self.reachableBlocks
-
-
-    # Start backward traversion starting from the given startBlock
-    def backwardTraverseExec__(self, startBlock : Block, depthCounter : int):
-        
-        tabs = ''
-        for i in range(0, depthCounter):
-            tabs += '   '
-
-        #print(tabs + "....... depth " + str( depthCounter )  )
-
-        #
-        if startBlock.graphTraversionMarkerMarkIsVisited():
-            print(tabs + "*** visited *** "  + startBlock.name + " (" + str( startBlock.id ) + ") ****")  ## TODO investigtare: why is this never reached?
-            return
-
-        # check of the block 'startBlock'
-        #if config_request_define_feedforward_input_dependencies( signal )
-
-        # store this block as it is reachable
-        self.reachableBlocks.append( startBlock )
-
-        # make the node as visited
-        startBlock.graphTraversionMarkerMarkVisited()
-
-        print(tabs + "--- " + startBlock.name + " (" + str( startBlock.id ) + ") --" )
-
-
-
-        # find out the links to other blocks
-        for signal in startBlock.getInputSignals():
-            # for each output signal
-
-
-            print(tabs + "-> S " + signal.name )
-
-            if signal.getSourceBlock() is None:
-                print(tabs + '-- ERROR: no input signal defined for this block! --')
-                
-            else:
-
-                print( tabs + "*", signal.getSourceBlock().name, "(", signal.getSourceBlock().id, ")"  )
-
-                self.forwardTraverse__( signal.getSourceBlock(), depthCounter = depthCounter + 1 )
-
-
 
 
 
@@ -156,13 +26,13 @@ class ExecutionLine():
     def __init__(
         self,
         signalOrder : List[ Signal ],
-        dependencySignals : List[ Signal ],
+        #dependencySignals : List[ Signal ],
         dependencySignalsSimulationInputs : List[ Signal ],
         blocksToUpdateStates : List[ Block ],
         dependencySignalsThroughStates : List[ Signal ]
     ):
         self.signalOrder                       = signalOrder
-        self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
+        #self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
         self.blocksToUpdateStates              = blocksToUpdateStates
         self.dependencySignalsThroughStates    = dependencySignalsThroughStates
@@ -172,8 +42,8 @@ class ExecutionLine():
 
         print(Fore.RED + "dependent sources of any kind:")
 
-        for s in self.dependencySignals:
-            print("  - " + s.name )
+        # for s in self.dependencySignals:
+        #     print("  - " + s.name )
 
         print(Fore.RED + "dependent sources (simulation inputs):")
                 
@@ -226,8 +96,6 @@ class ExecutionLine():
                 self.dependencySignalsThroughStates.append(s)
 
         
-
-
         original_list_tmp = self.signalOrder.copy()
 
         for s in executionLineToAppend.signalOrder:
@@ -308,7 +176,7 @@ class BuildExecutionPath:
         for signal in self.marked_signals:
             signal.graphTraversionMarkerReset()
 
-            #del signal.dependency_tree_node
+            del signal.dependency_tree_node
 
         # reset status variables
         self.marked_signals = []
@@ -381,14 +249,13 @@ class BuildExecutionPath:
         # 
         self.already_queried_signals.append( signal_to_calculate )
 
+        return execution_line
+
 
     def find_signals_needed_to_compute(self, signal_to_calculate, current_system):
-
-        # the list of signals planned to be computed in the given correct order 
-        execution_order = []
-
-        # list of signals the computation depends on (the tips of the execution tree)
-        dependency_signals = []
+        """
+            helper function for determine_execution_order()
+        """
 
         # the list of simulation input signals required for the computation
         dependency_signals_simulation_inputs = []
@@ -404,33 +271,24 @@ class BuildExecutionPath:
         #
         iteration_counter = 0
 
-        iteration_stack_signal_to_compute = [ signal_to_calculate ]
+        iteration_stack_enqueued = []
+        iteration_stack_signal_to_investigate = [ signal_to_calculate ]
 
         while True:
 
-            if len(iteration_stack_signal_to_compute) == 0:
+            if len(iteration_stack_signal_to_investigate) == 0:
                 # all signals are planned to be computed --> abort the loop
                 break
 
             # get latest item (signal) in the stack of signals to compute
-            signal = iteration_stack_signal_to_compute[ -1 ]           
+            signal = iteration_stack_signal_to_investigate[ -1 ]           
+            iteration_stack_signal_to_investigate.pop()
             iteration_counter += 1
 
             # check if the signal is a system input signal
             is_crossing_simulation_border = signal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
 
-            if self.check_if_signal_was_already_planned_in_previous_query(signal):
-                dependency_signals.append( signal )
 
-                if is_crossing_simulation_border: # needed?
-                    dependency_signals_simulation_inputs.append( signal )
-
-                # done / signal already computed
-                iteration_stack_signal_to_compute.pop()
-                continue
-
-            if self.check_if_signal_was_already_planned_in_this_query(signal):
-                continue
 
             if is_crossing_simulation_border:
                 # signal is an input to the system
@@ -438,9 +296,6 @@ class BuildExecutionPath:
 
                 if self._show_print > 1:
                     print(Fore.YELLOW + tabs + "  --> crosses system bounds")
-
-                # startSignal is at the top of the tree, so add it to the dependencies
-                dependency_signals.append( signal )
 
                 # also note down that this is a (actually used) simulation input
                 dependency_signals_simulation_inputs.append( signal )
@@ -450,10 +305,19 @@ class BuildExecutionPath:
 
                 # mark the node/signal as being visited (meaning computed)
                 self.place_marker_for_current_level(signal)
-                iteration_stack_signal_to_compute.pop()
 
                 continue
 
+
+            #
+            # add signal to the execution line 
+            #
+            iteration_stack_enqueued.append( signal )
+
+
+
+            #
+            # request the dynamic/delayed dependencies to compute signal from the block that is having signal as output 
             #
             found_dependencies_via_state_update, block_whose_states_to_update, signals_needed_via_a_state_update = self.find_dependencies_via_a_state_update(signal)
             if found_dependencies_via_state_update:
@@ -464,41 +328,51 @@ class BuildExecutionPath:
 
 
 
-
+            #
+            # request the direct dependencies to compute signal from the block that is having signal as output 
+            #
 
             directly_depending_signals = self.find_dependencies_via_a_direct_feedthrough(signal)
-
 
             if len(directly_depending_signals) == 0:
                 # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
 
-                # block startSignal.getSourceBlock() --> startSignal is a starting point
-
-                # startSignal is at the top of the tree, so add it to the dependencies
-                dependency_signals.append( signal )
-
-                #
-                if self._show_print > 1:
-                    print(Style.DIM + tabs + "scheduled " + signal.name )
-        
-                execution_order.append( signal )
-
                 # mark the node/signal as being visited (meaning computed)
                 self.place_marker_for_current_level(signal)
-                iteration_stack_signal_to_compute.pop()
 
     
-            else:
-                # put all dependencies on the stack of signals to investigate
-                iteration_stack_signal_to_compute.extend( directly_depending_signals )
-    
+                continue
+
+
+            # put all dependencies on the stack of signals to investigate
+            for s in directly_depending_signals:
+
+
+                if self.check_if_signal_was_already_planned_in_this_query( s ):
+                    continue
+
+
+                if self.check_if_signal_was_already_planned_in_previous_query( s ):
+
+                    # found a junction: signal s is required for multiple other signals
+                    signal.dependency_tree_node.this_node_is_a_junction = True
+                    signal.dependency_tree_node.needed_by.append( signal )
+
+                    continue
+                
+
+                # signal s was not already planned for computation, hence, append a signal to investigate further
+                iteration_stack_signal_to_investigate.append( s )
+
+
+
 
             # continue in loop
             continue
 
 
-
-
+        # the list of signals planned to be computed in the given correct order 
+        execution_order = iteration_stack_enqueued.flip()
 
 
 
@@ -506,7 +380,7 @@ class BuildExecutionPath:
         #
         return ExecutionLine( 
                 execution_order,
-                dependency_signals,
+                #dependency_signals,
                 dependency_signals_simulation_inputs,
                 blocks_to_update_states,
                 dependency_signals_through_states
@@ -523,7 +397,7 @@ class BuildExecutionPath:
             # - a previously computed signal has been reached
 
             if self._show_print > 1:
-                print(Style.DIM + tabs + "has already been calculated in a previous traversion") 
+                print(Style.DIM + tabs + "has already been calculated in a previous query") 
 
             # dependency_signals.append( signal )
 
@@ -554,7 +428,7 @@ class BuildExecutionPath:
         if signal.graphTraversionMarkerMarkIsVisited():
 
             if self._show_print > 1:
-                print(Style.DIM + tabs + "has already been calculated in this traversion") 
+                print(Style.DIM + tabs + "has already been calculated in this query") 
 
             return True
 
