@@ -157,7 +157,7 @@ def compile_single_system(
     # print("determining the computation order...")
 
     # append all execution lines to this structure
-    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [], [] )
+    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [] )
 
 
 
@@ -198,7 +198,7 @@ def compile_single_system(
 
 
 
-    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
+    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
 
     # add
     executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )

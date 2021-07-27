@@ -274,6 +274,9 @@ class BuildExecutionPath:
         iteration_stack_enqueued = []
         iteration_stack_signal_to_investigate = [ signal_to_calculate ]
 
+
+        tabs = ''
+
         while True:
 
             if len(iteration_stack_signal_to_investigate) == 0:
@@ -281,9 +284,12 @@ class BuildExecutionPath:
                 break
 
             # get latest item (signal) in the stack of signals to compute
-            signal = iteration_stack_signal_to_investigate[ -1 ]           
-            iteration_stack_signal_to_investigate.pop()
+            # signal = iteration_stack_signal_to_investigate[ -1 ]           
+            signal = iteration_stack_signal_to_investigate.pop()
             iteration_counter += 1
+
+            # mark the signal as being visited
+            self.place_marker_for_current_level(signal)
 
             # check if the signal is a system input signal
             is_crossing_simulation_border = signal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
@@ -304,7 +310,7 @@ class BuildExecutionPath:
                     print(Style.DIM + tabs + "added input dependency " + signal.toStr())
 
                 # mark the node/signal as being visited (meaning computed)
-                self.place_marker_for_current_level(signal)
+                # self.place_marker_for_current_level(signal)
 
                 continue
 
@@ -312,7 +318,9 @@ class BuildExecutionPath:
             #
             # add signal to the execution line 
             #
-            iteration_stack_enqueued.append( signal )
+            if not is_crossing_simulation_border:
+    
+                iteration_stack_enqueued.append( signal )
 
 
 
@@ -338,7 +346,7 @@ class BuildExecutionPath:
                 # no dependencies to calculate startSignal (e.g. in case of const blocks or blocks without direct feedthrough)
 
                 # mark the node/signal as being visited (meaning computed)
-                self.place_marker_for_current_level(signal)
+                # self.place_marker_for_current_level(signal)
 
     
                 continue
@@ -349,7 +357,10 @@ class BuildExecutionPath:
 
 
                 if self.check_if_signal_was_already_planned_in_this_query( s ):
-                    continue
+
+                    raise BaseException('detected algebraic loop')
+
+                    # continue
 
 
                 if self.check_if_signal_was_already_planned_in_previous_query( s ):
@@ -372,7 +383,9 @@ class BuildExecutionPath:
 
 
         # the list of signals planned to be computed in the given correct order 
-        execution_order = iteration_stack_enqueued.flip()
+        # in place: iteration_stack_enqueued.reverse()
+        execution_order = iteration_stack_enqueued[::-1]
+
 
 
 
