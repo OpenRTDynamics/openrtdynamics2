@@ -31,8 +31,10 @@ class Signal(object):
         # the list of signals to which the datatype of this signal is inherited
         self._inherit_datatype_to_list = []
 
-        # used by graph_traversion as a helper variable to perform a marking of the graph nodes
-        self.graphTraversionMarker = -1
+        # used by dependency tree alg as a helper variable to perform a marking of the graph nodes
+#        self.graphTraversionMarker = -1
+
+        self.dependency_tree_node = None
 
         # inherit the datatype for this anonymous signals from the signal referred to by inherit_datatype_of_signal
         self.inherit_datatype_of_signal = None
@@ -129,22 +131,22 @@ class Signal(object):
     def lookupSource(self):
         return self
 
-    def graphTraversionMarkerReset(self):
-        self.lookupSource().graphTraversionMarker = -1
+    # def graphTraversionMarkerReset(self):
+    #     self.lookupSource().graphTraversionMarker = -1
 
-    def graphTraversionMarkerMarkVisited(self, level):
-        if level < 0:
-            raise BaseException("level cannot be < 0")
+    # def graphTraversionMarkerMarkVisited(self, level):
+    #     if level < 0:
+    #         raise BaseException("level cannot be < 0")
 
-        self.lookupSource().graphTraversionMarker = level
+    #     self.lookupSource().graphTraversionMarker = level
     
-    def graphTraversionMarkerMarkIsVisited(self):
-        # check of this node was marked on level or a level below
-        return self.lookupSource().graphTraversionMarker >= 0
+    # def graphTraversionMarkerMarkIsVisited(self):
+    #     # check of this node was marked on level or a level below
+    #     return self.lookupSource().graphTraversionMarker >= 0
 
-    def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
-        # check of this node was marked on level or a level below
-        return self.graphTraversionMarkerMarkIsVisited() and self.lookupSource().graphTraversionMarker < onLevel
+    # def graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self, onLevel):
+    #     # check of this node was marked on level or a level below
+    #     return self.graphTraversionMarkerMarkIsVisited() and self.lookupSource().graphTraversionMarker < onLevel
 
     # set the name of this signal
     def set_name(self, name):

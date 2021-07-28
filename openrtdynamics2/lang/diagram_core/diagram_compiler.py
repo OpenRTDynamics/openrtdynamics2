@@ -154,7 +154,6 @@ def compile_single_system(
 
     E=BuildExecutionPath()
 
-    # print("determining the computation order...")
 
     # append all execution lines to this structure
     executionLineToCalculateOutputs = ExecutionLine( [], [], [], [] )
@@ -220,12 +219,12 @@ def compile_single_system(
 
     for s in list(signals_to_compute):
 
-        elForOutputS = E.determine_execution_order( s, system )
+        elForOutputS = E.determine_execution_order( s, system, delay_level=0 )
 
         if enable_print > 1:
             elForOutputS.printExecutionLine()
 
-        # merge all lines into one
+        # merge all lines into one,
         # TODO use sets inside 'appendExecutionLine' some block are present twice
         executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
 
@@ -243,7 +242,7 @@ def compile_single_system(
 
     # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
     # element. Also collect the newly appearing dependency signals in a list and also 
-    # call E.determine_execution_order( ) on them. Stop until no further dependend signal appear.
+    # call E.determine_execution_order( ) on them. Stop until no further dependend signal appears.
     # finally concatenare the execution lines
 
     # start with following signals to be computed
@@ -251,10 +250,10 @@ def compile_single_system(
     blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
     dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
 
-    # counter for the order (i.e. step through all delays present in the system)
-    order = 0
+    # counter for the delay level (i.e. step through all delays present in the system)
+    delay_level = 1
 
-    # execution line per order
+    # execution line per delay level
     commandToCalcTheResultsToPublish = CommandCalculateOutputs(
         system, 
         executionLineToCalculateOutputs, 
@@ -316,7 +315,7 @@ def compile_single_system(
     while True:
 
         if enable_print > 0:
-            print("--------- Computing order "+ str(order) + " --------")
+            print("--------- Computing delay level "+ str(delay_level) + " --------")
         
         # backwards jump over the blocks that compute dependencySignals through their states.
         # The result is dependencySignals__ which are the inputs to these blocks
@@ -329,21 +328,21 @@ def compile_single_system(
             for s in dependencySignalsThroughStates:
                 print("  - " + s.name)
 
-        # collect all executions lines build in this order in:
+        # collect all executions lines build in this delay level in:
         executionLinesForCurrentOrder = []
 
         # iterate over all needed input signals and find out how to compute each signal
         for s in dependencySignalsThroughStates:
 
             # get execution line to calculate s
-            executionLineForS = E.determine_execution_order(s, system)
+            executionLineForS = E.determine_execution_order(s, system, delay_level=delay_level)
 
             # store this execution line
             executionLinesForCurrentOrder.append(executionLineForS)
 
 
         # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-        executionLineForCurrentOrder = ExecutionLine( [], [], [], [], [] )
+        executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
         for e in executionLinesForCurrentOrder:
 
             # append execution line
@@ -407,7 +406,7 @@ def compile_single_system(
         sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
         commandsToExecuteForStateUpdate.append( sUpCmd )
 
-        # get the denpendent singals of the current order
+        # get the denpendent singals of the current delay level
         # TODO important: remove the signals that are already computable from this list
         #dependencySignals = executionLineForCurrentOrder.dependencySignals
         dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
@@ -434,13 +433,13 @@ def compile_single_system(
         simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
 
         # iterate
-        order = order + 1
+        delay_level = delay_level + 1
         if len(dependencySignals__) == 0:
             # print(Fore.GREEN + "All dependencies are resolved.")
 
             break
 
-        if order == 1000:
+        if delay_level == 1000:
             raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
             break
 

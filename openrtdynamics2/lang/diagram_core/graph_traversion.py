@@ -128,12 +128,12 @@ class ExecutionLine():
 
 
 class DependencyTreeNode():
-    def __init__(self, planned_for_computation_at_level):
+    def __init__(self, planned_for_computation_at_level, planned_for_computation_at_delay_level):
 
         self.this_node_is_a_junction = False
         self.needed_by = []
-        self.planned_for_computation_at_level = planned_for_computation_at_level
-
+        self.planned_for_computation_at_level       = planned_for_computation_at_level
+        self.planned_for_computation_at_delay_level = planned_for_computation_at_delay_level
 
 
 
@@ -172,31 +172,56 @@ class BuildExecutionPath:
 
 
     def reset_markers(self):
-        # reset graph traversion markers
+        # reset all markers / nodes of the dependency graph
         for signal in self.marked_signals:
-            signal.graphTraversionMarkerReset()
-
-            del signal.dependency_tree_node
+            signal.dependency_tree_node = None
 
         # reset status variables
         self.marked_signals = []
         self.level = 0
 
-    def place_marker_for_current_level(self, signal):
+    def place_marker(self, signal, delay_level):
         # mark the node/signal as being visited (meaning computed)
         
+        if signal.dependency_tree_node is None:
+            signal.dependency_tree_node = DependencyTreeNode(self.level, delay_level)
+            self.marked_signals.append(signal)
 
-        dependency_tree_node = DependencyTreeNode(self.level)
+        else:
+            # the signal is already marked...
+            pass
+            #raise BaseException('Internal error: signal ' + signal.name + ' already has a marker')
 
-        signal.graphTraversionMarkerMarkVisited(self.level)
-        signal.dependency_tree_node = dependency_tree_node
 
-        self.marked_signals.append(signal)
 
-    # NOTE: unused
-    def is_signal_already_computable(self, signal : Signal):
 
-        return signal.graphTraversionMarkerMarkIsVisited()
+    def check_if_signal_was_already_planned_in_previous_query(self, signal):
+
+        if signal.dependency_tree_node is not None:
+            return True
+
+        else:
+            return False
+
+
+    def check_if_signal_was_already_planned_in_this_query(self, signal):
+
+        if signal.dependency_tree_node is not None:
+            if signal.dependency_tree_node.planned_for_computation_at_level == self.level:
+                return True
+
+        return False
+
+
+
+    def check_if_signal_was_already_planned_in_this_delay_level(self, signal, delay_level):
+
+        if signal.dependency_tree_node is not None:
+            if signal.dependency_tree_node.planned_for_computation_at_delay_level == delay_level:
+                return True
+
+        return False
+
 
 
 
@@ -206,7 +231,8 @@ class BuildExecutionPath:
     def determine_execution_order(
         self, 
         signal_to_calculate : Signal, 
-        current_system
+        current_system,
+        delay_level : int
     ):
 
         """
@@ -241,7 +267,7 @@ class BuildExecutionPath:
         # compute by traversing the tree
         # execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states = self.backwards_traverse_signals_exec__(start_signal=signal_to_calculate, depth_counter = 0, current_system=current_system)
 
-        execution_line = self.find_signals_needed_to_compute(signal_to_calculate, current_system)
+        execution_line = self._find_signals_needed_to_compute(signal_to_calculate, current_system, delay_level)
 
         # the iteration level
         self.level = self.level + 1
@@ -252,7 +278,7 @@ class BuildExecutionPath:
         return execution_line
 
 
-    def find_signals_needed_to_compute(self, signal_to_calculate, current_system):
+    def _find_signals_needed_to_compute(self, signal_to_calculate, current_system, delay_level : int):
         """
             helper function for determine_execution_order()
         """
@@ -289,7 +315,7 @@ class BuildExecutionPath:
             iteration_counter += 1
 
             # mark the signal as being visited
-            self.place_marker_for_current_level(signal)
+            self.place_marker(signal)
 
             # check if the signal is a system input signal
             is_crossing_simulation_border = signal.is_crossing_system_boundary(current_system) #  self.system != startSignal.sim
@@ -357,10 +383,15 @@ class BuildExecutionPath:
 
 
                 if self.check_if_signal_was_already_planned_in_this_query( s ):
+                    # raise BaseException('detected algebraic loop')
 
-                    raise BaseException('detected algebraic loop')
-
+                    pass
                     # continue
+
+
+                if self.check_if_signal_was_already_planned_in_this_delay_level(s, delay_level):
+                    pass
+
 
 
                 if self.check_if_signal_was_already_planned_in_previous_query( s ):
@@ -384,10 +415,16 @@ class BuildExecutionPath:
 
         # the list of signals planned to be computed in the given correct order 
         # in place: iteration_stack_enqueued.reverse()
+        #
+        #
         execution_order = iteration_stack_enqueued[::-1]
 
 
-
+        if self._show_print > 0:
+            print('execution_order', [ s.name for s in execution_order ])
+            print('dependency_signals_simulation_inputs', [ s.name for s in dependency_signals_simulation_inputs ])
+            print('dependency_signals_through_states', [ s.name for s in dependency_signals_through_states ])
+            print('blocks_to_update_states', [ s.name for s in blocks_to_update_states ])
 
 
         #
@@ -401,51 +438,6 @@ class BuildExecutionPath:
 
 
 
-
-    def check_if_signal_was_already_planned_in_previous_query(self, signal):
-
-        # TODO: IMPLEMENT: except when startSignal is a simulation input (in this case it is not computed)
-        #  and not isinstance(startSignal, SimulationInputSignal)
-        if signal.graphTraversionMarkerMarkIsVisitedOnLevelLowerThan(self.level):
-            # - a previously computed signal has been reached
-
-            if self._show_print > 1:
-                print(Style.DIM + tabs + "has already been calculated in a previous query") 
-
-            # dependency_signals.append( signal )
-
-
-
-            # NEEDED?
-
-            # # in case startSignal is a simulation input, still add it to the list of simulation input dependencies
-            # # though it has already been computed
-            # if is_crossing_simulation_border:
-
-            #     if self._show_print > 1:
-            #         print(Style.DIM + tabs + "as it is also a simulation input, adding it to the list of depended inputs")
-
-            #     # also note down that this is a (actually used) simulation input
-            #     dependency_signals_simulation_inputs.append( signal )
-
-
-
-
-            return True
-
-        return False
-
-
-    def check_if_signal_was_already_planned_in_this_query(self, signal):
-
-        if signal.graphTraversionMarkerMarkIsVisited():
-
-            if self._show_print > 1:
-                print(Style.DIM + tabs + "has already been calculated in this query") 
-
-            return True
-
-        return False
 
 
     def find_dependencies_via_a_state_update(self, signal):
@@ -636,7 +628,7 @@ class BuildExecutionPath:
                 print(Style.DIM + tabs + "added input dependency " + start_signal.toStr())
 
             # mark the node/signal as being visited (meaning computed)
-            self.place_marker_for_current_level(start_signal)
+            self.place_marker(start_signal)
 
             return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
 
@@ -709,7 +701,7 @@ class BuildExecutionPath:
             execution_order.append( start_signal )
 
             # mark the node/signal as being visited (meaning computed)
-            self.place_marker_for_current_level(start_signal)
+            self.place_marker(start_signal)
 
             return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
 
@@ -754,7 +746,7 @@ class BuildExecutionPath:
         execution_order.append( start_signal )
 
         # mark the node/signal as being visited (meaning computed)
-        self.place_marker_for_current_level(start_signal)
+        self.place_marker(start_signal)
 
 
         return execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states
