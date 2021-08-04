@@ -152,7 +152,7 @@ def compile_single_system(
     # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
     #
 
-    E=BuildExecutionPath()
+    dependency_graph_explorer=BuildExecutionPath(system)
 
 
     # append all execution lines to this structure
@@ -219,7 +219,7 @@ def compile_single_system(
 
     for s in list(signals_to_compute):
 
-        elForOutputS = E.determine_execution_order( s, system, delay_level=0 )
+        elForOutputS = dependency_graph_explorer.determine_execution_order( s, system, delay_level=0 )
 
         if enable_print > 1:
             elForOutputS.printExecutionLine()
@@ -335,7 +335,7 @@ def compile_single_system(
         for s in dependencySignalsThroughStates:
 
             # get execution line to calculate s
-            executionLineForS = E.determine_execution_order(s, system, delay_level=delay_level)
+            executionLineForS = dependency_graph_explorer.determine_execution_order(s, system, delay_level=delay_level)
 
             # store this execution line
             executionLinesForCurrentOrder.append(executionLineForS)
@@ -444,6 +444,9 @@ def compile_single_system(
             break
 
 
+
+    #
+    computation_plan = dependency_graph_explorer.generate_computation_plan()
 
     # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten
     simulation_input_signals_to_update_states_fixed_list = list(simulationInputSignalsToUpdateStates)
