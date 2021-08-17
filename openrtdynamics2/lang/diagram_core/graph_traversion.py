@@ -26,13 +26,11 @@ class ExecutionLine():
     def __init__(
         self,
         signalOrder : List[ Signal ],
-        #dependencySignals : List[ Signal ],
         dependencySignalsSimulationInputs : List[ Signal ],
         blocksToUpdateStates : List[ Block ],
         dependencySignalsThroughStates : List[ Signal ]
     ):
         self.signalOrder                       = signalOrder
-        #self.dependencySignals                 = dependencySignals  # TODO: check if this is still needed.
         self.dependencySignalsSimulationInputs = dependencySignalsSimulationInputs
         self.blocksToUpdateStates              = blocksToUpdateStates
         self.dependencySignalsThroughStates    = dependencySignalsThroughStates
@@ -140,6 +138,8 @@ class DependencyTreeNode():
 
         self.directly_depending_signals = []
 
+        self.required_start_signals = []
+
     def add_needed_by_2(self, level, signal_by_which_this_node_is_needed):
 
         if level not in self.needed_by_2:
@@ -204,7 +204,7 @@ class BuildExecutionPath:
         self.signals_that_are_junctions = []
 
         # query level counter
-        self.level = 0
+        self.currently_queried_level = 0
 
         # list of previously queried signals to compute. 
         # Thus is used to detect algebraic loops:
@@ -232,13 +232,13 @@ class BuildExecutionPath:
         self.signals_that_are_junctions = []
 
         # reset query level counter
-        self.level = 0
+        self.currently_queried_level = 0
 
     def place_marker(self, signal, delay_level):
         # mark the node/signal as being visited (meaning computed)
         
         if signal.dependency_tree_node is None:
-            signal.dependency_tree_node = DependencyTreeNode(self.level, delay_level)
+            signal.dependency_tree_node = DependencyTreeNode(self.currently_queried_level, delay_level)
             self.signals_involved_in_the_computation.append(signal)
 
         else:
@@ -252,7 +252,7 @@ class BuildExecutionPath:
     def check_if_signal_was_already_planned_in_previous_query(self, signal):
 
         if signal.dependency_tree_node is not None:
-            if signal.dependency_tree_node.planned_for_computation_at_level < self.level:
+            if signal.dependency_tree_node.planned_for_computation_at_level < self.currently_queried_level:
                 return True
 
         return False
@@ -261,7 +261,7 @@ class BuildExecutionPath:
     def check_if_signal_was_already_planned_in_this_query(self, signal):
 
         if signal.dependency_tree_node is not None:
-            if signal.dependency_tree_node.planned_for_computation_at_level == self.level:
+            if signal.dependency_tree_node.planned_for_computation_at_level == self.currently_queried_level:
                 return True
 
         return False
@@ -316,7 +316,7 @@ class BuildExecutionPath:
         #       were not already calculated
 
         if self._show_print > 0:
-            print("determine_execution_order on level " + str(self.level) )
+            print("determine_execution_order on level " + str(self.currently_queried_level) )
 
         # compute by traversing the tree
         # execution_order, dependency_signals, dependency_signals_simulation_inputs, blocks_to_update_states, dependency_signals_through_states = self.backwards_traverse_signals_exec__(start_signal=signal_to_calculate, depth_counter = 0, current_system=current_system)
@@ -324,7 +324,7 @@ class BuildExecutionPath:
         queried_signal, execution_line = self._explore_dependencies(signal_to_calculate, current_system, delay_level)
 
         # the iteration level
-        self.level = self.level + 1
+        self.currently_queried_level = self.currently_queried_level + 1
 
         # 
         self.queried_signals_by_level.append( queried_signal )
@@ -454,7 +454,7 @@ class BuildExecutionPath:
                 self.place_marker(s, delay_level)
 
                 s.dependency_tree_node.needed_by.append( signal )
-                s.dependency_tree_node.add_needed_by_2(self.level, signal_by_which_this_node_is_needed=signal)
+                s.dependency_tree_node.add_needed_by_2(self.currently_queried_level, signal_by_which_this_node_is_needed=signal)
 
                 if self.check_if_signal_was_already_planned_in_this_query( s ):
                     # raise BaseException('detected algebraic loop')
@@ -534,6 +534,13 @@ class BuildExecutionPath:
 
         execution_line_by_level = {}
 
+        # finish query
+        self.number_of_level = self.currently_queried_level
+        self.currently_queried_level = None
+
+        # array to collect all junctions
+        junctions = []
+
         # replay all queried signals
         level = 0
         for q in self.queried_signals_by_level:
@@ -544,25 +551,46 @@ class BuildExecutionPath:
             start_signals.extend( q.dependency_signals_simulation_inputs )
             start_signals.extend( q.dependency_signals_that_are_sources )
             start_signals.extend( q.dependency_signals_that_depend_on_a_state_variable )
-            start_signals.extend( q.dependency_signals_that_are_junctions )            
+            start_signals.extend( q.dependency_signals_that_are_junctions ) 
 
-            execution_line = self._explore_computation_plan( start_signals, level )
-            execution_line_by_level[level] = execution_line
+            # add junctions
+            junctions.extend( q.dependency_signals_that_are_junctions )           
+
+            execution_line_by_level[level] = []
+
+            for start_signal in start_signals:
+                execution_line, dependency_signals_that_were_newly_found_to_be_junctions = self._explore_computation_plan( start_signal, level )
+                execution_line_by_level[level].extend( execution_line )
+
+                # add junctions
+                q.dependency_signals_that_are_junctions.extend( dependency_signals_that_were_newly_found_to_be_junctions )
+                junctions.extend( dependency_signals_that_were_newly_found_to_be_junctions )
 
             level += 1
 
+        # build execution plan
+        execution_plan = {
+            'execution_line_by_level' : execution_line_by_level,
+            'junctions' : junctions
+
+        }
+
+        print('total junctions', [ s.name for s in junctions ])
+
+        return execution_plan
 
 
 
-    def _explore_computation_plan( self, start_signals, level ):
+    def _explore_computation_plan( self, start_signal, level ):
 
         #
         iteration_counter = 0
 
         iteration_stack_enqueued = []
-        iteration_stack_signal_to_investigate = start_signals
+        iteration_stack_signal_to_investigate = [start_signal]
 
         execution_line = []
+        dependency_signals_that_were_newly_found_to_be_junctions = []
 
         while True:
 
@@ -597,28 +625,59 @@ class BuildExecutionPath:
             execution_line.append( signal )
             signal.dependency_tree_node.this_node_is_planned_for_computation = True
 
-            #
+
+
+
+
+            # # introduce a new junction when this signal is needed at deeper levels of computation
+            # #
+            # # NOTE: not sure if this is needed at all. Maybe all junctions are already found in '_explore_dependencies()'
+            # if not signal.dependency_tree_node.this_node_is_a_junction:
+            #     for l in range(level + 1, self.number_of_level):
+            #         if l in signal.dependency_tree_node.needed_by_2:
+
+            #             # add another junction at 'signal'
+            #             dependency_signals_that_were_newly_found_to_be_junctions.append( signal )
+
+            #             signal.dependency_tree_node.this_node_is_a_junction = True
+
+
+
+
+            # check if signal is a junction. If so add the dependency (start_signal) that is needed to
+            # compute it.
             if signal.dependency_tree_node.this_node_is_a_junction:
-                # step here
 
-                continue
+                # add start signals as dependency
+                signal.dependency_tree_node.required_start_signals.append( start_signal )
+
+
+                # abort the for-loop here?
+                break
 
 
 
-            # step forward
+
+
+            # if level in signal.dependency_tree_node.needed_by_2:
+            #     signals_step_forward = signal.dependency_tree_node.needed_by_2[ level ]
+            #     iteration_stack_signal_to_investigate.extend( signals_step_forward )
+
+
+            # step forward only on the same level
             if level in signal.dependency_tree_node.needed_by_2:
-
                 signals_step_forward = signal.dependency_tree_node.needed_by_2[ level ]
-
                 iteration_stack_signal_to_investigate.extend( signals_step_forward )
-
 
             continue
 
 
         print('_explore_computation_plan: execution_line', [ s.name for s in execution_line ])
+         
+        # print('_explore_computation_plan: dependency_signals_that_were_newly_found_to_be_junctions', [ s.name for s in dependency_signals_that_were_newly_found_to_be_junctions ])
+        
 
-        return execution_line
+        return execution_line, dependency_signals_that_were_newly_found_to_be_junctions
 
 
 
