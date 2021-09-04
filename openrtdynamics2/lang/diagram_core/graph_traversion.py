@@ -151,6 +151,8 @@ class DependencyTreeNode():
         self.cluster__dependency_signals_that_are_sources = []
         self.cluster__dependency_signals_that_depend_on_a_state_variable = []
         self.cluster__dependency_signals_that_are_junctions = []
+        self.cluster__start_signals = []
+        self.cluster__execution_line = []
 
 
     def add_needed_by_2(self, level, signal_by_which_this_node_is_needed):
@@ -546,7 +548,7 @@ class BuildExecutionPath:
         # finds: 1) dependencies for computing destination 
         #
 
-        iteration_stack_signal_to_investigate = []
+        iteration_stack_signal_to_investigate = [] # .copy()
         iteration_stack_signal_to_investigate.extend( destination.dependency_tree_node.directly_depending_signals )
 
 
@@ -588,10 +590,78 @@ class BuildExecutionPath:
 
 
 
-        # self.cluster__dependency_signals_simulation_inputs = []
-        # self.cluster__dependency_signals_that_are_sources = []
-        # self.cluster__dependency_signals_that_depend_on_a_state_variable = []
-        # self.cluster__dependency_signals_that_are_junctions = []
+
+
+    def _explore_computation_plan_in_cluster( self, start_signals ):
+
+        # vars
+        execution_line = []
+        iteration_stack_signal_to_investigate = []
+
+        # initiate iteration
+        for start_signal in start_signals:
+
+            execution_line.append( start_signal )
+            start_signal.dependency_tree_node.this_node_is_planned_for_computation = True
+            
+            # step forward
+            signals_step_forward = start_signal.dependency_tree_node.needed_by
+            iteration_stack_signal_to_investigate.extend( signals_step_forward )  # TODO: add only signals belonging to the current cluster
+
+
+        # iterate
+        iteration_counter = 0
+
+        while True:
+
+            if len(iteration_stack_signal_to_investigate) == 0:
+                # all signals are planned to be computed --> abort the loop
+                break
+
+            # get latest item (signal) in the stack of signals to compute
+            # signal = iteration_stack_signal_to_investigate[ -1 ]
+            signal = iteration_stack_signal_to_investigate.pop()
+            iteration_counter += 1
+
+
+            if signal.dependency_tree_node.this_node_is_planned_for_computation:
+
+                continue
+
+            # check if all dependencies to compute signal are satisfied already
+            signal_is_ready_to_be_computed = True
+            for s in signal.dependency_tree_node.directly_depending_signals:
+                if not s.dependency_tree_node.this_node_is_planned_for_computation:
+
+                    signal_is_ready_to_be_computed = False
+
+                    break 
+
+            if not signal_is_ready_to_be_computed:
+                # push back signal to the begin of the list of signals to investigate
+                iteration_stack_signal_to_investigate.insert(0, signal)
+
+                continue
+
+            # Now that all dependencies are available (the check above passed),
+            # plan to compute this signal; add to execution line.
+            execution_line.append( signal )
+            signal.dependency_tree_node.this_node_is_planned_for_computation = True
+
+
+            # step forward
+            signals_step_forward = signal.dependency_tree_node.needed_by
+            iteration_stack_signal_to_investigate.extend( signals_step_forward )
+
+            continue
+
+
+        print('_explore_computation_plan_in_cluster: execution_line', [ s.name for s in execution_line ], 'start_signals:', [s.name for s in start_signals])
+         
+
+        return execution_line
+
+
 
 
 
@@ -624,19 +694,46 @@ class BuildExecutionPath:
             self.signals_that_are_junctions
         )
 
-        for destination in cluster_destinations:
-            self._step_back_till_junction_or_input( destination )
+        for cluster_destination in cluster_destinations:
+            self._step_back_till_junction_or_input( cluster_destination )
+
+            start_signals = set()
+            start_signals.update( set(  cluster_destination.dependency_tree_node.cluster__dependency_signals_that_are_junctions  ) )
+            start_signals.update( set(  cluster_destination.dependency_tree_node.cluster__dependency_signals_simulation_inputs  ) )
+            start_signals.update( set(  cluster_destination.dependency_tree_node.cluster__dependency_signals_that_are_sources  ) )
+            cluster_destination.dependency_tree_node.cluster__start_signals = list(start_signals)
             
 
         #
         print('cluster dependencies')
-        for destination in cluster_destinations:
-            print('  ' + destination.name + ' requires ')# + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster_required_signals ] ) )
+        for cluster_destination in cluster_destinations:
+            print('  ' + cluster_destination.name + ' requires ') # + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster_required_signals ] ) )
         
-            print('    * junctions: ' + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster__dependency_signals_that_are_junctions ] ) )
-            print('    * inputs: ' + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster__dependency_signals_simulation_inputs ] ) )
-            print('    * sources: ' + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster__dependency_signals_that_are_sources ] ) )
-            print('    * state dependent: ' + ', '.join( [ s.name for s in destination.dependency_tree_node.cluster__dependency_signals_that_depend_on_a_state_variable ] ) )
+            print('    * junctions: '       + ', '.join( [ s.name for s in cluster_destination.dependency_tree_node.cluster__dependency_signals_that_are_junctions ] ) )
+            print('    * inputs: '          + ', '.join( [ s.name for s in cluster_destination.dependency_tree_node.cluster__dependency_signals_simulation_inputs ] ) )
+            print('    * sources: '         + ', '.join( [ s.name for s in cluster_destination.dependency_tree_node.cluster__dependency_signals_that_are_sources ] ) )
+            print('    . state dependent: ' + ', '.join( [ s.name for s in cluster_destination.dependency_tree_node.cluster__dependency_signals_that_depend_on_a_state_variable ] ) )
+
+
+        # compute destination.dependency_tree_node.execution_list for destination in cluster_destinations
+
+        # ...
+
+
+        for cluster_destination in cluster_destinations:
+
+
+            start_signals = cluster_destination.dependency_tree_node.cluster__start_signals
+            execution_line = self._explore_computation_plan_in_cluster( start_signals )
+
+            cluster_destination.dependency_tree_node.cluster__execution_line = execution_line
+
+
+
+
+
+
+
 
 
         #
@@ -686,6 +783,19 @@ class BuildExecutionPath:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     def _explore_computation_plan( self, start_signal, level ):
 
         #
@@ -729,23 +839,6 @@ class BuildExecutionPath:
             # plan to compute this signal; add to execution line.
             execution_line.append( signal )
             signal.dependency_tree_node.this_node_is_planned_for_computation = True
-
-
-
-
-
-            # # introduce a new junction when this signal is needed at deeper levels of computation
-            # #
-            # # NOTE: not sure if this is needed at all. Maybe all junctions are already found in '_explore_dependencies()'
-            # if not signal.dependency_tree_node.this_node_is_a_junction:
-            #     for l in range(level + 1, self.number_of_level):
-            #         if l in signal.dependency_tree_node.needed_by_2:
-
-            #             # add another junction at 'signal'
-            #             dependency_signals_that_were_newly_found_to_be_junctions.append( signal )
-
-            #             signal.dependency_tree_node.this_node_is_a_junction = True
-
 
 
 
