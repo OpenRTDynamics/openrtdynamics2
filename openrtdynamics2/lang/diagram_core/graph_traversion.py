@@ -626,7 +626,7 @@ class BuildExecutionPath:
         # initiate iteration
         for start_signal in start_signals:
 
-            execution_line.append( start_signal )
+            # execution_line.append( start_signal )
             start_signal.dependency_tree_node.this_node_is_planned_for_computation = True
             
             # step forward
@@ -648,11 +648,11 @@ class BuildExecutionPath:
             signal = iteration_stack_signal_to_investigate.pop()
             iteration_counter += 1
 
-            if signal is signal.dependency_tree_node.cluster.destination_signal:
-                # reached the target
-                execution_line.append( signal )
-                signal.dependency_tree_node.this_node_is_planned_for_computation = True
-                break
+            # if signal is signal.dependency_tree_node.cluster.destination_signal:
+            #     # reached the target
+            #     execution_line.append( signal )
+            #     signal.dependency_tree_node.this_node_is_planned_for_computation = True
+            #     break
 
             if signal.dependency_tree_node.cluster is not cluster:
                 # do no step into other clusters than this 'cluster'
@@ -677,11 +677,18 @@ class BuildExecutionPath:
 
                 continue
 
+
+
+
+
             # Now that all dependencies are available (the check above passed),
             # plan to compute this signal; add to execution line.
             execution_line.append( signal )
             signal.dependency_tree_node.this_node_is_planned_for_computation = True
 
+            if signal is signal.dependency_tree_node.cluster.destination_signal:
+                # reached the target
+                break
 
             # step forward
             signals_step_forward = signal.dependency_tree_node.needed_by
@@ -692,6 +699,14 @@ class BuildExecutionPath:
 
         print('_explore_computation_plan_in_cluster: execution_line', [ s.name for s in execution_line ], 'start_signals:', [s.name for s in start_signals])
          
+
+        # initiate iteration
+        for start_signal in start_signals:
+
+            # undo mark do not confuse other calls of this function
+            start_signal.dependency_tree_node.this_node_is_planned_for_computation = False
+            
+
 
         return execution_line
 

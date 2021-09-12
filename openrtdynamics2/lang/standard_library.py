@@ -143,8 +143,10 @@ def delay(u , initial_state = None):
     else:
 
         event_on_first_sample = initial_event()
+        event_on_first_sample.set_name('event_on_first_sample')
 
         delayed_input = dy.delay__( u, None )
+        delayed_input.set_name('delayed_input')
         delayed_input = dy.conditional_overwrite( delayed_input, event_on_first_sample, initial_state )
 
         return delayed_input

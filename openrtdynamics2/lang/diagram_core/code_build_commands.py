@@ -96,6 +96,166 @@ class ExecutionCommand(object):
 
 
 # rename to CommandCalculateSignalValues
+class CommandGenerateClusters(ExecutionCommand):
+    """
+
+    """
+
+    def __init__(self, system, clusters):
+        ExecutionCommand.__init__(self)
+
+        self._system                          = system
+        self.clusters                    = clusters
+
+    def print_execution(self):
+        pass
+
+    def generate_code_init(self, language):
+        pass
+
+    def generate_code_destruct(self, language):
+        pass
+
+    def generate_code(self, language, flag):
+
+        print('CommandGenerateClusters', flag)
+
+        lines = ''
+
+        if language == 'c++':
+
+            if flag == 'variables':
+
+
+
+                # # notify the block prototype that the signal s will be a system output
+                # # and, hence, no memory shall be allocated for s (because the memory is already
+                # # available)
+                # s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference('c++', s)
+                
+                
+                            
+
+                # if not s.is_referencing_memory:
+                #     lines += cgh.define_variable_line( s )
+
+                lines += '\n// target signals for each cluster\n'
+
+                for cluster in self.clusters:
+                    lines += cgh.define_variable_line( cluster.destination_signal )
+
+
+
+
+
+
+            if flag == 'code':
+                lines += '\n// calculating clusters\n'
+
+
+
+                def generate_select(language, case_ids, action_list):
+                    code = '// select\n'
+
+                    for i in range(0, len(case_ids)):
+
+                        code += '// case (' + str( case_ids[i] ) + ')\n' 
+
+                        code += action_list[i]
+
+
+                    return code
+
+
+                def cpp_define_function_from_signals(fn_name, input_signals, output_signals, code):
+
+
+                    lines = cgh.cpp_define_generic_function(
+                        fn_name, 
+                        return_cpp_type_str = 'void',
+                        arg_list_str = ', '.join( cgh.define_variable_list( output_signals, make_a_reference=True ) + cgh.define_variable_list( input_signals, make_a_reference=True )  ),
+                        code = code
+                    )
+
+                    return lines
+
+
+                action_list = []
+                
+                for cluster in self.clusters:
+                    
+                    code_for_cluster = ''
+
+                    code_for_cluster += '// needed input signal(s): ' + ', '.join( [s.name for s in cluster.dependency_signals_simulation_inputs] ) + '\n'
+                    code_for_cluster += '// needed signal(s) from other clusters: ' + ', '.join( [s.name for s in cluster.dependency_signals_that_are_junctions] )  + '\n'
+                    code_for_cluster += '// the target signal is ' + cluster.destination_signal.name  + '\n\n'
+
+                    for s in cluster.dependency_signals_that_are_sources:
+                        code_for_cluster += cgh.define_variable_line( s )
+
+                    for s in cluster.execution_line:
+                        if s is not cluster.destination_signal:
+                            code_for_cluster += cgh.define_variable_line( s )
+
+                    code_for_cluster += '\n'
+
+                    # build code for all sources (blocks that have no inputs)
+                    for s in cluster.dependency_signals_that_are_sources:
+                        block = s.getSourceBlock()
+                        code_for_cluster += block.getBlockPrototype().generate_code_output_list('c++', [s] )
+
+                    # build code for all other blocks in the execution line
+                    for s in cluster.execution_line:
+                        block = s.getSourceBlock()
+                        code_for_cluster += block.getBlockPrototype().generate_code_output_list('c++', [s] )
+
+
+
+                    lines += cpp_define_function_from_signals(
+                        '_cluster_' + str(cluster.id),
+                        cluster.dependency_signals_simulation_inputs,
+                        [cluster.destination_signal],
+                        code_for_cluster
+                    )
+
+                    # action_list.append( code_for_cluster )
+
+
+                # lines += generate_select(language, [ cluster.id for cluster in self.clusters ], action_list)
+
+                print('code for cluster(s)')
+                print(lines)
+
+                # # build map block -> list of signals
+                # blocks_with_outputs_to_compute = {}
+
+                # for s in self.executionLine.getSignalsToExecute():
+                #     # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+                #     if not s.is_crossing_system_boundary(self._system):
+                #         # only implement caching for intermediate computaion results.
+                #         # I.e. exclude the simulation input signals
+
+                #         block = s.getSourceBlock()
+
+                #         if block not in blocks_with_outputs_to_compute:
+                #             blocks_with_outputs_to_compute[ block ] = [ s ]
+                #         else:
+                #             blocks_with_outputs_to_compute[ block ].append( s )
+
+
+                # # for each blocks that provides outputs that are needed to compute,
+                # # generate the code to calculate these outputs.
+                # for block in blocks_with_outputs_to_compute:
+                #     lines += block.getBlockPrototype().generate_code_output_list('c++', blocks_with_outputs_to_compute[ block ] )
+                
+                pass
+
+        return lines
+
+
+
+
+# rename to CommandCalculateSignalValues
 class CommandCalculateOutputs(ExecutionCommand):
     """
         execute an executionLine i.e. call the output-flags of all blocks given in executionLine
@@ -619,13 +779,21 @@ class PutSystem(ExecutionCommand):
         Represents a system that is represented by a class in c++
     """
 
-    def __init__(self, system : System, resetCommand : PutAPIFunction, updateCommand : PutAPIFunction, outputCommand : PutAPIFunction ):
+    def __init__(
+        self, 
+        system : System,
+        resetCommand : PutAPIFunction,
+        updateCommand : PutAPIFunction,
+        outputCommand : PutAPIFunction,
+        command_to_compute_clusters : PutAPIFunction,
+    ):
         ExecutionCommand.__init__(self)
-        self.executionCommands = [ resetCommand, updateCommand, outputCommand  ] 
+        self.executionCommands = [ resetCommand, updateCommand, outputCommand, command_to_compute_clusters ] 
 
         self.resetCommand = resetCommand
         self.updateCommand = updateCommand
         self.outputCommand = outputCommand
+        self.command_to_compute_clusters = command_to_compute_clusters
 
         self._api_function_names = {'calculate_output' : self.outputCommand.API_name,
                          'state_update' : self.updateCommand.API_name,
