@@ -103,7 +103,7 @@ def defineVariables( signals, make_a_reference = False ):
     """
     elements = define_variable_list(signals, make_a_reference )
 
-    return ';\n'.join( elements ) + ';\n'
+    return ';\n'.join( elements ) + ';'
 
 
 
@@ -186,7 +186,7 @@ def define_structure( name, signals ):
 #    tmp = indent(tmp, '  ')
 #    return f'struct { name }  {{\n{ tmp }}};\n\n'
 
-    return 'struct ' + name + brackets_no_newline( defineVariables( signals )  ) + ';\n'
+    return 'struct ' + name + ' ' + brackets_no_newline( defineVariables( signals )  ) + ';\n'
     
 
 def define_struct_var( structName, structVarname ):

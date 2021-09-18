@@ -101,11 +101,12 @@ class CommandGenerateClusters(ExecutionCommand):
 
     """
 
-    def __init__(self, system, clusters):
+    def __init__(self, system, execution_plan):
         ExecutionCommand.__init__(self)
 
-        self._system                          = system
-        self.clusters                    = clusters
+        self._system                     = system
+        self.clusters                    = execution_plan.clusters
+        self.execution_plan              = execution_plan
 
     def print_execution(self):
         pass
@@ -139,20 +140,34 @@ class CommandGenerateClusters(ExecutionCommand):
                 # if not s.is_referencing_memory:
                 #     lines += cgh.define_variable_line( s )
 
+
+                lines += '\n// variables to keep track of executed clusters\n'
+                lines += 'int _NUMBER_OF_CLUSTERS = ' + str(len( self.clusters )) + ';\n'
+
+                lines += 'bool _cluster_executed[_NUMBER_OF_CLUSTERS];\n'
+
+
+
                 lines += '\n// target signals for each cluster\n'
 
-                for cluster in self.clusters:
-                    lines += cgh.define_variable_line( cluster.destination_signal )
+                # for cluster in self.clusters:
+                #     lines += cgh.define_variable_line( cluster.destination_signal )
 
-
-
+                lines += cgh.define_structure( 
+                    name    = '_cluster_target_values', 
+                    signals = [ c.destination_signal for c in self.clusters ]
+                )
 
 
 
             if flag == 'code':
                 lines += '\n// calculating clusters\n'
 
-
+                lines += 'void _reset_clusters() {\n'
+                lines += '  for (int _i; _i < _NUMBER_OF_CLUSTERS; ++i) {\n'
+                lines += '    _cluster_executed[_i] = false;\n'
+                lines += '  }\n'
+                lines += '}\n'
 
                 def generate_select(language, case_ids, action_list):
                     code = '// select\n'
@@ -160,15 +175,12 @@ class CommandGenerateClusters(ExecutionCommand):
                     for i in range(0, len(case_ids)):
 
                         code += '// case (' + str( case_ids[i] ) + ')\n' 
-
                         code += action_list[i]
-
 
                     return code
 
 
                 def cpp_define_function_from_signals(fn_name, input_signals, output_signals, code):
-
 
                     lines = cgh.cpp_define_generic_function(
                         fn_name, 
@@ -190,6 +202,7 @@ class CommandGenerateClusters(ExecutionCommand):
                     code_for_cluster += '// needed signal(s) from other clusters: ' + ', '.join( [s.name for s in cluster.dependency_signals_that_are_junctions] )  + '\n'
                     code_for_cluster += '// the target signal is ' + cluster.destination_signal.name  + '\n\n'
 
+                    # define temp variables
                     for s in cluster.dependency_signals_that_are_sources:
                         code_for_cluster += cgh.define_variable_line( s )
 
@@ -197,24 +210,27 @@ class CommandGenerateClusters(ExecutionCommand):
                         if s is not cluster.destination_signal:
                             code_for_cluster += cgh.define_variable_line( s )
 
-                    code_for_cluster += '\n'
-
                     # build code for all sources (blocks that have no inputs)
                     for s in cluster.dependency_signals_that_are_sources:
                         block = s.getSourceBlock()
                         code_for_cluster += block.getBlockPrototype().generate_code_output_list('c++', [s] )
 
                     # build code for all other blocks in the execution line
+                    #
+                    # TODO: introduce variable prefix '_cluster_target_values.XXX'
+                    #
                     for s in cluster.execution_line:
                         block = s.getSourceBlock()
                         code_for_cluster += block.getBlockPrototype().generate_code_output_list('c++', [s] )
 
+                    # put code to mark the cluster as executed
+                    code_for_cluster += '\n_cluster_executed[' + str( cluster.id ) + '] = true;\n'
 
 
                     lines += cpp_define_function_from_signals(
                         '_cluster_' + str(cluster.id),
                         cluster.dependency_signals_simulation_inputs,
-                        [cluster.destination_signal],
+                        [], # [cluster.destination_signal],
                         code_for_cluster
                     )
 

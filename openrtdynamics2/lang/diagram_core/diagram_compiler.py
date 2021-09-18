@@ -449,7 +449,7 @@ def compile_single_system(
     computation_plan = dependency_graph_explorer.generate_computation_plan()
     command_to_compute_clusters = CommandGenerateClusters(
         system,
-        computation_plan['clusters']
+        computation_plan
     )
 
     # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten
