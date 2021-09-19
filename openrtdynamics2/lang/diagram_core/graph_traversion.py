@@ -136,6 +136,26 @@ class Cluster():
         self.start_signals = []
         self.execution_line = []
 
+        self.depending_clusters = None
+
+    #
+    def update(self):
+        self.depending_clusters = [ s.dependency_tree_node.cluster for s in self.dependency_signals_that_are_junctions ]
+
+
+#     @property
+#     def depending_clusters(self):
+
+#         print( ','.join( [ (s.name) for s in self.dependency_signals_that_are_junctions ] ) )
+
+# #        self.dependency_signals_that_are_junctions[0]
+
+#         depending_clusters = [ s.dependency_tree_node.cluster for s in self.dependency_signals_that_are_junctions ]
+
+#         return depending_clusters
+
+
+
 
 class DependencyTreeNode():
     def __init__(self, planned_for_computation_at_level, planned_for_computation_at_delay_level):
@@ -250,10 +270,7 @@ class ExecutionPlan():
             print()
 
 
-    #def _update_dependencies_of_cluster( self, cluster ):
-
-
-    def find_dependencies_of_cluster( self, cluster ):
+    def find_dependencies_of_cluster( self, cluster, reset_plan_builder : bool = False ):
         """
             Computes the input dependencies to compute the given cluster
 
@@ -262,6 +279,36 @@ class ExecutionPlan():
         """
 
         input_dependencies = set()
+        input_dependencies, cluster_execution_line = self._update_set_of_dependencies_for_cluster( cluster, input_dependencies )
+
+        if reset_plan_builder:
+            self.reset_plan_builder()
+
+        return list(input_dependencies), cluster_execution_line
+
+
+    def find_dependencies_of_clusters( self, clusters, reset_plan_builder : bool = False ):
+        """
+            Computes the input dependencies to compute the given list of clusters
+
+            For successive calls, only the newly required dependencies are returned.
+            The internal states for this behavior can be reset by calling reset_plan_builder().
+        """
+
+        input_dependencies = set()
+
+        for cluster in clusters:
+            input_dependencies, cluster_execution_line = self._update_set_of_dependencies_for_cluster( cluster, input_dependencies )
+
+        if reset_plan_builder:
+            self.reset_plan_builder()
+
+        return list(input_dependencies), cluster_execution_line
+
+
+
+    def _update_set_of_dependencies_for_cluster( self, cluster, input_dependencies ):
+
         cluster_execution_line = []
 
         # init
@@ -314,7 +361,7 @@ class ExecutionPlan():
                 break
 
 
-        return list(input_dependencies), cluster_execution_line
+        return input_dependencies, cluster_execution_line
 
 
 
@@ -875,6 +922,10 @@ class BuildExecutionPath:
         #
         # build and print execution plan
         #
+
+        for c in clusters:
+            c.update()
+
         execution_plan = ExecutionPlan(clusters)
         execution_plan.print_clusters()
 

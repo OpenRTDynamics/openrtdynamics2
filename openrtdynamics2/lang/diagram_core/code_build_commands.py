@@ -141,22 +141,35 @@ class CommandGenerateClusters(ExecutionCommand):
                 #     lines += cgh.define_variable_line( s )
 
 
+                # variables that describe the state of cluster computation
                 lines += '\n// variables to keep track of executed clusters\n'
-                lines += 'int _NUMBER_OF_CLUSTERS = ' + str(len( self.clusters )) + ';\n'
+                lines += 'const static int _NUMBER_OF_CLUSTERS = ' + str(len( self.clusters )) + ';\n'
 
                 lines += 'bool _cluster_executed[_NUMBER_OF_CLUSTERS];\n'
+                lines += 'int _cluster_counter[_NUMBER_OF_CLUSTERS];\n'
+                lines += '\n'
 
+                # dependencies among clusters
+                lines += '// cluster dependencies\n'
 
+                for c in self.clusters:
+                    depending_clusters = c.depending_clusters
+                    lines += 'const int dep_' + str(c.id) + '[' + str( len(depending_clusters) ) + '] = {' + ', '.join( [ str(c.id) for c in depending_clusters] ) + '};\n'
 
+                lines += '\n'
+                lines += 'const int *dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ 'dep_' + str(c.id) for c in self.clusters ]) + '};\n'
+                lines += 'const int n_dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ str(len(c.depending_clusters)) for c in self.clusters ]) + '};\n'
+                lines += '\n'
+
+                # target signals
                 lines += '\n// target signals for each cluster\n'
-
-                # for cluster in self.clusters:
-                #     lines += cgh.define_variable_line( cluster.destination_signal )
-
                 lines += cgh.define_structure( 
                     name    = '_cluster_target_values', 
                     signals = [ c.destination_signal for c in self.clusters ]
                 )
+                lines += '\n'
+
+
 
 
 
@@ -164,8 +177,9 @@ class CommandGenerateClusters(ExecutionCommand):
                 lines += '\n// calculating clusters\n'
 
                 lines += 'void _reset_clusters() {\n'
-                lines += '  for (int _i; _i < _NUMBER_OF_CLUSTERS; ++i) {\n'
+                lines += '  for (int _i = 0; _i < _NUMBER_OF_CLUSTERS; ++_i) {\n'
                 lines += '    _cluster_executed[_i] = false;\n'
+                lines += '    _cluster_counter[_i] = 0;\n'
                 lines += '  }\n'
                 lines += '}\n'
 
