@@ -226,6 +226,7 @@ class ExecutionPlan():
 
         for cluster in self.clusters:
             cluster.is_computed = False
+            cluster.tmp_i = 0 # don't know a good name
             #cluster.n_depends_on_other_clusters = len( cluster.dependency_signals_that_are_junctions )
 
 
@@ -249,7 +250,16 @@ class ExecutionPlan():
             print()
 
 
+    #def _update_dependencies_of_cluster( self, cluster ):
+
+
     def find_dependencies_of_cluster( self, cluster ):
+        """
+            Computes the input dependencies to compute the given cluster
+
+            For successive calls, only the newly required dependencies are returned.
+            The internal states for this behavior can be reset by calling reset_plan_builder().
+        """
 
         input_dependencies = set()
         cluster_execution_line = []
@@ -264,17 +274,24 @@ class ExecutionPlan():
 
             # look for dependencies
             ready_to_compute = True
-            for s in current_cluster.dependency_signals_that_are_junctions:
+            #for s in current_cluster.dependency_signals_that_are_junctions:
+
+            for i in range( current_cluster.tmp_i, len( current_cluster.dependency_signals_that_are_junctions )  ):
+                s = current_cluster.dependency_signals_that_are_junctions[i]
+
                 c = s.dependency_tree_node.cluster
                 if not c.is_computed:
-                    # step to cluster
+                    # remember where we stepped at
+                    current_cluster.tmp_i = i
 
+                    # step to cluster
                     c.step_back_cluster = current_cluster
                     current_cluster = c
 
                     print('step to ', current_cluster.destination_signal.name)
 
                     ready_to_compute = False
+
 
                     break
 
@@ -297,7 +314,7 @@ class ExecutionPlan():
                 break
 
 
-        return input_dependencies, cluster_execution_line
+        return list(input_dependencies), cluster_execution_line
 
 
 
