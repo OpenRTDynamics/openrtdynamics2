@@ -117,6 +117,79 @@ class CommandGenerateClusters(ExecutionCommand):
     def generate_code_destruct(self, language):
         pass
 
+
+    def _code_for_dependency_tree(self):
+
+        code_switch = """
+            switch(current_cluster_id) {
+
+                case 0:
+                    _cluster_0();
+                    break;
+                
+
+                case 1:
+                    _cluster_1();
+                    break;
+
+            }        
+        """
+
+        code = """
+        void compute_cluster( int cluster_id ) {
+
+            // init
+            int current_cluster_id = cluster_id;
+
+            while (true) {
+
+            // look for dependencies
+            bool ready_to_compute = true;
+
+            for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
+
+                int dep_id = _dependencies[current_cluster_id][i];
+
+                if ( !_cluster_executed[ dep_id ] ) {
+
+                // remember where we stepped at# remember where we stepped at
+                _cluster_counter[ current_cluster_id ] = i;
+
+                // step to cluster on which the current one depends on
+                _step_back_cluster[ dep_id ] = current_cluster_id;
+                current_cluster_id = dep_id;
+
+                ready_to_compute = false;
+
+                break;
+                }
+                
+            }
+
+            if (!ready_to_compute)
+                continue;
+
+            // cluster can be computed
+""" + code_switch + """
+
+            // mark cluster as executed
+            _cluster_executed[current_cluster_id] = true;
+
+            // step back ..
+            current_cluster_id = _step_back_cluster[current_cluster_id];
+
+            //
+            if (current_cluster_id == cluster_id)
+                abort;
+
+            }
+
+        }
+
+        """
+
+        return code
+
     def generate_code(self, language, flag):
 
         print('CommandGenerateClusters', flag)
@@ -147,6 +220,7 @@ class CommandGenerateClusters(ExecutionCommand):
 
                 lines += 'bool _cluster_executed[_NUMBER_OF_CLUSTERS];\n'
                 lines += 'int _cluster_counter[_NUMBER_OF_CLUSTERS];\n'
+                lines += 'int _step_back_cluster[_NUMBER_OF_CLUSTERS];\n'
                 lines += '\n'
 
                 # dependencies among clusters
@@ -154,11 +228,11 @@ class CommandGenerateClusters(ExecutionCommand):
 
                 for c in self.clusters:
                     depending_clusters = c.depending_clusters
-                    lines += 'const int dep_' + str(c.id) + '[' + str( len(depending_clusters) ) + '] = {' + ', '.join( [ str(c.id) for c in depending_clusters] ) + '};\n'
+                    lines += 'const int _dep_' + str(c.id) + '[' + str( len(depending_clusters) ) + '] = {' + ', '.join( [ str(c.id) for c in depending_clusters] ) + '};\n'
 
                 lines += '\n'
-                lines += 'const int *dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ 'dep_' + str(c.id) for c in self.clusters ]) + '};\n'
-                lines += 'const int n_dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ str(len(c.depending_clusters)) for c in self.clusters ]) + '};\n'
+                lines += 'const int *_dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ '_dep_' + str(c.id) for c in self.clusters ]) + '};\n'
+                lines += 'const int _n_dependencies[_NUMBER_OF_CLUSTERS] = {' + ', '.join([ str(len(c.depending_clusters)) for c in self.clusters ]) + '};\n'
                 lines += '\n'
 
                 # target signals
@@ -253,8 +327,12 @@ class CommandGenerateClusters(ExecutionCommand):
 
                 # lines += generate_select(language, [ cluster.id for cluster in self.clusters ], action_list)
 
-                print('code for cluster(s)')
-                print(lines)
+                lines += self._code_for_dependency_tree()
+
+                #print('code for cluster(s)')
+                
+                #print(lines)
+
 
                 # # build map block -> list of signals
                 # blocks_with_outputs_to_compute = {}

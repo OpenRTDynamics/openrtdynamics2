@@ -331,7 +331,7 @@ class ExecutionPlan():
                     # remember where we stepped at
                     current_cluster.tmp_i = i
 
-                    # step to cluster
+                    # step to cluster on which the current one depends on
                     c.step_back_cluster = current_cluster
                     current_cluster = c
 
@@ -348,6 +348,9 @@ class ExecutionPlan():
             # cluster can be computed
             cluster_execution_line.append( c )
 
+            # mark cluster as executed
+            c.is_computed = True
+
             # add needed input signals
             input_dependencies.update( set(current_cluster.dependency_signals_simulation_inputs) )
 
@@ -362,7 +365,6 @@ class ExecutionPlan():
 
 
         return input_dependencies, cluster_execution_line
-
 
 
 
@@ -400,9 +402,6 @@ class BuildExecutionPath:
 
     def printExecutionLine(self):
         pass
-
-
-
 
 
     def reset_markers(self):
