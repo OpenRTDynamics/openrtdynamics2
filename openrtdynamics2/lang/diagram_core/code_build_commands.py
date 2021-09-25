@@ -119,76 +119,73 @@ class CommandGenerateClusters(ExecutionCommand):
 
 
     def _code_for_dependency_tree(self):
-
-        code_switch = """
-            switch(current_cluster_id) {
-
-                case 0:
-                    _cluster_0();
-                    break;
-                
-
-                case 1:
-                    _cluster_1();
-                    break;
-
-            }        
+        """
+            generate code for resolving dependencies in-between clusters and execute them in the proper order 
         """
 
+
+        # generate switch
+        case_labels = [ c.id for c in self.clusters ]
+        action_list = [ '_cluster_' + str(c.id) + '();' for c in self.clusters ]
+
+        code_switch = cgh.cpp_generate_select( 'current_cluster_id', case_labels, action_list )
+
+
         code = """
-        void compute_cluster( int cluster_id ) {
+void compute_cluster( int cluster_id ) {
 
-            // init
-            int current_cluster_id = cluster_id;
+    // init
+    int current_cluster_id = cluster_id;
 
-            while (true) {
+    while (true) {
 
-            // look for dependencies
-            bool ready_to_compute = true;
+    // look for dependencies
+    bool ready_to_compute = true;
 
-            for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
+    for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
 
-                int dep_id = _dependencies[current_cluster_id][i];
+        int dep_id = _dependencies[current_cluster_id][i];
 
-                if ( !_cluster_executed[ dep_id ] ) {
+        if ( !_cluster_executed[ dep_id ] ) {
 
-                // remember where we stepped at# remember where we stepped at
-                _cluster_counter[ current_cluster_id ] = i;
+        // remember where we stepped at# remember where we stepped at
+        _cluster_counter[ current_cluster_id ] = i;
 
-                // step to cluster on which the current one depends on
-                _step_back_cluster[ dep_id ] = current_cluster_id;
-                current_cluster_id = dep_id;
+        // step to cluster on which the current one depends on
+        _step_back_cluster[ dep_id ] = current_cluster_id;
+        current_cluster_id = dep_id;
 
-                ready_to_compute = false;
+        ready_to_compute = false;
 
-                break;
-                }
-                
-            }
-
-            if (!ready_to_compute)
-                continue;
-
-            // cluster can be computed
-""" + code_switch + """
-
-            // mark cluster as executed
-            _cluster_executed[current_cluster_id] = true;
-
-            // step back ..
-            current_cluster_id = _step_back_cluster[current_cluster_id];
-
-            //
-            if (current_cluster_id == cluster_id)
-                abort;
-
-            }
-
+        break;
         }
+        
+    }
+
+    if (!ready_to_compute)
+        continue;
+
+    // cluster can be computed
+""" + cgh.indent( code_switch, 2 ) + """
+
+    // mark cluster as executed
+    _cluster_executed[current_cluster_id] = true;
+
+    // step back ..
+    current_cluster_id = _step_back_cluster[current_cluster_id];
+
+    //
+    if (current_cluster_id == cluster_id)
+        abort;
+
+    }
+
+}
 
         """
 
         return code
+
 
     def generate_code(self, language, flag):
 
@@ -238,11 +235,16 @@ class CommandGenerateClusters(ExecutionCommand):
                 # target signals
                 lines += '\n// target signals for each cluster\n'
                 lines += cgh.define_structure( 
-                    name    = '_cluster_target_values', 
+                    name    = 'ClusterTargetValues', 
                     signals = [ c.destination_signal for c in self.clusters ]
                 )
+                lines += 'ClusterTargetValues _cluster_target_values;\n'
                 lines += '\n'
 
+                lines += '// references / memory for I/O\n'
+                lines += 'Inputs _inputs;\n'
+                lines += 'Outputs _outputs;\n'
+                lines += '\n'
 
 
 
@@ -257,15 +259,6 @@ class CommandGenerateClusters(ExecutionCommand):
                 lines += '  }\n'
                 lines += '}\n'
 
-                def generate_select(language, case_ids, action_list):
-                    code = '// select\n'
-
-                    for i in range(0, len(case_ids)):
-
-                        code += '// case (' + str( case_ids[i] ) + ')\n' 
-                        code += action_list[i]
-
-                    return code
 
 
                 def cpp_define_function_from_signals(fn_name, input_signals, output_signals, code):
@@ -288,15 +281,39 @@ class CommandGenerateClusters(ExecutionCommand):
 
                     code_for_cluster += '// needed input signal(s): ' + ', '.join( [s.name for s in cluster.dependency_signals_simulation_inputs] ) + '\n'
                     code_for_cluster += '// needed signal(s) from other clusters: ' + ', '.join( [s.name for s in cluster.dependency_signals_that_are_junctions] )  + '\n'
-                    code_for_cluster += '// the target signal is ' + cluster.destination_signal.name  + '\n\n'
+                    code_for_cluster += '// the target signal is ' + cluster.destination_signal.name  + '\n'
+                    code_for_cluster += '\n'
+
+                    # get input variables
+                    code_for_cluster += '// input variables\n'
+                    for s in cluster.dependency_signals_simulation_inputs:
+                        code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
+
+                    code_for_cluster += '\n'
+
+                    # get target values of other clusters
+                    code_for_cluster += '// cluster target variables\n'
+                    for c in cluster.depending_clusters:
+                        s = c.destination_signal
+                        code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _cluster_target_values.' + s.name + ';\n'
+
+                    # get the reference to the target values of the cluster
+                    s = cluster.destination_signal
+                    code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _cluster_target_values.' + s.name + ';\n'
+                    code_for_cluster += '\n'
 
                     # define temp variables
+                    code_for_cluster += '// temporary variables\n'
                     for s in cluster.dependency_signals_that_are_sources:
                         code_for_cluster += cgh.define_variable_line( s )
 
+                    #
                     for s in cluster.execution_line:
                         if s is not cluster.destination_signal:
                             code_for_cluster += cgh.define_variable_line( s )
+
+                    # newline
+                    code_for_cluster += '\n'
 
                     # build code for all sources (blocks that have no inputs)
                     for s in cluster.dependency_signals_that_are_sources:
@@ -317,45 +334,13 @@ class CommandGenerateClusters(ExecutionCommand):
 
                     lines += cpp_define_function_from_signals(
                         '_cluster_' + str(cluster.id),
-                        cluster.dependency_signals_simulation_inputs,
+                        [], # cluster.dependency_signals_simulation_inputs,
                         [], # [cluster.destination_signal],
                         code_for_cluster
                     )
 
-                    # action_list.append( code_for_cluster )
-
-
-                # lines += generate_select(language, [ cluster.id for cluster in self.clusters ], action_list)
-
                 lines += self._code_for_dependency_tree()
 
-                #print('code for cluster(s)')
-                
-                #print(lines)
-
-
-                # # build map block -> list of signals
-                # blocks_with_outputs_to_compute = {}
-
-                # for s in self.executionLine.getSignalsToExecute():
-                #     # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
-                #     if not s.is_crossing_system_boundary(self._system):
-                #         # only implement caching for intermediate computaion results.
-                #         # I.e. exclude the simulation input signals
-
-                #         block = s.getSourceBlock()
-
-                #         if block not in blocks_with_outputs_to_compute:
-                #             blocks_with_outputs_to_compute[ block ] = [ s ]
-                #         else:
-                #             blocks_with_outputs_to_compute[ block ].append( s )
-
-
-                # # for each blocks that provides outputs that are needed to compute,
-                # # generate the code to calculate these outputs.
-                # for block in blocks_with_outputs_to_compute:
-                #     lines += block.getBlockPrototype().generate_code_output_list('c++', blocks_with_outputs_to_compute[ block ] )
-                
                 pass
 
         return lines
@@ -976,21 +961,10 @@ class PutSystem(ExecutionCommand):
                 lines += 'class ' + self.nameAPI + ' {'
                 lines += '\n'
 
-                # put the local variables
-                innerLines = '// variables\n'
-                innerLines = 'public:\n'
-                for c in self.executionCommands:
-                    innerLines += c.generate_code(language, 'variables')
-                
-                innerLines += '\n'
-
-                # put the code
-                for c in self.executionCommands:
-                    innerLines += c.generate_code(language, 'code')
-
+                inner_lines = ''
 
                 #
-                # define the generic step functions
+                # define structures that combine all in- and outputs
                 #
 
                 config_pass_by_reference = True
@@ -999,12 +973,29 @@ class PutSystem(ExecutionCommand):
                 all_output_signals = self.outputCommand.outputSignals
 
                 # introduce a structure that combines all system inputs
-                innerLines += '// all system inputs and outputs combined\n'
-                innerLines += cgh.define_structure('Inputs', all_input_signals)
-                innerLines += cgh.define_structure('Outputs', all_output_signals)
+                inner_lines += '// all system inputs and outputs combined\n'
+                inner_lines += cgh.define_structure('Inputs', all_input_signals)
+                inner_lines += cgh.define_structure('Outputs', all_output_signals)
 
                 #
-                # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
+                # put the local variables
+                #
+
+                inner_lines += '// variables\n'
+                inner_lines += 'public:\n'
+                for c in self.executionCommands:
+                    inner_lines += c.generate_code(language, 'variables')
+                
+                inner_lines += '\n'
+
+                # put the code
+                for c in self.executionCommands:
+                    inner_lines += c.generate_code(language, 'code')
+
+
+
+                #
+                # define the generic step functions
                 #
 
                 function_code = ''
@@ -1037,17 +1028,17 @@ class PutSystem(ExecutionCommand):
                     # put an interface function for nice interaction for the user of the generated code
                     # Do this only for the top-level system
                     
-                    innerLines += '// main step function \n'
+                    inner_lines += '// main step function \n'
 
                     if config_pass_by_reference:
-                        innerLines += cgh.cpp_define_generic_function( 
+                        inner_lines += cgh.cpp_define_generic_function( 
                             fn_name='step', 
                             return_cpp_type_str = 'void', 
                             arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
                             code = function_code
                         )
                     else:
-                        innerLines += cgh.cpp_define_generic_function( 
+                        inner_lines += cgh.cpp_define_generic_function( 
                             fn_name='step', 
                             return_cpp_type_str = 'Outputs', 
                             arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
@@ -1058,7 +1049,7 @@ class PutSystem(ExecutionCommand):
 
 
                 # define the API-function (finish)
-                lines += cgh.indent(innerLines)
+                lines += cgh.indent(inner_lines)
                 lines += '};\n\n'
 
         return lines

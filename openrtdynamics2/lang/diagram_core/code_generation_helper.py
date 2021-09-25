@@ -15,9 +15,8 @@ def tabs(N):
     return t
 
 
-def indent(lines):
-
-    return tw.indent(lines, '  ')
+def indent(lines, ntabs : int = 1):
+    return tw.indent(lines, tabs(ntabs))
 
 
 
@@ -171,6 +170,8 @@ def brackets(code):
 def brackets_no_newline(code):
     return '{\n' + indent(code) + '\n}'
 
+def brackets_compact(code):
+    return '{' + indent(code) + ' }'
 
 
 #
@@ -274,7 +275,22 @@ def generate_if_else(language, condition_list, action_list):
     return lines
 
 
+def cpp_generate_select(switch_varname, case_labels, action_list):
+    code = '// select\n'
 
+    code = 'switch(' + switch_varname + ') {\n'
+
+    icode = ''
+    for i, label in enumerate( case_labels ):
+
+        icode += 'case ' + str( label ) + ':\n'
+        icode += indent( brackets_compact(  action_list[i] )  ) + '\n'
+        icode += indent( 'break;' ) + '\n'
+        icode += '\n'
+
+    code += indent(icode) + '}\n'
+
+    return code
 
 
 def generate_loop_break(language, condition, code_before_break = None):

@@ -487,7 +487,7 @@ class BuildExecutionPath:
             execution_order contains the list of signals to comute in the correct order including
             the target signals. Not included in this list are signals that cross the border to the simulation
             specified by signal_to_calculate.system (coming from an outer system). Further, not included are
-            signals that have been computet in a previous call to determine_execution_order().
+            signals that have been computed in a previous call to determine_execution_order().
 
             dependency_signals contains all signals that are required to comput signalToCalculate
             and either cross the border of a simulation, 
