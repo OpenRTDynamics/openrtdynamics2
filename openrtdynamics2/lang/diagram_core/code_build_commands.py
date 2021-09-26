@@ -101,12 +101,21 @@ class CommandGenerateClusters(ExecutionCommand):
 
     """
 
-    def __init__(self, system, execution_plan):
+    def __init__(self, system, execution_plan, outputs, state_info):
         ExecutionCommand.__init__(self)
 
         self._system                     = system
         self.clusters                    = execution_plan.clusters
         self.execution_plan              = execution_plan
+        self.outputs                     = outputs
+        self.state_info                  = state_info
+
+
+        # outputs = {
+        #     'output_signals'      : output_signals,
+        #     'dependency_signals'  : o_dependencies,
+        #     'clusters'            : o_clusters
+        # }
 
     def print_execution(self):
         pass
@@ -139,47 +148,45 @@ void compute_cluster( int cluster_id ) {
 
     while (true) {
 
-    // look for dependencies
-    bool ready_to_compute = true;
+        // look for dependencies
+        bool ready_to_compute = true;
 
-    for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
+        for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
 
-        int dep_id = _dependencies[current_cluster_id][i];
+            int dep_id = _dependencies[current_cluster_id][i];
 
-        if ( !_cluster_executed[ dep_id ] ) {
+            if ( !_cluster_executed[ dep_id ] ) {
 
-        // remember where we stepped at# remember where we stepped at
-        _cluster_counter[ current_cluster_id ] = i;
+                // remember where we stepped at# remember where we stepped at
+                _cluster_counter[ current_cluster_id ] = i;
 
-        // step to cluster on which the current one depends on
-        _step_back_cluster[ dep_id ] = current_cluster_id;
-        current_cluster_id = dep_id;
+                // step to cluster on which the current one depends on
+                _step_back_cluster[ dep_id ] = current_cluster_id;
+                current_cluster_id = dep_id;
 
-        ready_to_compute = false;
+                ready_to_compute = false;
 
-        break;
+                break;
+            }
+            
         }
-        
-    }
 
-    if (!ready_to_compute)
-        continue;
+        if (!ready_to_compute)
+            continue;
 
-    // cluster can be computed
+        // cluster can be computed
 """ + cgh.indent( code_switch, 2 ) + """
 
-    // mark cluster as executed
-    _cluster_executed[current_cluster_id] = true;
+        // mark cluster as executed
+        _cluster_executed[current_cluster_id] = true;
 
-    // step back ..
-    current_cluster_id = _step_back_cluster[current_cluster_id];
+        //
+        if (current_cluster_id == cluster_id)
+            abort;
 
-    //
-    if (current_cluster_id == cluster_id)
-        abort;
-
+        // step back
+        current_cluster_id = _step_back_cluster[current_cluster_id];
     }
-
 }
 
         """
@@ -196,20 +203,6 @@ void compute_cluster( int cluster_id ) {
         if language == 'c++':
 
             if flag == 'variables':
-
-
-
-                # # notify the block prototype that the signal s will be a system output
-                # # and, hence, no memory shall be allocated for s (because the memory is already
-                # # available)
-                # s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference('c++', s)
-                
-                
-                            
-
-                # if not s.is_referencing_memory:
-                #     lines += cgh.define_variable_line( s )
-
 
                 # variables that describe the state of cluster computation
                 lines += '\n// variables to keep track of executed clusters\n'
@@ -340,6 +333,97 @@ void compute_cluster( int cluster_id ) {
                     )
 
                 lines += self._code_for_dependency_tree()
+                lines += '\n'
+
+                #
+                # generate output trigger function
+                #
+
+                self.output_signals = []
+
+                for i, s in enumerate(self.outputs['output_signals']):
+
+                    c = self.outputs['clusters'][i]
+
+                    # mapping output signal to cluster that computes the variable: s -> c
+
+
+                # int _output_signal_index_to_cluster_id[3] = { 0, 3, 4 };
+                
+                ilines = ''
+                ilines += 'int _output_signal_index_to_cluster_id[' + str(len(self.outputs['output_signals'])) + '] = {' + ', '.join( [ str(c.id) for c in self.outputs['clusters'] ] ) + '};\n'
+                ilines += 'compute_cluster( _output_signal_index_to_cluster_id[output_signal_index] );\n'
+
+                lines += cgh.cpp_define_generic_function('compute_output', 'void', 'int output_signal_index', ilines)
+                lines += '\n'
+
+                #
+                # generate reset function
+                #
+
+                ilines = ''
+
+                for b in self.state_info['blocks']:
+                    ilines += '// reset ' + b.name + '\n'
+                    ilines += b.getBlockPrototype().generate_code_reset('c++')
+
+
+                lines += cgh.cpp_define_generic_function('reset', 'void', '', ilines)
+                lines += '\n'
+
+                #
+                # generate update function
+                #
+
+                ilines = ''
+
+
+
+                # # get input variables
+                # code_for_cluster += '// input variables\n'
+                # for s in cluster.dependency_signals_simulation_inputs:
+                #     code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
+
+ 
+                # get input variables
+                ilines += '// input variables    TODO: handle system inputs to update the states\n'
+                for s in self.state_info['input_signals']:
+                    ilines += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
+
+                lines += '\n'
+
+                # get target values of other clusters
+                ilines += '// cluster target variables\n'
+                for c in self.state_info['clusters']:
+
+                    s = c.destination_signal
+
+                    ilines += 'compute_cluster (' + str(c.id) + ');\n'
+
+                    ilines += cgh.defineVariable(s, make_a_reference=True ) + ' = _cluster_target_values.' + s.name + ';\n'
+
+                lines += '\n'
+
+                for b in self.state_info['blocks']:
+                    ilines += '// update block ' + b.name + '\n'
+                    ilines += b.getBlockPrototype().generate_code_update('c++')
+
+
+                lines += cgh.cpp_define_generic_function('update', 'void', '', ilines)
+                lines += '\n'
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 pass
 

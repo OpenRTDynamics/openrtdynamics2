@@ -138,6 +138,10 @@ class Cluster():
 
         self.depending_clusters = None
 
+        self.step_back_cluster = None # for graph algs.
+        self.is_computed = False # for graph algs.
+        self.tmp_i = 0 # for graph algs.
+
     #
     def update(self):
         self.depending_clusters = [ s.dependency_tree_node.cluster for s in self.dependency_signals_that_are_junctions ]
@@ -209,7 +213,11 @@ class QueriedSignal():
         dependency_signals_simulation_inputs,
         dependency_signals_that_are_sources,
         dependency_signals_that_are_junctions,
-        dependency_signals_that_depend_on_a_state_variable
+        dependency_signals_that_depend_on_a_state_variable,
+
+        blocks_to_update_states,  # needed?
+        signals_needed_for_state_update_of_involved_blocks
+
     ):
 
         self.queried_signal                                     = queried_signal
@@ -217,6 +225,9 @@ class QueriedSignal():
         self.dependency_signals_that_are_sources                = dependency_signals_that_are_sources
         self.dependency_signals_that_are_junctions              = dependency_signals_that_are_junctions
         self.dependency_signals_that_depend_on_a_state_variable = dependency_signals_that_depend_on_a_state_variable
+
+        self.blocks_to_update_states                            = blocks_to_update_states
+        self.signals_needed_for_state_update_of_involved_blocks = signals_needed_for_state_update_of_involved_blocks
 
     def __str__(self):
 
@@ -238,6 +249,7 @@ class ExecutionPlan():
     ):
 
         self.clusters = clusters
+        self.destination_signals = [ c.destination_signal for c in self.clusters ]
 
         self.reset_plan_builder()
 
@@ -249,6 +261,10 @@ class ExecutionPlan():
             cluster.tmp_i = 0 # don't know a good name
             #cluster.n_depends_on_other_clusters = len( cluster.dependency_signals_that_are_junctions )
 
+    def get_cluster_from_destination_signal( self, signal ):
+
+        index = self.destination_signals.index( signal )
+        return self.clusters[index]
 
 
     def print_clusters(self):
@@ -269,6 +285,7 @@ class ExecutionPlan():
             print('    computation order: ' + ', '.join( [ s.name for s in cluster.execution_line ] ) )
             print()
 
+    
 
     def find_dependencies_of_cluster( self, cluster, reset_plan_builder : bool = False ):
         """
@@ -346,22 +363,22 @@ class ExecutionPlan():
                 continue
 
             # cluster can be computed
-            cluster_execution_line.append( c )
+            cluster_execution_line.append( current_cluster )  #  # NOTE: changed: TODO: adapt c++ implementation accordingly
 
             # mark cluster as executed
-            c.is_computed = True
+            current_cluster.is_computed = True #  # NOTE: changed: TODO: adapt c++ implementation accordingly
 
             # add needed input signals
             input_dependencies.update( set(current_cluster.dependency_signals_simulation_inputs) )
+
+            # abort criterion
+            if current_cluster == cluster:
+                break
 
             # step back
             current_cluster = current_cluster.step_back_cluster
 
             print('step back to ', current_cluster.destination_signal.name)
-
-            # abort criterion
-            if current_cluster == cluster:
-                break
 
 
         return input_dependencies, cluster_execution_line
@@ -394,6 +411,12 @@ class BuildExecutionPath:
         # Thus is used to detect algebraic loops:
         # 
         self.queried_signals_by_level = []
+
+
+        # collect all blocks that are involved and require a state update
+        self.blocks_involved_in_a_state_update = set() 
+        self.signals_needed_for_state_update_of_involved_blocks = set()
+
 
 
     def __del__(self):
@@ -598,6 +621,12 @@ class BuildExecutionPath:
                 signals_needed_for_state_update_of_involved_blocks.extend( signals_needed_via_a_state_update )
                 blocks_to_update_states.append( block_whose_states_to_update )
 
+                
+                self.blocks_involved_in_a_state_update.update( set( [block_whose_states_to_update] ) )
+                self.signals_needed_for_state_update_of_involved_blocks.update( set( signals_needed_via_a_state_update ) )
+
+
+
                 dependency_signals_that_depend_on_a_state_variable.append( signal )
                 signal.dependency_tree_node.this_node_depends_on_a_state_variable   = True
 
@@ -696,10 +725,13 @@ class BuildExecutionPath:
             dependency_signals_simulation_inputs,
             dependency_signals_that_are_sources,
             dependency_signals_that_are_junctions,
-            dependency_signals_that_depend_on_a_state_variable
+            dependency_signals_that_depend_on_a_state_variable,
+
+            blocks_to_update_states,  # needed?
+            signals_needed_for_state_update_of_involved_blocks
         )
 
-        #
+        # TODO: remove this
         return queried_signal, ExecutionLine( 
                 execution_order,
                 #dependency_signals,

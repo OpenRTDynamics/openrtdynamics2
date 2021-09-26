@@ -131,10 +131,10 @@ def compile_single_system(
 ):
 
     # the primary output signals are the outputs of the compiled system
-    outputSignals = system.primary_outputs
+    output_signals = system.primary_outputs
 
     # prepare (input filter of the given signals)
-    resolveUndeterminedSignals(outputSignals)
+    resolveUndeterminedSignals(output_signals)
 
     # remove all anonymous signal
     system.resolve_anonymous_signals()
@@ -197,7 +197,7 @@ def compile_single_system(
 
 
 
-    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )
+    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )  # TODO! is this okay..? 
 
     # add
     executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
@@ -214,7 +214,7 @@ def compile_single_system(
     #
 
     signals_to_compute = set()
-    signals_to_compute.update( set(outputSignals) )
+    signals_to_compute.update( set(output_signals) )
     signals_to_compute.update( set(system.signals_mandatory_to_compute) )
 
     for s in list(signals_to_compute):
@@ -259,7 +259,7 @@ def compile_single_system(
         executionLineToCalculateOutputs, 
         signals_to_compute,
         no_memory_for_output_variables = True, 
-        output_signals=outputSignals
+        output_signals=output_signals
     )
 
     #
@@ -287,7 +287,7 @@ def compile_single_system(
     commandToPublishTheResults = PutAPIFunction(
         "calcResults_1", 
         inputSignals=simulationInputSignalsToCalculateOutputs,
-        outputSignals=outputSignals, 
+        outputSignals=output_signals, 
         executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
         generate_wrappper_functions = not reduce_not_needed_code,
         subsystem_nesting_level  = subsytem_nesting_level
@@ -448,11 +448,111 @@ def compile_single_system(
     #
     computation_plan = dependency_graph_explorer.generate_computation_plan()
 
+
+
+    # For each output generate a list of needed inputs
+    o_dependencies = []
+    o_clusters = []
+    for s in output_signals:
+
+        c = computation_plan.get_cluster_from_destination_signal( s )
+        input_signals = computation_plan.find_dependencies_of_cluster(c, reset_plan_builder = True)  
+
+        o_dependencies.append( input_signals )
+        o_clusters.append( c )
+
+    outputs_info = {
+        'output_signals'      : output_signals,
+        'dependency_signals'  : o_dependencies,
+        'clusters'            : o_clusters
+    }
+
+    # find blocks that need a state update
+
+    blocks_that_need_a_state_update = list(dependency_graph_explorer.blocks_involved_in_a_state_update)
+    signals_needed_for_state_update_of_involved_blocks = list(dependency_graph_explorer.signals_needed_for_state_update_of_involved_blocks)
+
+    # collect clusters needed to perform the state update
+    clusters_needed_for_state_update_of_involved_blocks = []
+    for s in signals_needed_for_state_update_of_involved_blocks:
+
+        c = computation_plan.get_cluster_from_destination_signal( s )
+
+        if c is not None:
+            clusters_needed_for_state_update_of_involved_blocks.append( c )
+
+    
+    
+    input_signals = computation_plan.find_dependencies_of_clusters(
+        clusters_needed_for_state_update_of_involved_blocks,
+        reset_plan_builder = True
+    )  
+
+
+
+    #signals_that_are_required_to_update_states = set()
+
+    # for s in signals_needed_for_state_update_of_involved_blocks:
+        #signals_that_are_required_to_update_states.update(set( b.getBlockPrototype()   ))
+
+    state_info = {
+        'dependency_signals' : signals_needed_for_state_update_of_involved_blocks,
+        'blocks'             : blocks_that_need_a_state_update,
+        'clusters'           : clusters_needed_for_state_update_of_involved_blocks,
+        'input_signals'      : [] # TODO: fill in
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # block_whose_states_to_update = signal.getSourceBlock()
+        # blocksPrototype = block_whose_states_to_update.getBlockPrototype()
+
+        # #
+        # # check if the block that yields startSignal uses internal-states to compute startSignal
+        # #
+
+        # signals_needed_via_a_state_update = blocksPrototype.config_request_define_state_update_input_dependencies( signal )
+        # if signals_needed_via_a_state_update is not None:
+
+        #     if self._show_print > 1:
+        #         print(tabs + "--- signals needed *indirectly* to compute " + signal.name + " (through state update) --" )
+
+        #     # 
+
+        #     # please note: blocksPrototype.config_request_define_state_update_input_dependencies might return some undetermined signals that are resolved here
+        #     resolveUndeterminedSignals( signals_needed_via_a_state_update )
+
+
+
+
+    # blocks_that_need_a_state_update = set()
+    # for c in computation_plan.clusters:
+    #     for s in c.dependency_signals_that_depend_on_a_state_variable:
+    #         s.getBlock()
+
+
+
+
     #
     command_to_compute_clusters = CommandGenerateClusters(
         system,
-        computation_plan
+        computation_plan,
+        outputs_info,
+        state_info
     )
+
+
+
 
 
 
@@ -512,7 +612,11 @@ def compile_single_system(
     compleResults.inputSignals                             = allinputs
     compleResults.simulationInputSignalsToUpdateStates     = simulation_input_signals_to_update_states_fixed_list
     compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
-    compleResults.outputSignals                            = outputSignals
+    compleResults.outputSignals                            = output_signals
+
+
+    # new!!!
+    compleResults.outputs = outputs_info
 
     
     #

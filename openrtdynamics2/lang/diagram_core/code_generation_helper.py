@@ -10,7 +10,7 @@ import math
 def tabs(N):
     t = ''
     for i in range(0,N):
-        t += '  '
+        t += '    '
     
     return t
 
