@@ -72,14 +72,14 @@ def signalListHelper_types(signals):
 #
 
 
-def defineVariable( signal, make_a_reference = False ):
+def defineVariable( signal, make_a_reference = False, mark_const = False ):
     """
         create a sting containing e.g.
 
         'double signalName'
     """
 
-    return signal.getDatatype().cpp_define_variable( signal.name, make_a_reference )
+    return signal.getDatatype().cpp_define_variable( signal.name, make_a_reference, mark_const )
 
 
 

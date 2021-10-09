@@ -135,13 +135,15 @@ class CommandGenerateClusters(ExecutionCommand):
 
         # generate switch
         case_labels = [ c.id for c in self.clusters ]
-        action_list = [ '_cluster_' + str(c.id) + '();' for c in self.clusters ]
+        action_list = [ '_cluster_' + str(c.id) + '(inputs);' for c in self.clusters ]
 
         code_switch = cgh.cpp_generate_select( 'current_cluster_id', case_labels, action_list )
 
 
         code = """
-void compute_cluster( int cluster_id ) {
+void compute_cluster(Inputs const & inputs, int cluster_id) {
+
+    // printf("compute_cluster: %d ", cluster_id);
 
     // init
     int current_cluster_id = cluster_id;
@@ -151,7 +153,7 @@ void compute_cluster( int cluster_id ) {
         // look for dependencies
         bool ready_to_compute = true;
 
-        for (int i = _cluster_counter[current_cluster_id]; ++i; i < _n_dependencies[current_cluster_id] ) {
+        for (int i = _cluster_counter[current_cluster_id]; i < _n_dependencies[current_cluster_id]; ++i ) {
 
             int dep_id = _dependencies[current_cluster_id][i];
 
@@ -177,16 +179,20 @@ void compute_cluster( int cluster_id ) {
         // cluster can be computed
 """ + cgh.indent( code_switch, 2 ) + """
 
+        // printf("exe %d ", current_cluster_id);
+
         // mark cluster as executed
         _cluster_executed[current_cluster_id] = true;
 
         //
         if (current_cluster_id == cluster_id)
-            abort;
+            break;
 
         // step back
         current_cluster_id = _step_back_cluster[current_cluster_id];
     }
+
+    // printf("\\n");
 }
 
         """
@@ -234,10 +240,10 @@ void compute_cluster( int cluster_id ) {
                 lines += 'ClusterTargetValues _cluster_target_values;\n'
                 lines += '\n'
 
-                lines += '// references / memory for I/O\n'
-                lines += 'Inputs _inputs;\n'
-                lines += 'Outputs _outputs;\n'
-                lines += '\n'
+                # lines += '// references / memory for I/O\n'
+                # lines += 'Inputs & _inputs;\n'
+                # lines += 'Outputs & _outputs;\n'
+                # lines += '\n'
 
 
 
@@ -280,7 +286,7 @@ void compute_cluster( int cluster_id ) {
                     # get input variables
                     code_for_cluster += '// input variables\n'
                     for s in cluster.dependency_signals_simulation_inputs:
-                        code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
+                        code_for_cluster += cgh.defineVariable(s, make_a_reference=True, mark_const=True ) + ' = inputs.' + s.name + ';\n'
 
                     code_for_cluster += '\n'
 
@@ -325,12 +331,20 @@ void compute_cluster( int cluster_id ) {
                     code_for_cluster += '\n_cluster_executed[' + str( cluster.id ) + '] = true;\n'
 
 
-                    lines += cpp_define_function_from_signals(
+                    # lines += cpp_define_function_from_signals(
+                    #     '_cluster_' + str(cluster.id),
+                    #     [], # cluster.dependency_signals_simulation_inputs,
+                    #     [], # [cluster.destination_signal],
+                    #     code_for_cluster
+                    # )
+                    lines += cgh.cpp_define_generic_function(
                         '_cluster_' + str(cluster.id),
-                        [], # cluster.dependency_signals_simulation_inputs,
-                        [], # [cluster.destination_signal],
+                        'void',
+                        'Inputs const & inputs',
                         code_for_cluster
                     )
+
+                    
 
                 lines += self._code_for_dependency_tree()
                 lines += '\n'
@@ -352,9 +366,9 @@ void compute_cluster( int cluster_id ) {
                 
                 ilines = ''
                 ilines += 'int _output_signal_index_to_cluster_id[' + str(len(self.outputs['output_signals'])) + '] = {' + ', '.join( [ str(c.id) for c in self.outputs['clusters'] ] ) + '};\n'
-                ilines += 'compute_cluster( _output_signal_index_to_cluster_id[output_signal_index] );\n'
+                ilines += 'compute_cluster( inputs, _output_signal_index_to_cluster_id[output_signal_index] );\n'
 
-                lines += cgh.cpp_define_generic_function('compute_output', 'void', 'int output_signal_index', ilines)
+                lines += cgh.cpp_define_generic_function('compute_output', 'void', 'Inputs const & inputs, int output_signal_index', ilines)
                 lines += '\n'
 
                 #
@@ -377,18 +391,11 @@ void compute_cluster( int cluster_id ) {
 
                 ilines = ''
 
-
-
-                # # get input variables
-                # code_for_cluster += '// input variables\n'
-                # for s in cluster.dependency_signals_simulation_inputs:
-                #     code_for_cluster += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
-
  
                 # get input variables
-                ilines += '// input variables    TODO: handle system inputs to update the states\n'
+                ilines += '// input variables    TODO: find out how to handle direct system inputs to update the states\n'
                 for s in self.state_info['input_signals']:
-                    ilines += cgh.defineVariable(s, make_a_reference=True ) + ' = _inputs.' + s.name + ';\n'
+                    ilines += cgh.defineVariable(s, make_a_reference=True, mark_const=True ) + ' = _inputs.' + s.name + ';\n'
 
                 lines += '\n'
 
@@ -398,7 +405,7 @@ void compute_cluster( int cluster_id ) {
 
                     s = c.destination_signal
 
-                    ilines += 'compute_cluster (' + str(c.id) + ');\n'
+                    ilines += 'compute_cluster (inputs, ' + str(c.id) + ');\n'
 
                     ilines += cgh.defineVariable(s, make_a_reference=True ) + ' = _cluster_target_values.' + s.name + ';\n'
 
@@ -409,14 +416,51 @@ void compute_cluster( int cluster_id ) {
                     ilines += b.getBlockPrototype().generate_code_update('c++')
 
 
-                lines += cgh.cpp_define_generic_function('update', 'void', '', ilines)
+                lines += cgh.cpp_define_generic_function('update', 'void', 'Inputs const & inputs', ilines)
                 lines += '\n'
 
 
+                #
+                # define the generic step functions
+                #
+
+                function_code = ''
+                function_code = '_reset_clusters();\n'
+
+                # reset
+                code_reset_states  = '// reset\nreset();'
+
+                # outputs
+                code_calc_output  = '// calc outputs\n'
+
+                for c in self.outputs['clusters']:
+                    code_calc_output += 'compute_cluster(inputs, ' + str(c.id) + ');\n'
+
+                for c in self.outputs['clusters']:
+                    code_calc_output += 'outputs.' + c.destination_signal.name + ' = _cluster_target_values.' + c.destination_signal.name + ';\n'
 
 
+                code_update_states = '// update\n'
+                #code_update_states += '_inputs = inputs; // set reference to input signals;\n'
+                code_update_states += 'update(inputs);\n'
 
+                # conditional update / output
+                function_code += cgh.generate_if_else(language, condition_list=['reset_states'], action_list=[code_reset_states] )
+                function_code += cgh.generate_if_else(language, condition_list=['calculate_outputs'], action_list=[code_calc_output] )
+                function_code += cgh.generate_if_else(language, condition_list=['update_states'], action_list=[code_update_states] )
+                function_code += '\n'
 
+                #   
+                inner_lines = '// main step function \n'                
+
+                inner_lines += cgh.cpp_define_generic_function( 
+                    fn_name='step', 
+                    return_cpp_type_str = 'void', 
+                    arg_list_str = 'Outputs & outputs, Inputs const & inputs, bool calculate_outputs, bool update_states, bool reset_states', 
+                    code = function_code
+                )
+  
+                lines += inner_lines
 
 
 
@@ -1046,6 +1090,12 @@ class PutSystem(ExecutionCommand):
                 lines += '\n'
 
                 inner_lines = ''
+                inner_lines += 'public:\n'
+                inner_lines += cgh.cpp_define_generic_function(
+                    fn_name=self.nameAPI,
+                    return_cpp_type_str='',
+                    arg_list_str='', code=''
+                )
 
                 #
                 # define structures that combine all in- and outputs
@@ -1066,7 +1116,6 @@ class PutSystem(ExecutionCommand):
                 #
 
                 inner_lines += '// variables\n'
-                inner_lines += 'public:\n'
                 for c in self.executionCommands:
                     inner_lines += c.generate_code(language, 'variables')
                 
@@ -1078,61 +1127,61 @@ class PutSystem(ExecutionCommand):
 
 
 
-                #
-                # define the generic step functions
-                #
+                # #
+                # # define the generic step functions
+                # #
 
-                function_code = ''
-                if not config_pass_by_reference:
-                    function_code += cgh.define_struct_var( 'Outputs', 'outputs'  ) + '\n'
+                # function_code = ''
+                # if not config_pass_by_reference:
+                #     function_code += cgh.define_struct_var( 'Outputs', 'outputs'  ) + '\n'
 
-                # call to reset function
-                function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+                # # call to reset function
+                # function_code_reset_states = codegen_call_to_API_function_with_strutures(API_function_command=self.resetCommand, input_struct_varname='inputs', output_struct_varname='outputs')
 
-                # call to output function (1)
-                function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+                # # call to output function (1)
+                # function_code_calc_output = codegen_call_to_API_function_with_strutures(API_function_command=self.outputCommand, input_struct_varname='inputs', output_struct_varname='outputs')
 
-                # call to update function
-                function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname='inputs', output_struct_varname='outputs')
+                # # call to update function
+                # function_code_update_states = codegen_call_to_API_function_with_strutures(API_function_command=self.updateCommand, input_struct_varname='inputs', output_struct_varname='outputs')
 
-                # conditional update / output
-                function_code += cgh.generate_if_else(language, condition_list=['reset_states'], action_list=[function_code_reset_states] )
-                function_code += cgh.generate_if_else(language, condition_list=['calculate_outputs==1'], action_list=[function_code_calc_output] )
-                function_code += cgh.generate_if_else(language, condition_list=['update_states'], action_list=[function_code_update_states] )
+                # # conditional update / output
+                # function_code += cgh.generate_if_else(language, condition_list=['reset_states'], action_list=[function_code_reset_states] )
+                # function_code += cgh.generate_if_else(language, condition_list=['calculate_outputs==1'], action_list=[function_code_calc_output] )
+                # function_code += cgh.generate_if_else(language, condition_list=['update_states'], action_list=[function_code_update_states] )
 
 
 
-                function_code += '\n'
+                # function_code += '\n'
 
-                if not config_pass_by_reference:
-                    function_code += 'return outputs;\n'
+                # if not config_pass_by_reference:
+                #     function_code += 'return outputs;\n'
 
-                #
-                if self.system.upper_level_system is None:
-                    # put an interface function for nice interaction for the user of the generated code
-                    # Do this only for the top-level system
+                # #
+                # if self.system.upper_level_system is None:
+                #     # put an interface function for nice interaction for the user of the generated code
+                #     # Do this only for the top-level system
                     
-                    inner_lines += '// main step function \n'
+                #     inner_lines += '// main step function \n'
 
-                    if config_pass_by_reference:
-                        inner_lines += cgh.cpp_define_generic_function( 
-                            fn_name='step', 
-                            return_cpp_type_str = 'void', 
-                            arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
-                            code = function_code
-                        )
-                    else:
-                        inner_lines += cgh.cpp_define_generic_function( 
-                            fn_name='step', 
-                            return_cpp_type_str = 'Outputs', 
-                            arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
-                            code = function_code
-                        )
-
-
+                #     if config_pass_by_reference:
+                #         inner_lines += cgh.cpp_define_generic_function( 
+                #             fn_name='step', 
+                #             return_cpp_type_str = 'void', 
+                #             arg_list_str = 'Outputs & outputs, Inputs const & inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                #             code = function_code
+                #         )
+                #     else:
+                #         inner_lines += cgh.cpp_define_generic_function( 
+                #             fn_name='step', 
+                #             return_cpp_type_str = 'Outputs', 
+                #             arg_list_str = 'Inputs inputs, int calculate_outputs, bool update_states, bool reset_states', 
+                #             code = function_code
+                #         )
 
 
-                # define the API-function (finish)
+
+
+                # # define the API-function (finish)
                 lines += cgh.indent(inner_lines)
                 lines += '};\n\n'
 

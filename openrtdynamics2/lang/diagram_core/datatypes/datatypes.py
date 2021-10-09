@@ -69,13 +69,16 @@ class DataType(object):
     def cpp_datatype_string(self):
         return 'UNDEF'
 
-    def cpp_define_variable(self, variable_name, make_a_reference = False):
+    def cpp_define_variable(self, variable_name, make_a_reference = False, mark_const = False):
         if make_a_reference:
             variable_name_ = '&' + variable_name + ''
         else:
             variable_name_ = variable_name
 
-        return self.cpp_datatype_string + ' ' + variable_name_
+        if not mark_const:
+            return self.cpp_datatype_string + ' ' + variable_name_
+        else:
+            return 'const ' + self.cpp_datatype_string + ' ' + variable_name_
 
     @property
     def cpp_printf_pattern(self):
