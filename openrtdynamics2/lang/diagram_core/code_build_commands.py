@@ -101,14 +101,16 @@ class CommandGenerateClusters(ExecutionCommand):
 
     """
 
-    def __init__(self, system, execution_plan, outputs, state_info):
+    def __init__(self, system, execution_plan, manifest, blocks):
         ExecutionCommand.__init__(self)
 
         self._system                     = system
         self.clusters                    = execution_plan.clusters
         self.execution_plan              = execution_plan
-        self.outputs                     = outputs
-        self.state_info                  = state_info
+        self.outputs_info                = manifest.outputs_info
+        self.state_info                  = manifest.state_info
+        self.system_inputs               = manifest.system_inputs
+        self.blocks                      = blocks
 
 
         # outputs = {
@@ -246,9 +248,28 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                 # lines += '\n'
 
 
+                lines += ''
+                lines += "\n\n// states\n"
+                for b in self.blocks:
+                    
+                    #
+                    # TODO: rename 'defStates' to 'variables'
+                    #
+                    
+                    lines += b.getBlockPrototype().generate_code_defStates('c++')
+
+
 
 
             if flag == 'code':
+
+                                # introduce a structure that combines all system inputs
+                lines += '// all system inputs and outputs combined\n'
+                lines += cgh.define_structure('Inputs', self.system_inputs)
+                lines += cgh.define_structure('Outputs', self.outputs_info['output_signals'])
+
+
+
                 lines += '\n// calculating clusters\n'
 
                 lines += 'void _reset_clusters() {\n'
@@ -355,9 +376,9 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
 
                 self.output_signals = []
 
-                for i, s in enumerate(self.outputs['output_signals']):
+                for i, s in enumerate(self.outputs_info['output_signals']):
 
-                    c = self.outputs['clusters'][i]
+                    c = self.outputs_info['clusters'][i]
 
                     # mapping output signal to cluster that computes the variable: s -> c
 
@@ -365,7 +386,7 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                 # int _output_signal_index_to_cluster_id[3] = { 0, 3, 4 };
                 
                 ilines = ''
-                ilines += 'int _output_signal_index_to_cluster_id[' + str(len(self.outputs['output_signals'])) + '] = {' + ', '.join( [ str(c.id) for c in self.outputs['clusters'] ] ) + '};\n'
+                ilines += 'int _output_signal_index_to_cluster_id[' + str(len(self.outputs_info['output_signals'])) + '] = {' + ', '.join( [ str(c.id) for c in self.outputs_info['clusters'] ] ) + '};\n'
                 ilines += 'compute_cluster( inputs, _output_signal_index_to_cluster_id[output_signal_index] );\n'
 
                 lines += cgh.cpp_define_generic_function('compute_output', 'void', 'Inputs const & inputs, int output_signal_index', ilines)
@@ -433,10 +454,10 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                 # outputs
                 code_calc_output  = '// calc outputs\n'
 
-                for c in self.outputs['clusters']:
+                for c in self.outputs_info['clusters']:
                     code_calc_output += 'compute_cluster(inputs, ' + str(c.id) + ');\n'
 
-                for c in self.outputs['clusters']:
+                for c in self.outputs_info['clusters']:
                     code_calc_output += 'outputs.' + c.destination_signal.name + ' = _cluster_target_values.' + c.destination_signal.name + ';\n'
 
 
@@ -476,521 +497,521 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
 
 
 
-# rename to CommandCalculateSignalValues
-class CommandCalculateOutputs(ExecutionCommand):
-    """
-        execute an executionLine i.e. call the output-flags of all blocks given in executionLine
-        in the correct order. This calculates the blocks outputs indicated by the signals given
-        in executionLine.getSignalsToExecute()
+# # rename to CommandCalculateSignalValues
+# class CommandCalculateOutputs(ExecutionCommand):
+#     """
+#         execute an executionLine i.e. call the output-flags of all blocks given in executionLine
+#         in the correct order. This calculates the blocks outputs indicated by the signals given
+#         in executionLine.getSignalsToExecute()
 
-        system - the system of which to calculate the outputs
-        target_signals - the signals to evaluate
-        output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
-    """
+#         system - the system of which to calculate the outputs
+#         target_signals - the signals to evaluate
+#         output_signal - signals foreseen to be system outputs (e.g. for them no memory needs to be allocated)
+#     """
 
-    def __init__(self, system, executionLine, targetSignals, signals_from_system_states = [], no_memory_for_output_variables : bool = False, output_signals = []):
-        ExecutionCommand.__init__(self)
+#     def __init__(self, system, executionLine, targetSignals, signals_from_system_states = [], no_memory_for_output_variables : bool = False, output_signals = []):
+#         ExecutionCommand.__init__(self)
 
-        self._system                          = system
-        self.executionLine                    = executionLine
-        self.targetSignals                    = targetSignals
-        self._output_signals                  = output_signals
-        self._signals_from_system_states      = signals_from_system_states
-        self.define_variables_for_the_outputs = not no_memory_for_output_variables
+#         self._system                          = system
+#         self.executionLine                    = executionLine
+#         self.targetSignals                    = targetSignals
+#         self._output_signals                  = output_signals
+#         self._signals_from_system_states      = signals_from_system_states
+#         self.define_variables_for_the_outputs = not no_memory_for_output_variables
 
-    def print_execution(self):
-        signalListStr = '['
+#     def print_execution(self):
+#         signalListStr = '['
 
-        if self.targetSignals is not None:
-            signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
+#         if self.targetSignals is not None:
+#             signalListStr += cgh.signal_list_to_names_string(self.targetSignals)
 
-        signalListStr += ']'
+#         signalListStr += ']'
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: follow output execution line to calculate " + signalListStr + " using:")
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: follow output execution line to calculate " + signalListStr + " using:")
 
-        self.executionLine.printExecutionLine()
+#         self.executionLine.printExecutionLine()
 
-    def generate_code_init(self, language):
-        pass
+#     def generate_code_init(self, language):
+#         pass
 
-    def generate_code_destruct(self, language):
-        pass
+#     def generate_code_destruct(self, language):
+#         pass
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
 
-            if flag == 'localvar':
+#             if flag == 'localvar':
 
-                # 
-                signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
+#                 # 
+#                 signals_reduced_set = self.executionLine.getSignalsToExecute().copy()
 
-                # remove the system-output signals if requested
-                if not self.define_variables_for_the_outputs: # This is flipped by its name
-                    for s in self.targetSignals:
+#                 # remove the system-output signals if requested
+#                 if not self.define_variables_for_the_outputs: # This is flipped by its name
+#                     for s in self.targetSignals:
 
-                        # if s is output signal of system 
-                        if s in self._output_signals:
+#                         # if s is output signal of system 
+#                         if s in self._output_signals:
 
-                            # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
+#                             # s is a system output: the code that generates the source to calculate s shall not reserve memory for s
 
-                            signals_reduced_set.remove( s )
+#                             signals_reduced_set.remove( s )
 
-                            # notify the block prototype that the signal s will be a system output
-                            # and, hence, no memory shall be allocated for s (because the memory is already
-                            # available)
-                            s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference('c++', s)
+#                             # notify the block prototype that the signal s will be a system output
+#                             # and, hence, no memory shall be allocated for s (because the memory is already
+#                             # available)
+#                             s.getSourceBlock().getBlockPrototype().generate_code_setOutputReference('c++', s)
                             
                             
                             
 
 
-                # skip the input signals in this loop (as their variables are already defined by the function API)
-                for s in signals_reduced_set:
+#                 # skip the input signals in this loop (as their variables are already defined by the function API)
+#                 for s in signals_reduced_set:
 
-                    # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
-                    if not s in self._signals_from_system_states:
+#                     # remove also the variables that are states (e.g. in case they are defined by CommandRestoreCache(self._signals_from_system_states)
+#                     if not s in self._signals_from_system_states:
 
-                        if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
-                            # only implement caching for intermediate computation results.
-                            # I.e. exclude the simulation input signals
+#                         if not s.is_crossing_system_boundary(self._system): # TODO: Why is this needed?
+#                             # only implement caching for intermediate computation results.
+#                             # I.e. exclude the simulation input signals
 
-                            if not s.is_referencing_memory:
-                                lines += cgh.define_variable_line( s )
-
-
-
-            if flag == 'code':
-                lines += '\n// calculating the block outputs in the following order ' + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + '\n'
-                lines += '// that depend on ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + '\n'
-                lines += '// dependencies that require a state update are ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
-                lines += '\n'
+#                             if not s.is_referencing_memory:
+#                                 lines += cgh.define_variable_line( s )
 
 
-                # build map block -> list of signals
-                blocks_with_outputs_to_compute = {}
 
-                for s in self.executionLine.getSignalsToExecute():
-                    # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
-                    if not s.is_crossing_system_boundary(self._system):
-                        # only implement caching for intermediate computaion results.
-                        # I.e. exclude the simulation input signals
-
-                        block = s.getSourceBlock()
-
-                        if block not in blocks_with_outputs_to_compute:
-                            blocks_with_outputs_to_compute[ block ] = [ s ]
-                        else:
-                            blocks_with_outputs_to_compute[ block ].append( s )
+#             if flag == 'code':
+#                 lines += '\n// calculating the block outputs in the following order ' + cgh.signal_list_to_names_string(self.executionLine.signalOrder ) + '\n'
+#                 lines += '// that depend on ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsSimulationInputs) + '\n'
+#                 lines += '// dependencies that require a state update are ' + cgh.signal_list_to_names_string(self.executionLine.dependencySignalsThroughStates) + ' \n'
+#                 lines += '\n'
 
 
-                # for each blocks that provides outputs that are needed to compute,
-                # generate the code to calculate these outputs.
-                for block in blocks_with_outputs_to_compute:
-                    lines += block.getBlockPrototype().generate_code_output_list('c++', blocks_with_outputs_to_compute[ block ] )
+#                 # build map block -> list of signals
+#                 blocks_with_outputs_to_compute = {}
+
+#                 for s in self.executionLine.getSignalsToExecute():
+#                     # if isinstance(s, BlockOutputSignal): # TODO: is this neccessary?
+#                     if not s.is_crossing_system_boundary(self._system):
+#                         # only implement caching for intermediate computaion results.
+#                         # I.e. exclude the simulation input signals
+
+#                         block = s.getSourceBlock()
+
+#                         if block not in blocks_with_outputs_to_compute:
+#                             blocks_with_outputs_to_compute[ block ] = [ s ]
+#                         else:
+#                             blocks_with_outputs_to_compute[ block ].append( s )
+
+
+#                 # for each blocks that provides outputs that are needed to compute,
+#                 # generate the code to calculate these outputs.
+#                 for block in blocks_with_outputs_to_compute:
+#                     lines += block.getBlockPrototype().generate_code_output_list('c++', blocks_with_outputs_to_compute[ block ] )
                     
-        return lines
+#         return lines
 
 
 
 
-class CommandResetStates(ExecutionCommand):
-    """
-        call reset flag of all blocks given to this command
-    """
+# class CommandResetStates(ExecutionCommand):
+#     """
+#         call reset flag of all blocks given to this command
+#     """
 
-    def __init__(self, blockList):
-        ExecutionCommand.__init__(self)
+#     def __init__(self, blockList):
+#         ExecutionCommand.__init__(self)
 
-        self.blockList = blockList
+#         self.blockList = blockList
         
-    def print_execution(self):
+#     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: reset states of:")
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: reset states of:")
 
-        for block in self.blockList:
-            print("  - " + block.toStr() )
+#         for block in self.blockList:
+#             print("  - " + block.toStr() )
 
-        # self.executionLine.printExecutionLine()
+#         # self.executionLine.printExecutionLine()
 
-    def generate_code_init(self, language):
-        pass
+#     def generate_code_init(self, language):
+#         pass
 
-    def generate_code_destruct(self, language):
-        pass
+#     def generate_code_destruct(self, language):
+#         pass
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
 
-            if flag == 'code':
-                lines += ''
-                for b in self.blockList:
-                    lines += b.getBlockPrototype().generate_code_reset('c++')
+#             if flag == 'code':
+#                 lines += ''
+#                 for b in self.blockList:
+#                     lines += b.getBlockPrototype().generate_code_reset('c++')
 
-        return lines
-
-
+#         return lines
 
 
 
 
 
 
-class CommandUpdateStates(ExecutionCommand):
-    """
-        call update states of all blocks given to this command
-    """
 
-    def __init__(self, blockList):
-        ExecutionCommand.__init__(self)
 
-        self.blockList = blockList
+# class CommandUpdateStates(ExecutionCommand):
+#     """
+#         call update states of all blocks given to this command
+#     """
+
+#     def __init__(self, blockList):
+#         ExecutionCommand.__init__(self)
+
+#         self.blockList = blockList
         
-    def print_execution(self):
+#     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: update states of:")
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: update states of:")
 
-        for block in self.blockList:
-            print("  - " + block.toStr() )
+#         for block in self.blockList:
+#             print("  - " + block.toStr() )
 
-        # self.executionLine.printExecutionLine()
+#         # self.executionLine.printExecutionLine()
 
-    def generate_code_init(self, language):
-        pass
+#     def generate_code_init(self, language):
+#         pass
 
-    def generate_code_destruct(self, language):
-        pass
+#     def generate_code_destruct(self, language):
+#         pass
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
 
-            if flag == 'variables':
-                # define all state variables
+#             if flag == 'variables':
+#                 # define all state variables
 
-                lines += ''
-                lines += "\n\n// state update\n"
-                for b in self.blockList:
+#                 lines += ''
+#                 lines += "\n\n// state update\n"
+#                 for b in self.blockList:
                     
-                    #
-                    # TODO: rename 'defStates' to 'variables'
-                    #
+#                     #
+#                     # TODO: rename 'defStates' to 'variables'
+#                     #
                     
-                    lines += b.getBlockPrototype().generate_code_defStates('c++')
+#                     lines += b.getBlockPrototype().generate_code_defStates('c++')
 
-            if flag == 'code':
-                lines += '\n'
-                lines += ''
+#             if flag == 'code':
+#                 lines += '\n'
+#                 lines += ''
 
-                for b in self.blockList:
-                    lines += b.getBlockPrototype().generate_code_update('c++')
-
-
-        return lines
+#                 for b in self.blockList:
+#                     lines += b.getBlockPrototype().generate_code_update('c++')
 
 
+#         return lines
 
 
 
 
 
-class CommandCacheOutputs(ExecutionCommand):
-    """
-        copy the value of each given signal to the space of global variables
-        (only signals that are the output of a block are considered, i.e. no 
-        simulation inputs)
-    """
 
-    def __init__(self, signals : List[Signal]):
-        ExecutionCommand.__init__(self)
 
-        self.signals = signals
+# class CommandCacheOutputs(ExecutionCommand):
+#     """
+#         copy the value of each given signal to the space of global variables
+#         (only signals that are the output of a block are considered, i.e. no 
+#         simulation inputs)
+#     """
+
+#     def __init__(self, signals : List[Signal]):
+#         ExecutionCommand.__init__(self)
+
+#         self.signals = signals
         
-    def get_cachedSignals(self):
-        return self.signals
+#     def get_cachedSignals(self):
+#         return self.signals
 
-    def print_execution(self):
+#     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: cache the following outputs (so that they do not need to be recalculated):")
 
-        for s in self.signals:
-            print("  - " + s.toStr() )
+#         for s in self.signals:
+#             print("  - " + s.toStr() )
 
-    def generate_code_init(self, language):
-        pass
+#     def generate_code_init(self, language):
+#         pass
 
-    def generate_code_destruct(self, language):
-        pass
+#     def generate_code_destruct(self, language):
+#         pass
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
-
-
-            if flag == 'variables':
-                lines += ''
-                lines += "\n\n//\n// cached output values\n//\n\n"
-                for s in self.signals:
-
-                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-
-                    if not s.is_referencing_memory:
-                        # lines +=  '\n// cache for ' + s.name + '\n'
-                        lines +=  s.getDatatype().cpp_define_variable(cachevarName) + ";" + '\n' 
-
-                    else:
-                        comment = ' // cache for ' + s.name + ' (stores a pointer to a memory location)'
-                        lines +=  s.getDatatype().cpp_define_variable('(*' + cachevarName + ')') + ";" + comment + '\n' 
+#         if language == 'c++':
 
 
-            if flag == 'code':
-                lines += '\n'
-                lines += '// saving the signals ' + cgh.signal_list_to_names_string(self.signals) + ' into the states \n'
+#             if flag == 'variables':
+#                 lines += ''
+#                 lines += "\n\n//\n// cached output values\n//\n\n"
+#                 for s in self.signals:
+
+#                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+#                     if not s.is_referencing_memory:
+#                         # lines +=  '\n// cache for ' + s.name + '\n'
+#                         lines +=  s.getDatatype().cpp_define_variable(cachevarName) + ";" + '\n' 
+
+#                     else:
+#                         comment = ' // cache for ' + s.name + ' (stores a pointer to a memory location)'
+#                         lines +=  s.getDatatype().cpp_define_variable('(*' + cachevarName + ')') + ";" + comment + '\n' 
 
 
-                for s in self.signals:
-                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
-
-                    if not s.is_referencing_memory:
-                        lines += cachevarName + ' = ' + s.name + ';\n'
-                    else:
-                        # get the raw-pointer for the reference
-                        lines += cachevarName + ' = &(' + s.name + '); // just copy a pointer to the memory location\n'
-
-        return lines
+#             if flag == 'code':
+#                 lines += '\n'
+#                 lines += '// saving the signals ' + cgh.signal_list_to_names_string(self.signals) + ' into the states \n'
 
 
+#                 for s in self.signals:
+#                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+
+#                     if not s.is_referencing_memory:
+#                         lines += cachevarName + ' = ' + s.name + ';\n'
+#                     else:
+#                         # get the raw-pointer for the reference
+#                         lines += cachevarName + ' = &(' + s.name + '); // just copy a pointer to the memory location\n'
+
+#         return lines
 
 
 
 
-class CommandRestoreCache(ExecutionCommand):
-    """
-        restore the cached signals that were previously stored by the command 
-        cacheCommand : CommandCacheOutputs
-    """
 
-    def __init__(self,  cacheCommand : CommandCacheOutputs ):
-        ExecutionCommand.__init__(self)
 
-        self.signals = cacheCommand.get_cachedSignals()
+# class CommandRestoreCache(ExecutionCommand):
+#     """
+#         restore the cached signals that were previously stored by the command 
+#         cacheCommand : CommandCacheOutputs
+#     """
+
+#     def __init__(self,  cacheCommand : CommandCacheOutputs ):
+#         ExecutionCommand.__init__(self)
+
+#         self.signals = cacheCommand.get_cachedSignals()
         
-    def print_execution(self):
+#     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):")
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: read cache of the following outputs (so that they do not need to be recalculated):")
 
-        for s in self.signals:
-            print("  - " + s.toStr() )
+#         for s in self.signals:
+#             print("  - " + s.toStr() )
 
-    def generate_code_init(self, language):
-        pass
+#     def generate_code_init(self, language):
+#         pass
 
-    def generate_code_destruct(self, language):
-        pass
+#     def generate_code_destruct(self, language):
+#         pass
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
 
-            if flag == 'code':
-                lines += '\n'
-                lines += '// restoring the signals ' + cgh.signal_list_to_names_string(self.signals) + ' from the states \n'
+#             if flag == 'code':
+#                 lines += '\n'
+#                 lines += '// restoring the signals ' + cgh.signal_list_to_names_string(self.signals) + ' from the states \n'
 
-                for s in self.signals:
+#                 for s in self.signals:
 
-                    cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
+#                     cachevarName = s.name + "__" + s.getSourceBlock().getBlockPrototype().getUniqueVarnamePrefix()
 
-                    if not s.is_referencing_memory:
-                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = ' + cachevarName + ";" + '\n' 
-                    else:
-                        # set the reference to the memory the pointer 'cachevarName' is pointing to
-                        lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = *' + cachevarName + ";" + ' // use a pointer to the memory location\n' 
-
-
-                lines += '\n'
-
-        return lines
+#                     if not s.is_referencing_memory:
+#                         lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = ' + cachevarName + ";" + '\n' 
+#                     else:
+#                         # set the reference to the memory the pointer 'cachevarName' is pointing to
+#                         lines +=  s.getDatatype().cpp_define_variable( s.name, make_a_reference=True ) + ' = *' + cachevarName + ";" + ' // use a pointer to the memory location\n' 
 
 
+#                 lines += '\n'
+
+#         return lines
 
 
 
 
-class PutAPIFunction(ExecutionCommand):
-    """
-        Represents an API-function (e.g. member function of a c++ class) which executes --
-        once triggered -- the specified commands. A list of in-/output signals to this function
-        is given by inputSignals and outputSignals.
-    """
-
-    #
-    # Creates an API-function to return the calculated values that might depend on input values
-    # 
-
-    def __init__(
-        self, 
-        nameAPI : str, 
-        inputSignals : List[ Signal ], 
-        outputSignals : List[ Signal ], 
-        executionCommands, 
-        generate_wrappper_functions = True,
-        subsystem_nesting_level : int = 0
-    ):
-        ExecutionCommand.__init__(self)
-
-        self.outputSignals = outputSignals
-        self.inputSignals = inputSignals
-        self.executionCommands = executionCommands
-        self._nameAPI = nameAPI
-        self._generate_wrappper_functions = generate_wrappper_functions
-        self._subsystem_nesting_level = subsystem_nesting_level
-
-        # check if there are no common signal names in in/output
-        for so in self.outputSignals:
-            for si in self.inputSignals:
-                if so.name == si.name:
-                    raise BaseException('the systems in-/outputs have a common signal name: ' + si.name + '. This is not supported in code generation. Please use a different signal name for the output or the input.')
-
-        for e in executionCommands:
-            e.setContext(self)
 
 
-    @property
-    def API_name(self):
-        return self._nameAPI
+# class PutAPIFunction(ExecutionCommand):
+#     """
+#         Represents an API-function (e.g. member function of a c++ class) which executes --
+#         once triggered -- the specified commands. A list of in-/output signals to this function
+#         is given by inputSignals and outputSignals.
+#     """
+
+#     #
+#     # Creates an API-function to return the calculated values that might depend on input values
+#     # 
+
+#     def __init__(
+#         self, 
+#         nameAPI : str, 
+#         inputSignals : List[ Signal ], 
+#         outputSignals : List[ Signal ], 
+#         executionCommands, 
+#         generate_wrappper_functions = True,
+#         subsystem_nesting_level : int = 0
+#     ):
+#         ExecutionCommand.__init__(self)
+
+#         self.outputSignals = outputSignals
+#         self.inputSignals = inputSignals
+#         self.executionCommands = executionCommands
+#         self._nameAPI = nameAPI
+#         self._generate_wrappper_functions = generate_wrappper_functions
+#         self._subsystem_nesting_level = subsystem_nesting_level
+
+#         # check if there are no common signal names in in/output
+#         for so in self.outputSignals:
+#             for si in self.inputSignals:
+#                 if so.name == si.name:
+#                     raise BaseException('the systems in-/outputs have a common signal name: ' + si.name + '. This is not supported in code generation. Please use a different signal name for the output or the input.')
+
+#         for e in executionCommands:
+#             e.setContext(self)
+
+
+#     @property
+#     def API_name(self):
+#         return self._nameAPI
         
-    def print_execution(self):
+#     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: API outputs are:")
-        for s in self.outputSignals:
-            print(Style.DIM + '  - ' + s.name)
+#         print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: API outputs are:")
+#         for s in self.outputSignals:
+#             print(Style.DIM + '  - ' + s.name)
 
-        print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
+#         print(Style.BRIGHT + Fore.YELLOW + "that are calculated by: {")
         
-        for c in self.executionCommands:
-            c.print_execution()
+#         for c in self.executionCommands:
+#             c.print_execution()
 
-        print(Style.BRIGHT + Fore.YELLOW + "}")
+#         print(Style.BRIGHT + Fore.YELLOW + "}")
         
-    def generate_code_init(self, language):
-        for c in self.executionCommands:
-            c.generate_code_init(language)
+#     def generate_code_init(self, language):
+#         for c in self.executionCommands:
+#             c.generate_code_init(language)
 
-    def generate_code_destruct(self, language):
-        for c in self.executionCommands:
-            c.generate_code_destruct(language)
+#     def generate_code_destruct(self, language):
+#         for c in self.executionCommands:
+#             c.generate_code_destruct(language)
 
-    def generate_code(self, language, flag):
+#     def generate_code(self, language, flag):
 
-        lines = ''
+#         lines = ''
 
-        if language == 'c++':
+#         if language == 'c++':
 
-            if flag == 'variables':
-                for c in self.executionCommands:
-                    lines += c.generate_code(language, 'variables')
+#             if flag == 'variables':
+#                 for c in self.executionCommands:
+#                     lines += c.generate_code(language, 'variables')
 
 
-            if flag == 'code':
-                #
-                # ------ define the API-function ------
-                #
-                if len(self.outputSignals) > 0:
-                    lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signal_list_to_names_string( self.outputSignals )
-                else:
-                    lines += '// API-function ' + self._nameAPI
+#             if flag == 'code':
+#                 #
+#                 # ------ define the API-function ------
+#                 #
+#                 if len(self.outputSignals) > 0:
+#                     lines += '// API-function ' + self._nameAPI + ' to compute: ' + cgh.signal_list_to_names_string( self.outputSignals )
+#                 else:
+#                     lines += '// API-function ' + self._nameAPI
 
-                lines += '\n'
+#                 lines += '\n'
 
-                # innerLines will be put into the functions
-                function_code = ''
+#                 # innerLines will be put into the functions
+#                 function_code = ''
 
-                # place tracing (begin)
-                if self._tracing_infrastructure is not None:
+#                 # place tracing (begin)
+#                 if self._tracing_infrastructure is not None:
 
-                    space = cgh.tabs(self._subsystem_nesting_level)
+#                     space = cgh.tabs(self._subsystem_nesting_level)
 
-                    function_code += cgh.create_printf(
-                        intro_string = Fore.GREEN + space + 'ENTR: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
-                        signals      = self.inputSignals
-                    )
+#                     function_code += cgh.create_printf(
+#                         intro_string = Fore.GREEN + space + 'ENTR: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
+#                         signals      = self.inputSignals
+#                     )
 
-                    function_code += '\n'
+#                     function_code += '\n'
                 
-                # put the local variables
-                for c in self.executionCommands:
-                    function_code += c.generate_code(language, 'localvar')
+#                 # put the local variables
+#                 for c in self.executionCommands:
+#                     function_code += c.generate_code(language, 'localvar')
                 
-                function_code += '\n'
+#                 function_code += '\n'
 
-                # put the code
-                for c in self.executionCommands:
-                    function_code += c.generate_code(language, 'code')
+#                 # put the code
+#                 for c in self.executionCommands:
+#                     function_code += c.generate_code(language, 'code')
 
-                # place tracing (end)
-                if self._tracing_infrastructure is not None:
+#                 # place tracing (end)
+#                 if self._tracing_infrastructure is not None:
 
-                    space = cgh.tabs(self._subsystem_nesting_level)
+#                     space = cgh.tabs(self._subsystem_nesting_level)
 
-                    function_code += cgh.create_printf(
-                        intro_string = Fore.RED + space + 'EXIT: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
-                        signals     = self.outputSignals
-                    )
+#                     function_code += cgh.create_printf(
+#                         intro_string = Fore.RED + space + 'EXIT: ' + Fore.YELLOW + self.contextCommand.API_name + Fore.RESET + '/' + Style.DIM + self._nameAPI + Style.RESET_ALL,
+#                         signals     = self.outputSignals
+#                     )
 
-                    function_code += '\n'
+#                     function_code += '\n'
 
-                # generate the function
-                lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
+#                 # generate the function
+#                 lines += cgh.cpp_define_function(self._nameAPI, self.inputSignals, self.outputSignals, function_code )
 
-                #
-                # ------ end of 'define the API-function' ------
-                #
+#                 #
+#                 # ------ end of 'define the API-function' ------
+#                 #
 
-                if self._generate_wrappper_functions:
+#                 if self._generate_wrappper_functions:
 
-                    # put data strutures to hold I/O signals
-                    lines += '// output signals of  ' + self._nameAPI + '\n'
-                    lines += cgh.define_structure('Outputs_' + self._nameAPI , self.outputSignals)  
+#                     # put data strutures to hold I/O signals
+#                     lines += '// output signals of  ' + self._nameAPI + '\n'
+#                     lines += cgh.define_structure('Outputs_' + self._nameAPI , self.outputSignals)  
 
-                    lines += '// input signals of ' + self._nameAPI + '\n'
-                    lines += cgh.define_structure('Inputs_' + self._nameAPI , self.inputSignals)  
+#                     lines += '// input signals of ' + self._nameAPI + '\n'
+#                     lines += cgh.define_structure('Inputs_' + self._nameAPI , self.inputSignals)  
 
-                    #
-                    # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
-                    #
+#                     #
+#                     # put a wrapper function that offers a 'nicer' API using structures for in- and output signals
+#                     #
 
-                    function_code = ''
-                    function_code += cgh.define_struct_var( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
+#                     function_code = ''
+#                     function_code += cgh.define_struct_var( 'Outputs_' + self._nameAPI, 'outputs'  ) + '\n'
 
-                    # call to wrapped function
-                    function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname='inputs', output_struct_varname='outputs')
+#                     # call to wrapped function
+#                     function_code += codegen_call_to_API_function_with_strutures(API_function_command=self, input_struct_varname='inputs', output_struct_varname='outputs')
 
-                    function_code += '\n'
-                    function_code += 'return outputs;\n'
+#                     function_code += '\n'
+#                     function_code += 'return outputs;\n'
 
-                    #
-                    lines += '// wrapper function for ' + self._nameAPI + '\n'
-                    lines += cgh.cpp_define_generic_function( 
-                        fn_name=self._nameAPI + '__', 
-                        return_cpp_type_str = 'Outputs_' + self._nameAPI, 
-                        arg_list_str = 'Inputs_' + self._nameAPI + ' inputs', 
-                        code = function_code
-                    )
+#                     #
+#                     lines += '// wrapper function for ' + self._nameAPI + '\n'
+#                     lines += cgh.cpp_define_generic_function( 
+#                         fn_name=self._nameAPI + '__', 
+#                         return_cpp_type_str = 'Outputs_' + self._nameAPI, 
+#                         arg_list_str = 'Inputs_' + self._nameAPI + ' inputs', 
+#                         code = function_code
+#                     )
 
 
 
-        return lines
+#         return lines
 
 
 
@@ -1003,26 +1024,31 @@ class PutSystem(ExecutionCommand):
     def __init__(
         self, 
         system : System,
-        resetCommand : PutAPIFunction,
-        updateCommand : PutAPIFunction,
-        outputCommand : PutAPIFunction,
-        command_to_compute_clusters : PutAPIFunction,
+#        resetCommand : PutAPIFunction,
+#        updateCommand : PutAPIFunction,
+#        outputCommand : PutAPIFunction,
+        command_to_compute_clusters : ExecutionCommand,
     ):
         ExecutionCommand.__init__(self)
-        self.executionCommands = [ resetCommand, updateCommand, outputCommand, command_to_compute_clusters ] 
+#        self.executionCommands = [ resetCommand, updateCommand, outputCommand, command_to_compute_clusters ] 
+        self.executionCommands = [  command_to_compute_clusters ] 
 
-        self.resetCommand = resetCommand
-        self.updateCommand = updateCommand
-        self.outputCommand = outputCommand
+        # self.resetCommand = resetCommand
+        # self.updateCommand = updateCommand
+        # self.outputCommand = outputCommand
         self.command_to_compute_clusters = command_to_compute_clusters
 
-        self._api_function_names = {'calculate_output' : self.outputCommand.API_name,
-                         'state_update' : self.updateCommand.API_name,
-                         'reset' : self.resetCommand.API_name }
+        # self._api_function_names = {'calculate_output' : self.outputCommand.API_name,
+        #                  'state_update' : self.updateCommand.API_name,
+        #                  'reset' : self.resetCommand.API_name }
 
-        self._api_functions = {'calculate_output' : self.outputCommand,
-                         'state_update' : self.updateCommand,
-                         'reset' : self.resetCommand }
+        # self._api_function_names = {'calculate_output' : 'output',
+        #                  'state_update' : 'update',
+        #                  'reset' : 'reset' }
+
+        # self._api_functions = {'calculate_output' : self.outputCommand,
+        #                  'state_update' : self.updateCommand,
+        #                  'reset' : self.resetCommand }
 
 
         self.system = system
@@ -1041,9 +1067,9 @@ class PutSystem(ExecutionCommand):
     def API_functionNames(self):
         return self._api_function_names
         
-    @property
-    def API_functions(self):
-        return self._api_functions
+    # @property
+    # def API_functions(self):
+    #     return self._api_functions
 
     def print_execution(self):
 
@@ -1101,15 +1127,15 @@ class PutSystem(ExecutionCommand):
                 # define structures that combine all in- and outputs
                 #
 
-                config_pass_by_reference = True
+                # config_pass_by_reference = True
 
-                all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
-                all_output_signals = self.outputCommand.outputSignals
+                # all_input_signals = list(set(self.resetCommand.inputSignals + self.updateCommand.inputSignals + self.outputCommand.inputSignals))
+                # all_output_signals = self.outputCommand.outputSignals
 
-                # introduce a structure that combines all system inputs
-                inner_lines += '// all system inputs and outputs combined\n'
-                inner_lines += cgh.define_structure('Inputs', all_input_signals)
-                inner_lines += cgh.define_structure('Outputs', all_output_signals)
+                # # introduce a structure that combines all system inputs
+                # inner_lines += '// TODO: remove; all system inputs and outputs combined\n'
+                # inner_lines += cgh.define_structure('Inputs', all_input_signals)
+                # inner_lines += cgh.define_structure('Outputs', all_output_signals)
 
                 #
                 # put the local variables
