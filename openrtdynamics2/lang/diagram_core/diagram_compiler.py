@@ -238,8 +238,6 @@ def compile_single_system(
 
 
 
-    # print("building execution paths...")
-
     # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
     # element. Also collect the newly appearing dependency signals in a list and also 
     # call E.determine_execution_order( ) on them. Stop until no further dependend signal appears.
@@ -253,19 +251,6 @@ def compile_single_system(
     # counter for the delay level (i.e. step through all delays present in the system)
     delay_level = 1
 
-    # execution line per delay level
-    # commandToCalcTheResultsToPublish = CommandCalculateOutputs(
-    #     system, 
-    #     executionLineToCalculateOutputs, 
-    #     signals_to_compute,
-    #     no_memory_for_output_variables = True, 
-    #     output_signals=output_signals
-    # )
-
-    #
-    # cache all signals that are calculated so far
-    # TODO: make a one-liner e.g.  signalsToCache = removeInputSignals( executionLineToCalculateOutputs.signalOrder )
-    #
 
     signalsToCache = []
     for s in executionLineToCalculateOutputs.signalOrder:
@@ -280,27 +265,9 @@ def compile_single_system(
 
             signalsToCache.append( s )
 
-    #commandToCacheIntermediateResults = CommandCacheOutputs( signalsToCache )
-
-    # build the API function calcPrimaryResults() that calculates the outputs of the simulation.
-    # Further, it stores intermediate results
-    # commandToPublishTheResults = PutAPIFunction(
-    #     "calcResults_1", 
-    #     inputSignals=simulationInputSignalsToCalculateOutputs,
-    #     outputSignals=output_signals, 
-    #     executionCommands=[ commandToCalcTheResultsToPublish, commandToCacheIntermediateResults ],
-    #     generate_wrappper_functions = not reduce_not_needed_code,
-    #     subsystem_nesting_level  = subsytem_nesting_level
-    # )
-
-    # Initialize the list of commands to execute to update the states
-    commandsToExecuteForStateUpdate = []
-
-    # restore the cache of output signals to update the states
-    # ommandsToExecuteForStateUpdate.append( CommandRestoreCache(commandToCacheIntermediateResults) )
 
     # the simulation intputs needed to perform the state update
-    simulationInputSignalsToUpdateStates = set()
+    # simulationInputSignalsToUpdateStates = set()
 
     # the list of blocks that are updated. Note: So far this list is only used to prevent
     # double updates.
@@ -352,24 +319,6 @@ def compile_single_system(
         dependency_signals_through_states_that_are_already_computed.update( dependencySignalsThroughStates )
 
 
-        # create a command to calcurate executionLineForCurrentOrder and append to the
-        # list of commands for state update: 'commandsToExecuteForStateUpdate'
-        
-        #
-        # TODO (DONE): ensure somehow that variables are reserved for the inputs to the blocks
-        #              whose states are updated
-        #  executionLineForCurrentOrder.dependencySignalsSimulationInputs contains a list of input needed to update
-        #  the states.
-        #
-
-        #signals_from_system_states = signalsToCache
-
-        # commandsToExecuteForStateUpdate.append( CommandCalculateOutputs(system, 
-        #                                                                 executionLineForCurrentOrder, 
-        #                                                                 dependencySignals__, 
-        #                                                                 signals_from_system_states=signals_from_system_states, 
-        #                                                                 no_memory_for_output_variables = False) )
-
         #
         # find out which blocks need a call to update their states:
         # create commands for the blocks that have dependencySignals as outputs
@@ -413,29 +362,15 @@ def compile_single_system(
         blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
         dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
 
-
-        # TODO: handle special case in which a simulation input is required for the state update of a block
-        #       and was before found to be required to calculate the outpus of sth. 
-        # instead of printing 'has already been calculated in a previous traversal' create an input to the update() function
-        #
-        # --- signals needed *indirectly* for s30 (through state update) --
-        # -> S osc_excitement
-        # -> S s22
-        # --- signals needed for s30 --
-        # -> S osc_excitement
-        # .  has already been calculated in a previous traversal
-
-
         # find out which signals must be further computed to allow a state-update of the blocks
         dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
 
         # add the system inputs needed to update the states
-        simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
+        # simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
 
         # iterate
         delay_level = delay_level + 1
         if len(dependencySignals__) == 0:
-            # print(Fore.GREEN + "All dependencies are resolved.")
 
             break
 
@@ -500,10 +435,6 @@ def compile_single_system(
         'input_signals'      : list(input_signals) # [] # TODO: fill in
     }
 
-    # all_inputs = set( outputs_info['input_signals'] )
-    # all_inputs.update( set(state_info['input_signals'] ) )
-    # all_inputs = list(all_inputs)
-
     # build manifest
     manifest = SystemManifest( system.name, outputs_info, state_info )
 
@@ -512,43 +443,29 @@ def compile_single_system(
         system,
         computation_plan,
         manifest,
-        #outputs_info,
-        #state_info,
         blocksWhoseStatesToUpdate_All
     )
 
-
-
     # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten
-    simulation_input_signals_to_update_states_fixed_list = list(simulationInputSignalsToUpdateStates)
-
-
-
+    # simulation_input_signals_to_update_states_fixed_list = list(simulationInputSignalsToUpdateStates)
 
     # define the interfacing class
     command_to_execute_system = PutSystem(
         system = system,
-        # resetCommand = commandToResetStates, 
-        # updateCommand = commandToUpdateStates,
-        # outputCommand = commandToPublishTheResults,
         command_to_compute_clusters = command_to_compute_clusters
     )
 
     # collect all (needed) inputs to this system TODO: remove!
-    allinputs = set(( simulationInputSignalsToUpdateStates ))
-    allinputs.update( simulationInputSignalsToCalculateOutputs )
-    allinputs = list(allinputs)
+    #allinputs = set(( simulationInputSignalsToUpdateStates ))
+    #allinputs.update( simulationInputSignalsToCalculateOutputs )
+    #allinputs = list(allinputs)
 
-    # build the manifest for the compiled system
-#    manifest = SystemManifest( command_to_execute_system, expected_system_inputs )
-
-
-
+    # collect the results
     compleResults = CompileResults( manifest, command_to_execute_system)
 
-    compleResults.inputSignals                             = allinputs
-    compleResults.simulationInputSignalsToUpdateStates     = simulation_input_signals_to_update_states_fixed_list
-    compleResults.simulationInputSignalsToCalculateOutputs = simulationInputSignalsToCalculateOutputs
+    compleResults.inputSignals                             = manifest.system_inputs  # allinputs
+    compleResults.simulationInputSignalsToUpdateStates     = state_info['input_signals']  # simulation_input_signals_to_update_states_fixed_list
+    compleResults.simulationInputSignalsToCalculateOutputs = outputs_info['input_signals'] # simulationInputSignalsToCalculateOutputs
     compleResults.outputSignals                            = output_signals
 
 
