@@ -417,7 +417,7 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                 # get input variables
                 ilines += '// input variables    TODO: find out how to handle direct system inputs to update the states\n'
                 for s in self.state_info['input_signals']:
-                    ilines += cgh.defineVariable(s, make_a_reference=True, mark_const=True ) + ' = _inputs.' + s.name + ';\n'
+                    ilines += cgh.defineVariable(s, make_a_reference=True, mark_const=True ) + ' = inputs.' + s.name + ';\n'
 
                 lines += '\n'
 

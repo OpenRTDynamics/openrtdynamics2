@@ -147,21 +147,11 @@ def compile_single_system(
     #
 
 
-
     #
     # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
     #
 
     dependency_graph_explorer=BuildExecutionPath(system)
-
-
-    # append all execution lines to this structure
-    executionLineToCalculateOutputs = ExecutionLine( [], [], [], [] )
-
-
-
-
-
 
 
     #
@@ -170,8 +160,8 @@ def compile_single_system(
     # that are triggered on state update.
     #
 
-    sink_blocks_using_state_update = []
-    inputs_through_state_update_for_sinks = []
+    sink_blocks = []
+    signals_required_for_sink_blocks = set()
 
     for blk in system.blocks_in_system:
         if blk.output_signals is not None:
@@ -182,7 +172,7 @@ def compile_single_system(
                 inputs_to_update_states_tmp = blk.getBlockPrototype().config_request_define_state_update_input_dependencies( None )
                 if inputs_to_update_states_tmp is not None:
                     # a sink that needs inputs for its state update
-                    sink_blocks_using_state_update.append(blk)
+                    sink_blocks.append(blk)
 
                     # print("signals needed *indirectly* to compute sink (through state update)" )
 
@@ -190,193 +180,227 @@ def compile_single_system(
                     resolveUndeterminedSignals( inputs_to_update_states_tmp )
 
                     # add the signals that are required to perform the state update
-                    inputs_through_state_update_for_sinks.extend( inputs_to_update_states_tmp )
-
-                    # for signal in inputsToUpdateStatesTmp:
-                    #     print(Fore.MAGENTA + "-> S " + signal.name )
+                    signals_required_for_sink_blocks.update( set(  inputs_to_update_states_tmp  ) )
 
 
+    
 
-    execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks_using_state_update, inputs_through_state_update_for_sinks )  # TODO! is this okay..? 
+    #execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks, signals_required_for_sink_blocks )  # TODO! is this okay..? 
 
     # add
-    executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
+    # executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
 
 
 
 
+    #
+    # list of collected dependencies
+    #
+
+    dependency_signals_simulation_inputs               = set()
+    blocks_to_update_states                            = set()
+    signals_needed_for_state_update_of_involved_blocks_by_delay_order = []
 
 
-
+    # counter for the delay level (i.e. step through all delays present in the system)
+    delay_order = 0
 
     #
     # look for output signals to be computed
     #
 
     signals_to_compute = set()
-    signals_to_compute.update( set(output_signals) )
-    signals_to_compute.update( set(system.signals_mandatory_to_compute) )
+    signals_to_compute.update( set(  output_signals                       ) )
+    signals_to_compute.update( set(  system.signals_mandatory_to_compute  ) )
+    # signals_to_compute.update( set(  signals_required_for_sink_blocks     ) )
+
+    # 
+    state_update_signals = set()
 
     for s in list(signals_to_compute):
 
-        elForOutputS = dependency_graph_explorer.determine_execution_order( s, system, delay_level=0 )
+        dep_info = dependency_graph_explorer.determine_execution_order( s, system, delay_order )
 
-        if enable_print > 1:
-            elForOutputS.printExecutionLine()
+        # dependency_signals_simulation_inputs.update( set( dep_info.dependency_signals_simulation_inputs ) )
 
-        # merge all lines into one,
-        # TODO use sets inside 'appendExecutionLine' some block are present twice
-        executionLineToCalculateOutputs.appendExecutionLine( elForOutputS )
+        blocks_to_update_states.update( set( dep_info.blocks_to_update_states ) )
+        state_update_signals.update( set( dep_info.signals_needed_for_state_update_of_involved_blocks ) )
 
-
+    signals_needed_for_state_update_of_involved_blocks_by_delay_order.append( state_update_signals )
 
 
-
-
-
-
-
-
-
-    # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
-    # element. Also collect the newly appearing dependency signals in a list and also 
-    # call E.determine_execution_order( ) on them. Stop until no further dependend signal appears.
-    # finally concatenare the execution lines
-
-    # start with following signals to be computed
-    simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
-    blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
-    dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
-
-    # counter for the delay level (i.e. step through all delays present in the system)
-    delay_level = 1
-
-
-    signalsToCache = []
-    for s in executionLineToCalculateOutputs.signalOrder:
-
-        if isinstance(s, UndeterminedSignal):
-            raise BaseException("found anonymous signal during compilation")
-
-        if isinstance(s, BlockOutputSignal) and not s.is_crossing_system_boundary(system):
-
-            # only implement caching for intermediate computation results.
-            # I.e. exclude the simulation input signals
-
-            signalsToCache.append( s )
-
-
-    # the simulation intputs needed to perform the state update
-    # simulationInputSignalsToUpdateStates = set()
-
-    # the list of blocks that are updated. Note: So far this list is only used to prevent
-    # double updates.
-    blocksWhoseStatesToUpdate_All = []
-
-    # find out which signals must be further computed to allow a state-update of the blocks
-    dependencySignals__ = dependencySignalsThroughStates + simulationInputSignalsToCalculateOutputs
-
-    dependency_signals_through_states_that_are_already_computed = set()
-    
+    # go through delays
+    state_update_signals.update( signals_required_for_sink_blocks )
 
     while True:
 
-        if enable_print > 0:
-            print("--------- Computing delay level "+ str(delay_level) + " --------")
-        
-        # backwards jump over the blocks that compute dependencySignals through their states.
-        # The result is dependencySignals__ which are the inputs to these blocks
-        if enable_print > 0:
-            print(Style.DIM + "These sources are translated to (through their blocks via state-update):")
+        # inspect dependencies of signals_needed_for_state_update_of_involved_blocks
 
-        # print the list of signals
-        if enable_print > 0:
-            print("-- dependencySignalsThroughStates signals __ --")
-            for s in dependencySignalsThroughStates:
-                print("  - " + s.name)
+        state_update_signals_next = set()
 
-        # collect all executions lines build in this delay level in:
-        executionLinesForCurrentOrder = []
+        for s in list( state_update_signals ):
 
-        # iterate over all needed input signals and find out how to compute each signal
-        for s in dependencySignalsThroughStates:
+            # check for 's3_i4_'
+            
 
-            # get execution line to calculate s
-            executionLineForS = dependency_graph_explorer.determine_execution_order(s, system, delay_level=delay_level)
+            dep_info = dependency_graph_explorer.determine_execution_order( s, system, delay_order )
 
-            # store this execution line
-            executionLinesForCurrentOrder.append(executionLineForS)
-
-
-        # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-        executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
-        for e in executionLinesForCurrentOrder:
-
-            # append execution line
-            executionLineForCurrentOrder.appendExecutionLine( e )
-
-        # update the list
-        dependency_signals_through_states_that_are_already_computed.update( dependencySignalsThroughStates )
-
-
-        #
-        # find out which blocks need a call to update their states:
-        # create commands for the blocks that have dependencySignals as outputs
-        #
-
-        if enable_print > 0:
-            print("state update of blocks that yield the following output signals:")
+            blocks_to_update_states.update( set( dep_info.blocks_to_update_states ) )
+            state_update_signals_next.update( set( dep_info.signals_needed_for_state_update_of_involved_blocks ) )
+    
+        signals_needed_for_state_update_of_involved_blocks_by_delay_order.append( state_update_signals_next )
 
 
 
-        # TODO: rework this loop: use a set instead
-        # blocksToUpdateStates Is already computed
-
-        blocksWhoseStatesToUpdate = []
-
-        for blk in blocksToUpdateStates:
-
-            if not blk in blocksWhoseStatesToUpdate_All:
-                # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
-                # dependencySignals are outputs of the same block)
-                blocksWhoseStatesToUpdate.append( blk )
-                blocksWhoseStatesToUpdate_All.append( blk )
-
-                # added  blk.toStr
-            else:
-                #
-                # already added blk.toStr()
-                pass
-
-
-
-
-        # create state update command and append to the list of commands to execute for state-update
-        #sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
-        #commandsToExecuteForStateUpdate.append( sUpCmd )
-
-        # get the denpendent singals of the current delay level
-        # TODO important: remove the signals that are already computable from this list
-        #dependencySignals = executionLineForCurrentOrder.dependencySignals
-        dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
-        blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
-        dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
-
-        # find out which signals must be further computed to allow a state-update of the blocks
-        dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
-
-        # add the system inputs needed to update the states
-        # simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
 
         # iterate
-        delay_level = delay_level + 1
-        if len(dependencySignals__) == 0:
+        delay_order          = delay_order + 1
+        state_update_signals = state_update_signals_next
 
+        # abort conditions
+        if len( state_update_signals ) == 0:
             break
 
-        if delay_level == 1000:
+        if delay_order == 1000:
             raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
             break
+
+
+
+# class QueriedSignal():
+#     """
+#         a structure that stores some initial results for a signal to be computed
+#     """
+#     def __init__(
+#         self,
+#         queried_signal,
+#         dependency_signals_simulation_inputs,
+#         dependency_signals_that_are_sources,
+#         dependency_signals_that_are_junctions,
+#         dependency_signals_that_depend_on_a_state_variable,
+
+#         blocks_to_update_states,  # needed?
+#         signals_needed_for_state_update_of_involved_blocks
+
+#     ):
+
+
+
+
+
+
+    # # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
+    # # element. Also collect the newly appearing dependency signals in a list and also 
+    # # call E.determine_execution_order( ) on them. Stop until no further dependend signal appears.
+    # # finally concatenare the execution lines
+
+    # # start with following signals to be computed
+    # #simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
+    # #blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
+    # #dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
+
+    # # counter for the delay level (i.e. step through all delays present in the system)
+    # delay_level = 1
+
+
+    # # the simulation intputs needed to perform the state update
+    # # simulationInputSignalsToUpdateStates = set()
+
+    # # the list of blocks that are updated. Note: So far this list is only used to prevent
+    # # double updates.
+    # blocksWhoseStatesToUpdate_All = []
+
+    # # find out which signals must be further computed to allow a state-update of the blocks
+    # #dependencySignals__ = signals_needed_for_state_update_of_involved_blocks + simulationInputSignalsToCalculateOutputs
+
+    # dependency_signals_through_states_that_are_already_computed = set()
+    
+
+    # while True:
+
+
+    #     # collect all executions lines build in this delay level in:
+    #     #executionLinesForCurrentOrder = []
+
+    #     # iterate over all needed input signals and find out how to compute each signal
+    #     for s in list(state_update_signals):
+
+    #         # get execution line to calculate s
+    #         dep_info = dependency_graph_explorer.determine_execution_order(s, system, delay_level=delay_level)
+
+    #         # store this execution line
+    #         #executionLinesForCurrentOrder.append(executionLineForS)
+
+
+    #     # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
+    #     executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
+    #     for e in executionLinesForCurrentOrder:
+
+    #         # append execution line
+    #         executionLineForCurrentOrder.appendExecutionLine( e )
+
+    #     # update the list
+    #     dependency_signals_through_states_that_are_already_computed.update( state_update_signals )
+
+
+    #     #
+    #     # find out which blocks need a call to update their states:
+    #     # create commands for the blocks that have dependencySignals as outputs
+    #     #
+
+    #     if enable_print > 0:
+    #         print("state update of blocks that yield the following output signals:")
+
+
+
+    #     # TODO: rework this loop: use a set instead
+    #     # blocksToUpdateStates Is already computed
+
+    #     blocksWhoseStatesToUpdate = []
+
+    #     for blk in blocksToUpdateStates:
+
+    #         if not blk in blocksWhoseStatesToUpdate_All:
+    #             # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
+    #             # dependencySignals are outputs of the same block)
+    #             blocksWhoseStatesToUpdate.append( blk )
+    #             blocksWhoseStatesToUpdate_All.append( blk )
+
+    #             # added  blk.toStr
+    #         else:
+    #             #
+    #             # already added blk.toStr()
+    #             pass
+
+
+
+
+    #     # create state update command and append to the list of commands to execute for state-update
+    #     #sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
+    #     #commandsToExecuteForStateUpdate.append( sUpCmd )
+
+    #     # get the denpendent singals of the current delay level
+    #     # TODO important: remove the signals that are already computable from this list
+    #     #dependencySignals = executionLineForCurrentOrder.dependencySignals
+    #     dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
+    #     blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
+    #     dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
+
+    #     # find out which signals must be further computed to allow a state-update of the blocks
+    #     dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
+
+    #     # add the system inputs needed to update the states
+    #     # simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
+
+    #     # iterate
+    #     delay_level = delay_level + 1
+    #     if len(dependencySignals__) == 0:
+
+    #         break
+
+    #     if delay_level == 1000:
+    #         raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
+    #         break
 
 
 
@@ -408,11 +432,11 @@ def compile_single_system(
 
     # find blocks that need a state update
     blocks_that_need_a_state_update = list(dependency_graph_explorer.blocks_involved_in_a_state_update)
-    signals_needed_for_state_update_of_involved_blocks = list(dependency_graph_explorer.signals_needed_for_state_update_of_involved_blocks)
+    state_update_signals = list(dependency_graph_explorer.signals_needed_for_state_update_of_involved_blocks)
 
     # collect clusters needed to perform the state update
     clusters_needed_for_state_update_of_involved_blocks = []
-    for s in signals_needed_for_state_update_of_involved_blocks:
+    for s in state_update_signals:
 
         c = computation_plan.get_cluster_from_destination_signal( s )
 
@@ -429,10 +453,10 @@ def compile_single_system(
 
 
     state_info = {
-        'dependency_signals' : signals_needed_for_state_update_of_involved_blocks,
+        'dependency_signals' : state_update_signals,
         'blocks'             : blocks_that_need_a_state_update,
         'clusters'           : clusters_needed_for_state_update_of_involved_blocks,
-        'input_signals'      : list(input_signals) # [] # TODO: fill in
+        'input_signals'      : list(input_signals)
     }
 
     # build manifest
@@ -443,7 +467,7 @@ def compile_single_system(
         system,
         computation_plan,
         manifest,
-        blocksWhoseStatesToUpdate_All
+        blocks_that_need_a_state_update
     )
 
     # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten

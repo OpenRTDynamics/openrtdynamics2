@@ -534,7 +534,7 @@ class BuildExecutionPath:
         # 
         self.queried_signals_by_level.append( queried_signal )
 
-        return execution_line
+        return queried_signal #, execution_line
 
 
 
@@ -731,7 +731,7 @@ class BuildExecutionPath:
             signals_needed_for_state_update_of_involved_blocks
         )
 
-        # TODO: remove this
+        # TODO: remove ExecutionLine
         return queried_signal, ExecutionLine( 
                 execution_order,
                 #dependency_signals,
@@ -806,6 +806,13 @@ class BuildExecutionPath:
         # vars
         execution_line = []
         iteration_stack_signal_to_investigate = []
+
+        # handle special case: no start signals. This happens when the cluster target signal is the output of
+        # a block only depending on its state (e.g., the delay block)
+
+        if len( start_signals ) == 0:
+            execution_line.append( cluster.destination_signal )
+            return execution_line
 
         # initiate iteration
         for start_signal in start_signals:
@@ -907,8 +914,6 @@ class BuildExecutionPath:
         """
             finish and return a plan to compute the signals
         """
-
-        execution_line_by_level = {}
 
         # finish query
         self.number_of_level = self.currently_queried_level
