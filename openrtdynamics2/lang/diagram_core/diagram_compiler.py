@@ -70,20 +70,11 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         #       the wrong block prototype to get called to produce the code (the ifsubsystem embedder is called)
 
 
-
         compile_result = compile_single_system(
             system, 
-            reduce_not_needed_code = not is_top_level_system,
             subsytem_nesting_level = level,
             expected_system_inputs = input_signals
         )
-
-
-        # # procedure commands for building/executing
-        # command_list_for_all_subsystems = []
-        # for subsystem in system.subsystems:
-        #     command_list_for_all_subsystems.append( subsystem.command_to_execute )
-
 
         # replace the execution command by one that wraps all subsystems along with the main system
         execution_command = PutSystemAndSubsystems(
@@ -124,7 +115,6 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
 
 def compile_single_system(
     system, 
-    reduce_not_needed_code = False, 
     enable_print:int=0, 
     subsytem_nesting_level : int = 0,    # 0 is the higher level system (the main system). 1 - is the first subsystem nesting level
     expected_system_inputs       = None  # the list of expected system inputs (optional)
@@ -284,123 +274,6 @@ def compile_single_system(
 
 #     ):
 
-
-
-
-
-
-    # # look into executionLineToCalculateOutputs.dependencySignals and use E.determine_execution_order( ) for each
-    # # element. Also collect the newly appearing dependency signals in a list and also 
-    # # call E.determine_execution_order( ) on them. Stop until no further dependend signal appears.
-    # # finally concatenare the execution lines
-
-    # # start with following signals to be computed
-    # #simulationInputSignalsToCalculateOutputs = executionLineToCalculateOutputs.dependencySignalsSimulationInputs
-    # #blocksToUpdateStates = executionLineToCalculateOutputs.blocksToUpdateStates
-    # #dependencySignalsThroughStates = executionLineToCalculateOutputs.dependencySignalsThroughStates
-
-    # # counter for the delay level (i.e. step through all delays present in the system)
-    # delay_level = 1
-
-
-    # # the simulation intputs needed to perform the state update
-    # # simulationInputSignalsToUpdateStates = set()
-
-    # # the list of blocks that are updated. Note: So far this list is only used to prevent
-    # # double updates.
-    # blocksWhoseStatesToUpdate_All = []
-
-    # # find out which signals must be further computed to allow a state-update of the blocks
-    # #dependencySignals__ = signals_needed_for_state_update_of_involved_blocks + simulationInputSignalsToCalculateOutputs
-
-    # dependency_signals_through_states_that_are_already_computed = set()
-    
-
-    # while True:
-
-
-    #     # collect all executions lines build in this delay level in:
-    #     #executionLinesForCurrentOrder = []
-
-    #     # iterate over all needed input signals and find out how to compute each signal
-    #     for s in list(state_update_signals):
-
-    #         # get execution line to calculate s
-    #         dep_info = dependency_graph_explorer.determine_execution_order(s, system, delay_level=delay_level)
-
-    #         # store this execution line
-    #         #executionLinesForCurrentOrder.append(executionLineForS)
-
-
-    #     # merge all lines temporarily stored in 'executionLinesForCurrentOrder' into one 'executionLineForCurrentOrder'
-    #     executionLineForCurrentOrder = ExecutionLine( [], [], [], [] )
-    #     for e in executionLinesForCurrentOrder:
-
-    #         # append execution line
-    #         executionLineForCurrentOrder.appendExecutionLine( e )
-
-    #     # update the list
-    #     dependency_signals_through_states_that_are_already_computed.update( state_update_signals )
-
-
-    #     #
-    #     # find out which blocks need a call to update their states:
-    #     # create commands for the blocks that have dependencySignals as outputs
-    #     #
-
-    #     if enable_print > 0:
-    #         print("state update of blocks that yield the following output signals:")
-
-
-
-    #     # TODO: rework this loop: use a set instead
-    #     # blocksToUpdateStates Is already computed
-
-    #     blocksWhoseStatesToUpdate = []
-
-    #     for blk in blocksToUpdateStates:
-
-    #         if not blk in blocksWhoseStatesToUpdate_All:
-    #             # only add once (e.g. to prevent multiple state-updates in case two or more signals in 
-    #             # dependencySignals are outputs of the same block)
-    #             blocksWhoseStatesToUpdate.append( blk )
-    #             blocksWhoseStatesToUpdate_All.append( blk )
-
-    #             # added  blk.toStr
-    #         else:
-    #             #
-    #             # already added blk.toStr()
-    #             pass
-
-
-
-
-    #     # create state update command and append to the list of commands to execute for state-update
-    #     #sUpCmd = CommandUpdateStates( blocksWhoseStatesToUpdate )
-    #     #commandsToExecuteForStateUpdate.append( sUpCmd )
-
-    #     # get the denpendent singals of the current delay level
-    #     # TODO important: remove the signals that are already computable from this list
-    #     #dependencySignals = executionLineForCurrentOrder.dependencySignals
-    #     dependencySignalsSimulationInputs = executionLineForCurrentOrder.dependencySignalsSimulationInputs
-    #     blocksToUpdateStates              = executionLineForCurrentOrder.blocksToUpdateStates
-    #     dependencySignalsThroughStates    = executionLineForCurrentOrder.dependencySignalsThroughStates
-
-    #     # find out which signals must be further computed to allow a state-update of the blocks
-    #     dependencySignals__ = dependencySignalsThroughStates + dependencySignalsSimulationInputs
-
-    #     # add the system inputs needed to update the states
-    #     # simulationInputSignalsToUpdateStates.update( dependencySignalsSimulationInputs )
-
-    #     # iterate
-    #     delay_level = delay_level + 1
-    #     if len(dependencySignals__) == 0:
-
-    #         break
-
-    #     if delay_level == 1000:
-    #         raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
-    #         break
 
 
 
