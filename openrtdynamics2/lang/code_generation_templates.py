@@ -92,7 +92,7 @@ class TargetGenericCpp:
     """
 
     def __init__(self, enable_tracing=False ):
-        ExecutionCommand.__init__(self)  # TODO: what is this?
+        CodeGeneratorModule.__init__(self)  # TODO: what is this?
 
         # if compile_results is not None:
         #     self.compileResults = compile_results

@@ -1,5 +1,4 @@
 from .system import *
-#from .block_prototypes import *
 from .graph_traversion import *
 from .signal_network.signals import *
 from .code_build_commands import *
@@ -36,13 +35,11 @@ class CompileResults(object):
 class CompileDiagram: # TODO: does this need to be a class? so far no.
 
     def __init__(self):
-
-        # self._manifest = None
-        self._comple_results = None
+        self._compile_results = None
 
     @property
     def compileResults(self):
-        return self._comple_results
+        return self._compile_results
     
     def traverseSubSystems(self, system : System, level, input_signals = None):
 
@@ -87,7 +84,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         system.compile_result = compile_result
 
         if is_top_level_system:
-            self._comple_results = compile_result
+            self._compile_results = compile_result
 
         return compile_result
 
@@ -107,7 +104,7 @@ class CompileDiagram: # TODO: does this need to be a class? so far no.
         if main_compile_result is None:
             raise BaseException("failed to compile system")
 
-        self._comple_results = main_compile_result
+        self._compile_results = main_compile_result
 
         return main_compile_result
 
@@ -128,14 +125,6 @@ def compile_single_system(
 
     # remove all anonymous signal
     system.resolve_anonymous_signals()
-
-
-
-    #
-    # compile the diagram: turn the blocks and signals into a tree-structure of commands to execute
-    # at runtime.
-    #
-
 
     #
     # create execution path builder that manages the graph of the diagram and markings of the graph nodes.
@@ -173,15 +162,6 @@ def compile_single_system(
                     signals_required_for_sink_blocks.update( set(  inputs_to_update_states_tmp  ) )
 
 
-    
-
-    #execution_line_to_compute_sink_blocks = ExecutionLine( [], [], sink_blocks, signals_required_for_sink_blocks )  # TODO! is this okay..? 
-
-    # add
-    # executionLineToCalculateOutputs.appendExecutionLine( execution_line_to_compute_sink_blocks )
-
-
-
 
     #
     # list of collected dependencies
@@ -211,13 +191,10 @@ def compile_single_system(
 
         dep_info = dependency_graph_explorer.determine_execution_order( s, system, delay_order )
 
-        # dependency_signals_simulation_inputs.update( set( dep_info.dependency_signals_simulation_inputs ) )
-
         blocks_to_update_states.update( set( dep_info.blocks_to_update_states ) )
         state_update_signals.update( set( dep_info.signals_needed_for_state_update_of_involved_blocks ) )
 
     signals_needed_for_state_update_of_involved_blocks_by_delay_order.append( state_update_signals )
-
 
     # go through delays
     state_update_signals.update( signals_required_for_sink_blocks )
@@ -225,23 +202,15 @@ def compile_single_system(
     while True:
 
         # inspect dependencies of signals_needed_for_state_update_of_involved_blocks
-
         state_update_signals_next = set()
 
         for s in list( state_update_signals ):
-
-            # check for 's3_i4_'
-            
-
             dep_info = dependency_graph_explorer.determine_execution_order( s, system, delay_order )
 
             blocks_to_update_states.update( set( dep_info.blocks_to_update_states ) )
             state_update_signals_next.update( set( dep_info.signals_needed_for_state_update_of_involved_blocks ) )
     
         signals_needed_for_state_update_of_involved_blocks_by_delay_order.append( state_update_signals_next )
-
-
-
 
         # iterate
         delay_order          = delay_order + 1
@@ -255,32 +224,8 @@ def compile_single_system(
             raise BaseException(Fore.GREEN + "In system " +  system.name + ": the maximal number of iterations was reached. This is likely because of an algebraic loop.")
             break
 
-
-
-# class QueriedSignal():
-#     """
-#         a structure that stores some initial results for a signal to be computed
-#     """
-#     def __init__(
-#         self,
-#         queried_signal,
-#         dependency_signals_simulation_inputs,
-#         dependency_signals_that_are_sources,
-#         dependency_signals_that_are_junctions,
-#         dependency_signals_that_depend_on_a_state_variable,
-
-#         blocks_to_update_states,  # needed?
-#         signals_needed_for_state_update_of_involved_blocks
-
-#     ):
-
-
-
-
     #
     computation_plan = dependency_graph_explorer.generate_computation_plan()
-
-
 
     # For each output generate a list of needed inputs
     o_input_signals = set() # input signals to compute the outputs
@@ -317,13 +262,10 @@ def compile_single_system(
             clusters_needed_for_state_update_of_involved_blocks.append( c )
 
     
-    
     input_signals, _ = computation_plan.find_dependencies_of_clusters(
         clusters_needed_for_state_update_of_involved_blocks,
         reset_plan_builder = True
     )  
-
-
 
     state_info = {
         'dependency_signals' : state_update_signals,
@@ -343,32 +285,22 @@ def compile_single_system(
         blocks_that_need_a_state_update
     )
 
-    # simulationInputSignalsToUpdateStates is a set. Now fix the order of the signals to be consisten
-    # simulation_input_signals_to_update_states_fixed_list = list(simulationInputSignalsToUpdateStates)
-
     # define the interfacing class
     command_to_execute_system = PutSystem(
         system = system,
         command_to_compute_clusters = command_to_compute_clusters
     )
 
-    # collect all (needed) inputs to this system TODO: remove!
-    #allinputs = set(( simulationInputSignalsToUpdateStates ))
-    #allinputs.update( simulationInputSignalsToCalculateOutputs )
-    #allinputs = list(allinputs)
-
     # collect the results
     compleResults = CompileResults( manifest, command_to_execute_system)
 
-    compleResults.inputSignals                             = manifest.system_inputs  # allinputs
-    compleResults.simulationInputSignalsToUpdateStates     = state_info['input_signals']  # simulation_input_signals_to_update_states_fixed_list
-    compleResults.simulationInputSignalsToCalculateOutputs = outputs_info['input_signals'] # simulationInputSignalsToCalculateOutputs
+    compleResults.inputSignals                             = manifest.system_inputs
+    compleResults.simulationInputSignalsToUpdateStates     = state_info['input_signals']
+    compleResults.simulationInputSignalsToCalculateOutputs = outputs_info['input_signals']
     compleResults.outputSignals                            = output_signals
-
 
     # new!!!
     compleResults.outputs = outputs_info
-
     
     #
     return compleResults

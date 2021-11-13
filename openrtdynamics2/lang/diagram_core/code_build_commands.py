@@ -9,7 +9,6 @@ from colorama import init,  Fore, Back, Style
 init(autoreset=True)
 
 from textwrap import *
-from string import Template
 
 
 #
@@ -38,7 +37,7 @@ def codegen_call_to_API_function_with_strutures(API_function_command, input_stru
 # The execution command prototype
 #
 
-class ExecutionCommand(object):
+class CodeGeneratorModule(object):
     def __init__(self):
 
         # the nesting level (by default 0)
@@ -96,13 +95,13 @@ class ExecutionCommand(object):
 
 
 # rename to CommandCalculateSignalValues
-class CommandGenerateClusters(ExecutionCommand):
+class CommandGenerateClusters(CodeGeneratorModule):
     """
 
     """
 
     def __init__(self, system, execution_plan, manifest, blocks):
-        ExecutionCommand.__init__(self)
+        CodeGeneratorModule.__init__(self)
 
         self._system                     = system
         self.clusters                    = execution_plan.clusters
@@ -243,12 +242,6 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                 lines += 'ClusterTargetValues _cluster_target_values;\n'
                 lines += '\n'
 
-                # lines += '// references / memory for I/O\n'
-                # lines += 'Inputs & _inputs;\n'
-                # lines += 'Outputs & _outputs;\n'
-                # lines += '\n'
-
-
                 lines += ''
                 lines += "\n\n// states\n"
                 for b in self.blocks:
@@ -293,8 +286,6 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
 
                     return lines
 
-
-                action_list = []
                 
                 for cluster in self.clusters:
                     
@@ -352,13 +343,6 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
                     # put code to mark the cluster as executed
                     code_for_cluster += '\n_cluster_executed[' + str( cluster.id ) + '] = true;\n'
 
-
-                    # lines += cpp_define_function_from_signals(
-                    #     '_cluster_' + str(cluster.id),
-                    #     [], # cluster.dependency_signals_simulation_inputs,
-                    #     [], # [cluster.destination_signal],
-                    #     code_for_cluster
-                    # )
                     lines += cgh.cpp_define_generic_function(
                         '_cluster_' + str(cluster.id),
                         'void',
@@ -495,7 +479,7 @@ void compute_cluster(Inputs const & inputs, int cluster_id) {
 
 
 
-class PutSystem(ExecutionCommand):
+class PutSystem(CodeGeneratorModule):
     """
         Represents a system that is represented by a class in c++
     """
@@ -503,9 +487,9 @@ class PutSystem(ExecutionCommand):
     def __init__(
         self, 
         system : System,
-        command_to_compute_clusters : ExecutionCommand,
+        command_to_compute_clusters : CodeGeneratorModule,
     ):
-        ExecutionCommand.__init__(self)
+        CodeGeneratorModule.__init__(self)
         self.executionCommands = [  command_to_compute_clusters ] 
 
         self.command_to_compute_clusters = command_to_compute_clusters
@@ -533,7 +517,7 @@ class PutSystem(ExecutionCommand):
 
     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: System with the API (" + self.nameAPI + "):")
+        print(Style.BRIGHT + Fore.YELLOW + "CodeGeneratorModule: System with the API (" + self.nameAPI + "):")
         
         for c in self.executionCommands:
             c.print_execution()
@@ -609,7 +593,7 @@ class PutSystem(ExecutionCommand):
 
 
 
-class PutSystemAndSubsystems(ExecutionCommand):
+class PutSystemAndSubsystems(CodeGeneratorModule):
     """
         Represents a system and its subsystem togethter that is represented by multiple classes in c++.
         Aditionally, they are packed into a namespace.
@@ -617,7 +601,7 @@ class PutSystemAndSubsystems(ExecutionCommand):
 
     def __init__(self, command_to_put_main_system : PutSystem, commands_to_put_subsystems : PutSystem ):
 
-        ExecutionCommand.__init__(self)
+        CodeGeneratorModule.__init__(self)
         self.executionCommands = commands_to_put_subsystems + [ command_to_put_main_system ] 
 
         self._command_to_put_main_system = command_to_put_main_system
@@ -643,7 +627,7 @@ class PutSystemAndSubsystems(ExecutionCommand):
 
     def print_execution(self):
 
-        print(Style.BRIGHT + Fore.YELLOW + "ExecutionCommand: System with the API (" + self._command_to_put_main_system.API_name + " along with subsystems):")
+        print(Style.BRIGHT + Fore.YELLOW + "CodeGeneratorModule: System with the API (" + self._command_to_put_main_system.API_name + " along with subsystems):")
         
         for c in self.executionCommands:
             c.print_execution()
