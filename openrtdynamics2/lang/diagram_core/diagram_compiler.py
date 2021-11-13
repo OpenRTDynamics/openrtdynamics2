@@ -1,8 +1,9 @@
 from .system import *
 from .graph_traversion import *
 from .signal_network.signals import *
-from .code_build_commands import *
+from .diagram_compiler import *
 from .system_manifest import *
+from .code_generator_modules import *
 
 from colorama import init,  Fore, Back, Style
 init(autoreset=True)
@@ -236,7 +237,7 @@ def compile_single_system(
         c = computation_plan.get_cluster_from_destination_signal( s )
         input_signals, _ = computation_plan.find_dependencies_of_cluster(c, reset_plan_builder = True)  
 
-        o_input_signals.update( set( input_signals ) ) # .append( input_signals )
+        o_input_signals.update( set( input_signals ) )
         o_clusters.append( c )
 
         output_to_input_matrix[ s ] = input_signals

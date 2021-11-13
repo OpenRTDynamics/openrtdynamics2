@@ -1,4 +1,4 @@
-from .lang.diagram_core.code_build_commands import *
+from .lang.diagram_core.diagram_compiler import *
 from .lang.diagram_core.system_manifest import *
 from .lang.diagram_core import diagram_compiler
 from .lang.libraries import *
@@ -86,13 +86,11 @@ class TargetTemplate:
 
         self._enable_tracing = enable_tracing
 
-#    def set_compile_results(self, compile_results : CompileResults ):
     def set_compile_results(self, compile_results ):
         
         self.compileResults = compile_results
         self.main_command = compile_results.command_to_execute
 
-#    def include_systems(self, system : SystemLibraryEntry):
     def include_systems(self, system ):
         
         self._included_systems = system
