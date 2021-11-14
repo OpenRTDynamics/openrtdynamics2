@@ -15,7 +15,6 @@ from textwrap import *
 # Code generation helper functions
 #
 
-
 def codegen_call_to_API_function_with_strutures(API_function_command, input_struct_varname, output_struct_varname):
     """
         help in code generation: create a function call to an API function (e.g. for calculating outputs or

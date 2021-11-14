@@ -5,7 +5,7 @@ from .diagram_compiler import *
 from .system_manifest import *
 from .code_generator_modules import *
 
-from colorama import init,  Fore, Back, Style
+from colorama import init, Fore, Back, Style
 init(autoreset=True)
 
 
@@ -293,16 +293,16 @@ def compile_single_system(
     )
 
     # collect the results
-    compleResults = CompileResults( manifest, command_to_execute_system)
+    comple_results = CompileResults( manifest, command_to_execute_system)
 
-    compleResults.inputSignals                             = manifest.system_inputs
-    compleResults.simulationInputSignalsToUpdateStates     = state_info['input_signals']
-    compleResults.simulationInputSignalsToCalculateOutputs = outputs_info['input_signals']
-    compleResults.outputSignals                            = output_signals
+    comple_results.inputSignals                             = manifest.system_inputs
+    comple_results.simulationInputSignalsToUpdateStates     = state_info['input_signals']
+    comple_results.simulationInputSignalsToCalculateOutputs = outputs_info['input_signals']
+    comple_results.outputSignals                            = output_signals
 
     # new!!!
-    compleResults.outputs = outputs_info
+    comple_results.outputs = outputs_info
     
     #
-    return compleResults
+    return comple_results
 

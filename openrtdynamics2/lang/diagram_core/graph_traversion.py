@@ -185,7 +185,7 @@ class ExecutionPlan():
 
     def find_dependencies_of_clusters( self, clusters, reset_plan_builder : bool = False ):
         """
-            Computes the input dependencies to compute the given list of clusters
+            Computes the input dependencies needed to compute the given list of clusters
 
             For successive calls, only the newly required dependencies are returned.
             The internal states for this behavior can be reset by calling reset_plan_builder().
@@ -595,11 +595,12 @@ class BuildExecutionPath:
 
     def _step_back_till_junction_or_input_to_create_cluster(self, destination, static_id):
         #
-        # finds: 1) dependencies for computing destination 
+        # finds: 1) dependencies to compute the given destination 
         # TODO: needs refinement..
 
         # create new cluster instance
         cluster = Cluster( destination, static_id )
+        assert destination.dependency_tree_node.cluster is None
         destination.dependency_tree_node.cluster = cluster
 
         iteration_stack_signal_to_investigate = [] # .copy()
@@ -616,14 +617,17 @@ class BuildExecutionPath:
             # signal = iteration_stack_signal_to_investigate[ -1 ]           
             signal = iteration_stack_signal_to_investigate.pop()
 
-            # mark as part of the cluster
-            signal.dependency_tree_node.cluster = cluster
-
             # extract flags
             is_junction                    = signal.dependency_tree_node.this_node_is_a_junction
             is_input                       = signal.dependency_tree_node.this_node_is_an_input
             is_depending_on_state_variable = signal.dependency_tree_node.this_node_depends_on_a_state_variable
             is_source                      = signal.dependency_tree_node.this_node_is_a_source
+
+            # mark as part of the cluster unless it is the target signal of another cluster
+            if not is_junction:
+
+                assert signal.dependency_tree_node.cluster is None
+                signal.dependency_tree_node.cluster = cluster
 
 #            is_nothing_special   = not (is_input or is_junction 
 
@@ -777,19 +781,19 @@ class BuildExecutionPath:
         #   - get dependencies for each destination signal and each junction
         #
 
-        # 
-
-        cluster_destinations = [ q.queried_signal for q in self.queried_signals_by_level ]
-        cluster_destinations.extend(
-            self.signals_that_are_junctions
+        cluster_destinations = set( [ q.queried_signal for q in self.queried_signals_by_level ] )
+        cluster_destinations.update(
+            set( self.signals_that_are_junctions )
         )
 
         clusters = []
         static_cluster_id_counter = 0 # generate a unique id for each cluster
-        for cluster_destination in cluster_destinations:
+
+        for cluster_destination in list(cluster_destinations):
+
             cluster = self._step_back_till_junction_or_input_to_create_cluster( cluster_destination, static_cluster_id_counter )
             static_cluster_id_counter += 1
-            clusters.append(cluster)
+            clusters.append( cluster )
 
             start_signals = set()
             start_signals.update( set(  cluster_destination.dependency_tree_node.cluster.dependency_signals_that_are_junctions  ) )
